@@ -107,3 +107,5 @@ go.work
 pg_data/
 
 tmp/
+
+build/
