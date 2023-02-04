@@ -1,8 +1,8 @@
 package bootstrap
 
-import "pillowww/Totw/internal/db"
+import "pillowww/titw/internal/db"
 
-func initDb() {
+func InitDb() {
 	pqConnector := new(db.PostgresAdapter)
 
 	err := db.Initialize(pqConnector)

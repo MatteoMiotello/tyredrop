@@ -1,0 +1,5 @@
+security:
+  jwt:
+    issuer: "titw"
+    expiration: 180
+    cookie-key: "auth"
