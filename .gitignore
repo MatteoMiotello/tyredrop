@@ -109,3 +109,5 @@ pg_data/
 tmp/
 
 build/
+
+sqlboiler.toml
