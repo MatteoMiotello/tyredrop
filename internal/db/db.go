@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"github.com/spf13/viper"
+	"log"
 	"time"
 )
 
@@ -23,4 +24,10 @@ func Initialize(adapter dbAdapter) error {
 
 	DB = db
 	return nil
+}
+
+func Close() {
+	if err := DB.Close(); err != nil {
+		log.Fatalf("goose: failed to close DB: %v\n", err)
+	}
 }

@@ -1,6 +1,9 @@
 package main
 
-import "pillowww/titw/internal/bootstrap"
+import (
+	"pillowww/titw/internal/bootstrap"
+	"pillowww/titw/internal/db"
+)
 
 func init() {
 	bootstrap.InitConfig()
@@ -8,5 +11,5 @@ func init() {
 }
 
 func main() {
-
+	defer db.Close()
 }

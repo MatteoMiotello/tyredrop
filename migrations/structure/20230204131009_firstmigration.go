@@ -1,4 +1,4 @@
-package migrations
+package structure
 
 import (
 	"database/sql"
@@ -34,6 +34,7 @@ func upFirstmigration(tx *sql.Tx) error {
 		FKColumn("public.currencies", "currency_id", false).
 		FKColumn("public.languages", "language_id", false).
 		Column("name", types.Varchar.Options("45"), false).
+		Column("magnification", types.Int, false).
 		CreatedColumn().
 		String()
 

@@ -3,18 +3,18 @@ package main
 import (
 	"flag"
 	"fmt"
+	_ "github.com/lib/pq"
 	"github.com/pressly/goose/v3"
 	"github.com/spf13/viper"
 	"log"
 	"os"
 	"pillowww/titw/internal/bootstrap"
-
-	_ "github.com/lib/pq"
-	_ "pillowww/titw/migrations"
+	_ "pillowww/titw/migrations/structure"
 )
 
 var (
 	flags = flag.NewFlagSet("goose", flag.ExitOnError)
+	scope = flag.String("scope", "struct", "scope")
 )
 
 func init() {
@@ -31,6 +31,12 @@ func main() {
 
 	if dir == "" {
 		dir = "./migrations"
+	}
+
+	if *scope == "seed" {
+		dir += "/seeds"
+	} else {
+		dir += "/structure"
 	}
 
 	dbString := fmt.Sprintf("postgres://%s@%s/%s?port=%s&password=%s&sslmode=disable",

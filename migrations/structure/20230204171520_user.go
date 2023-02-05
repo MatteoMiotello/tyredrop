@@ -1,4 +1,4 @@
-package migrations
+package structure
 
 import (
 	"database/sql"
@@ -76,17 +76,14 @@ func upUser(tx *sql.Tx) error {
 	if err != nil {
 		return err
 	}
-
 	_, err = tx.Exec(userRoleLanguage)
 	if err != nil {
 		return err
 	}
-
 	_, err = tx.Exec(userQuery)
 	if err != nil {
 		return err
 	}
-
 	_, err = tx.Exec(taxRateQuery)
 	if err != nil {
 		return err
