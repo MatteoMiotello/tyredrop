@@ -16,6 +16,8 @@ func upFirstmigration(tx *sql.Tx) error {
 		PKColumn().
 		Column("ISO_code", types.Varchar.Options("3"), false).
 		Column("symbol", types.Varchar.Options("1"), false).
+		Column("tag", types.Varchar.Options("45"), false).
+		Column("magnification", types.Int, false).
 		CreatedColumn().
 		String()
 
@@ -34,7 +36,6 @@ func upFirstmigration(tx *sql.Tx) error {
 		FKColumn("public.currencies", "currency_id", false).
 		FKColumn("public.languages", "language_id", false).
 		Column("name", types.Varchar.Options("45"), false).
-		Column("magnification", types.Int, false).
 		CreatedColumn().
 		String()
 

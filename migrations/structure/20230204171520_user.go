@@ -62,7 +62,8 @@ func upUser(tx *sql.Tx) error {
 		Column("surname", types.Varchar.Options("255"), false).
 		Column("fiscal_code", types.Varchar.Options("16"), false).
 		Column("vat_number", types.Varchar.Options("11"), false).
-		Column("address", types.Varchar.Options("255"), false).
+		Column("address_line_1", types.Varchar.Options("255"), false).
+		Column("address_line_2", types.Varchar.Options("255"), false).
 		Column("city", types.Varchar.Options("45"), false).
 		Column("province", types.Varchar.Options("45"), false).
 		Column("cap", types.Varchar.Options("5"), false).
@@ -100,27 +101,27 @@ func upUser(tx *sql.Tx) error {
 }
 
 func downUser(tx *sql.Tx) error {
-	_, err := tx.Exec("DROP TABLE public.user_billings IF EXISTS ")
+	_, err := tx.Exec("DROP TABLE public.user_billings  ")
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("DROP TABLE public.legal_entity_types IF EXISTS ")
+	_, err = tx.Exec("DROP TABLE public.legal_entity_types  ")
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("DROP TABLE public.tax_rates IF EXISTS ")
+	_, err = tx.Exec("DROP TABLE public.tax_rates  ")
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("DROP TABLE public.users IF EXISTS ")
+	_, err = tx.Exec("DROP TABLE public.users  ")
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("DROP TABLE public.user_role_languages IF EXISTS ")
+	_, err = tx.Exec("DROP TABLE public.user_role_languages  ")
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("DROP TABLE public.user_roles IF EXISTS ")
+	_, err = tx.Exec("DROP TABLE public.user_roles  ")
 	if err != nil {
 		return err
 	}

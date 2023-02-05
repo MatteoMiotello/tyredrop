@@ -29,6 +29,9 @@ func upRefreshtoken(tx *sql.Tx) error {
 }
 
 func downRefreshtoken(tx *sql.Tx) error {
-	// This code is executed when the migration is rolled back.
+	_, err := tx.Exec("DROP TABLE public.refresh_tokens")
+	if err != nil {
+		return err
+	}
 	return nil
 }
