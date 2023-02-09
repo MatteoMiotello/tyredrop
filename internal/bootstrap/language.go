@@ -10,6 +10,6 @@ func InitLanguage() {
 
 	err := language.SetFallbackLanguage(code)
 	if err != nil {
-		panic("error initializing default language")
+		panic("error initializing default language with error: " + err.Error())
 	}
 }

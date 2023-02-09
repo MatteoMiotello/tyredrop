@@ -25,13 +25,7 @@ type LoginResponse struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
-type SignUpPayload struct {
-	Email    string `json:"email" binding:"required" validate:"email"`
-	Username string `json:"username"`
-	Password string `json:"password" binding:"required"`
-	Name     string `json:"name"`
-	Surname  string `json:"surname"`
-}
+type SignUpPayload services.CreateUserPayload
 
 type role struct {
 	Name string `json:"name"`
@@ -138,7 +132,7 @@ func (a *AuthController) SignUp(ctx *gin.Context) {
 		}
 	}
 
-	user, err = new(services.UserService).CreateUserFromPayload(*signupPayload)
+	user, err = new(services.UserService).CreateUserFromPayload(services.CreateUserPayload(*signupPayload))
 
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)

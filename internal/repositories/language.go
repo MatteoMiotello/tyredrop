@@ -13,6 +13,6 @@ func NewLanguageRepoFromCtx(ctx context.Context) *LanguageRepo {
 	return &LanguageRepo{context: ctx}
 }
 
-func (l *LanguageRepo) FindOneFromIsoCode(isoCode string) (*models.Language, error) {
+func (l LanguageRepo) FindOneFromIsoCode(isoCode string) (*models.Language, error) {
 	return models.Languages(qm.Where("iso_code = ?", isoCode)).One(l.context, db.DB)
 }

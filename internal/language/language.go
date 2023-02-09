@@ -3,7 +3,8 @@ package language
 import (
 	"context"
 	"github.com/gin-gonic/gin"
-	"pillowww/titw/internal/repositories"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
+	"pillowww/titw/internal/db"
 	"pillowww/titw/models"
 )
 
@@ -16,7 +17,7 @@ const languageContextKey string = "language"
 var fallbackLanguage *Language
 
 func SetFallbackLanguage(isoCode string) error {
-	language, err := repositories.NewLanguageRepoFromCtx(context.Background()).FindOneFromIsoCode(isoCode)
+	language, err := models.Languages(qm.Where("iso_code = ?", isoCode)).One(context.Background(), db.DB)
 
 	if err != nil {
 		return err
