@@ -22,6 +22,7 @@ func upUser(tx *sql.Tx) error {
 	userRoleLanguage := sqlbuilder.CreateTable("public.user_role_languages").
 		PKColumn().
 		FKColumn("public.languages", "language_id", false).
+		FKColumn("public.user_roles", "user_role_id", false).
 		Column("name", types.Varchar.Options("45"), false).
 		CreatedColumn().
 		String()
@@ -32,7 +33,7 @@ func upUser(tx *sql.Tx) error {
 		FKColumn("public.languages", "default_language_id", false).
 		Column("email", types.Varchar.Options("100"), false).
 		Column("username", types.Varchar.Options("100"), true).
-		Column("password", types.Varchar.Options("255"), true).
+		Column("password", types.Varchar.Options("255"), false).
 		Column("name", types.Varchar.Options("100"), false).
 		Column("surname", types.Varchar.Options("100"), false).
 		DeletedColumn().

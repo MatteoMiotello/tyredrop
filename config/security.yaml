@@ -1,5 +1,6 @@
 security:
   jwt:
     issuer: "titw"
-    expiration: 180
+    access_token_expiration: 7
+    refresh_token_expiration: 720
     cookie-key: "auth"

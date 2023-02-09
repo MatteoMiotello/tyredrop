@@ -29,7 +29,7 @@ type User struct {
 	DefaultLanguageID int64       `boil:"default_language_id" json:"default_language_id" toml:"default_language_id" yaml:"default_language_id"`
 	Email             string      `boil:"email" json:"email" toml:"email" yaml:"email"`
 	Username          null.String `boil:"username" json:"username,omitempty" toml:"username" yaml:"username,omitempty"`
-	Password          null.String `boil:"password" json:"password,omitempty" toml:"password" yaml:"password,omitempty"`
+	Password          string      `boil:"password" json:"password" toml:"password" yaml:"password"`
 	Name              string      `boil:"name" json:"name" toml:"name" yaml:"name"`
 	Surname           string      `boil:"surname" json:"surname" toml:"surname" yaml:"surname"`
 	DeletedAt         null.Time   `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
@@ -100,7 +100,7 @@ var UserWhere = struct {
 	DefaultLanguageID whereHelperint64
 	Email             whereHelperstring
 	Username          whereHelpernull_String
-	Password          whereHelpernull_String
+	Password          whereHelperstring
 	Name              whereHelperstring
 	Surname           whereHelperstring
 	DeletedAt         whereHelpernull_Time
@@ -112,7 +112,7 @@ var UserWhere = struct {
 	DefaultLanguageID: whereHelperint64{field: "\"users\".\"default_language_id\""},
 	Email:             whereHelperstring{field: "\"users\".\"email\""},
 	Username:          whereHelpernull_String{field: "\"users\".\"username\""},
-	Password:          whereHelpernull_String{field: "\"users\".\"password\""},
+	Password:          whereHelperstring{field: "\"users\".\"password\""},
 	Name:              whereHelperstring{field: "\"users\".\"name\""},
 	Surname:           whereHelperstring{field: "\"users\".\"surname\""},
 	DeletedAt:         whereHelpernull_Time{field: "\"users\".\"deleted_at\""},
@@ -189,8 +189,8 @@ type userL struct{}
 
 var (
 	userAllColumns            = []string{"id", "user_role_id", "default_language_id", "email", "username", "password", "name", "surname", "deleted_at", "updated_at", "created_at"}
-	userColumnsWithoutDefault = []string{"email", "name", "surname"}
-	userColumnsWithDefault    = []string{"id", "user_role_id", "default_language_id", "username", "password", "deleted_at", "updated_at", "created_at"}
+	userColumnsWithoutDefault = []string{"email", "password", "name", "surname"}
+	userColumnsWithDefault    = []string{"id", "user_role_id", "default_language_id", "username", "deleted_at", "updated_at", "created_at"}
 	userPrimaryKeyColumns     = []string{"id"}
 	userGeneratedColumns      = []string{}
 )

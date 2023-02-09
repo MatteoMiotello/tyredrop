@@ -53,11 +53,11 @@ func upOrder(tx *sql.Tx) error {
 }
 
 func downOrder(tx *sql.Tx) error {
-	_, err := tx.Exec(" DROP TABLE IF EXISTS public.orders")
+	_, err := tx.Exec(" DROP TABLE IF EXISTS public.order_rows")
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec(" DROP TABLE IF EXISTS public.order_rows")
+	_, err = tx.Exec(" DROP TABLE IF EXISTS public.orders")
 	if err != nil {
 		return err
 	}

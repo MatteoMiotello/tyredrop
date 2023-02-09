@@ -9,12 +9,13 @@ import (
 	"log"
 	"os"
 	"pillowww/titw/internal/bootstrap"
+	_ "pillowww/titw/migrations/seeds"
 	_ "pillowww/titw/migrations/structure"
 )
 
 var (
 	flags = flag.NewFlagSet("goose", flag.ExitOnError)
-	scope = flag.String("scope", "struct", "scope")
+	scope = flags.String("scope", "struct", "scope")
 )
 
 func init() {

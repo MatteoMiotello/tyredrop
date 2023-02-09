@@ -23,47 +23,47 @@ import (
 
 // Currency is an object representing the database table.
 type Currency struct {
-	ID            int64     `boil:"id" json:"id" toml:"id" yaml:"id"`
-	IsoCode       string    `boil:"iso_code" json:"iso_code" toml:"iso_code" yaml:"iso_code"`
-	Symbol        string    `boil:"symbol" json:"symbol" toml:"symbol" yaml:"symbol"`
-	Tag           string    `boil:"tag" json:"tag" toml:"tag" yaml:"tag"`
-	Magnification int       `boil:"magnification" json:"magnification" toml:"magnification" yaml:"magnification"`
-	CreatedAt     time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	ID        int64     `boil:"id" json:"id" toml:"id" yaml:"id"`
+	IsoCode   string    `boil:"iso_code" json:"iso_code" toml:"iso_code" yaml:"iso_code"`
+	Symbol    string    `boil:"symbol" json:"symbol" toml:"symbol" yaml:"symbol"`
+	Tag       string    `boil:"tag" json:"tag" toml:"tag" yaml:"tag"`
+	Precision int       `boil:"precision" json:"precision" toml:"precision" yaml:"precision"`
+	CreatedAt time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 
 	R *currencyR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L currencyL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var CurrencyColumns = struct {
-	ID            string
-	IsoCode       string
-	Symbol        string
-	Tag           string
-	Magnification string
-	CreatedAt     string
+	ID        string
+	IsoCode   string
+	Symbol    string
+	Tag       string
+	Precision string
+	CreatedAt string
 }{
-	ID:            "id",
-	IsoCode:       "iso_code",
-	Symbol:        "symbol",
-	Tag:           "tag",
-	Magnification: "magnification",
-	CreatedAt:     "created_at",
+	ID:        "id",
+	IsoCode:   "iso_code",
+	Symbol:    "symbol",
+	Tag:       "tag",
+	Precision: "precision",
+	CreatedAt: "created_at",
 }
 
 var CurrencyTableColumns = struct {
-	ID            string
-	IsoCode       string
-	Symbol        string
-	Tag           string
-	Magnification string
-	CreatedAt     string
+	ID        string
+	IsoCode   string
+	Symbol    string
+	Tag       string
+	Precision string
+	CreatedAt string
 }{
-	ID:            "currencies.id",
-	IsoCode:       "currencies.iso_code",
-	Symbol:        "currencies.symbol",
-	Tag:           "currencies.tag",
-	Magnification: "currencies.magnification",
-	CreatedAt:     "currencies.created_at",
+	ID:        "currencies.id",
+	IsoCode:   "currencies.iso_code",
+	Symbol:    "currencies.symbol",
+	Tag:       "currencies.tag",
+	Precision: "currencies.precision",
+	CreatedAt: "currencies.created_at",
 }
 
 // Generated where
@@ -92,19 +92,19 @@ func (w whereHelperint) NIN(slice []int) qm.QueryMod {
 }
 
 var CurrencyWhere = struct {
-	ID            whereHelperint64
-	IsoCode       whereHelperstring
-	Symbol        whereHelperstring
-	Tag           whereHelperstring
-	Magnification whereHelperint
-	CreatedAt     whereHelpertime_Time
+	ID        whereHelperint64
+	IsoCode   whereHelperstring
+	Symbol    whereHelperstring
+	Tag       whereHelperstring
+	Precision whereHelperint
+	CreatedAt whereHelpertime_Time
 }{
-	ID:            whereHelperint64{field: "\"currencies\".\"id\""},
-	IsoCode:       whereHelperstring{field: "\"currencies\".\"iso_code\""},
-	Symbol:        whereHelperstring{field: "\"currencies\".\"symbol\""},
-	Tag:           whereHelperstring{field: "\"currencies\".\"tag\""},
-	Magnification: whereHelperint{field: "\"currencies\".\"magnification\""},
-	CreatedAt:     whereHelpertime_Time{field: "\"currencies\".\"created_at\""},
+	ID:        whereHelperint64{field: "\"currencies\".\"id\""},
+	IsoCode:   whereHelperstring{field: "\"currencies\".\"iso_code\""},
+	Symbol:    whereHelperstring{field: "\"currencies\".\"symbol\""},
+	Tag:       whereHelperstring{field: "\"currencies\".\"tag\""},
+	Precision: whereHelperint{field: "\"currencies\".\"precision\""},
+	CreatedAt: whereHelpertime_Time{field: "\"currencies\".\"created_at\""},
 }
 
 // CurrencyRels is where relationship names are stored.
@@ -175,8 +175,8 @@ func (r *currencyR) GetSuppliers() SupplierSlice {
 type currencyL struct{}
 
 var (
-	currencyAllColumns            = []string{"id", "iso_code", "symbol", "tag", "magnification", "created_at"}
-	currencyColumnsWithoutDefault = []string{"iso_code", "symbol", "tag", "magnification"}
+	currencyAllColumns            = []string{"id", "iso_code", "symbol", "tag", "precision", "created_at"}
+	currencyColumnsWithoutDefault = []string{"iso_code", "symbol", "tag", "precision"}
 	currencyColumnsWithDefault    = []string{"id", "created_at"}
 	currencyPrimaryKeyColumns     = []string{"id"}
 	currencyGeneratedColumns      = []string{}

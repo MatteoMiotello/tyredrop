@@ -17,7 +17,7 @@ func upFirstmigration(tx *sql.Tx) error {
 		Column("ISO_code", types.Varchar.Options("3"), false).
 		Column("symbol", types.Varchar.Options("1"), false).
 		Column("tag", types.Varchar.Options("45"), false).
-		Column("magnification", types.Int, false).
+		Column("precision", types.Int, false).
 		CreatedColumn().
 		String()
 

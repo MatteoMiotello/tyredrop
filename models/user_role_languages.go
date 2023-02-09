@@ -25,6 +25,7 @@ import (
 type UserRoleLanguage struct {
 	ID         int64     `boil:"id" json:"id" toml:"id" yaml:"id"`
 	LanguageID int64     `boil:"language_id" json:"language_id" toml:"language_id" yaml:"language_id"`
+	UserRoleID int64     `boil:"user_role_id" json:"user_role_id" toml:"user_role_id" yaml:"user_role_id"`
 	Name       string    `boil:"name" json:"name" toml:"name" yaml:"name"`
 	CreatedAt  time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 
@@ -35,11 +36,13 @@ type UserRoleLanguage struct {
 var UserRoleLanguageColumns = struct {
 	ID         string
 	LanguageID string
+	UserRoleID string
 	Name       string
 	CreatedAt  string
 }{
 	ID:         "id",
 	LanguageID: "language_id",
+	UserRoleID: "user_role_id",
 	Name:       "name",
 	CreatedAt:  "created_at",
 }
@@ -47,11 +50,13 @@ var UserRoleLanguageColumns = struct {
 var UserRoleLanguageTableColumns = struct {
 	ID         string
 	LanguageID string
+	UserRoleID string
 	Name       string
 	CreatedAt  string
 }{
 	ID:         "user_role_languages.id",
 	LanguageID: "user_role_languages.language_id",
+	UserRoleID: "user_role_languages.user_role_id",
 	Name:       "user_role_languages.name",
 	CreatedAt:  "user_role_languages.created_at",
 }
@@ -61,11 +66,13 @@ var UserRoleLanguageTableColumns = struct {
 var UserRoleLanguageWhere = struct {
 	ID         whereHelperint64
 	LanguageID whereHelperint64
+	UserRoleID whereHelperint64
 	Name       whereHelperstring
 	CreatedAt  whereHelpertime_Time
 }{
 	ID:         whereHelperint64{field: "\"user_role_languages\".\"id\""},
 	LanguageID: whereHelperint64{field: "\"user_role_languages\".\"language_id\""},
+	UserRoleID: whereHelperint64{field: "\"user_role_languages\".\"user_role_id\""},
 	Name:       whereHelperstring{field: "\"user_role_languages\".\"name\""},
 	CreatedAt:  whereHelpertime_Time{field: "\"user_role_languages\".\"created_at\""},
 }
@@ -73,13 +80,16 @@ var UserRoleLanguageWhere = struct {
 // UserRoleLanguageRels is where relationship names are stored.
 var UserRoleLanguageRels = struct {
 	Language string
+	UserRole string
 }{
 	Language: "Language",
+	UserRole: "UserRole",
 }
 
 // userRoleLanguageR is where relationships are stored.
 type userRoleLanguageR struct {
 	Language *Language `boil:"Language" json:"Language" toml:"Language" yaml:"Language"`
+	UserRole *UserRole `boil:"UserRole" json:"UserRole" toml:"UserRole" yaml:"UserRole"`
 }
 
 // NewStruct creates a new relationship struct
@@ -94,13 +104,20 @@ func (r *userRoleLanguageR) GetLanguage() *Language {
 	return r.Language
 }
 
+func (r *userRoleLanguageR) GetUserRole() *UserRole {
+	if r == nil {
+		return nil
+	}
+	return r.UserRole
+}
+
 // userRoleLanguageL is where Load methods for each relationship are stored.
 type userRoleLanguageL struct{}
 
 var (
-	userRoleLanguageAllColumns            = []string{"id", "language_id", "name", "created_at"}
+	userRoleLanguageAllColumns            = []string{"id", "language_id", "user_role_id", "name", "created_at"}
 	userRoleLanguageColumnsWithoutDefault = []string{"name"}
-	userRoleLanguageColumnsWithDefault    = []string{"id", "language_id", "created_at"}
+	userRoleLanguageColumnsWithDefault    = []string{"id", "language_id", "user_role_id", "created_at"}
 	userRoleLanguagePrimaryKeyColumns     = []string{"id"}
 	userRoleLanguageGeneratedColumns      = []string{}
 )
@@ -394,6 +411,17 @@ func (o *UserRoleLanguage) Language(mods ...qm.QueryMod) languageQuery {
 	return Languages(queryMods...)
 }
 
+// UserRole pointed to by the foreign key.
+func (o *UserRoleLanguage) UserRole(mods ...qm.QueryMod) userRoleQuery {
+	queryMods := []qm.QueryMod{
+		qm.Where("\"id\" = ?", o.UserRoleID),
+	}
+
+	queryMods = append(queryMods, mods...)
+
+	return UserRoles(queryMods...)
+}
+
 // LoadLanguage allows an eager lookup of values, cached into the
 // loaded structs of the objects. This is for an N-1 relationship.
 func (userRoleLanguageL) LoadLanguage(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUserRoleLanguage interface{}, mods queries.Applicator) error {
@@ -514,6 +542,126 @@ func (userRoleLanguageL) LoadLanguage(ctx context.Context, e boil.ContextExecuto
 	return nil
 }
 
+// LoadUserRole allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for an N-1 relationship.
+func (userRoleLanguageL) LoadUserRole(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUserRoleLanguage interface{}, mods queries.Applicator) error {
+	var slice []*UserRoleLanguage
+	var object *UserRoleLanguage
+
+	if singular {
+		var ok bool
+		object, ok = maybeUserRoleLanguage.(*UserRoleLanguage)
+		if !ok {
+			object = new(UserRoleLanguage)
+			ok = queries.SetFromEmbeddedStruct(&object, &maybeUserRoleLanguage)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", object, maybeUserRoleLanguage))
+			}
+		}
+	} else {
+		s, ok := maybeUserRoleLanguage.(*[]*UserRoleLanguage)
+		if ok {
+			slice = *s
+		} else {
+			ok = queries.SetFromEmbeddedStruct(&slice, maybeUserRoleLanguage)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", slice, maybeUserRoleLanguage))
+			}
+		}
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &userRoleLanguageR{}
+		}
+		args = append(args, object.UserRoleID)
+
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &userRoleLanguageR{}
+			}
+
+			for _, a := range args {
+				if a == obj.UserRoleID {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.UserRoleID)
+
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`user_roles`),
+		qm.WhereIn(`user_roles.id in ?`, args...),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load UserRole")
+	}
+
+	var resultSlice []*UserRole
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice UserRole")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results of eager load for user_roles")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for user_roles")
+	}
+
+	if len(userRoleAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
+				return err
+			}
+		}
+	}
+
+	if len(resultSlice) == 0 {
+		return nil
+	}
+
+	if singular {
+		foreign := resultSlice[0]
+		object.R.UserRole = foreign
+		if foreign.R == nil {
+			foreign.R = &userRoleR{}
+		}
+		foreign.R.UserRoleLanguages = append(foreign.R.UserRoleLanguages, object)
+		return nil
+	}
+
+	for _, local := range slice {
+		for _, foreign := range resultSlice {
+			if local.UserRoleID == foreign.ID {
+				local.R.UserRole = foreign
+				if foreign.R == nil {
+					foreign.R = &userRoleR{}
+				}
+				foreign.R.UserRoleLanguages = append(foreign.R.UserRoleLanguages, local)
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
 // SetLanguage of the userRoleLanguage to the related item.
 // Sets o.R.Language to related.
 // Adds o to related.R.UserRoleLanguages.
@@ -552,6 +700,53 @@ func (o *UserRoleLanguage) SetLanguage(ctx context.Context, exec boil.ContextExe
 
 	if related.R == nil {
 		related.R = &languageR{
+			UserRoleLanguages: UserRoleLanguageSlice{o},
+		}
+	} else {
+		related.R.UserRoleLanguages = append(related.R.UserRoleLanguages, o)
+	}
+
+	return nil
+}
+
+// SetUserRole of the userRoleLanguage to the related item.
+// Sets o.R.UserRole to related.
+// Adds o to related.R.UserRoleLanguages.
+func (o *UserRoleLanguage) SetUserRole(ctx context.Context, exec boil.ContextExecutor, insert bool, related *UserRole) error {
+	var err error
+	if insert {
+		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
+			return errors.Wrap(err, "failed to insert into foreign table")
+		}
+	}
+
+	updateQuery := fmt.Sprintf(
+		"UPDATE \"user_role_languages\" SET %s WHERE %s",
+		strmangle.SetParamNames("\"", "\"", 1, []string{"user_role_id"}),
+		strmangle.WhereClause("\"", "\"", 2, userRoleLanguagePrimaryKeyColumns),
+	)
+	values := []interface{}{related.ID, o.ID}
+
+	if boil.IsDebug(ctx) {
+		writer := boil.DebugWriterFrom(ctx)
+		fmt.Fprintln(writer, updateQuery)
+		fmt.Fprintln(writer, values)
+	}
+	if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+		return errors.Wrap(err, "failed to update local table")
+	}
+
+	o.UserRoleID = related.ID
+	if o.R == nil {
+		o.R = &userRoleLanguageR{
+			UserRole: related,
+		}
+	} else {
+		o.R.UserRole = related
+	}
+
+	if related.R == nil {
+		related.R = &userRoleR{
 			UserRoleLanguages: UserRoleLanguageSlice{o},
 		}
 	} else {
