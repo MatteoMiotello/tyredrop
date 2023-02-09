@@ -31,7 +31,7 @@ func (u UserRoleRepo) FindByRoleCode(roleCode UserRoleSet) (*models.UserRole, er
 func (u UserRoleRepo) GetLanguage(role *models.UserRole) (*models.UserRoleLanguage, error) {
 	language := language.FromContext(u.context)
 
-	l, err := role.UserRoleLanguages(qm.Where("language= ?", language.Language.ID)).One(u.context, db.DB)
+	l, err := role.UserRoleLanguages(qm.Where(models.UserRoleLanguageColumns.LanguageID+"= ?", language.Language.ID)).One(u.context, db.DB)
 	if err != nil {
 		return nil, err
 	}

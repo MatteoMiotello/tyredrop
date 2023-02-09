@@ -132,14 +132,20 @@ func (a *AuthController) SignUp(ctx *gin.Context) {
 		}
 	}
 
-	user, err = new(services.UserService).CreateUserFromPayload(services.CreateUserPayload(*signupPayload))
+	user, err = services.NewUserService().CreateUserFromPayload(ctx, services.CreateUserPayload(*signupPayload))
 
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	r := user.R.UserRole
+	r, err := userRepo.GetUserRole(user)
+
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: "user role not found for user"})
+		return
+	}
+
 	rLang, err := repositories.NewUserRoleRepoFromCtx(ctx).GetLanguage(r)
 
 	if err != nil {

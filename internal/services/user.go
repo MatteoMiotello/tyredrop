@@ -1,14 +1,19 @@
 package services
 
 import (
+	"context"
 	"github.com/volatiletech/null/v8"
+	"pillowww/titw/internal/language"
 	"pillowww/titw/internal/repositories"
 	"pillowww/titw/models"
 	"pillowww/titw/pkg/security"
 )
 
 type UserService struct {
-	User models.User
+}
+
+func NewUserService() *UserService {
+	return new(UserService)
 }
 
 type CreateUserPayload struct {
@@ -19,9 +24,10 @@ type CreateUserPayload struct {
 	Surname  string `json:"surname"`
 }
 
-func (s *UserService) CreateUserFromPayload(payload CreateUserPayload) (*models.User, error) {
-	userRoleRepo := new(repositories.UserRoleRepo)
-	userRepo := new(repositories.UserRepo)
+func (s *UserService) CreateUserFromPayload(ctx context.Context, payload CreateUserPayload) (*models.User, error) {
+	userRoleRepo := repositories.NewUserRoleRepoFromCtx(ctx)
+	userRepo := repositories.NewUserRepoWithCtx(ctx)
+	defLanguage := language.FromContext(ctx).Language
 	adminRole, err := userRoleRepo.FindByRoleCode(repositories.USER_ROLE)
 
 	if err != nil {
@@ -35,20 +41,19 @@ func (s *UserService) CreateUserFromPayload(payload CreateUserPayload) (*models.
 	}
 
 	newUser := models.User{
-		Email:      payload.Email,
-		Username:   null.StringFrom(payload.Username),
-		Password:   string(password),
-		Name:       payload.Name,
-		Surname:    payload.Surname,
-		UserRoleID: adminRole.ID,
+		Email:             payload.Email,
+		Username:          null.StringFrom(payload.Username),
+		Password:          string(password),
+		Name:              payload.Name,
+		Surname:           payload.Surname,
+		UserRoleID:        adminRole.ID,
+		DefaultLanguageID: defLanguage.ID,
 	}
 
 	err = userRepo.Insert(&newUser)
 	if err != nil {
 		return nil, err
 	}
-
-	s.User = newUser
 
 	return &newUser, nil
 }

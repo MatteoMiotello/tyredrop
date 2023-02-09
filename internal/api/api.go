@@ -11,7 +11,7 @@ func Serve() {
 	registerGlobalMiddlewares(router)
 	registerRoutes(router)
 
-	err := router.Run(":" + viper.GetString("api.base_endpoint"))
+	err := router.Run(":" + viper.GetString("api.port"))
 
 	if err != nil {
 		panic("error starting api")

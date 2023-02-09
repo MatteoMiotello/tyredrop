@@ -14,5 +14,5 @@ func NewLanguageRepoFromCtx(ctx context.Context) *LanguageRepo {
 }
 
 func (l LanguageRepo) FindOneFromIsoCode(isoCode string) (*models.Language, error) {
-	return models.Languages(qm.Where("iso_code = ?", isoCode)).One(l.context, db.DB)
+	return models.Languages(qm.Where(models.LanguageColumns.IsoCode+"= ?", isoCode)).One(l.context, db.DB)
 }
