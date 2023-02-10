@@ -11,7 +11,7 @@ import (
 
 type UserJwtClaims struct {
 	jwt.RegisteredClaims
-	UserId   int64
+	UserID   int64
 	Email    string
 	Name     null.String
 	Username null.String
@@ -27,7 +27,7 @@ func CreateAccessTokenFromUser(user models.User) (string, error) {
 	expiration := jwt.NewNumericDate(time.Now().Add(time.Duration(expirationMin) * time.Minute))
 
 	userClaims := UserJwtClaims{
-		UserId:   user.ID,
+		UserID:   user.ID,
 		Email:    user.Email,
 		Username: user.Username,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -65,4 +65,16 @@ func CreateUniqueRefreshToken() (string, error) {
 	}
 
 	return signedString, nil
+}
+
+func ParseUserJwt(token string) (*UserJwtClaims, error) {
+	t, err := jwt.ParseWithClaims(token, &UserJwtClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(viper.GetString("JWT_SECRET")), nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return t.Claims.(*UserJwtClaims), nil
 }

@@ -152,7 +152,8 @@ func (a *AuthController) SignUp(ctx *gin.Context) {
 		return
 	}
 
-	rLang, err := repositories.NewUserRoleRepoFromCtx(ctx).GetLanguage(r)
+	language := *services.AuthServiceFromCtx(ctx).Language.L
+	rLang, err := repositories.NewUserRoleRepoFromCtx(ctx).GetLanguage(r, language)
 
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)

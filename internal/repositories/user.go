@@ -33,3 +33,7 @@ func (u UserRepo) Insert(user *models.User) error {
 func (u UserRepo) GetUserRole(user *models.User) (*models.UserRole, error) {
 	return user.UserRole().One(u.context, db.DB)
 }
+
+func (u UserRepo) GetDefaultLanguage(user models.User) (*models.Language, error) {
+	return user.DefaultLanguage().One(u.context, db.DB)
+}

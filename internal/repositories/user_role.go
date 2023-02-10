@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"pillowww/titw/internal/db"
-	"pillowww/titw/internal/language"
 	"pillowww/titw/models"
 )
 
@@ -28,10 +27,8 @@ func (u UserRoleRepo) FindByRoleCode(roleCode UserRoleSet) (*models.UserRole, er
 	return models.UserRoles(qm.Where("role_code = ?", string(roleCode))).One(u.context, db.DB)
 }
 
-func (u UserRoleRepo) GetLanguage(role *models.UserRole) (*models.UserRoleLanguage, error) {
-	language := language.FromContext(u.context)
-
-	l, err := role.UserRoleLanguages(qm.Where(models.UserRoleLanguageColumns.LanguageID+"= ?", language.Language.ID)).One(u.context, db.DB)
+func (u UserRoleRepo) GetLanguage(role *models.UserRole, language models.Language) (*models.UserRoleLanguage, error) {
+	l, err := role.UserRoleLanguages(qm.Where(models.UserRoleLanguageColumns.LanguageID+"= ?", language.ID)).One(u.context, db.DB)
 	if err != nil {
 		return nil, err
 	}

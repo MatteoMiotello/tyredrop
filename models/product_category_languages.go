@@ -89,13 +89,13 @@ var ProductCategoryLanguageRels = struct {
 	Language        string
 	ProductCategory string
 }{
-	Language:        "Language",
+	Language:        "L",
 	ProductCategory: "ProductCategory",
 }
 
 // productCategoryLanguageR is where relationships are stored.
 type productCategoryLanguageR struct {
-	Language        *Language        `boil:"Language" json:"Language" toml:"Language" yaml:"Language"`
+	Language        *Language        `boil:"L" json:"L" toml:"L" yaml:"L"`
 	ProductCategory *ProductCategory `boil:"ProductCategory" json:"ProductCategory" toml:"ProductCategory" yaml:"ProductCategory"`
 }
 
@@ -496,12 +496,12 @@ func (productCategoryLanguageL) LoadLanguage(ctx context.Context, e boil.Context
 
 	results, err := query.QueryContext(ctx, e)
 	if err != nil {
-		return errors.Wrap(err, "failed to eager load Language")
+		return errors.Wrap(err, "failed to eager load L")
 	}
 
 	var resultSlice []*Language
 	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice Language")
+		return errors.Wrap(err, "failed to bind eager loaded slice L")
 	}
 
 	if err = results.Close(); err != nil {
@@ -671,7 +671,7 @@ func (productCategoryLanguageL) LoadProductCategory(ctx context.Context, e boil.
 }
 
 // SetLanguage of the productCategoryLanguage to the related item.
-// Sets o.R.Language to related.
+// Sets o.R.L to related.
 // Adds o to related.R.ProductCategoryLanguages.
 func (o *ProductCategoryLanguage) SetLanguage(ctx context.Context, exec boil.ContextExecutor, insert bool, related *Language) error {
 	var err error

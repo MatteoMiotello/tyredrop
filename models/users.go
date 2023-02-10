@@ -604,12 +604,12 @@ func (userL) LoadDefaultLanguage(ctx context.Context, e boil.ContextExecutor, si
 
 	results, err := query.QueryContext(ctx, e)
 	if err != nil {
-		return errors.Wrap(err, "failed to eager load Language")
+		return errors.Wrap(err, "failed to eager load L")
 	}
 
 	var resultSlice []*Language
 	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice Language")
+		return errors.Wrap(err, "failed to bind eager loaded slice L")
 	}
 
 	if err = results.Close(); err != nil {

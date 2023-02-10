@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/spf13/viper"
 	"github.com/volatiletech/null/v8"
-	"pillowww/titw/internal/language"
 	"pillowww/titw/internal/repositories"
 	"pillowww/titw/models"
 	"pillowww/titw/pkg/security"
@@ -32,7 +31,7 @@ type CreateUserPayload struct {
 func CreateUserFromPayload(ctx context.Context, payload CreateUserPayload) (*models.User, error) {
 	userRoleRepo := repositories.NewUserRoleRepoFromCtx(ctx)
 	userRepo := repositories.NewUserRepoWithCtx(ctx)
-	defLanguage := language.FromContext(ctx).Language
+	defLanguage := AuthServiceFromCtx(ctx).Language.L
 	adminRole, err := userRoleRepo.FindByRoleCode(repositories.USER_ROLE)
 
 	if err != nil {
