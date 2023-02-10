@@ -617,6 +617,7 @@ func (productLanguageL) LoadProduct(ctx context.Context, e boil.ContextExecutor,
 	query := NewQuery(
 		qm.From(`products`),
 		qm.WhereIn(`products.id in ?`, args...),
+		qmhelper.WhereIsNull(`products.deleted_at`),
 	)
 	if mods != nil {
 		mods.Apply(query)

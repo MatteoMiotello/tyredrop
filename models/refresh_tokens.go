@@ -27,6 +27,7 @@ type RefreshToken struct {
 	ID           int64     `boil:"id" json:"id" toml:"id" yaml:"id"`
 	UserID       int64     `boil:"user_id" json:"user_id" toml:"user_id" yaml:"user_id"`
 	RefreshToken string    `boil:"refresh_token" json:"refresh_token" toml:"refresh_token" yaml:"refresh_token"`
+	ExpiresAt    time.Time `boil:"expires_at" json:"expires_at" toml:"expires_at" yaml:"expires_at"`
 	TimeLastUse  null.Time `boil:"time_last_use" json:"time_last_use,omitempty" toml:"time_last_use" yaml:"time_last_use,omitempty"`
 	DeletedAt    null.Time `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
 	CreatedAt    time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
@@ -39,6 +40,7 @@ var RefreshTokenColumns = struct {
 	ID           string
 	UserID       string
 	RefreshToken string
+	ExpiresAt    string
 	TimeLastUse  string
 	DeletedAt    string
 	CreatedAt    string
@@ -46,6 +48,7 @@ var RefreshTokenColumns = struct {
 	ID:           "id",
 	UserID:       "user_id",
 	RefreshToken: "refresh_token",
+	ExpiresAt:    "expires_at",
 	TimeLastUse:  "time_last_use",
 	DeletedAt:    "deleted_at",
 	CreatedAt:    "created_at",
@@ -55,6 +58,7 @@ var RefreshTokenTableColumns = struct {
 	ID           string
 	UserID       string
 	RefreshToken string
+	ExpiresAt    string
 	TimeLastUse  string
 	DeletedAt    string
 	CreatedAt    string
@@ -62,6 +66,7 @@ var RefreshTokenTableColumns = struct {
 	ID:           "refresh_tokens.id",
 	UserID:       "refresh_tokens.user_id",
 	RefreshToken: "refresh_tokens.refresh_token",
+	ExpiresAt:    "refresh_tokens.expires_at",
 	TimeLastUse:  "refresh_tokens.time_last_use",
 	DeletedAt:    "refresh_tokens.deleted_at",
 	CreatedAt:    "refresh_tokens.created_at",
@@ -73,6 +78,7 @@ var RefreshTokenWhere = struct {
 	ID           whereHelperint64
 	UserID       whereHelperint64
 	RefreshToken whereHelperstring
+	ExpiresAt    whereHelpertime_Time
 	TimeLastUse  whereHelpernull_Time
 	DeletedAt    whereHelpernull_Time
 	CreatedAt    whereHelpertime_Time
@@ -80,6 +86,7 @@ var RefreshTokenWhere = struct {
 	ID:           whereHelperint64{field: "\"refresh_tokens\".\"id\""},
 	UserID:       whereHelperint64{field: "\"refresh_tokens\".\"user_id\""},
 	RefreshToken: whereHelperstring{field: "\"refresh_tokens\".\"refresh_token\""},
+	ExpiresAt:    whereHelpertime_Time{field: "\"refresh_tokens\".\"expires_at\""},
 	TimeLastUse:  whereHelpernull_Time{field: "\"refresh_tokens\".\"time_last_use\""},
 	DeletedAt:    whereHelpernull_Time{field: "\"refresh_tokens\".\"deleted_at\""},
 	CreatedAt:    whereHelpertime_Time{field: "\"refresh_tokens\".\"created_at\""},
@@ -113,8 +120,8 @@ func (r *refreshTokenR) GetUser() *User {
 type refreshTokenL struct{}
 
 var (
-	refreshTokenAllColumns            = []string{"id", "user_id", "refresh_token", "time_last_use", "deleted_at", "created_at"}
-	refreshTokenColumnsWithoutDefault = []string{"refresh_token"}
+	refreshTokenAllColumns            = []string{"id", "user_id", "refresh_token", "expires_at", "time_last_use", "deleted_at", "created_at"}
+	refreshTokenColumnsWithoutDefault = []string{"refresh_token", "expires_at"}
 	refreshTokenColumnsWithDefault    = []string{"id", "user_id", "time_last_use", "deleted_at", "created_at"}
 	refreshTokenPrimaryKeyColumns     = []string{"id"}
 	refreshTokenGeneratedColumns      = []string{}
@@ -469,6 +476,7 @@ func (refreshTokenL) LoadUser(ctx context.Context, e boil.ContextExecutor, singu
 	query := NewQuery(
 		qm.From(`users`),
 		qm.WhereIn(`users.id in ?`, args...),
+		qmhelper.WhereIsNull(`users.deleted_at`),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -578,7 +586,7 @@ func (o *RefreshToken) SetUser(ctx context.Context, exec boil.ContextExecutor, i
 
 // RefreshTokens retrieves all the records using an executor.
 func RefreshTokens(mods ...qm.QueryMod) refreshTokenQuery {
-	mods = append(mods, qm.From("\"refresh_tokens\""))
+	mods = append(mods, qm.From("\"refresh_tokens\""), qmhelper.WhereIsNull("\"refresh_tokens\".\"deleted_at\""))
 	q := NewQuery(mods...)
 	if len(queries.GetSelect(q)) == 0 {
 		queries.SetSelect(q, []string{"\"refresh_tokens\".*"})
@@ -597,7 +605,7 @@ func FindRefreshToken(ctx context.Context, exec boil.ContextExecutor, iD int64, 
 		sel = strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, selectCols), ",")
 	}
 	query := fmt.Sprintf(
-		"select %s from \"refresh_tokens\" where \"id\"=$1", sel,
+		"select %s from \"refresh_tokens\" where \"id\"=$1 and \"deleted_at\" is null", sel,
 	)
 
 	q := queries.Raw(query, iD)
@@ -956,7 +964,7 @@ func (o *RefreshToken) Upsert(ctx context.Context, exec boil.ContextExecutor, up
 
 // Delete deletes a single RefreshToken record with an executor.
 // Delete will match against the primary key column to find the record to delete.
-func (o *RefreshToken) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+func (o *RefreshToken) Delete(ctx context.Context, exec boil.ContextExecutor, hardDelete bool) (int64, error) {
 	if o == nil {
 		return 0, errors.New("models: no RefreshToken provided for delete")
 	}
@@ -965,8 +973,26 @@ func (o *RefreshToken) Delete(ctx context.Context, exec boil.ContextExecutor) (i
 		return 0, err
 	}
 
-	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), refreshTokenPrimaryKeyMapping)
-	sql := "DELETE FROM \"refresh_tokens\" WHERE \"id\"=$1"
+	var (
+		sql  string
+		args []interface{}
+	)
+	if hardDelete {
+		args = queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), refreshTokenPrimaryKeyMapping)
+		sql = "DELETE FROM \"refresh_tokens\" WHERE \"id\"=$1"
+	} else {
+		currTime := time.Now().In(boil.GetLocation())
+		o.DeletedAt = null.TimeFrom(currTime)
+		wl := []string{"deleted_at"}
+		sql = fmt.Sprintf("UPDATE \"refresh_tokens\" SET %s WHERE \"id\"=$2",
+			strmangle.SetParamNames("\"", "\"", 1, wl),
+		)
+		valueMapping, err := queries.BindMapping(refreshTokenType, refreshTokenMapping, append(wl, refreshTokenPrimaryKeyColumns...))
+		if err != nil {
+			return 0, err
+		}
+		args = queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), valueMapping)
+	}
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -991,12 +1017,17 @@ func (o *RefreshToken) Delete(ctx context.Context, exec boil.ContextExecutor) (i
 }
 
 // DeleteAll deletes all matching rows.
-func (q refreshTokenQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+func (q refreshTokenQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor, hardDelete bool) (int64, error) {
 	if q.Query == nil {
 		return 0, errors.New("models: no refreshTokenQuery provided for delete all")
 	}
 
-	queries.SetDelete(q.Query)
+	if hardDelete {
+		queries.SetDelete(q.Query)
+	} else {
+		currTime := time.Now().In(boil.GetLocation())
+		queries.SetUpdate(q.Query, M{"deleted_at": currTime})
+	}
 
 	result, err := q.Query.ExecContext(ctx, exec)
 	if err != nil {
@@ -1012,7 +1043,7 @@ func (q refreshTokenQuery) DeleteAll(ctx context.Context, exec boil.ContextExecu
 }
 
 // DeleteAll deletes all rows in the slice, using an executor.
-func (o RefreshTokenSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+func (o RefreshTokenSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor, hardDelete bool) (int64, error) {
 	if len(o) == 0 {
 		return 0, nil
 	}
@@ -1025,14 +1056,31 @@ func (o RefreshTokenSlice) DeleteAll(ctx context.Context, exec boil.ContextExecu
 		}
 	}
 
-	var args []interface{}
-	for _, obj := range o {
-		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), refreshTokenPrimaryKeyMapping)
-		args = append(args, pkeyArgs...)
+	var (
+		sql  string
+		args []interface{}
+	)
+	if hardDelete {
+		for _, obj := range o {
+			pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), refreshTokenPrimaryKeyMapping)
+			args = append(args, pkeyArgs...)
+		}
+		sql = "DELETE FROM \"refresh_tokens\" WHERE " +
+			strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, refreshTokenPrimaryKeyColumns, len(o))
+	} else {
+		currTime := time.Now().In(boil.GetLocation())
+		for _, obj := range o {
+			pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), refreshTokenPrimaryKeyMapping)
+			args = append(args, pkeyArgs...)
+			obj.DeletedAt = null.TimeFrom(currTime)
+		}
+		wl := []string{"deleted_at"}
+		sql = fmt.Sprintf("UPDATE \"refresh_tokens\" SET %s WHERE "+
+			strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 2, refreshTokenPrimaryKeyColumns, len(o)),
+			strmangle.SetParamNames("\"", "\"", 1, wl),
+		)
+		args = append([]interface{}{currTime}, args...)
 	}
-
-	sql := "DELETE FROM \"refresh_tokens\" WHERE " +
-		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, refreshTokenPrimaryKeyColumns, len(o))
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1087,7 +1135,8 @@ func (o *RefreshTokenSlice) ReloadAll(ctx context.Context, exec boil.ContextExec
 	}
 
 	sql := "SELECT \"refresh_tokens\".* FROM \"refresh_tokens\" WHERE " +
-		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, refreshTokenPrimaryKeyColumns, len(*o))
+		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, refreshTokenPrimaryKeyColumns, len(*o)) +
+		"and \"deleted_at\" is null"
 
 	q := queries.Raw(sql, args...)
 
@@ -1104,7 +1153,7 @@ func (o *RefreshTokenSlice) ReloadAll(ctx context.Context, exec boil.ContextExec
 // RefreshTokenExists checks if the RefreshToken row exists.
 func RefreshTokenExists(ctx context.Context, exec boil.ContextExecutor, iD int64) (bool, error) {
 	var exists bool
-	sql := "select exists(select 1 from \"refresh_tokens\" where \"id\"=$1 limit 1)"
+	sql := "select exists(select 1 from \"refresh_tokens\" where \"id\"=$1 and \"deleted_at\" is null limit 1)"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)

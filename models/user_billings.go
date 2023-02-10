@@ -876,6 +876,7 @@ func (userBillingL) LoadUser(ctx context.Context, e boil.ContextExecutor, singul
 	query := NewQuery(
 		qm.From(`users`),
 		qm.WhereIn(`users.id in ?`, args...),
+		qmhelper.WhereIsNull(`users.deleted_at`),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -1108,6 +1109,7 @@ func (userBillingL) LoadSuppliers(ctx context.Context, e boil.ContextExecutor, s
 	query := NewQuery(
 		qm.From(`suppliers`),
 		qm.WhereIn(`suppliers.user_billing_id in ?`, args...),
+		qmhelper.WhereIsNull(`suppliers.deleted_at`),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -1413,7 +1415,7 @@ func (o *UserBilling) AddSuppliers(ctx context.Context, exec boil.ContextExecuto
 
 // UserBillings retrieves all the records using an executor.
 func UserBillings(mods ...qm.QueryMod) userBillingQuery {
-	mods = append(mods, qm.From("\"user_billings\""))
+	mods = append(mods, qm.From("\"user_billings\""), qmhelper.WhereIsNull("\"user_billings\".\"deleted_at\""))
 	q := NewQuery(mods...)
 	if len(queries.GetSelect(q)) == 0 {
 		queries.SetSelect(q, []string{"\"user_billings\".*"})
@@ -1432,7 +1434,7 @@ func FindUserBilling(ctx context.Context, exec boil.ContextExecutor, iD int64, s
 		sel = strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, selectCols), ",")
 	}
 	query := fmt.Sprintf(
-		"select %s from \"user_billings\" where \"id\"=$1", sel,
+		"select %s from \"user_billings\" where \"id\"=$1 and \"deleted_at\" is null", sel,
 	)
 
 	q := queries.Raw(query, iD)
@@ -1801,7 +1803,7 @@ func (o *UserBilling) Upsert(ctx context.Context, exec boil.ContextExecutor, upd
 
 // Delete deletes a single UserBilling record with an executor.
 // Delete will match against the primary key column to find the record to delete.
-func (o *UserBilling) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+func (o *UserBilling) Delete(ctx context.Context, exec boil.ContextExecutor, hardDelete bool) (int64, error) {
 	if o == nil {
 		return 0, errors.New("models: no UserBilling provided for delete")
 	}
@@ -1810,8 +1812,26 @@ func (o *UserBilling) Delete(ctx context.Context, exec boil.ContextExecutor) (in
 		return 0, err
 	}
 
-	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), userBillingPrimaryKeyMapping)
-	sql := "DELETE FROM \"user_billings\" WHERE \"id\"=$1"
+	var (
+		sql  string
+		args []interface{}
+	)
+	if hardDelete {
+		args = queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), userBillingPrimaryKeyMapping)
+		sql = "DELETE FROM \"user_billings\" WHERE \"id\"=$1"
+	} else {
+		currTime := time.Now().In(boil.GetLocation())
+		o.DeletedAt = null.TimeFrom(currTime)
+		wl := []string{"deleted_at"}
+		sql = fmt.Sprintf("UPDATE \"user_billings\" SET %s WHERE \"id\"=$2",
+			strmangle.SetParamNames("\"", "\"", 1, wl),
+		)
+		valueMapping, err := queries.BindMapping(userBillingType, userBillingMapping, append(wl, userBillingPrimaryKeyColumns...))
+		if err != nil {
+			return 0, err
+		}
+		args = queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), valueMapping)
+	}
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1836,12 +1856,17 @@ func (o *UserBilling) Delete(ctx context.Context, exec boil.ContextExecutor) (in
 }
 
 // DeleteAll deletes all matching rows.
-func (q userBillingQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+func (q userBillingQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor, hardDelete bool) (int64, error) {
 	if q.Query == nil {
 		return 0, errors.New("models: no userBillingQuery provided for delete all")
 	}
 
-	queries.SetDelete(q.Query)
+	if hardDelete {
+		queries.SetDelete(q.Query)
+	} else {
+		currTime := time.Now().In(boil.GetLocation())
+		queries.SetUpdate(q.Query, M{"deleted_at": currTime})
+	}
 
 	result, err := q.Query.ExecContext(ctx, exec)
 	if err != nil {
@@ -1857,7 +1882,7 @@ func (q userBillingQuery) DeleteAll(ctx context.Context, exec boil.ContextExecut
 }
 
 // DeleteAll deletes all rows in the slice, using an executor.
-func (o UserBillingSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+func (o UserBillingSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor, hardDelete bool) (int64, error) {
 	if len(o) == 0 {
 		return 0, nil
 	}
@@ -1870,14 +1895,31 @@ func (o UserBillingSlice) DeleteAll(ctx context.Context, exec boil.ContextExecut
 		}
 	}
 
-	var args []interface{}
-	for _, obj := range o {
-		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), userBillingPrimaryKeyMapping)
-		args = append(args, pkeyArgs...)
+	var (
+		sql  string
+		args []interface{}
+	)
+	if hardDelete {
+		for _, obj := range o {
+			pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), userBillingPrimaryKeyMapping)
+			args = append(args, pkeyArgs...)
+		}
+		sql = "DELETE FROM \"user_billings\" WHERE " +
+			strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, userBillingPrimaryKeyColumns, len(o))
+	} else {
+		currTime := time.Now().In(boil.GetLocation())
+		for _, obj := range o {
+			pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), userBillingPrimaryKeyMapping)
+			args = append(args, pkeyArgs...)
+			obj.DeletedAt = null.TimeFrom(currTime)
+		}
+		wl := []string{"deleted_at"}
+		sql = fmt.Sprintf("UPDATE \"user_billings\" SET %s WHERE "+
+			strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 2, userBillingPrimaryKeyColumns, len(o)),
+			strmangle.SetParamNames("\"", "\"", 1, wl),
+		)
+		args = append([]interface{}{currTime}, args...)
 	}
-
-	sql := "DELETE FROM \"user_billings\" WHERE " +
-		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, userBillingPrimaryKeyColumns, len(o))
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1932,7 +1974,8 @@ func (o *UserBillingSlice) ReloadAll(ctx context.Context, exec boil.ContextExecu
 	}
 
 	sql := "SELECT \"user_billings\".* FROM \"user_billings\" WHERE " +
-		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, userBillingPrimaryKeyColumns, len(*o))
+		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, userBillingPrimaryKeyColumns, len(*o)) +
+		"and \"deleted_at\" is null"
 
 	q := queries.Raw(sql, args...)
 
@@ -1949,7 +1992,7 @@ func (o *UserBillingSlice) ReloadAll(ctx context.Context, exec boil.ContextExecu
 // UserBillingExists checks if the UserBilling row exists.
 func UserBillingExists(ctx context.Context, exec boil.ContextExecutor, iD int64) (bool, error) {
 	var exists bool
-	sql := "select exists(select 1 from \"user_billings\" where \"id\"=$1 limit 1)"
+	sql := "select exists(select 1 from \"user_billings\" where \"id\"=$1 and \"deleted_at\" is null limit 1)"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)

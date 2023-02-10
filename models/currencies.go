@@ -930,6 +930,7 @@ func (currencyL) LoadProductItemPrices(ctx context.Context, e boil.ContextExecut
 	query := NewQuery(
 		qm.From(`product_item_prices`),
 		qm.WhereIn(`product_item_prices.currency_id in ?`, args...),
+		qmhelper.WhereIsNull(`product_item_prices.deleted_at`),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -1044,6 +1045,7 @@ func (currencyL) LoadSuppliers(ctx context.Context, e boil.ContextExecutor, sing
 	query := NewQuery(
 		qm.From(`suppliers`),
 		qm.WhereIn(`suppliers.currency_id in ?`, args...),
+		qmhelper.WhereIsNull(`suppliers.deleted_at`),
 	)
 	if mods != nil {
 		mods.Apply(query)

@@ -609,6 +609,7 @@ func (productCategoryLanguageL) LoadProductCategory(ctx context.Context, e boil.
 	query := NewQuery(
 		qm.From(`product_categories`),
 		qm.WhereIn(`product_categories.id in ?`, args...),
+		qmhelper.WhereIsNull(`product_categories.deleted_at`),
 	)
 	if mods != nil {
 		mods.Apply(query)

@@ -4,3 +4,5 @@ security:
     access_token_expiration: 7
     refresh_token_expiration: 720
     cookie-key: "auth"
+  refresh_token:
+    expiration: 720

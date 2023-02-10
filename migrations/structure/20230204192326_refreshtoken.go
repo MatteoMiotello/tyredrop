@@ -16,6 +16,7 @@ func upRefreshtoken(tx *sql.Tx) error {
 		PKColumn().
 		FKColumn("public.users", "user_id", false).
 		Column("refresh_token", types.Varchar.Options("500"), false).
+		Column("expires_at", types.Timestamptz, false).
 		Column("time_last_use", types.Timestamptz, true).
 		DeletedColumn().
 		CreatedColumn().

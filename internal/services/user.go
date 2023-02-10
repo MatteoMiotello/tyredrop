@@ -2,18 +2,23 @@ package services
 
 import (
 	"context"
+	"github.com/spf13/viper"
 	"github.com/volatiletech/null/v8"
 	"pillowww/titw/internal/language"
 	"pillowww/titw/internal/repositories"
 	"pillowww/titw/models"
 	"pillowww/titw/pkg/security"
+	"time"
 )
 
 type UserService struct {
+	User *models.User
 }
 
-func NewUserService() *UserService {
-	return new(UserService)
+func NewUserService(user *models.User) *UserService {
+	return &UserService{
+		User: user,
+	}
 }
 
 type CreateUserPayload struct {
@@ -24,7 +29,7 @@ type CreateUserPayload struct {
 	Surname  string `json:"surname"`
 }
 
-func (s *UserService) CreateUserFromPayload(ctx context.Context, payload CreateUserPayload) (*models.User, error) {
+func CreateUserFromPayload(ctx context.Context, payload CreateUserPayload) (*models.User, error) {
 	userRoleRepo := repositories.NewUserRoleRepoFromCtx(ctx)
 	userRepo := repositories.NewUserRepoWithCtx(ctx)
 	defLanguage := language.FromContext(ctx).Language
@@ -56,4 +61,34 @@ func (s *UserService) CreateUserFromPayload(ctx context.Context, payload CreateU
 	}
 
 	return &newUser, nil
+}
+
+func (s UserService) StoreNewRefreshToken(ctx context.Context, refreshToken string) error {
+	rtRepo := repositories.NewRefreshTokenRepoFromCtx(ctx)
+
+	olds, _ := rtRepo.FindAllByUser(*s.User)
+
+	if len(olds) > 0 {
+		for _, old := range olds {
+			err := rtRepo.Delete(old)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	expirationMin := viper.GetInt("security.refresh_token.expiration")
+
+	newRt := &models.RefreshToken{
+		UserID:       s.User.ID,
+		RefreshToken: refreshToken,
+		ExpiresAt:    time.Now().Add(time.Duration(expirationMin) * time.Minute),
+	}
+
+	err := rtRepo.Insert(newRt)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

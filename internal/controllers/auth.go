@@ -60,7 +60,7 @@ func (a *AuthController) Login(ctx *gin.Context) {
 	}
 
 	if err != nil {
-		ctx.AbortWithError(http.StatusUnauthorized, err)
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, responses.ErrorResponse{Error: "incorrect username or password"})
 		return
 	}
 
@@ -74,14 +74,20 @@ func (a *AuthController) Login(ctx *gin.Context) {
 	accessToken, err := jwt.CreateAccessTokenFromUser(*user)
 
 	if err != nil {
-		ctx.AbortWithError(http.StatusInternalServerError, err)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: "error creating access token"})
 		return
 	}
 
-	refreshToken, err := jwt.CreateRefreshToken()
+	refreshToken, err := jwt.CreateUniqueRefreshToken()
 
 	if err != nil {
-		ctx.AbortWithError(http.StatusInternalServerError, err)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: "error creating refresh token"})
+		return
+	}
+
+	err = services.NewUserService(user).StoreNewRefreshToken(ctx, refreshToken)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: "error storing refresh token"})
 		return
 	}
 
@@ -106,7 +112,7 @@ func (a *AuthController) SignUp(ctx *gin.Context) {
 
 	err := ctx.BindJSON(signupPayload)
 	if err != nil {
-		ctx.AbortWithError(http.StatusBadRequest, err)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, responses.ErrorResponse{Error: err.Error()})
 		return
 	}
 
@@ -132,10 +138,10 @@ func (a *AuthController) SignUp(ctx *gin.Context) {
 		}
 	}
 
-	user, err = services.NewUserService().CreateUserFromPayload(ctx, services.CreateUserPayload(*signupPayload))
+	user, err = services.CreateUserFromPayload(ctx, services.CreateUserPayload(*signupPayload))
 
 	if err != nil {
-		ctx.AbortWithError(http.StatusInternalServerError, err)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: "error creating user: " + err.Error()})
 		return
 	}
 

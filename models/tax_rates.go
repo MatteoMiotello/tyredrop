@@ -593,6 +593,7 @@ func (taxRateL) LoadDefaultTaxRateUserBillings(ctx context.Context, e boil.Conte
 	query := NewQuery(
 		qm.From(`user_billings`),
 		qm.WhereIn(`user_billings.default_tax_rate_id in ?`, args...),
+		qmhelper.WhereIsNull(`user_billings.deleted_at`),
 	)
 	if mods != nil {
 		mods.Apply(query)
