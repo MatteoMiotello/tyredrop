@@ -6,6 +6,7 @@ require (
 	github.com/99designs/gqlgen v0.17.24
 	github.com/MatteoMiotello/go-sqlbuilder v1.0.1-0.20230121180634-020913af55f3
 	github.com/friendsofgo/errors v0.9.2
+	github.com/getsentry/sentry-go v0.18.0
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.8.2
 	github.com/golang-jwt/jwt/v4 v4.2.0
@@ -18,6 +19,7 @@ require (
 	github.com/volatiletech/sqlboiler/v4 v4.14.1
 	github.com/volatiletech/strmangle v0.0.4
 	golang.org/x/crypto v0.5.0
+	google.golang.org/appengine v1.6.7
 )
 
 require (
@@ -29,6 +31,7 @@ require (
 	github.com/go-playground/validator/v10 v10.11.2 // indirect
 	github.com/goccy/go-json v0.10.0 // indirect
 	github.com/gofrs/uuid v4.2.0+incompatible // indirect
+	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect

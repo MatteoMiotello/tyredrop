@@ -72,9 +72,5 @@ func ParseUserJwt(token string) (*UserJwtClaims, error) {
 		return []byte(viper.GetString("JWT_SECRET")), nil
 	})
 
-	if err != nil {
-		return nil, err
-	}
-
-	return t.Claims.(*UserJwtClaims), nil
+	return t.Claims.(*UserJwtClaims), err
 }

@@ -2,7 +2,7 @@ package bootstrap
 
 import (
 	"github.com/spf13/viper"
-	"pillowww/titw/internal/language"
+	"pillowww/titw/internal/domain/language"
 )
 
 func InitLanguage() {

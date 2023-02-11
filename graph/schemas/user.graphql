@@ -57,9 +57,10 @@ input CreateUserBilling {
 }
 
 type Query {
+    user(ID: ID!): User
     users: [User]
     taxRates: [TaxRate]
-    legalEntityType: [LegalEntityType]
+    legalEntityTypes: [LegalEntityType]
 }
 
 type Mutation {

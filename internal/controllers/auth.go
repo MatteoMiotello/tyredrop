@@ -3,14 +3,20 @@ package controllers
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
+	"github.com/volatiletech/null/v8"
+	"google.golang.org/appengine/log"
 	"net/http"
-	"pillowww/titw/internal/repositories"
-	"pillowww/titw/internal/services"
+	"pillowww/titw/internal/auth"
+	"pillowww/titw/internal/cookie"
+	"pillowww/titw/internal/db"
+	"pillowww/titw/internal/domain/refresh_token"
+	"pillowww/titw/internal/domain/user"
 	"pillowww/titw/models"
 	"pillowww/titw/pkg/api/responses"
 	"pillowww/titw/pkg/jwt"
 	"pillowww/titw/pkg/security"
 	"pillowww/titw/pkg/utils"
+	"time"
 )
 
 type AuthController Controller
@@ -25,7 +31,7 @@ type LoginResponse struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
-type SignUpPayload services.CreateUserPayload
+type SignUpPayload user.CreateUserPayload
 
 type role struct {
 	Name string `json:"name"`
@@ -40,7 +46,11 @@ type SignUpResponse struct {
 	Role     role   `json:"role"`
 }
 
-func (a *AuthController) Login(ctx *gin.Context) {
+type RefreshTokenPayload struct {
+	RefreshToken string `json:"refresh_token" binding:"required" validate:"jwt"`
+}
+
+func (a AuthController) Login(ctx *gin.Context) {
 	loginPayload := new(LoginPayload)
 
 	err := ctx.BindJSON(loginPayload)
@@ -49,14 +59,14 @@ func (a *AuthController) Login(ctx *gin.Context) {
 		return
 	}
 
-	userRepo := repositories.NewUserRepoWithCtx(ctx)
+	userRepo := user.NewUserRepo(db.DB)
 
-	var user *models.User
+	var uModel *models.User
 
 	if utils.IsEmail(loginPayload.Username) {
-		user, err = userRepo.FindOneByEmail(loginPayload.Username)
+		uModel, err = userRepo.FindOneByEmail(ctx, loginPayload.Username)
 	} else {
-		user, err = userRepo.FindOneByUsername(loginPayload.Username)
+		uModel, err = userRepo.FindOneByUsername(ctx, loginPayload.Username)
 	}
 
 	if err != nil {
@@ -64,14 +74,14 @@ func (a *AuthController) Login(ctx *gin.Context) {
 		return
 	}
 
-	samePass := security.CheckPassword(user.Password, loginPayload.Password)
+	samePass := security.CheckPassword(uModel.Password, loginPayload.Password)
 
 	if !samePass {
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, responses.ErrorResponse{Error: "incorrect username or password"})
 		return
 	}
 
-	accessToken, err := jwt.CreateAccessTokenFromUser(*user)
+	accessToken, err := jwt.CreateAccessTokenFromUser(*uModel)
 
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: "error creating access token"})
@@ -85,21 +95,14 @@ func (a *AuthController) Login(ctx *gin.Context) {
 		return
 	}
 
-	err = services.NewUserService(user).StoreNewRefreshToken(ctx, refreshToken)
+	err = refresh_token.StoreNew(ctx, *uModel, refreshToken)
+
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: "error storing refresh token"})
 		return
 	}
 
-	ctx.SetCookie(
-		viper.GetString("security.jwt.cookie-key"),
-		accessToken,
-		viper.GetInt("security.jwt.expiration"),
-		"/",
-		viper.GetString("APPLICATION_DOMAIN"),
-		true,
-		true,
-	)
+	cookie.StoreAccessToken(ctx, accessToken)
 
 	ctx.JSON(http.StatusOK, LoginResponse{
 		AccessToken:  accessToken,
@@ -107,7 +110,7 @@ func (a *AuthController) Login(ctx *gin.Context) {
 	})
 }
 
-func (a *AuthController) SignUp(ctx *gin.Context) {
+func (a AuthController) SignUp(ctx *gin.Context) {
 	signupPayload := new(SignUpPayload)
 
 	err := ctx.BindJSON(signupPayload)
@@ -116,11 +119,11 @@ func (a *AuthController) SignUp(ctx *gin.Context) {
 		return
 	}
 
-	userRepo := repositories.NewUserRepoWithCtx(ctx)
+	userRepo := user.NewUserRepo(db.DB)
 
-	user, _ := userRepo.FindOneByEmail(signupPayload.Email)
+	uModel, _ := userRepo.FindOneByEmail(ctx, signupPayload.Email)
 
-	if user != nil && user.DeletedAt.IsZero() {
+	if uModel != nil && uModel.DeletedAt.IsZero() {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, responses.ErrorResponse{
 			Error: "user with the same email already exists",
 		})
@@ -128,9 +131,9 @@ func (a *AuthController) SignUp(ctx *gin.Context) {
 	}
 
 	if signupPayload.Username != "" {
-		user, _ = userRepo.FindOneByUsername(signupPayload.Username)
+		uModel, _ = userRepo.FindOneByUsername(ctx, signupPayload.Username)
 
-		if user != nil {
+		if uModel != nil {
 			ctx.AbortWithStatusJSON(http.StatusBadRequest, responses.ErrorResponse{
 				Error: "user with the same username already exists",
 			})
@@ -138,22 +141,22 @@ func (a *AuthController) SignUp(ctx *gin.Context) {
 		}
 	}
 
-	user, err = services.CreateUserFromPayload(ctx, services.CreateUserPayload(*signupPayload))
+	uModel, err = user.CreateUserFromPayload(ctx, user.CreateUserPayload(*signupPayload))
 
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: "error creating user: " + err.Error()})
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: "error creating uModel: " + err.Error()})
 		return
 	}
 
-	r, err := userRepo.GetUserRole(user)
+	r, err := userRepo.GetUserRole(ctx, uModel)
 
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: "user role not found for user"})
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: "uModel role not found for uModel"})
 		return
 	}
 
-	language := *services.AuthServiceFromCtx(ctx).Language.L
-	rLang, err := repositories.NewUserRoleRepoFromCtx(ctx).GetLanguage(r, language)
+	language := *auth.FromCtx(ctx).Language.L
+	rLang, err := user.NewUserRepo(db.DB).GetUserRoleLanguage(ctx, r, language)
 
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)
@@ -161,15 +164,70 @@ func (a *AuthController) SignUp(ctx *gin.Context) {
 	}
 
 	response := SignUpResponse{
-		Email:    user.Email,
-		Username: user.Username.String,
-		Name:     user.Name,
-		Surname:  user.Surname,
+		Email:    uModel.Email,
+		Username: uModel.Username.String,
+		Name:     uModel.Name,
+		Surname:  uModel.Surname,
 		Role: role{
 			Name: rLang.Name,
 			Code: r.RoleCode,
 		},
 	}
 
+	ctx.JSON(http.StatusOK, response)
+}
+
+type RefreshTokenResponse struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token,omitempty"`
+}
+
+func (a AuthController) RefreshToken(ctx *gin.Context) {
+	payload := new(RefreshTokenPayload)
+	rtRepo := refresh_token.NewRefreshTokenRepo(db.DB)
+	err := ctx.BindJSON(payload)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	rToken, err := rtRepo.FindValidOneFromRefreshToken(ctx, payload.RefreshToken)
+	if err != nil || rToken == nil {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, responses.ErrorResponse{Error: "user not found for this refresh token"})
+		return
+	}
+
+	rToken.TimeLastUse = null.TimeFrom(time.Now())
+	_ = rtRepo.Update(ctx, rToken)
+
+	uModel, err := rtRepo.GetUser(ctx, *rToken)
+	token, err := jwt.CreateAccessTokenFromUser(*uModel)
+
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: "unable to create jwt token: " + err.Error()})
+		return
+	}
+
+	response := RefreshTokenResponse{
+		AccessToken: token,
+	}
+
+	if rToken.ExpiresAt.After(time.Now()) && rToken.ExpiresAt.Before(time.Now().Add(time.Duration(viper.GetInt("security.refresh_token.refresh_threshold"))*time.Minute)) {
+		newRToken, err := jwt.CreateUniqueRefreshToken()
+
+		if err != nil {
+			log.Warningf(ctx, "%s: %s", "error generating new refresh token", err.Error())
+		}
+
+		err = refresh_token.StoreNew(ctx, *uModel, newRToken)
+
+		if err != nil {
+			log.Warningf(ctx, "%s: %s", "error generating new refresh token", err.Error())
+		}
+
+		response.RefreshToken = newRToken
+	}
+
+	cookie.StoreAccessToken(ctx, token)
 	ctx.JSON(http.StatusOK, response)
 }

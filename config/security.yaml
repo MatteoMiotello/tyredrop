@@ -6,3 +6,4 @@ security:
     cookie-key: "auth"
   refresh_token:
     expiration: 720
+    refresh_threshold: 60

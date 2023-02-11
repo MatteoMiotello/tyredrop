@@ -11,7 +11,7 @@ type Language struct {
 	L *models.Language
 }
 
-var FallbackLanguage *Language
+var fallbackLanguage *Language
 
 func SetFallbackLanguage(isoCode string) error {
 	language, err := models.Languages(qm.Where("iso_code = ?", isoCode)).One(context.Background(), db.DB)
@@ -24,7 +24,11 @@ func SetFallbackLanguage(isoCode string) error {
 		L: language,
 	}
 
-	FallbackLanguage = &fLanguage
+	fallbackLanguage = &fLanguage
 
 	return nil
+}
+
+func FallbackLanguage() *Language {
+	return fallbackLanguage
 }
