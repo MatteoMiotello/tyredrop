@@ -96,12 +96,12 @@ var RefreshTokenWhere = struct {
 var RefreshTokenRels = struct {
 	User string
 }{
-	User: "User",
+	User: "user",
 }
 
 // refreshTokenR is where relationships are stored.
 type refreshTokenR struct {
-	User *User `boil:"User" json:"User" toml:"User" yaml:"User"`
+	User *User `boil:"user" json:"user" toml:"user" yaml:"user"`
 }
 
 // NewStruct creates a new relationship struct
@@ -484,12 +484,12 @@ func (refreshTokenL) LoadUser(ctx context.Context, e boil.ContextExecutor, singu
 
 	results, err := query.QueryContext(ctx, e)
 	if err != nil {
-		return errors.Wrap(err, "failed to eager load User")
+		return errors.Wrap(err, "failed to eager load user")
 	}
 
 	var resultSlice []*User
 	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice User")
+		return errors.Wrap(err, "failed to bind eager loaded slice user")
 	}
 
 	if err = results.Close(); err != nil {
@@ -538,7 +538,7 @@ func (refreshTokenL) LoadUser(ctx context.Context, e boil.ContextExecutor, singu
 }
 
 // SetUser of the refreshToken to the related item.
-// Sets o.R.User to related.
+// Sets o.R.user to related.
 // Adds o to related.R.RefreshTokens.
 func (o *RefreshToken) SetUser(ctx context.Context, exec boil.ContextExecutor, insert bool, related *User) error {
 	var err error

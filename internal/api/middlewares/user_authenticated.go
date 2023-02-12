@@ -9,14 +9,9 @@ import (
 )
 
 func IsAuthenticated(ctx *gin.Context) {
-	a := auth.FromCtx(ctx)
+	access := auth.FromCtx(ctx)
 
-	if a.User == nil {
-		ctx.AbortWithStatusJSON(http.StatusUnauthorized, responses.ErrorResponse{Error: "user not found in request"})
-		return
-	}
-
-	if a.Expiration.Before(time.Now()) {
+	if access.Expiration.Before(time.Now()) {
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, responses.ErrorResponse{Error: "token is expired"})
 		return
 	}

@@ -50,6 +50,11 @@ type RefreshTokenPayload struct {
 	RefreshToken string `json:"refresh_token" binding:"required" validate:"jwt"`
 }
 
+type RefreshTokenResponse struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token,omitempty"`
+}
+
 func (a AuthController) Login(ctx *gin.Context) {
 	loginPayload := new(LoginPayload)
 
@@ -81,7 +86,7 @@ func (a AuthController) Login(ctx *gin.Context) {
 		return
 	}
 
-	accessToken, err := jwt.CreateAccessTokenFromUser(*uModel)
+	accessToken, err := jwt.CreateAccessTokenFromUser(ctx, *uModel)
 
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: "error creating access token"})
@@ -155,8 +160,10 @@ func (a AuthController) SignUp(ctx *gin.Context) {
 		return
 	}
 
-	language := *auth.FromCtx(ctx).Language.L
-	rLang, err := user.NewUserRepo(db.DB).GetUserRoleLanguage(ctx, r, language)
+	access := auth.FromCtx(ctx)
+	language := access.GetLanguage(ctx)
+
+	rLang, err := user.NewUserRepo(db.DB).GetUserRoleLanguage(ctx, r, *language.L)
 
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)
@@ -177,11 +184,6 @@ func (a AuthController) SignUp(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
-type RefreshTokenResponse struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token,omitempty"`
-}
-
 func (a AuthController) RefreshToken(ctx *gin.Context) {
 	payload := new(RefreshTokenPayload)
 	rtRepo := refresh_token.NewRefreshTokenRepo(db.DB)
@@ -193,7 +195,7 @@ func (a AuthController) RefreshToken(ctx *gin.Context) {
 
 	rToken, err := rtRepo.FindValidOneFromRefreshToken(ctx, payload.RefreshToken)
 	if err != nil || rToken == nil {
-		ctx.AbortWithStatusJSON(http.StatusUnauthorized, responses.ErrorResponse{Error: "user not found for this refresh token"})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, responses.ErrorResponse{Error: "refresh token not found"})
 		return
 	}
 
@@ -201,7 +203,7 @@ func (a AuthController) RefreshToken(ctx *gin.Context) {
 	_ = rtRepo.Update(ctx, rToken)
 
 	uModel, err := rtRepo.GetUser(ctx, *rToken)
-	token, err := jwt.CreateAccessTokenFromUser(*uModel)
+	token, err := jwt.CreateAccessTokenFromUser(ctx, *uModel)
 
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: "unable to create jwt token: " + err.Error()})

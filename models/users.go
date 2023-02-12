@@ -197,7 +197,7 @@ var (
 
 type (
 	// UserSlice is an alias for a slice of pointers to User.
-	// This should almost always be used instead of []User.
+	// This should almost always be used instead of []user.
 	UserSlice []*User
 	// UserHook is the signature for custom User hook methods
 	UserHook func(context.Context, boil.ContextExecutor, *User) error
@@ -428,7 +428,7 @@ func (q userQuery) All(ctx context.Context, exec boil.ContextExecutor) (UserSlic
 
 	err := q.Bind(ctx, exec, &o)
 	if err != nil {
-		return nil, errors.Wrap(err, "models: failed to assign all query results to User slice")
+		return nil, errors.Wrap(err, "models: failed to assign all query results to user slice")
 	}
 
 	if len(userAfterSelectHooks) != 0 {
@@ -1219,7 +1219,7 @@ func (o *User) SetUserRole(ctx context.Context, exec boil.ContextExecutor, inser
 // AddRefreshTokens adds the given related objects to the existing relationships
 // of the user, optionally inserting them as new records.
 // Appends related to o.R.RefreshTokens.
-// Sets related.R.User appropriately.
+// Sets related.R.user appropriately.
 func (o *User) AddRefreshTokens(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*RefreshToken) error {
 	var err error
 	for _, rel := range related {
@@ -1272,7 +1272,7 @@ func (o *User) AddRefreshTokens(ctx context.Context, exec boil.ContextExecutor, 
 // AddSuppliers adds the given related objects to the existing relationships
 // of the user, optionally inserting them as new records.
 // Appends related to o.R.Suppliers.
-// Sets related.R.User appropriately.
+// Sets related.R.user appropriately.
 func (o *User) AddSuppliers(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Supplier) error {
 	var err error
 	for _, rel := range related {
@@ -1325,7 +1325,7 @@ func (o *User) AddSuppliers(ctx context.Context, exec boil.ContextExecutor, inse
 // AddUserBillings adds the given related objects to the existing relationships
 // of the user, optionally inserting them as new records.
 // Appends related to o.R.UserBillings.
-// Sets related.R.User appropriately.
+// Sets related.R.user appropriately.
 func (o *User) AddUserBillings(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*UserBilling) error {
 	var err error
 	for _, rel := range related {
@@ -1767,7 +1767,7 @@ func (o *User) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnCo
 // Delete will match against the primary key column to find the record to delete.
 func (o *User) Delete(ctx context.Context, exec boil.ContextExecutor, hardDelete bool) (int64, error) {
 	if o == nil {
-		return 0, errors.New("models: no User provided for delete")
+		return 0, errors.New("models: no user provided for delete")
 	}
 
 	if err := o.doBeforeDeleteHooks(ctx, exec); err != nil {

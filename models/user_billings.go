@@ -172,7 +172,7 @@ var UserBillingRels = struct {
 }{
 	DefaultTaxRate:  "DefaultTaxRate",
 	LegalEntityType: "LegalEntityType",
-	User:            "User",
+	User:            "user",
 	Orders:          "Orders",
 	Suppliers:       "Suppliers",
 }
@@ -181,7 +181,7 @@ var UserBillingRels = struct {
 type userBillingR struct {
 	DefaultTaxRate  *TaxRate         `boil:"DefaultTaxRate" json:"DefaultTaxRate" toml:"DefaultTaxRate" yaml:"DefaultTaxRate"`
 	LegalEntityType *LegalEntityType `boil:"LegalEntityType" json:"LegalEntityType" toml:"LegalEntityType" yaml:"LegalEntityType"`
-	User            *User            `boil:"User" json:"User" toml:"User" yaml:"User"`
+	User            *User            `boil:"user" json:"user" toml:"user" yaml:"user"`
 	Orders          OrderSlice       `boil:"Orders" json:"Orders" toml:"Orders" yaml:"Orders"`
 	Suppliers       SupplierSlice    `boil:"Suppliers" json:"Suppliers" toml:"Suppliers" yaml:"Suppliers"`
 }
@@ -884,12 +884,12 @@ func (userBillingL) LoadUser(ctx context.Context, e boil.ContextExecutor, singul
 
 	results, err := query.QueryContext(ctx, e)
 	if err != nil {
-		return errors.Wrap(err, "failed to eager load User")
+		return errors.Wrap(err, "failed to eager load user")
 	}
 
 	var resultSlice []*User
 	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice User")
+		return errors.Wrap(err, "failed to bind eager loaded slice user")
 	}
 
 	if err = results.Close(); err != nil {
@@ -1261,7 +1261,7 @@ func (o *UserBilling) SetLegalEntityType(ctx context.Context, exec boil.ContextE
 }
 
 // SetUser of the userBilling to the related item.
-// Sets o.R.User to related.
+// Sets o.R.user to related.
 // Adds o to related.R.UserBillings.
 func (o *UserBilling) SetUser(ctx context.Context, exec boil.ContextExecutor, insert bool, related *User) error {
 	var err error

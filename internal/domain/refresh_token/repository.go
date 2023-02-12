@@ -42,7 +42,7 @@ func (r RefreshTokenRepo) Insert(ctx context.Context, token *models.RefreshToken
 func (r RefreshTokenRepo) FindValidOneFromRefreshToken(ctx context.Context, refreshToken string) (*models.RefreshToken, error) {
 	return models.RefreshTokens(
 		models.RefreshTokenWhere.RefreshToken.EQ(refreshToken),
-		models.RefreshTokenWhere.ExpiresAt.LTE(time.Now()),
+		models.RefreshTokenWhere.ExpiresAt.GTE(time.Now()),
 	).One(ctx, r.Db)
 }
 

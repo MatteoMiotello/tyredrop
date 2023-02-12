@@ -123,7 +123,7 @@ var SupplierRels = struct {
 }{
 	Currency:     "Currency",
 	UserBilling:  "UserBilling",
-	User:         "User",
+	User:         "user",
 	OrderRows:    "OrderRows",
 	ProductItems: "ProductItems",
 }
@@ -132,7 +132,7 @@ var SupplierRels = struct {
 type supplierR struct {
 	Currency     *Currency        `boil:"Currency" json:"Currency" toml:"Currency" yaml:"Currency"`
 	UserBilling  *UserBilling     `boil:"UserBilling" json:"UserBilling" toml:"UserBilling" yaml:"UserBilling"`
-	User         *User            `boil:"User" json:"User" toml:"User" yaml:"User"`
+	User         *User            `boil:"user" json:"user" toml:"user" yaml:"user"`
 	OrderRows    OrderRowSlice    `boil:"OrderRows" json:"OrderRows" toml:"OrderRows" yaml:"OrderRows"`
 	ProductItems ProductItemSlice `boil:"ProductItems" json:"ProductItems" toml:"ProductItems" yaml:"ProductItems"`
 }
@@ -836,12 +836,12 @@ func (supplierL) LoadUser(ctx context.Context, e boil.ContextExecutor, singular 
 
 	results, err := query.QueryContext(ctx, e)
 	if err != nil {
-		return errors.Wrap(err, "failed to eager load User")
+		return errors.Wrap(err, "failed to eager load user")
 	}
 
 	var resultSlice []*User
 	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice User")
+		return errors.Wrap(err, "failed to bind eager loaded slice user")
 	}
 
 	if err = results.Close(); err != nil {
@@ -1213,7 +1213,7 @@ func (o *Supplier) SetUserBilling(ctx context.Context, exec boil.ContextExecutor
 }
 
 // SetUser of the supplier to the related item.
-// Sets o.R.User to related.
+// Sets o.R.user to related.
 // Adds o to related.R.Suppliers.
 func (o *Supplier) SetUser(ctx context.Context, exec boil.ContextExecutor, insert bool, related *User) error {
 	var err error

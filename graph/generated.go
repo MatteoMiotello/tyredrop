@@ -190,35 +190,35 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TaxRate.Name(childComplexity), true
 
-	case "User.email":
+	case "user.email":
 		if e.complexity.User.Email == nil {
 			break
 		}
 
 		return e.complexity.User.Email(childComplexity), true
 
-	case "User.id":
+	case "user.id":
 		if e.complexity.User.ID == nil {
 			break
 		}
 
 		return e.complexity.User.ID(childComplexity), true
 
-	case "User.userBilling":
+	case "user.userBilling":
 		if e.complexity.User.UserBilling == nil {
 			break
 		}
 
 		return e.complexity.User.UserBilling(childComplexity), true
 
-	case "User.userRole":
+	case "user.userRole":
 		if e.complexity.User.UserRole == nil {
 			break
 		}
 
 		return e.complexity.User.UserRole(childComplexity), true
 
-	case "User.username":
+	case "user.username":
 		if e.complexity.User.Username == nil {
 			break
 		}
@@ -725,7 +725,7 @@ func (ec *executionContext) fieldContext_Query_users(ctx context.Context, field 
 			case "userBilling":
 				return ec.fieldContext_User_userBilling(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type user", field.Name)
 		},
 	}
 	return fc, nil
@@ -1117,7 +1117,7 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 
 func (ec *executionContext) fieldContext_User_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "User",
+		Object:     "user",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1161,7 +1161,7 @@ func (ec *executionContext) _User_email(ctx context.Context, field graphql.Colle
 
 func (ec *executionContext) fieldContext_User_email(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "User",
+		Object:     "user",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1202,7 +1202,7 @@ func (ec *executionContext) _User_username(ctx context.Context, field graphql.Co
 
 func (ec *executionContext) fieldContext_User_username(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "User",
+		Object:     "user",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1246,7 +1246,7 @@ func (ec *executionContext) _User_userRole(ctx context.Context, field graphql.Co
 
 func (ec *executionContext) fieldContext_User_userRole(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "User",
+		Object:     "user",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1300,7 +1300,7 @@ func (ec *executionContext) _User_userBilling(ctx context.Context, field graphql
 
 func (ec *executionContext) fieldContext_User_userBilling(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "User",
+		Object:     "user",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1971,7 +1971,7 @@ func (ec *executionContext) fieldContext_UserBilling_user(ctx context.Context, f
 			case "userBilling":
 				return ec.fieldContext_User_userBilling(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type user", field.Name)
 		},
 	}
 	return fc, nil
@@ -4254,7 +4254,7 @@ func (ec *executionContext) _TaxRate(ctx context.Context, sel ast.SelectionSet, 
 	return out
 }
 
-var userImplementors = []string{"User"}
+var userImplementors = []string{"user"}
 
 func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *model.User) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, userImplementors)
@@ -4263,7 +4263,7 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("User")
+			out.Values[i] = graphql.MarshalString("user")
 		case "id":
 
 			out.Values[i] = ec._User_id(ctx, field, obj)

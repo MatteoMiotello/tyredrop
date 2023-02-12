@@ -6,9 +6,6 @@ import (
 	"net/http"
 	"pillowww/titw/internal/auth"
 	"pillowww/titw/internal/cookie"
-	"pillowww/titw/internal/db"
-	"pillowww/titw/internal/domain/language"
-	"pillowww/titw/internal/domain/user"
 	"pillowww/titw/pkg/api/responses"
 	"pillowww/titw/pkg/jwt"
 )
@@ -29,33 +26,14 @@ func InjectAuth(ctx *gin.Context) {
 		return
 	}
 
-	uRepo := user.NewUserRepo(db.DB)
-	uModel, err := uRepo.FindOneById(ctx, userJwt.UserID)
-
-	if err != nil {
-		log.Warningf(ctx, "%s", "user not found for jwt: "+aToken)
-
-		return
+	a := auth.Auth{
+		Expiration:   userJwt.ExpiresAt.Time,
+		Username:     userJwt.Username,
+		Email:        userJwt.Email,
+		Role:         userJwt.Role,
+		LanguageCode: userJwt.Language,
 	}
 
-	lModel, err := uRepo.GetDefaultLanguage(ctx, *uModel)
-
-	if err != nil {
-		log.Warningf(ctx, "%s", "default language not found for user with id: "+string(uModel.ID))
-		return
-	}
-
-	auth := auth.Auth{
-		User: uModel,
-		Language: &language.Language{
-			L: lModel,
-		},
-		Expiration: userJwt.ExpiresAt.Time,
-		Username:   userJwt.Username,
-		Email:      userJwt.Email,
-	}
-
-	auth.InsertToCtx(ctx)
-
+	a.InsertToCtx(ctx)
 	ctx.Next()
 }
