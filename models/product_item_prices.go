@@ -617,7 +617,6 @@ func (productItemPriceL) LoadProductItem(ctx context.Context, e boil.ContextExec
 	query := NewQuery(
 		qm.From(`product_items`),
 		qm.WhereIn(`product_items.id in ?`, args...),
-		qmhelper.WhereIsNull(`product_items.deleted_at`),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -774,7 +773,7 @@ func (o *ProductItemPrice) SetProductItem(ctx context.Context, exec boil.Context
 
 // ProductItemPrices retrieves all the records using an executor.
 func ProductItemPrices(mods ...qm.QueryMod) productItemPriceQuery {
-	mods = append(mods, qm.From("\"product_item_prices\""), qmhelper.WhereIsNull("\"product_item_prices\".\"deleted_at\""))
+	mods = append(mods, qm.From("\"product_item_prices\""))
 	q := NewQuery(mods...)
 	if len(queries.GetSelect(q)) == 0 {
 		queries.SetSelect(q, []string{"\"product_item_prices\".*"})
@@ -793,7 +792,7 @@ func FindProductItemPrice(ctx context.Context, exec boil.ContextExecutor, iD int
 		sel = strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, selectCols), ",")
 	}
 	query := fmt.Sprintf(
-		"select %s from \"product_item_prices\" where \"id\"=$1 and \"deleted_at\" is null", sel,
+		"select %s from \"product_item_prices\" where \"id\"=$1", sel,
 	)
 
 	q := queries.Raw(query, iD)
@@ -1162,7 +1161,7 @@ func (o *ProductItemPrice) Upsert(ctx context.Context, exec boil.ContextExecutor
 
 // Delete deletes a single ProductItemPrice record with an executor.
 // Delete will match against the primary key column to find the record to delete.
-func (o *ProductItemPrice) Delete(ctx context.Context, exec boil.ContextExecutor, hardDelete bool) (int64, error) {
+func (o *ProductItemPrice) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if o == nil {
 		return 0, errors.New("models: no ProductItemPrice provided for delete")
 	}
@@ -1171,26 +1170,8 @@ func (o *ProductItemPrice) Delete(ctx context.Context, exec boil.ContextExecutor
 		return 0, err
 	}
 
-	var (
-		sql  string
-		args []interface{}
-	)
-	if hardDelete {
-		args = queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), productItemPricePrimaryKeyMapping)
-		sql = "DELETE FROM \"product_item_prices\" WHERE \"id\"=$1"
-	} else {
-		currTime := time.Now().In(boil.GetLocation())
-		o.DeletedAt = null.TimeFrom(currTime)
-		wl := []string{"deleted_at"}
-		sql = fmt.Sprintf("UPDATE \"product_item_prices\" SET %s WHERE \"id\"=$2",
-			strmangle.SetParamNames("\"", "\"", 1, wl),
-		)
-		valueMapping, err := queries.BindMapping(productItemPriceType, productItemPriceMapping, append(wl, productItemPricePrimaryKeyColumns...))
-		if err != nil {
-			return 0, err
-		}
-		args = queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), valueMapping)
-	}
+	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), productItemPricePrimaryKeyMapping)
+	sql := "DELETE FROM \"product_item_prices\" WHERE \"id\"=$1"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1215,17 +1196,12 @@ func (o *ProductItemPrice) Delete(ctx context.Context, exec boil.ContextExecutor
 }
 
 // DeleteAll deletes all matching rows.
-func (q productItemPriceQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor, hardDelete bool) (int64, error) {
+func (q productItemPriceQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if q.Query == nil {
 		return 0, errors.New("models: no productItemPriceQuery provided for delete all")
 	}
 
-	if hardDelete {
-		queries.SetDelete(q.Query)
-	} else {
-		currTime := time.Now().In(boil.GetLocation())
-		queries.SetUpdate(q.Query, M{"deleted_at": currTime})
-	}
+	queries.SetDelete(q.Query)
 
 	result, err := q.Query.ExecContext(ctx, exec)
 	if err != nil {
@@ -1241,7 +1217,7 @@ func (q productItemPriceQuery) DeleteAll(ctx context.Context, exec boil.ContextE
 }
 
 // DeleteAll deletes all rows in the slice, using an executor.
-func (o ProductItemPriceSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor, hardDelete bool) (int64, error) {
+func (o ProductItemPriceSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if len(o) == 0 {
 		return 0, nil
 	}
@@ -1254,31 +1230,14 @@ func (o ProductItemPriceSlice) DeleteAll(ctx context.Context, exec boil.ContextE
 		}
 	}
 
-	var (
-		sql  string
-		args []interface{}
-	)
-	if hardDelete {
-		for _, obj := range o {
-			pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), productItemPricePrimaryKeyMapping)
-			args = append(args, pkeyArgs...)
-		}
-		sql = "DELETE FROM \"product_item_prices\" WHERE " +
-			strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, productItemPricePrimaryKeyColumns, len(o))
-	} else {
-		currTime := time.Now().In(boil.GetLocation())
-		for _, obj := range o {
-			pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), productItemPricePrimaryKeyMapping)
-			args = append(args, pkeyArgs...)
-			obj.DeletedAt = null.TimeFrom(currTime)
-		}
-		wl := []string{"deleted_at"}
-		sql = fmt.Sprintf("UPDATE \"product_item_prices\" SET %s WHERE "+
-			strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 2, productItemPricePrimaryKeyColumns, len(o)),
-			strmangle.SetParamNames("\"", "\"", 1, wl),
-		)
-		args = append([]interface{}{currTime}, args...)
+	var args []interface{}
+	for _, obj := range o {
+		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), productItemPricePrimaryKeyMapping)
+		args = append(args, pkeyArgs...)
 	}
+
+	sql := "DELETE FROM \"product_item_prices\" WHERE " +
+		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, productItemPricePrimaryKeyColumns, len(o))
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1333,8 +1292,7 @@ func (o *ProductItemPriceSlice) ReloadAll(ctx context.Context, exec boil.Context
 	}
 
 	sql := "SELECT \"product_item_prices\".* FROM \"product_item_prices\" WHERE " +
-		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, productItemPricePrimaryKeyColumns, len(*o)) +
-		"and \"deleted_at\" is null"
+		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, productItemPricePrimaryKeyColumns, len(*o))
 
 	q := queries.Raw(sql, args...)
 
@@ -1351,7 +1309,7 @@ func (o *ProductItemPriceSlice) ReloadAll(ctx context.Context, exec boil.Context
 // ProductItemPriceExists checks if the ProductItemPrice row exists.
 func ProductItemPriceExists(ctx context.Context, exec boil.ContextExecutor, iD int64) (bool, error) {
 	var exists bool
-	sql := "select exists(select 1 from \"product_item_prices\" where \"id\"=$1 and \"deleted_at\" is null limit 1)"
+	sql := "select exists(select 1 from \"product_item_prices\" where \"id\"=$1 limit 1)"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)

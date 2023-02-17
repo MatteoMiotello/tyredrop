@@ -89,13 +89,13 @@ var ProductCategoryLanguageRels = struct {
 	Language        string
 	ProductCategory string
 }{
-	Language:        "L",
+	Language:        "Language",
 	ProductCategory: "ProductCategory",
 }
 
 // productCategoryLanguageR is where relationships are stored.
 type productCategoryLanguageR struct {
-	Language        *Language        `boil:"L" json:"L" toml:"L" yaml:"L"`
+	Language        *Language        `boil:"Language" json:"Language" toml:"Language" yaml:"Language"`
 	ProductCategory *ProductCategory `boil:"ProductCategory" json:"ProductCategory" toml:"ProductCategory" yaml:"ProductCategory"`
 }
 
@@ -496,12 +496,12 @@ func (productCategoryLanguageL) LoadLanguage(ctx context.Context, e boil.Context
 
 	results, err := query.QueryContext(ctx, e)
 	if err != nil {
-		return errors.Wrap(err, "failed to eager load L")
+		return errors.Wrap(err, "failed to eager load Language")
 	}
 
 	var resultSlice []*Language
 	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice L")
+		return errors.Wrap(err, "failed to bind eager loaded slice Language")
 	}
 
 	if err = results.Close(); err != nil {
@@ -609,7 +609,6 @@ func (productCategoryLanguageL) LoadProductCategory(ctx context.Context, e boil.
 	query := NewQuery(
 		qm.From(`product_categories`),
 		qm.WhereIn(`product_categories.id in ?`, args...),
-		qmhelper.WhereIsNull(`product_categories.deleted_at`),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -671,7 +670,7 @@ func (productCategoryLanguageL) LoadProductCategory(ctx context.Context, e boil.
 }
 
 // SetLanguage of the productCategoryLanguage to the related item.
-// Sets o.R.L to related.
+// Sets o.R.Language to related.
 // Adds o to related.R.ProductCategoryLanguages.
 func (o *ProductCategoryLanguage) SetLanguage(ctx context.Context, exec boil.ContextExecutor, insert bool, related *Language) error {
 	var err error

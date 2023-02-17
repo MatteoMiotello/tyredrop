@@ -14,10 +14,9 @@ func init() {
 func upSupplier(tx *sql.Tx) error {
 	supplierQuery := sqlbuilder.CreateTable("public.suppliers").
 		PKColumn().
-		FKColumn("public.users", "user_id", false).
-		FKColumn("public.user_billings", "user_billing_id", false).
-		FKColumn("public.currencies", "currency_id", false).
+		Column("name", types.Varchar.Options("45"), false).
 		Column("code", types.Varchar.Options("45"), false).
+		Column("imported_at", types.Timestamptz, true).
 		Column("ftp_username", types.Varchar.Options("255"), true).
 		Column("ftp_password", types.Varchar.Options("255"), true).
 		DeletedColumn().

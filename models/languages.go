@@ -189,7 +189,7 @@ var (
 
 type (
 	// LanguageSlice is an alias for a slice of pointers to Language.
-	// This should almost always be used instead of []L.
+	// This should almost always be used instead of []Language.
 	LanguageSlice []*Language
 	// LanguageHook is the signature for custom Language hook methods
 	LanguageHook func(context.Context, boil.ContextExecutor, *Language) error
@@ -420,7 +420,7 @@ func (q languageQuery) All(ctx context.Context, exec boil.ContextExecutor) (Lang
 
 	err := q.Bind(ctx, exec, &o)
 	if err != nil {
-		return nil, errors.Wrap(err, "models: failed to assign all query results to L slice")
+		return nil, errors.Wrap(err, "models: failed to assign all query results to Language slice")
 	}
 
 	if len(languageAfterSelectHooks) != 0 {
@@ -1308,7 +1308,6 @@ func (languageL) LoadDefaultLanguageUsers(ctx context.Context, e boil.ContextExe
 	query := NewQuery(
 		qm.From(`users`),
 		qm.WhereIn(`users.default_language_id in ?`, args...),
-		qmhelper.WhereIsNull(`users.deleted_at`),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -1415,7 +1414,7 @@ func (o *Language) SetCurrency(ctx context.Context, exec boil.ContextExecutor, i
 // AddCurrencyLanguages adds the given related objects to the existing relationships
 // of the language, optionally inserting them as new records.
 // Appends related to o.R.CurrencyLanguages.
-// Sets related.R.L appropriately.
+// Sets related.R.Language appropriately.
 func (o *Language) AddCurrencyLanguages(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*CurrencyLanguage) error {
 	var err error
 	for _, rel := range related {
@@ -1468,7 +1467,7 @@ func (o *Language) AddCurrencyLanguages(ctx context.Context, exec boil.ContextEx
 // AddProductCategoryLanguages adds the given related objects to the existing relationships
 // of the language, optionally inserting them as new records.
 // Appends related to o.R.ProductCategoryLanguages.
-// Sets related.R.L appropriately.
+// Sets related.R.Language appropriately.
 func (o *Language) AddProductCategoryLanguages(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*ProductCategoryLanguage) error {
 	var err error
 	for _, rel := range related {
@@ -1521,7 +1520,7 @@ func (o *Language) AddProductCategoryLanguages(ctx context.Context, exec boil.Co
 // AddProductLanguages adds the given related objects to the existing relationships
 // of the language, optionally inserting them as new records.
 // Appends related to o.R.ProductLanguages.
-// Sets related.R.L appropriately.
+// Sets related.R.Language appropriately.
 func (o *Language) AddProductLanguages(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*ProductLanguage) error {
 	var err error
 	for _, rel := range related {
@@ -1574,7 +1573,7 @@ func (o *Language) AddProductLanguages(ctx context.Context, exec boil.ContextExe
 // AddProductSpecificationLanguages adds the given related objects to the existing relationships
 // of the language, optionally inserting them as new records.
 // Appends related to o.R.ProductSpecificationLanguages.
-// Sets related.R.L appropriately.
+// Sets related.R.Language appropriately.
 func (o *Language) AddProductSpecificationLanguages(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*ProductSpecificationLanguage) error {
 	var err error
 	for _, rel := range related {
@@ -1627,7 +1626,7 @@ func (o *Language) AddProductSpecificationLanguages(ctx context.Context, exec bo
 // AddUserRoleLanguages adds the given related objects to the existing relationships
 // of the language, optionally inserting them as new records.
 // Appends related to o.R.UserRoleLanguages.
-// Sets related.R.L appropriately.
+// Sets related.R.Language appropriately.
 func (o *Language) AddUserRoleLanguages(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*UserRoleLanguage) error {
 	var err error
 	for _, rel := range related {
@@ -2112,7 +2111,7 @@ func (o *Language) Upsert(ctx context.Context, exec boil.ContextExecutor, update
 // Delete will match against the primary key column to find the record to delete.
 func (o *Language) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if o == nil {
-		return 0, errors.New("models: no L provided for delete")
+		return 0, errors.New("models: no Language provided for delete")
 	}
 
 	if err := o.doBeforeDeleteHooks(ctx, exec); err != nil {

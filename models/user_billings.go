@@ -168,22 +168,19 @@ var UserBillingRels = struct {
 	LegalEntityType string
 	User            string
 	Orders          string
-	Suppliers       string
 }{
 	DefaultTaxRate:  "DefaultTaxRate",
 	LegalEntityType: "LegalEntityType",
-	User:            "user",
+	User:            "User",
 	Orders:          "Orders",
-	Suppliers:       "Suppliers",
 }
 
 // userBillingR is where relationships are stored.
 type userBillingR struct {
 	DefaultTaxRate  *TaxRate         `boil:"DefaultTaxRate" json:"DefaultTaxRate" toml:"DefaultTaxRate" yaml:"DefaultTaxRate"`
 	LegalEntityType *LegalEntityType `boil:"LegalEntityType" json:"LegalEntityType" toml:"LegalEntityType" yaml:"LegalEntityType"`
-	User            *User            `boil:"user" json:"user" toml:"user" yaml:"user"`
+	User            *User            `boil:"User" json:"User" toml:"User" yaml:"User"`
 	Orders          OrderSlice       `boil:"Orders" json:"Orders" toml:"Orders" yaml:"Orders"`
-	Suppliers       SupplierSlice    `boil:"Suppliers" json:"Suppliers" toml:"Suppliers" yaml:"Suppliers"`
 }
 
 // NewStruct creates a new relationship struct
@@ -217,13 +214,6 @@ func (r *userBillingR) GetOrders() OrderSlice {
 		return nil
 	}
 	return r.Orders
-}
-
-func (r *userBillingR) GetSuppliers() SupplierSlice {
-	if r == nil {
-		return nil
-	}
-	return r.Suppliers
 }
 
 // userBillingL is where Load methods for each relationship are stored.
@@ -562,20 +552,6 @@ func (o *UserBilling) Orders(mods ...qm.QueryMod) orderQuery {
 	return Orders(queryMods...)
 }
 
-// Suppliers retrieves all the supplier's Suppliers with an executor.
-func (o *UserBilling) Suppliers(mods ...qm.QueryMod) supplierQuery {
-	var queryMods []qm.QueryMod
-	if len(mods) != 0 {
-		queryMods = append(queryMods, mods...)
-	}
-
-	queryMods = append(queryMods,
-		qm.Where("\"suppliers\".\"user_billing_id\"=?", o.ID),
-	)
-
-	return Suppliers(queryMods...)
-}
-
 // LoadDefaultTaxRate allows an eager lookup of values, cached into the
 // loaded structs of the objects. This is for an N-1 relationship.
 func (userBillingL) LoadDefaultTaxRate(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUserBilling interface{}, mods queries.Applicator) error {
@@ -876,7 +852,6 @@ func (userBillingL) LoadUser(ctx context.Context, e boil.ContextExecutor, singul
 	query := NewQuery(
 		qm.From(`users`),
 		qm.WhereIn(`users.id in ?`, args...),
-		qmhelper.WhereIsNull(`users.deleted_at`),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -884,12 +859,12 @@ func (userBillingL) LoadUser(ctx context.Context, e boil.ContextExecutor, singul
 
 	results, err := query.QueryContext(ctx, e)
 	if err != nil {
-		return errors.Wrap(err, "failed to eager load user")
+		return errors.Wrap(err, "failed to eager load User")
 	}
 
 	var resultSlice []*User
 	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice user")
+		return errors.Wrap(err, "failed to bind eager loaded slice User")
 	}
 
 	if err = results.Close(); err != nil {
@@ -1051,121 +1026,6 @@ func (userBillingL) LoadOrders(ctx context.Context, e boil.ContextExecutor, sing
 	return nil
 }
 
-// LoadSuppliers allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for a 1-M or N-M relationship.
-func (userBillingL) LoadSuppliers(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUserBilling interface{}, mods queries.Applicator) error {
-	var slice []*UserBilling
-	var object *UserBilling
-
-	if singular {
-		var ok bool
-		object, ok = maybeUserBilling.(*UserBilling)
-		if !ok {
-			object = new(UserBilling)
-			ok = queries.SetFromEmbeddedStruct(&object, &maybeUserBilling)
-			if !ok {
-				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", object, maybeUserBilling))
-			}
-		}
-	} else {
-		s, ok := maybeUserBilling.(*[]*UserBilling)
-		if ok {
-			slice = *s
-		} else {
-			ok = queries.SetFromEmbeddedStruct(&slice, maybeUserBilling)
-			if !ok {
-				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", slice, maybeUserBilling))
-			}
-		}
-	}
-
-	args := make([]interface{}, 0, 1)
-	if singular {
-		if object.R == nil {
-			object.R = &userBillingR{}
-		}
-		args = append(args, object.ID)
-	} else {
-	Outer:
-		for _, obj := range slice {
-			if obj.R == nil {
-				obj.R = &userBillingR{}
-			}
-
-			for _, a := range args {
-				if a == obj.ID {
-					continue Outer
-				}
-			}
-
-			args = append(args, obj.ID)
-		}
-	}
-
-	if len(args) == 0 {
-		return nil
-	}
-
-	query := NewQuery(
-		qm.From(`suppliers`),
-		qm.WhereIn(`suppliers.user_billing_id in ?`, args...),
-		qmhelper.WhereIsNull(`suppliers.deleted_at`),
-	)
-	if mods != nil {
-		mods.Apply(query)
-	}
-
-	results, err := query.QueryContext(ctx, e)
-	if err != nil {
-		return errors.Wrap(err, "failed to eager load suppliers")
-	}
-
-	var resultSlice []*Supplier
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice suppliers")
-	}
-
-	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results in eager load on suppliers")
-	}
-	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for suppliers")
-	}
-
-	if len(supplierAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
-				return err
-			}
-		}
-	}
-	if singular {
-		object.R.Suppliers = resultSlice
-		for _, foreign := range resultSlice {
-			if foreign.R == nil {
-				foreign.R = &supplierR{}
-			}
-			foreign.R.UserBilling = object
-		}
-		return nil
-	}
-
-	for _, foreign := range resultSlice {
-		for _, local := range slice {
-			if local.ID == foreign.UserBillingID {
-				local.R.Suppliers = append(local.R.Suppliers, foreign)
-				if foreign.R == nil {
-					foreign.R = &supplierR{}
-				}
-				foreign.R.UserBilling = local
-				break
-			}
-		}
-	}
-
-	return nil
-}
-
 // SetDefaultTaxRate of the userBilling to the related item.
 // Sets o.R.DefaultTaxRate to related.
 // Adds o to related.R.DefaultTaxRateUserBillings.
@@ -1261,7 +1121,7 @@ func (o *UserBilling) SetLegalEntityType(ctx context.Context, exec boil.ContextE
 }
 
 // SetUser of the userBilling to the related item.
-// Sets o.R.user to related.
+// Sets o.R.User to related.
 // Adds o to related.R.UserBillings.
 func (o *UserBilling) SetUser(ctx context.Context, exec boil.ContextExecutor, insert bool, related *User) error {
 	var err error
@@ -1360,62 +1220,9 @@ func (o *UserBilling) AddOrders(ctx context.Context, exec boil.ContextExecutor, 
 	return nil
 }
 
-// AddSuppliers adds the given related objects to the existing relationships
-// of the user_billing, optionally inserting them as new records.
-// Appends related to o.R.Suppliers.
-// Sets related.R.UserBilling appropriately.
-func (o *UserBilling) AddSuppliers(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Supplier) error {
-	var err error
-	for _, rel := range related {
-		if insert {
-			rel.UserBillingID = o.ID
-			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
-				return errors.Wrap(err, "failed to insert into foreign table")
-			}
-		} else {
-			updateQuery := fmt.Sprintf(
-				"UPDATE \"suppliers\" SET %s WHERE %s",
-				strmangle.SetParamNames("\"", "\"", 1, []string{"user_billing_id"}),
-				strmangle.WhereClause("\"", "\"", 2, supplierPrimaryKeyColumns),
-			)
-			values := []interface{}{o.ID, rel.ID}
-
-			if boil.IsDebug(ctx) {
-				writer := boil.DebugWriterFrom(ctx)
-				fmt.Fprintln(writer, updateQuery)
-				fmt.Fprintln(writer, values)
-			}
-			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
-				return errors.Wrap(err, "failed to update foreign table")
-			}
-
-			rel.UserBillingID = o.ID
-		}
-	}
-
-	if o.R == nil {
-		o.R = &userBillingR{
-			Suppliers: related,
-		}
-	} else {
-		o.R.Suppliers = append(o.R.Suppliers, related...)
-	}
-
-	for _, rel := range related {
-		if rel.R == nil {
-			rel.R = &supplierR{
-				UserBilling: o,
-			}
-		} else {
-			rel.R.UserBilling = o
-		}
-	}
-	return nil
-}
-
 // UserBillings retrieves all the records using an executor.
 func UserBillings(mods ...qm.QueryMod) userBillingQuery {
-	mods = append(mods, qm.From("\"user_billings\""), qmhelper.WhereIsNull("\"user_billings\".\"deleted_at\""))
+	mods = append(mods, qm.From("\"user_billings\""))
 	q := NewQuery(mods...)
 	if len(queries.GetSelect(q)) == 0 {
 		queries.SetSelect(q, []string{"\"user_billings\".*"})
@@ -1434,7 +1241,7 @@ func FindUserBilling(ctx context.Context, exec boil.ContextExecutor, iD int64, s
 		sel = strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, selectCols), ",")
 	}
 	query := fmt.Sprintf(
-		"select %s from \"user_billings\" where \"id\"=$1 and \"deleted_at\" is null", sel,
+		"select %s from \"user_billings\" where \"id\"=$1", sel,
 	)
 
 	q := queries.Raw(query, iD)
@@ -1803,7 +1610,7 @@ func (o *UserBilling) Upsert(ctx context.Context, exec boil.ContextExecutor, upd
 
 // Delete deletes a single UserBilling record with an executor.
 // Delete will match against the primary key column to find the record to delete.
-func (o *UserBilling) Delete(ctx context.Context, exec boil.ContextExecutor, hardDelete bool) (int64, error) {
+func (o *UserBilling) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if o == nil {
 		return 0, errors.New("models: no UserBilling provided for delete")
 	}
@@ -1812,26 +1619,8 @@ func (o *UserBilling) Delete(ctx context.Context, exec boil.ContextExecutor, har
 		return 0, err
 	}
 
-	var (
-		sql  string
-		args []interface{}
-	)
-	if hardDelete {
-		args = queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), userBillingPrimaryKeyMapping)
-		sql = "DELETE FROM \"user_billings\" WHERE \"id\"=$1"
-	} else {
-		currTime := time.Now().In(boil.GetLocation())
-		o.DeletedAt = null.TimeFrom(currTime)
-		wl := []string{"deleted_at"}
-		sql = fmt.Sprintf("UPDATE \"user_billings\" SET %s WHERE \"id\"=$2",
-			strmangle.SetParamNames("\"", "\"", 1, wl),
-		)
-		valueMapping, err := queries.BindMapping(userBillingType, userBillingMapping, append(wl, userBillingPrimaryKeyColumns...))
-		if err != nil {
-			return 0, err
-		}
-		args = queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), valueMapping)
-	}
+	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), userBillingPrimaryKeyMapping)
+	sql := "DELETE FROM \"user_billings\" WHERE \"id\"=$1"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1856,17 +1645,12 @@ func (o *UserBilling) Delete(ctx context.Context, exec boil.ContextExecutor, har
 }
 
 // DeleteAll deletes all matching rows.
-func (q userBillingQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor, hardDelete bool) (int64, error) {
+func (q userBillingQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if q.Query == nil {
 		return 0, errors.New("models: no userBillingQuery provided for delete all")
 	}
 
-	if hardDelete {
-		queries.SetDelete(q.Query)
-	} else {
-		currTime := time.Now().In(boil.GetLocation())
-		queries.SetUpdate(q.Query, M{"deleted_at": currTime})
-	}
+	queries.SetDelete(q.Query)
 
 	result, err := q.Query.ExecContext(ctx, exec)
 	if err != nil {
@@ -1882,7 +1666,7 @@ func (q userBillingQuery) DeleteAll(ctx context.Context, exec boil.ContextExecut
 }
 
 // DeleteAll deletes all rows in the slice, using an executor.
-func (o UserBillingSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor, hardDelete bool) (int64, error) {
+func (o UserBillingSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if len(o) == 0 {
 		return 0, nil
 	}
@@ -1895,31 +1679,14 @@ func (o UserBillingSlice) DeleteAll(ctx context.Context, exec boil.ContextExecut
 		}
 	}
 
-	var (
-		sql  string
-		args []interface{}
-	)
-	if hardDelete {
-		for _, obj := range o {
-			pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), userBillingPrimaryKeyMapping)
-			args = append(args, pkeyArgs...)
-		}
-		sql = "DELETE FROM \"user_billings\" WHERE " +
-			strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, userBillingPrimaryKeyColumns, len(o))
-	} else {
-		currTime := time.Now().In(boil.GetLocation())
-		for _, obj := range o {
-			pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), userBillingPrimaryKeyMapping)
-			args = append(args, pkeyArgs...)
-			obj.DeletedAt = null.TimeFrom(currTime)
-		}
-		wl := []string{"deleted_at"}
-		sql = fmt.Sprintf("UPDATE \"user_billings\" SET %s WHERE "+
-			strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 2, userBillingPrimaryKeyColumns, len(o)),
-			strmangle.SetParamNames("\"", "\"", 1, wl),
-		)
-		args = append([]interface{}{currTime}, args...)
+	var args []interface{}
+	for _, obj := range o {
+		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), userBillingPrimaryKeyMapping)
+		args = append(args, pkeyArgs...)
 	}
+
+	sql := "DELETE FROM \"user_billings\" WHERE " +
+		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, userBillingPrimaryKeyColumns, len(o))
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1974,8 +1741,7 @@ func (o *UserBillingSlice) ReloadAll(ctx context.Context, exec boil.ContextExecu
 	}
 
 	sql := "SELECT \"user_billings\".* FROM \"user_billings\" WHERE " +
-		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, userBillingPrimaryKeyColumns, len(*o)) +
-		"and \"deleted_at\" is null"
+		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, userBillingPrimaryKeyColumns, len(*o))
 
 	q := queries.Raw(sql, args...)
 
@@ -1992,7 +1758,7 @@ func (o *UserBillingSlice) ReloadAll(ctx context.Context, exec boil.ContextExecu
 // UserBillingExists checks if the UserBilling row exists.
 func UserBillingExists(ctx context.Context, exec boil.ContextExecutor, iD int64) (bool, error) {
 	var exists bool
-	sql := "select exists(select 1 from \"user_billings\" where \"id\"=$1 and \"deleted_at\" is null limit 1)"
+	sql := "select exists(select 1 from \"user_billings\" where \"id\"=$1 limit 1)"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)

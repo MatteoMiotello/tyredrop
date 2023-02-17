@@ -448,7 +448,6 @@ func (legalEntityTypeL) LoadUserBillings(ctx context.Context, e boil.ContextExec
 	query := NewQuery(
 		qm.From(`user_billings`),
 		qm.WhereIn(`user_billings.legal_entity_type_id in ?`, args...),
-		qmhelper.WhereIsNull(`user_billings.deleted_at`),
 	)
 	if mods != nil {
 		mods.Apply(query)

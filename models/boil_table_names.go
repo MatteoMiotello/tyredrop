@@ -7,6 +7,7 @@ var TableNames = struct {
 	Brands                        string
 	Currencies                    string
 	CurrencyLanguages             string
+	ImportJobs                    string
 	Languages                     string
 	LegalEntityTypes              string
 	OrderRows                     string
@@ -31,6 +32,7 @@ var TableNames = struct {
 	Brands:                        "brands",
 	Currencies:                    "currencies",
 	CurrencyLanguages:             "currency_languages",
+	ImportJobs:                    "import_jobs",
 	Languages:                     "languages",
 	LegalEntityTypes:              "legal_entity_types",
 	OrderRows:                     "order_rows",

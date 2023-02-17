@@ -602,7 +602,6 @@ func (userRoleL) LoadUsers(ctx context.Context, e boil.ContextExecutor, singular
 	query := NewQuery(
 		qm.From(`users`),
 		qm.WhereIn(`users.user_role_id in ?`, args...),
-		qmhelper.WhereIsNull(`users.deleted_at`),
 	)
 	if mods != nil {
 		mods.Apply(query)

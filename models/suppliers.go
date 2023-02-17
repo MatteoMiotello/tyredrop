@@ -24,115 +24,102 @@ import (
 
 // Supplier is an object representing the database table.
 type Supplier struct {
-	ID            int64       `boil:"id" json:"id" toml:"id" yaml:"id"`
-	UserID        int64       `boil:"user_id" json:"user_id" toml:"user_id" yaml:"user_id"`
-	UserBillingID int64       `boil:"user_billing_id" json:"user_billing_id" toml:"user_billing_id" yaml:"user_billing_id"`
-	CurrencyID    int64       `boil:"currency_id" json:"currency_id" toml:"currency_id" yaml:"currency_id"`
-	Code          string      `boil:"code" json:"code" toml:"code" yaml:"code"`
-	FTPUsername   null.String `boil:"ftp_username" json:"ftp_username,omitempty" toml:"ftp_username" yaml:"ftp_username,omitempty"`
-	FTPPassword   null.String `boil:"ftp_password" json:"ftp_password,omitempty" toml:"ftp_password" yaml:"ftp_password,omitempty"`
-	DeletedAt     null.Time   `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
-	UpdatedAt     time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
-	CreatedAt     time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	ID          int64       `boil:"id" json:"id" toml:"id" yaml:"id"`
+	Name        string      `boil:"name" json:"name" toml:"name" yaml:"name"`
+	Code        string      `boil:"code" json:"code" toml:"code" yaml:"code"`
+	ImportedAt  null.Time   `boil:"imported_at" json:"imported_at,omitempty" toml:"imported_at" yaml:"imported_at,omitempty"`
+	FTPUsername null.String `boil:"ftp_username" json:"ftp_username,omitempty" toml:"ftp_username" yaml:"ftp_username,omitempty"`
+	FTPPassword null.String `boil:"ftp_password" json:"ftp_password,omitempty" toml:"ftp_password" yaml:"ftp_password,omitempty"`
+	DeletedAt   null.Time   `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
+	UpdatedAt   time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	CreatedAt   time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 
 	R *supplierR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L supplierL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var SupplierColumns = struct {
-	ID            string
-	UserID        string
-	UserBillingID string
-	CurrencyID    string
-	Code          string
-	FTPUsername   string
-	FTPPassword   string
-	DeletedAt     string
-	UpdatedAt     string
-	CreatedAt     string
+	ID          string
+	Name        string
+	Code        string
+	ImportedAt  string
+	FTPUsername string
+	FTPPassword string
+	DeletedAt   string
+	UpdatedAt   string
+	CreatedAt   string
 }{
-	ID:            "id",
-	UserID:        "user_id",
-	UserBillingID: "user_billing_id",
-	CurrencyID:    "currency_id",
-	Code:          "code",
-	FTPUsername:   "ftp_username",
-	FTPPassword:   "ftp_password",
-	DeletedAt:     "deleted_at",
-	UpdatedAt:     "updated_at",
-	CreatedAt:     "created_at",
+	ID:          "id",
+	Name:        "name",
+	Code:        "code",
+	ImportedAt:  "imported_at",
+	FTPUsername: "ftp_username",
+	FTPPassword: "ftp_password",
+	DeletedAt:   "deleted_at",
+	UpdatedAt:   "updated_at",
+	CreatedAt:   "created_at",
 }
 
 var SupplierTableColumns = struct {
-	ID            string
-	UserID        string
-	UserBillingID string
-	CurrencyID    string
-	Code          string
-	FTPUsername   string
-	FTPPassword   string
-	DeletedAt     string
-	UpdatedAt     string
-	CreatedAt     string
+	ID          string
+	Name        string
+	Code        string
+	ImportedAt  string
+	FTPUsername string
+	FTPPassword string
+	DeletedAt   string
+	UpdatedAt   string
+	CreatedAt   string
 }{
-	ID:            "suppliers.id",
-	UserID:        "suppliers.user_id",
-	UserBillingID: "suppliers.user_billing_id",
-	CurrencyID:    "suppliers.currency_id",
-	Code:          "suppliers.code",
-	FTPUsername:   "suppliers.ftp_username",
-	FTPPassword:   "suppliers.ftp_password",
-	DeletedAt:     "suppliers.deleted_at",
-	UpdatedAt:     "suppliers.updated_at",
-	CreatedAt:     "suppliers.created_at",
+	ID:          "suppliers.id",
+	Name:        "suppliers.name",
+	Code:        "suppliers.code",
+	ImportedAt:  "suppliers.imported_at",
+	FTPUsername: "suppliers.ftp_username",
+	FTPPassword: "suppliers.ftp_password",
+	DeletedAt:   "suppliers.deleted_at",
+	UpdatedAt:   "suppliers.updated_at",
+	CreatedAt:   "suppliers.created_at",
 }
 
 // Generated where
 
 var SupplierWhere = struct {
-	ID            whereHelperint64
-	UserID        whereHelperint64
-	UserBillingID whereHelperint64
-	CurrencyID    whereHelperint64
-	Code          whereHelperstring
-	FTPUsername   whereHelpernull_String
-	FTPPassword   whereHelpernull_String
-	DeletedAt     whereHelpernull_Time
-	UpdatedAt     whereHelpertime_Time
-	CreatedAt     whereHelpertime_Time
+	ID          whereHelperint64
+	Name        whereHelperstring
+	Code        whereHelperstring
+	ImportedAt  whereHelpernull_Time
+	FTPUsername whereHelpernull_String
+	FTPPassword whereHelpernull_String
+	DeletedAt   whereHelpernull_Time
+	UpdatedAt   whereHelpertime_Time
+	CreatedAt   whereHelpertime_Time
 }{
-	ID:            whereHelperint64{field: "\"suppliers\".\"id\""},
-	UserID:        whereHelperint64{field: "\"suppliers\".\"user_id\""},
-	UserBillingID: whereHelperint64{field: "\"suppliers\".\"user_billing_id\""},
-	CurrencyID:    whereHelperint64{field: "\"suppliers\".\"currency_id\""},
-	Code:          whereHelperstring{field: "\"suppliers\".\"code\""},
-	FTPUsername:   whereHelpernull_String{field: "\"suppliers\".\"ftp_username\""},
-	FTPPassword:   whereHelpernull_String{field: "\"suppliers\".\"ftp_password\""},
-	DeletedAt:     whereHelpernull_Time{field: "\"suppliers\".\"deleted_at\""},
-	UpdatedAt:     whereHelpertime_Time{field: "\"suppliers\".\"updated_at\""},
-	CreatedAt:     whereHelpertime_Time{field: "\"suppliers\".\"created_at\""},
+	ID:          whereHelperint64{field: "\"suppliers\".\"id\""},
+	Name:        whereHelperstring{field: "\"suppliers\".\"name\""},
+	Code:        whereHelperstring{field: "\"suppliers\".\"code\""},
+	ImportedAt:  whereHelpernull_Time{field: "\"suppliers\".\"imported_at\""},
+	FTPUsername: whereHelpernull_String{field: "\"suppliers\".\"ftp_username\""},
+	FTPPassword: whereHelpernull_String{field: "\"suppliers\".\"ftp_password\""},
+	DeletedAt:   whereHelpernull_Time{field: "\"suppliers\".\"deleted_at\""},
+	UpdatedAt:   whereHelpertime_Time{field: "\"suppliers\".\"updated_at\""},
+	CreatedAt:   whereHelpertime_Time{field: "\"suppliers\".\"created_at\""},
 }
 
 // SupplierRels is where relationship names are stored.
 var SupplierRels = struct {
-	Currency     string
-	UserBilling  string
-	User         string
+	ImportJobs   string
 	OrderRows    string
 	ProductItems string
 }{
-	Currency:     "Currency",
-	UserBilling:  "UserBilling",
-	User:         "user",
+	ImportJobs:   "ImportJobs",
 	OrderRows:    "OrderRows",
 	ProductItems: "ProductItems",
 }
 
 // supplierR is where relationships are stored.
 type supplierR struct {
-	Currency     *Currency        `boil:"Currency" json:"Currency" toml:"Currency" yaml:"Currency"`
-	UserBilling  *UserBilling     `boil:"UserBilling" json:"UserBilling" toml:"UserBilling" yaml:"UserBilling"`
-	User         *User            `boil:"user" json:"user" toml:"user" yaml:"user"`
+	ImportJobs   ImportJobSlice   `boil:"ImportJobs" json:"ImportJobs" toml:"ImportJobs" yaml:"ImportJobs"`
 	OrderRows    OrderRowSlice    `boil:"OrderRows" json:"OrderRows" toml:"OrderRows" yaml:"OrderRows"`
 	ProductItems ProductItemSlice `boil:"ProductItems" json:"ProductItems" toml:"ProductItems" yaml:"ProductItems"`
 }
@@ -142,25 +129,11 @@ func (*supplierR) NewStruct() *supplierR {
 	return &supplierR{}
 }
 
-func (r *supplierR) GetCurrency() *Currency {
+func (r *supplierR) GetImportJobs() ImportJobSlice {
 	if r == nil {
 		return nil
 	}
-	return r.Currency
-}
-
-func (r *supplierR) GetUserBilling() *UserBilling {
-	if r == nil {
-		return nil
-	}
-	return r.UserBilling
-}
-
-func (r *supplierR) GetUser() *User {
-	if r == nil {
-		return nil
-	}
-	return r.User
+	return r.ImportJobs
 }
 
 func (r *supplierR) GetOrderRows() OrderRowSlice {
@@ -181,9 +154,9 @@ func (r *supplierR) GetProductItems() ProductItemSlice {
 type supplierL struct{}
 
 var (
-	supplierAllColumns            = []string{"id", "user_id", "user_billing_id", "currency_id", "code", "ftp_username", "ftp_password", "deleted_at", "updated_at", "created_at"}
-	supplierColumnsWithoutDefault = []string{"code"}
-	supplierColumnsWithDefault    = []string{"id", "user_id", "user_billing_id", "currency_id", "ftp_username", "ftp_password", "deleted_at", "updated_at", "created_at"}
+	supplierAllColumns            = []string{"id", "name", "code", "imported_at", "ftp_username", "ftp_password", "deleted_at", "updated_at", "created_at"}
+	supplierColumnsWithoutDefault = []string{"name", "code"}
+	supplierColumnsWithDefault    = []string{"id", "imported_at", "ftp_username", "ftp_password", "deleted_at", "updated_at", "created_at"}
 	supplierPrimaryKeyColumns     = []string{"id"}
 	supplierGeneratedColumns      = []string{}
 )
@@ -466,37 +439,18 @@ func (q supplierQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (b
 	return count > 0, nil
 }
 
-// Currency pointed to by the foreign key.
-func (o *Supplier) Currency(mods ...qm.QueryMod) currencyQuery {
-	queryMods := []qm.QueryMod{
-		qm.Where("\"id\" = ?", o.CurrencyID),
+// ImportJobs retrieves all the import_job's ImportJobs with an executor.
+func (o *Supplier) ImportJobs(mods ...qm.QueryMod) importJobQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
 	}
 
-	queryMods = append(queryMods, mods...)
+	queryMods = append(queryMods,
+		qm.Where("\"import_jobs\".\"supplier_id\"=?", o.ID),
+	)
 
-	return Currencies(queryMods...)
-}
-
-// UserBilling pointed to by the foreign key.
-func (o *Supplier) UserBilling(mods ...qm.QueryMod) userBillingQuery {
-	queryMods := []qm.QueryMod{
-		qm.Where("\"id\" = ?", o.UserBillingID),
-	}
-
-	queryMods = append(queryMods, mods...)
-
-	return UserBillings(queryMods...)
-}
-
-// User pointed to by the foreign key.
-func (o *Supplier) User(mods ...qm.QueryMod) userQuery {
-	queryMods := []qm.QueryMod{
-		qm.Where("\"id\" = ?", o.UserID),
-	}
-
-	queryMods = append(queryMods, mods...)
-
-	return Users(queryMods...)
+	return ImportJobs(queryMods...)
 }
 
 // OrderRows retrieves all the order_row's OrderRows with an executor.
@@ -527,9 +481,9 @@ func (o *Supplier) ProductItems(mods ...qm.QueryMod) productItemQuery {
 	return ProductItems(queryMods...)
 }
 
-// LoadCurrency allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for an N-1 relationship.
-func (supplierL) LoadCurrency(ctx context.Context, e boil.ContextExecutor, singular bool, maybeSupplier interface{}, mods queries.Applicator) error {
+// LoadImportJobs allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (supplierL) LoadImportJobs(ctx context.Context, e boil.ContextExecutor, singular bool, maybeSupplier interface{}, mods queries.Applicator) error {
 	var slice []*Supplier
 	var object *Supplier
 
@@ -560,8 +514,7 @@ func (supplierL) LoadCurrency(ctx context.Context, e boil.ContextExecutor, singu
 		if object.R == nil {
 			object.R = &supplierR{}
 		}
-		args = append(args, object.CurrencyID)
-
+		args = append(args, object.ID)
 	} else {
 	Outer:
 		for _, obj := range slice {
@@ -570,13 +523,12 @@ func (supplierL) LoadCurrency(ctx context.Context, e boil.ContextExecutor, singu
 			}
 
 			for _, a := range args {
-				if a == obj.CurrencyID {
+				if a == obj.ID {
 					continue Outer
 				}
 			}
 
-			args = append(args, obj.CurrencyID)
-
+			args = append(args, obj.ID)
 		}
 	}
 
@@ -585,8 +537,8 @@ func (supplierL) LoadCurrency(ctx context.Context, e boil.ContextExecutor, singu
 	}
 
 	query := NewQuery(
-		qm.From(`currencies`),
-		qm.WhereIn(`currencies.id in ?`, args...),
+		qm.From(`import_jobs`),
+		qm.WhereIn(`import_jobs.supplier_id in ?`, args...),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -594,293 +546,47 @@ func (supplierL) LoadCurrency(ctx context.Context, e boil.ContextExecutor, singu
 
 	results, err := query.QueryContext(ctx, e)
 	if err != nil {
-		return errors.Wrap(err, "failed to eager load Currency")
+		return errors.Wrap(err, "failed to eager load import_jobs")
 	}
 
-	var resultSlice []*Currency
+	var resultSlice []*ImportJob
 	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice Currency")
+		return errors.Wrap(err, "failed to bind eager loaded slice import_jobs")
 	}
 
 	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results of eager load for currencies")
+		return errors.Wrap(err, "failed to close results in eager load on import_jobs")
 	}
 	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for currencies")
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for import_jobs")
 	}
 
-	if len(currencyAfterSelectHooks) != 0 {
+	if len(importJobAfterSelectHooks) != 0 {
 		for _, obj := range resultSlice {
 			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
 				return err
 			}
 		}
 	}
-
-	if len(resultSlice) == 0 {
-		return nil
-	}
-
 	if singular {
-		foreign := resultSlice[0]
-		object.R.Currency = foreign
-		if foreign.R == nil {
-			foreign.R = &currencyR{}
-		}
-		foreign.R.Suppliers = append(foreign.R.Suppliers, object)
-		return nil
-	}
-
-	for _, local := range slice {
+		object.R.ImportJobs = resultSlice
 		for _, foreign := range resultSlice {
-			if local.CurrencyID == foreign.ID {
-				local.R.Currency = foreign
+			if foreign.R == nil {
+				foreign.R = &importJobR{}
+			}
+			foreign.R.Supplier = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if local.ID == foreign.SupplierID {
+				local.R.ImportJobs = append(local.R.ImportJobs, foreign)
 				if foreign.R == nil {
-					foreign.R = &currencyR{}
+					foreign.R = &importJobR{}
 				}
-				foreign.R.Suppliers = append(foreign.R.Suppliers, local)
-				break
-			}
-		}
-	}
-
-	return nil
-}
-
-// LoadUserBilling allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for an N-1 relationship.
-func (supplierL) LoadUserBilling(ctx context.Context, e boil.ContextExecutor, singular bool, maybeSupplier interface{}, mods queries.Applicator) error {
-	var slice []*Supplier
-	var object *Supplier
-
-	if singular {
-		var ok bool
-		object, ok = maybeSupplier.(*Supplier)
-		if !ok {
-			object = new(Supplier)
-			ok = queries.SetFromEmbeddedStruct(&object, &maybeSupplier)
-			if !ok {
-				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", object, maybeSupplier))
-			}
-		}
-	} else {
-		s, ok := maybeSupplier.(*[]*Supplier)
-		if ok {
-			slice = *s
-		} else {
-			ok = queries.SetFromEmbeddedStruct(&slice, maybeSupplier)
-			if !ok {
-				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", slice, maybeSupplier))
-			}
-		}
-	}
-
-	args := make([]interface{}, 0, 1)
-	if singular {
-		if object.R == nil {
-			object.R = &supplierR{}
-		}
-		args = append(args, object.UserBillingID)
-
-	} else {
-	Outer:
-		for _, obj := range slice {
-			if obj.R == nil {
-				obj.R = &supplierR{}
-			}
-
-			for _, a := range args {
-				if a == obj.UserBillingID {
-					continue Outer
-				}
-			}
-
-			args = append(args, obj.UserBillingID)
-
-		}
-	}
-
-	if len(args) == 0 {
-		return nil
-	}
-
-	query := NewQuery(
-		qm.From(`user_billings`),
-		qm.WhereIn(`user_billings.id in ?`, args...),
-		qmhelper.WhereIsNull(`user_billings.deleted_at`),
-	)
-	if mods != nil {
-		mods.Apply(query)
-	}
-
-	results, err := query.QueryContext(ctx, e)
-	if err != nil {
-		return errors.Wrap(err, "failed to eager load UserBilling")
-	}
-
-	var resultSlice []*UserBilling
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice UserBilling")
-	}
-
-	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results of eager load for user_billings")
-	}
-	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for user_billings")
-	}
-
-	if len(userBillingAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
-				return err
-			}
-		}
-	}
-
-	if len(resultSlice) == 0 {
-		return nil
-	}
-
-	if singular {
-		foreign := resultSlice[0]
-		object.R.UserBilling = foreign
-		if foreign.R == nil {
-			foreign.R = &userBillingR{}
-		}
-		foreign.R.Suppliers = append(foreign.R.Suppliers, object)
-		return nil
-	}
-
-	for _, local := range slice {
-		for _, foreign := range resultSlice {
-			if local.UserBillingID == foreign.ID {
-				local.R.UserBilling = foreign
-				if foreign.R == nil {
-					foreign.R = &userBillingR{}
-				}
-				foreign.R.Suppliers = append(foreign.R.Suppliers, local)
-				break
-			}
-		}
-	}
-
-	return nil
-}
-
-// LoadUser allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for an N-1 relationship.
-func (supplierL) LoadUser(ctx context.Context, e boil.ContextExecutor, singular bool, maybeSupplier interface{}, mods queries.Applicator) error {
-	var slice []*Supplier
-	var object *Supplier
-
-	if singular {
-		var ok bool
-		object, ok = maybeSupplier.(*Supplier)
-		if !ok {
-			object = new(Supplier)
-			ok = queries.SetFromEmbeddedStruct(&object, &maybeSupplier)
-			if !ok {
-				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", object, maybeSupplier))
-			}
-		}
-	} else {
-		s, ok := maybeSupplier.(*[]*Supplier)
-		if ok {
-			slice = *s
-		} else {
-			ok = queries.SetFromEmbeddedStruct(&slice, maybeSupplier)
-			if !ok {
-				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", slice, maybeSupplier))
-			}
-		}
-	}
-
-	args := make([]interface{}, 0, 1)
-	if singular {
-		if object.R == nil {
-			object.R = &supplierR{}
-		}
-		args = append(args, object.UserID)
-
-	} else {
-	Outer:
-		for _, obj := range slice {
-			if obj.R == nil {
-				obj.R = &supplierR{}
-			}
-
-			for _, a := range args {
-				if a == obj.UserID {
-					continue Outer
-				}
-			}
-
-			args = append(args, obj.UserID)
-
-		}
-	}
-
-	if len(args) == 0 {
-		return nil
-	}
-
-	query := NewQuery(
-		qm.From(`users`),
-		qm.WhereIn(`users.id in ?`, args...),
-		qmhelper.WhereIsNull(`users.deleted_at`),
-	)
-	if mods != nil {
-		mods.Apply(query)
-	}
-
-	results, err := query.QueryContext(ctx, e)
-	if err != nil {
-		return errors.Wrap(err, "failed to eager load user")
-	}
-
-	var resultSlice []*User
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice user")
-	}
-
-	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results of eager load for users")
-	}
-	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for users")
-	}
-
-	if len(userAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
-				return err
-			}
-		}
-	}
-
-	if len(resultSlice) == 0 {
-		return nil
-	}
-
-	if singular {
-		foreign := resultSlice[0]
-		object.R.User = foreign
-		if foreign.R == nil {
-			foreign.R = &userR{}
-		}
-		foreign.R.Suppliers = append(foreign.R.Suppliers, object)
-		return nil
-	}
-
-	for _, local := range slice {
-		for _, foreign := range resultSlice {
-			if local.UserID == foreign.ID {
-				local.R.User = foreign
-				if foreign.R == nil {
-					foreign.R = &userR{}
-				}
-				foreign.R.Suppliers = append(foreign.R.Suppliers, local)
+				foreign.R.Supplier = local
 				break
 			}
 		}
@@ -1061,7 +767,6 @@ func (supplierL) LoadProductItems(ctx context.Context, e boil.ContextExecutor, s
 	query := NewQuery(
 		qm.From(`product_items`),
 		qm.WhereIn(`product_items.supplier_id in ?`, args...),
-		qmhelper.WhereIsNull(`product_items.deleted_at`),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -1118,144 +823,56 @@ func (supplierL) LoadProductItems(ctx context.Context, e boil.ContextExecutor, s
 	return nil
 }
 
-// SetCurrency of the supplier to the related item.
-// Sets o.R.Currency to related.
-// Adds o to related.R.Suppliers.
-func (o *Supplier) SetCurrency(ctx context.Context, exec boil.ContextExecutor, insert bool, related *Currency) error {
+// AddImportJobs adds the given related objects to the existing relationships
+// of the supplier, optionally inserting them as new records.
+// Appends related to o.R.ImportJobs.
+// Sets related.R.Supplier appropriately.
+func (o *Supplier) AddImportJobs(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*ImportJob) error {
 	var err error
-	if insert {
-		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
-			return errors.Wrap(err, "failed to insert into foreign table")
+	for _, rel := range related {
+		if insert {
+			rel.SupplierID = o.ID
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE \"import_jobs\" SET %s WHERE %s",
+				strmangle.SetParamNames("\"", "\"", 1, []string{"supplier_id"}),
+				strmangle.WhereClause("\"", "\"", 2, importJobPrimaryKeyColumns),
+			)
+			values := []interface{}{o.ID, rel.ID}
+
+			if boil.IsDebug(ctx) {
+				writer := boil.DebugWriterFrom(ctx)
+				fmt.Fprintln(writer, updateQuery)
+				fmt.Fprintln(writer, values)
+			}
+			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			rel.SupplierID = o.ID
 		}
 	}
 
-	updateQuery := fmt.Sprintf(
-		"UPDATE \"suppliers\" SET %s WHERE %s",
-		strmangle.SetParamNames("\"", "\"", 1, []string{"currency_id"}),
-		strmangle.WhereClause("\"", "\"", 2, supplierPrimaryKeyColumns),
-	)
-	values := []interface{}{related.ID, o.ID}
-
-	if boil.IsDebug(ctx) {
-		writer := boil.DebugWriterFrom(ctx)
-		fmt.Fprintln(writer, updateQuery)
-		fmt.Fprintln(writer, values)
-	}
-	if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
-		return errors.Wrap(err, "failed to update local table")
-	}
-
-	o.CurrencyID = related.ID
 	if o.R == nil {
 		o.R = &supplierR{
-			Currency: related,
+			ImportJobs: related,
 		}
 	} else {
-		o.R.Currency = related
+		o.R.ImportJobs = append(o.R.ImportJobs, related...)
 	}
 
-	if related.R == nil {
-		related.R = &currencyR{
-			Suppliers: SupplierSlice{o},
-		}
-	} else {
-		related.R.Suppliers = append(related.R.Suppliers, o)
-	}
-
-	return nil
-}
-
-// SetUserBilling of the supplier to the related item.
-// Sets o.R.UserBilling to related.
-// Adds o to related.R.Suppliers.
-func (o *Supplier) SetUserBilling(ctx context.Context, exec boil.ContextExecutor, insert bool, related *UserBilling) error {
-	var err error
-	if insert {
-		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
-			return errors.Wrap(err, "failed to insert into foreign table")
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &importJobR{
+				Supplier: o,
+			}
+		} else {
+			rel.R.Supplier = o
 		}
 	}
-
-	updateQuery := fmt.Sprintf(
-		"UPDATE \"suppliers\" SET %s WHERE %s",
-		strmangle.SetParamNames("\"", "\"", 1, []string{"user_billing_id"}),
-		strmangle.WhereClause("\"", "\"", 2, supplierPrimaryKeyColumns),
-	)
-	values := []interface{}{related.ID, o.ID}
-
-	if boil.IsDebug(ctx) {
-		writer := boil.DebugWriterFrom(ctx)
-		fmt.Fprintln(writer, updateQuery)
-		fmt.Fprintln(writer, values)
-	}
-	if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
-		return errors.Wrap(err, "failed to update local table")
-	}
-
-	o.UserBillingID = related.ID
-	if o.R == nil {
-		o.R = &supplierR{
-			UserBilling: related,
-		}
-	} else {
-		o.R.UserBilling = related
-	}
-
-	if related.R == nil {
-		related.R = &userBillingR{
-			Suppliers: SupplierSlice{o},
-		}
-	} else {
-		related.R.Suppliers = append(related.R.Suppliers, o)
-	}
-
-	return nil
-}
-
-// SetUser of the supplier to the related item.
-// Sets o.R.user to related.
-// Adds o to related.R.Suppliers.
-func (o *Supplier) SetUser(ctx context.Context, exec boil.ContextExecutor, insert bool, related *User) error {
-	var err error
-	if insert {
-		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
-			return errors.Wrap(err, "failed to insert into foreign table")
-		}
-	}
-
-	updateQuery := fmt.Sprintf(
-		"UPDATE \"suppliers\" SET %s WHERE %s",
-		strmangle.SetParamNames("\"", "\"", 1, []string{"user_id"}),
-		strmangle.WhereClause("\"", "\"", 2, supplierPrimaryKeyColumns),
-	)
-	values := []interface{}{related.ID, o.ID}
-
-	if boil.IsDebug(ctx) {
-		writer := boil.DebugWriterFrom(ctx)
-		fmt.Fprintln(writer, updateQuery)
-		fmt.Fprintln(writer, values)
-	}
-	if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
-		return errors.Wrap(err, "failed to update local table")
-	}
-
-	o.UserID = related.ID
-	if o.R == nil {
-		o.R = &supplierR{
-			User: related,
-		}
-	} else {
-		o.R.User = related
-	}
-
-	if related.R == nil {
-		related.R = &userR{
-			Suppliers: SupplierSlice{o},
-		}
-	} else {
-		related.R.Suppliers = append(related.R.Suppliers, o)
-	}
-
 	return nil
 }
 
@@ -1367,7 +984,7 @@ func (o *Supplier) AddProductItems(ctx context.Context, exec boil.ContextExecuto
 
 // Suppliers retrieves all the records using an executor.
 func Suppliers(mods ...qm.QueryMod) supplierQuery {
-	mods = append(mods, qm.From("\"suppliers\""), qmhelper.WhereIsNull("\"suppliers\".\"deleted_at\""))
+	mods = append(mods, qm.From("\"suppliers\""))
 	q := NewQuery(mods...)
 	if len(queries.GetSelect(q)) == 0 {
 		queries.SetSelect(q, []string{"\"suppliers\".*"})
@@ -1386,7 +1003,7 @@ func FindSupplier(ctx context.Context, exec boil.ContextExecutor, iD int64, sele
 		sel = strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, selectCols), ",")
 	}
 	query := fmt.Sprintf(
-		"select %s from \"suppliers\" where \"id\"=$1 and \"deleted_at\" is null", sel,
+		"select %s from \"suppliers\" where \"id\"=$1", sel,
 	)
 
 	q := queries.Raw(query, iD)
@@ -1755,7 +1372,7 @@ func (o *Supplier) Upsert(ctx context.Context, exec boil.ContextExecutor, update
 
 // Delete deletes a single Supplier record with an executor.
 // Delete will match against the primary key column to find the record to delete.
-func (o *Supplier) Delete(ctx context.Context, exec boil.ContextExecutor, hardDelete bool) (int64, error) {
+func (o *Supplier) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if o == nil {
 		return 0, errors.New("models: no Supplier provided for delete")
 	}
@@ -1764,26 +1381,8 @@ func (o *Supplier) Delete(ctx context.Context, exec boil.ContextExecutor, hardDe
 		return 0, err
 	}
 
-	var (
-		sql  string
-		args []interface{}
-	)
-	if hardDelete {
-		args = queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), supplierPrimaryKeyMapping)
-		sql = "DELETE FROM \"suppliers\" WHERE \"id\"=$1"
-	} else {
-		currTime := time.Now().In(boil.GetLocation())
-		o.DeletedAt = null.TimeFrom(currTime)
-		wl := []string{"deleted_at"}
-		sql = fmt.Sprintf("UPDATE \"suppliers\" SET %s WHERE \"id\"=$2",
-			strmangle.SetParamNames("\"", "\"", 1, wl),
-		)
-		valueMapping, err := queries.BindMapping(supplierType, supplierMapping, append(wl, supplierPrimaryKeyColumns...))
-		if err != nil {
-			return 0, err
-		}
-		args = queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), valueMapping)
-	}
+	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), supplierPrimaryKeyMapping)
+	sql := "DELETE FROM \"suppliers\" WHERE \"id\"=$1"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1808,17 +1407,12 @@ func (o *Supplier) Delete(ctx context.Context, exec boil.ContextExecutor, hardDe
 }
 
 // DeleteAll deletes all matching rows.
-func (q supplierQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor, hardDelete bool) (int64, error) {
+func (q supplierQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if q.Query == nil {
 		return 0, errors.New("models: no supplierQuery provided for delete all")
 	}
 
-	if hardDelete {
-		queries.SetDelete(q.Query)
-	} else {
-		currTime := time.Now().In(boil.GetLocation())
-		queries.SetUpdate(q.Query, M{"deleted_at": currTime})
-	}
+	queries.SetDelete(q.Query)
 
 	result, err := q.Query.ExecContext(ctx, exec)
 	if err != nil {
@@ -1834,7 +1428,7 @@ func (q supplierQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor,
 }
 
 // DeleteAll deletes all rows in the slice, using an executor.
-func (o SupplierSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor, hardDelete bool) (int64, error) {
+func (o SupplierSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if len(o) == 0 {
 		return 0, nil
 	}
@@ -1847,31 +1441,14 @@ func (o SupplierSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor,
 		}
 	}
 
-	var (
-		sql  string
-		args []interface{}
-	)
-	if hardDelete {
-		for _, obj := range o {
-			pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), supplierPrimaryKeyMapping)
-			args = append(args, pkeyArgs...)
-		}
-		sql = "DELETE FROM \"suppliers\" WHERE " +
-			strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, supplierPrimaryKeyColumns, len(o))
-	} else {
-		currTime := time.Now().In(boil.GetLocation())
-		for _, obj := range o {
-			pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), supplierPrimaryKeyMapping)
-			args = append(args, pkeyArgs...)
-			obj.DeletedAt = null.TimeFrom(currTime)
-		}
-		wl := []string{"deleted_at"}
-		sql = fmt.Sprintf("UPDATE \"suppliers\" SET %s WHERE "+
-			strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 2, supplierPrimaryKeyColumns, len(o)),
-			strmangle.SetParamNames("\"", "\"", 1, wl),
-		)
-		args = append([]interface{}{currTime}, args...)
+	var args []interface{}
+	for _, obj := range o {
+		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), supplierPrimaryKeyMapping)
+		args = append(args, pkeyArgs...)
 	}
+
+	sql := "DELETE FROM \"suppliers\" WHERE " +
+		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, supplierPrimaryKeyColumns, len(o))
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1926,8 +1503,7 @@ func (o *SupplierSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor
 	}
 
 	sql := "SELECT \"suppliers\".* FROM \"suppliers\" WHERE " +
-		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, supplierPrimaryKeyColumns, len(*o)) +
-		"and \"deleted_at\" is null"
+		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, supplierPrimaryKeyColumns, len(*o))
 
 	q := queries.Raw(sql, args...)
 
@@ -1944,7 +1520,7 @@ func (o *SupplierSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor
 // SupplierExists checks if the Supplier row exists.
 func SupplierExists(ctx context.Context, exec boil.ContextExecutor, iD int64) (bool, error) {
 	var exists bool
-	sql := "select exists(select 1 from \"suppliers\" where \"id\"=$1 and \"deleted_at\" is null limit 1)"
+	sql := "select exists(select 1 from \"suppliers\" where \"id\"=$1 limit 1)"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)

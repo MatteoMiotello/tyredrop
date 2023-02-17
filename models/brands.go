@@ -606,7 +606,6 @@ func (brandL) LoadProducts(ctx context.Context, e boil.ContextExecutor, singular
 	query := NewQuery(
 		qm.From(`products`),
 		qm.WhereIn(`products.brand_id in ?`, args...),
-		qmhelper.WhereIsNull(`products.deleted_at`),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -718,7 +717,7 @@ func (o *Brand) AddProducts(ctx context.Context, exec boil.ContextExecutor, inse
 
 // Brands retrieves all the records using an executor.
 func Brands(mods ...qm.QueryMod) brandQuery {
-	mods = append(mods, qm.From("\"brands\""), qmhelper.WhereIsNull("\"brands\".\"deleted_at\""))
+	mods = append(mods, qm.From("\"brands\""))
 	q := NewQuery(mods...)
 	if len(queries.GetSelect(q)) == 0 {
 		queries.SetSelect(q, []string{"\"brands\".*"})
@@ -737,7 +736,7 @@ func FindBrand(ctx context.Context, exec boil.ContextExecutor, iD int64, selectC
 		sel = strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, selectCols), ",")
 	}
 	query := fmt.Sprintf(
-		"select %s from \"brands\" where \"id\"=$1 and \"deleted_at\" is null", sel,
+		"select %s from \"brands\" where \"id\"=$1", sel,
 	)
 
 	q := queries.Raw(query, iD)
@@ -1106,7 +1105,7 @@ func (o *Brand) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnC
 
 // Delete deletes a single Brand record with an executor.
 // Delete will match against the primary key column to find the record to delete.
-func (o *Brand) Delete(ctx context.Context, exec boil.ContextExecutor, hardDelete bool) (int64, error) {
+func (o *Brand) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if o == nil {
 		return 0, errors.New("models: no Brand provided for delete")
 	}
@@ -1115,26 +1114,8 @@ func (o *Brand) Delete(ctx context.Context, exec boil.ContextExecutor, hardDelet
 		return 0, err
 	}
 
-	var (
-		sql  string
-		args []interface{}
-	)
-	if hardDelete {
-		args = queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), brandPrimaryKeyMapping)
-		sql = "DELETE FROM \"brands\" WHERE \"id\"=$1"
-	} else {
-		currTime := time.Now().In(boil.GetLocation())
-		o.DeletedAt = null.TimeFrom(currTime)
-		wl := []string{"deleted_at"}
-		sql = fmt.Sprintf("UPDATE \"brands\" SET %s WHERE \"id\"=$2",
-			strmangle.SetParamNames("\"", "\"", 1, wl),
-		)
-		valueMapping, err := queries.BindMapping(brandType, brandMapping, append(wl, brandPrimaryKeyColumns...))
-		if err != nil {
-			return 0, err
-		}
-		args = queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), valueMapping)
-	}
+	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), brandPrimaryKeyMapping)
+	sql := "DELETE FROM \"brands\" WHERE \"id\"=$1"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1159,17 +1140,12 @@ func (o *Brand) Delete(ctx context.Context, exec boil.ContextExecutor, hardDelet
 }
 
 // DeleteAll deletes all matching rows.
-func (q brandQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor, hardDelete bool) (int64, error) {
+func (q brandQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if q.Query == nil {
 		return 0, errors.New("models: no brandQuery provided for delete all")
 	}
 
-	if hardDelete {
-		queries.SetDelete(q.Query)
-	} else {
-		currTime := time.Now().In(boil.GetLocation())
-		queries.SetUpdate(q.Query, M{"deleted_at": currTime})
-	}
+	queries.SetDelete(q.Query)
 
 	result, err := q.Query.ExecContext(ctx, exec)
 	if err != nil {
@@ -1185,7 +1161,7 @@ func (q brandQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor, ha
 }
 
 // DeleteAll deletes all rows in the slice, using an executor.
-func (o BrandSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor, hardDelete bool) (int64, error) {
+func (o BrandSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if len(o) == 0 {
 		return 0, nil
 	}
@@ -1198,31 +1174,14 @@ func (o BrandSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor, ha
 		}
 	}
 
-	var (
-		sql  string
-		args []interface{}
-	)
-	if hardDelete {
-		for _, obj := range o {
-			pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), brandPrimaryKeyMapping)
-			args = append(args, pkeyArgs...)
-		}
-		sql = "DELETE FROM \"brands\" WHERE " +
-			strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, brandPrimaryKeyColumns, len(o))
-	} else {
-		currTime := time.Now().In(boil.GetLocation())
-		for _, obj := range o {
-			pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), brandPrimaryKeyMapping)
-			args = append(args, pkeyArgs...)
-			obj.DeletedAt = null.TimeFrom(currTime)
-		}
-		wl := []string{"deleted_at"}
-		sql = fmt.Sprintf("UPDATE \"brands\" SET %s WHERE "+
-			strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 2, brandPrimaryKeyColumns, len(o)),
-			strmangle.SetParamNames("\"", "\"", 1, wl),
-		)
-		args = append([]interface{}{currTime}, args...)
+	var args []interface{}
+	for _, obj := range o {
+		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), brandPrimaryKeyMapping)
+		args = append(args, pkeyArgs...)
 	}
+
+	sql := "DELETE FROM \"brands\" WHERE " +
+		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, brandPrimaryKeyColumns, len(o))
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1277,8 +1236,7 @@ func (o *BrandSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor) e
 	}
 
 	sql := "SELECT \"brands\".* FROM \"brands\" WHERE " +
-		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, brandPrimaryKeyColumns, len(*o)) +
-		"and \"deleted_at\" is null"
+		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, brandPrimaryKeyColumns, len(*o))
 
 	q := queries.Raw(sql, args...)
 
@@ -1295,7 +1253,7 @@ func (o *BrandSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor) e
 // BrandExists checks if the Brand row exists.
 func BrandExists(ctx context.Context, exec boil.ContextExecutor, iD int64) (bool, error) {
 	var exists bool
-	sql := "select exists(select 1 from \"brands\" where \"id\"=$1 and \"deleted_at\" is null limit 1)"
+	sql := "select exists(select 1 from \"brands\" where \"id\"=$1 limit 1)"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)

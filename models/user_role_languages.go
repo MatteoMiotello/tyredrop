@@ -82,13 +82,13 @@ var UserRoleLanguageRels = struct {
 	Language string
 	UserRole string
 }{
-	Language: "L",
+	Language: "Language",
 	UserRole: "UserRole",
 }
 
 // userRoleLanguageR is where relationships are stored.
 type userRoleLanguageR struct {
-	Language *Language `boil:"L" json:"L" toml:"L" yaml:"L"`
+	Language *Language `boil:"Language" json:"Language" toml:"Language" yaml:"Language"`
 	UserRole *UserRole `boil:"UserRole" json:"UserRole" toml:"UserRole" yaml:"UserRole"`
 }
 
@@ -489,12 +489,12 @@ func (userRoleLanguageL) LoadLanguage(ctx context.Context, e boil.ContextExecuto
 
 	results, err := query.QueryContext(ctx, e)
 	if err != nil {
-		return errors.Wrap(err, "failed to eager load L")
+		return errors.Wrap(err, "failed to eager load Language")
 	}
 
 	var resultSlice []*Language
 	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice L")
+		return errors.Wrap(err, "failed to bind eager loaded slice Language")
 	}
 
 	if err = results.Close(); err != nil {
@@ -663,7 +663,7 @@ func (userRoleLanguageL) LoadUserRole(ctx context.Context, e boil.ContextExecuto
 }
 
 // SetLanguage of the userRoleLanguage to the related item.
-// Sets o.R.L to related.
+// Sets o.R.Language to related.
 // Adds o to related.R.UserRoleLanguages.
 func (o *UserRoleLanguage) SetLanguage(ctx context.Context, exec boil.ContextExecutor, insert bool, related *Language) error {
 	var err error
