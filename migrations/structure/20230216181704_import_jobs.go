@@ -16,6 +16,7 @@ func upImportJobs(tx *sql.Tx) error {
 		PKColumn().
 		FKColumn("public.suppliers", "supplier_id", false).
 		Column("filename", types.Varchar.Options("255"), false).
+		Column("error_message", types.Varchar.Options("255"), true).
 		Column("started_at", types.Timestamptz, true).
 		Column("ended_at", types.Timestamptz, true).
 		UpdatedColumn().

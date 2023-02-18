@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"database/sql"
 	"github.com/spf13/viper"
 	"log"
@@ -30,4 +31,28 @@ func Close() {
 	if err := DB.Close(); err != nil {
 		log.Fatalf("goose: failed to close DB: %v\n", err)
 	}
+}
+
+func WithTx(ctx context.Context, handle func(tx *sql.Tx) error) error {
+	tx, err := DB.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelDefault})
+
+	if err != nil {
+		return err
+	}
+
+	handleErr := handle(tx)
+
+	if handleErr != nil {
+		err = tx.Rollback()
+		if err != nil {
+			return err
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

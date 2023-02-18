@@ -617,6 +617,7 @@ func (productSpecificationLanguageL) LoadProductSpecification(ctx context.Contex
 	query := NewQuery(
 		qm.From(`product_specifications`),
 		qm.WhereIn(`product_specifications.id in ?`, args...),
+		qmhelper.WhereIsNull(`product_specifications.deleted_at`),
 	)
 	if mods != nil {
 		mods.Apply(query)

@@ -9,7 +9,7 @@ import (
 	"pillowww/titw/internal/auth"
 	"pillowww/titw/internal/cookie"
 	"pillowww/titw/internal/db"
-	"pillowww/titw/internal/domain/refresh_token"
+	"pillowww/titw/internal/domain/rt"
 	"pillowww/titw/internal/domain/user"
 	"pillowww/titw/models"
 	"pillowww/titw/pkg/api/responses"
@@ -64,7 +64,7 @@ func (a AuthController) Login(ctx *gin.Context) {
 		return
 	}
 
-	userRepo := user.NewUserRepo(db.DB)
+	userRepo := user.NewDao(db.DB)
 
 	var uModel *models.User
 
@@ -100,7 +100,8 @@ func (a AuthController) Login(ctx *gin.Context) {
 		return
 	}
 
-	err = refresh_token.StoreNew(ctx, *uModel, refreshToken)
+	rtService := rt.NewRefreshTokenService(rt.NewDao(db.DB))
+	err = rtService.StoreNew(ctx, *uModel, refreshToken)
 
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: "error storing refresh token"})
@@ -124,9 +125,9 @@ func (a AuthController) SignUp(ctx *gin.Context) {
 		return
 	}
 
-	userRepo := user.NewUserRepo(db.DB)
+	userDao := user.NewDao(db.DB)
 
-	uModel, _ := userRepo.FindOneByEmail(ctx, signupPayload.Email)
+	uModel, _ := userDao.FindOneByEmail(ctx, signupPayload.Email)
 
 	if uModel != nil && uModel.DeletedAt.IsZero() {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, responses.ErrorResponse{
@@ -136,7 +137,7 @@ func (a AuthController) SignUp(ctx *gin.Context) {
 	}
 
 	if signupPayload.Username != "" {
-		uModel, _ = userRepo.FindOneByUsername(ctx, signupPayload.Username)
+		uModel, _ = userDao.FindOneByUsername(ctx, signupPayload.Username)
 
 		if uModel != nil {
 			ctx.AbortWithStatusJSON(http.StatusBadRequest, responses.ErrorResponse{
@@ -146,14 +147,15 @@ func (a AuthController) SignUp(ctx *gin.Context) {
 		}
 	}
 
-	uModel, err = user.CreateUserFromPayload(ctx, user.CreateUserPayload(*signupPayload))
+	uService := user.NewUserService(userDao)
+	uModel, err = uService.CreateUserFromPayload(ctx, user.CreateUserPayload(*signupPayload))
 
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: "error creating uModel: " + err.Error()})
 		return
 	}
 
-	r, err := userRepo.GetUserRole(ctx, uModel)
+	r, err := userDao.GetUserRole(ctx, uModel)
 
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: "uModel role not found for uModel"})
@@ -163,7 +165,7 @@ func (a AuthController) SignUp(ctx *gin.Context) {
 	access := auth.FromCtx(ctx)
 	language := access.GetLanguage(ctx)
 
-	rLang, err := user.NewUserRepo(db.DB).GetUserRoleLanguage(ctx, r, *language.L)
+	rLang, err := user.NewDao(db.DB).GetUserRoleLanguage(ctx, r, *language.L)
 
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)
@@ -186,23 +188,23 @@ func (a AuthController) SignUp(ctx *gin.Context) {
 
 func (a AuthController) RefreshToken(ctx *gin.Context) {
 	payload := new(RefreshTokenPayload)
-	rtRepo := refresh_token.NewRefreshTokenRepo(db.DB)
+	rtDao := rt.NewDao(db.DB)
 	err := ctx.BindJSON(payload)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, responses.ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	rToken, err := rtRepo.FindValidOneFromRefreshToken(ctx, payload.RefreshToken)
+	rToken, err := rtDao.FindValidOneFromRefreshToken(ctx, payload.RefreshToken)
 	if err != nil || rToken == nil {
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, responses.ErrorResponse{Error: "refresh token not found"})
 		return
 	}
 
 	rToken.TimeLastUse = null.TimeFrom(time.Now())
-	_ = rtRepo.Update(ctx, rToken)
+	_ = rtDao.Update(ctx, rToken)
 
-	uModel, err := rtRepo.GetUser(ctx, *rToken)
+	uModel, err := rtDao.GetUser(ctx, *rToken)
 	token, err := jwt.CreateAccessTokenFromUser(ctx, *uModel)
 
 	if err != nil {
@@ -221,7 +223,8 @@ func (a AuthController) RefreshToken(ctx *gin.Context) {
 			log.Warningf(ctx, "%s: %s", "error generating new refresh token", err.Error())
 		}
 
-		err = refresh_token.StoreNew(ctx, *uModel, newRToken)
+		rtService := rt.NewRefreshTokenService(rtDao)
+		err = rtService.StoreNew(ctx, *uModel, newRToken)
 
 		if err != nil {
 			log.Warningf(ctx, "%s: %s", "error generating new refresh token", err.Error())

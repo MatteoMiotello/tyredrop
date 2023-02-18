@@ -50,7 +50,7 @@ func (a *Auth) GetUser(ctx context.Context) (*models.User, error) {
 		return a.user, nil
 	}
 
-	uRepo := user.NewUserRepo(db.DB)
+	uRepo := user.NewDao(db.DB)
 	uModel, err := uRepo.FindOneById(ctx, a.UserID)
 
 	if err != nil {
@@ -66,7 +66,7 @@ func (a *Auth) GetLanguage(ctx context.Context) *language.Language {
 		return a.language
 	}
 
-	lRepo := language.NewLanguageRepo(db.DB)
+	lRepo := language.NewDao(db.DB)
 	lModel, err := lRepo.FindOneFromIsoCode(ctx, a.LanguageCode)
 	if err != nil {
 		return language.FallbackLanguage()

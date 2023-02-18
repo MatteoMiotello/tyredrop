@@ -524,6 +524,7 @@ func (productSpecificationL) LoadProductCategory(ctx context.Context, e boil.Con
 	query := NewQuery(
 		qm.From(`product_categories`),
 		qm.WhereIn(`product_categories.id in ?`, args...),
+		qmhelper.WhereIsNull(`product_categories.deleted_at`),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -756,6 +757,7 @@ func (productSpecificationL) LoadProductSpecificationValues(ctx context.Context,
 	query := NewQuery(
 		qm.From(`product_specification_values`),
 		qm.WhereIn(`product_specification_values.product_specification_id in ?`, args...),
+		qmhelper.WhereIsNull(`product_specification_values.deleted_at`),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -967,7 +969,7 @@ func (o *ProductSpecification) AddProductSpecificationValues(ctx context.Context
 
 // ProductSpecifications retrieves all the records using an executor.
 func ProductSpecifications(mods ...qm.QueryMod) productSpecificationQuery {
-	mods = append(mods, qm.From("\"product_specifications\""))
+	mods = append(mods, qm.From("\"product_specifications\""), qmhelper.WhereIsNull("\"product_specifications\".\"deleted_at\""))
 	q := NewQuery(mods...)
 	if len(queries.GetSelect(q)) == 0 {
 		queries.SetSelect(q, []string{"\"product_specifications\".*"})
@@ -986,7 +988,7 @@ func FindProductSpecification(ctx context.Context, exec boil.ContextExecutor, iD
 		sel = strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, selectCols), ",")
 	}
 	query := fmt.Sprintf(
-		"select %s from \"product_specifications\" where \"id\"=$1", sel,
+		"select %s from \"product_specifications\" where \"id\"=$1 and \"deleted_at\" is null", sel,
 	)
 
 	q := queries.Raw(query, iD)
@@ -1355,7 +1357,7 @@ func (o *ProductSpecification) Upsert(ctx context.Context, exec boil.ContextExec
 
 // Delete deletes a single ProductSpecification record with an executor.
 // Delete will match against the primary key column to find the record to delete.
-func (o *ProductSpecification) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+func (o *ProductSpecification) Delete(ctx context.Context, exec boil.ContextExecutor, hardDelete bool) (int64, error) {
 	if o == nil {
 		return 0, errors.New("models: no ProductSpecification provided for delete")
 	}
@@ -1364,8 +1366,26 @@ func (o *ProductSpecification) Delete(ctx context.Context, exec boil.ContextExec
 		return 0, err
 	}
 
-	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), productSpecificationPrimaryKeyMapping)
-	sql := "DELETE FROM \"product_specifications\" WHERE \"id\"=$1"
+	var (
+		sql  string
+		args []interface{}
+	)
+	if hardDelete {
+		args = queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), productSpecificationPrimaryKeyMapping)
+		sql = "DELETE FROM \"product_specifications\" WHERE \"id\"=$1"
+	} else {
+		currTime := time.Now().In(boil.GetLocation())
+		o.DeletedAt = null.TimeFrom(currTime)
+		wl := []string{"deleted_at"}
+		sql = fmt.Sprintf("UPDATE \"product_specifications\" SET %s WHERE \"id\"=$2",
+			strmangle.SetParamNames("\"", "\"", 1, wl),
+		)
+		valueMapping, err := queries.BindMapping(productSpecificationType, productSpecificationMapping, append(wl, productSpecificationPrimaryKeyColumns...))
+		if err != nil {
+			return 0, err
+		}
+		args = queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), valueMapping)
+	}
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1390,12 +1410,17 @@ func (o *ProductSpecification) Delete(ctx context.Context, exec boil.ContextExec
 }
 
 // DeleteAll deletes all matching rows.
-func (q productSpecificationQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+func (q productSpecificationQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor, hardDelete bool) (int64, error) {
 	if q.Query == nil {
 		return 0, errors.New("models: no productSpecificationQuery provided for delete all")
 	}
 
-	queries.SetDelete(q.Query)
+	if hardDelete {
+		queries.SetDelete(q.Query)
+	} else {
+		currTime := time.Now().In(boil.GetLocation())
+		queries.SetUpdate(q.Query, M{"deleted_at": currTime})
+	}
 
 	result, err := q.Query.ExecContext(ctx, exec)
 	if err != nil {
@@ -1411,7 +1436,7 @@ func (q productSpecificationQuery) DeleteAll(ctx context.Context, exec boil.Cont
 }
 
 // DeleteAll deletes all rows in the slice, using an executor.
-func (o ProductSpecificationSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+func (o ProductSpecificationSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor, hardDelete bool) (int64, error) {
 	if len(o) == 0 {
 		return 0, nil
 	}
@@ -1424,14 +1449,31 @@ func (o ProductSpecificationSlice) DeleteAll(ctx context.Context, exec boil.Cont
 		}
 	}
 
-	var args []interface{}
-	for _, obj := range o {
-		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), productSpecificationPrimaryKeyMapping)
-		args = append(args, pkeyArgs...)
+	var (
+		sql  string
+		args []interface{}
+	)
+	if hardDelete {
+		for _, obj := range o {
+			pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), productSpecificationPrimaryKeyMapping)
+			args = append(args, pkeyArgs...)
+		}
+		sql = "DELETE FROM \"product_specifications\" WHERE " +
+			strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, productSpecificationPrimaryKeyColumns, len(o))
+	} else {
+		currTime := time.Now().In(boil.GetLocation())
+		for _, obj := range o {
+			pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), productSpecificationPrimaryKeyMapping)
+			args = append(args, pkeyArgs...)
+			obj.DeletedAt = null.TimeFrom(currTime)
+		}
+		wl := []string{"deleted_at"}
+		sql = fmt.Sprintf("UPDATE \"product_specifications\" SET %s WHERE "+
+			strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 2, productSpecificationPrimaryKeyColumns, len(o)),
+			strmangle.SetParamNames("\"", "\"", 1, wl),
+		)
+		args = append([]interface{}{currTime}, args...)
 	}
-
-	sql := "DELETE FROM \"product_specifications\" WHERE " +
-		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, productSpecificationPrimaryKeyColumns, len(o))
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1486,7 +1528,8 @@ func (o *ProductSpecificationSlice) ReloadAll(ctx context.Context, exec boil.Con
 	}
 
 	sql := "SELECT \"product_specifications\".* FROM \"product_specifications\" WHERE " +
-		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, productSpecificationPrimaryKeyColumns, len(*o))
+		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, productSpecificationPrimaryKeyColumns, len(*o)) +
+		"and \"deleted_at\" is null"
 
 	q := queries.Raw(sql, args...)
 
@@ -1503,7 +1546,7 @@ func (o *ProductSpecificationSlice) ReloadAll(ctx context.Context, exec boil.Con
 // ProductSpecificationExists checks if the ProductSpecification row exists.
 func ProductSpecificationExists(ctx context.Context, exec boil.ContextExecutor, iD int64) (bool, error) {
 	var exists bool
-	sql := "select exists(select 1 from \"product_specifications\" where \"id\"=$1 limit 1)"
+	sql := "select exists(select 1 from \"product_specifications\" where \"id\"=$1 and \"deleted_at\" is null limit 1)"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)

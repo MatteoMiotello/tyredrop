@@ -1,21 +1,28 @@
-package refresh_token
+package rt
 
 import (
 	"github.com/spf13/viper"
 	"golang.org/x/net/context"
-	"pillowww/titw/internal/db"
 	"pillowww/titw/models"
 	"time"
 )
 
-func StoreNew(ctx context.Context, user models.User, refreshToken string) error {
-	rtRepo := NewRefreshTokenRepo(db.DB)
+type RefreshTokenService struct {
+	RTDao *Dao
+}
 
-	olds, _ := rtRepo.FindAllByUser(ctx, user)
+func NewRefreshTokenService(dao *Dao) *RefreshTokenService {
+	return &RefreshTokenService{
+		RTDao: dao,
+	}
+}
+
+func (r RefreshTokenService) StoreNew(ctx context.Context, user models.User, refreshToken string) error {
+	olds, _ := r.RTDao.FindAllByUser(ctx, user)
 
 	if len(olds) > 0 {
 		for _, old := range olds {
-			err := rtRepo.Delete(ctx, old)
+			err := r.RTDao.Delete(ctx, old)
 			if err != nil {
 				return err
 			}
@@ -30,7 +37,7 @@ func StoreNew(ctx context.Context, user models.User, refreshToken string) error 
 		ExpiresAt:    time.Now().Add(time.Duration(expirationMin) * time.Minute),
 	}
 
-	err := rtRepo.Insert(ctx, newRt)
+	err := r.RTDao.Insert(ctx, newRt)
 	if err != nil {
 		return err
 	}

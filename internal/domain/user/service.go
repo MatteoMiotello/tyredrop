@@ -3,7 +3,6 @@ package user
 import (
 	"context"
 	"github.com/volatiletech/null/v8"
-	"pillowww/titw/internal/db"
 	"pillowww/titw/internal/domain/language"
 	"pillowww/titw/models"
 	"pillowww/titw/pkg/security"
@@ -18,16 +17,25 @@ type CreateUserPayload struct {
 	LanguageCode string `json:"language_code"`
 }
 
-func CreateUserFromPayload(ctx context.Context, payload CreateUserPayload) (*models.User, error) {
-	userRepo := NewUserRepo(db.DB)
-	lRepo := language.NewLanguageRepo(db.DB)
+type Service struct {
+	UDao *Dao
+}
+
+func NewUserService(dao *Dao) *Service {
+	return &Service{
+		UDao: dao,
+	}
+}
+
+func (s Service) CreateUserFromPayload(ctx context.Context, payload CreateUserPayload) (*models.User, error) {
+	lRepo := language.NewDao(s.UDao.Db)
 	lModel, err := lRepo.FindOneFromIsoCode(ctx, payload.LanguageCode)
 
 	if err != nil {
 		lModel = language.FallbackLanguage().L
 	}
 
-	adminRole, err := userRepo.FindUserRoleByCode(ctx, USER_ROLE)
+	adminRole, err := s.UDao.FindUserRoleByCode(ctx, USER_ROLE)
 
 	if err != nil {
 		return nil, err
@@ -49,7 +57,7 @@ func CreateUserFromPayload(ctx context.Context, payload CreateUserPayload) (*mod
 		DefaultLanguageID: lModel.ID,
 	}
 
-	err = userRepo.Insert(ctx, &newUser)
+	err = s.UDao.Insert(ctx, &newUser)
 	if err != nil {
 		return nil, err
 	}

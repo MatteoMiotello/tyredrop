@@ -2,11 +2,14 @@ package jobs
 
 import (
 	"context"
+	"database/sql"
+	"fmt"
 	ftp3 "github.com/jlaffaye/ftp"
 	"github.com/volatiletech/null/v8"
-	"google.golang.org/appengine/log"
 	"io"
 	"os"
+	"pillowww/titw/internal/db"
+	"pillowww/titw/internal/domain/import_job"
 	"pillowww/titw/internal/domain/supplier"
 	"pillowww/titw/internal/domain/supplier/supplier_factory"
 	ftp2 "pillowww/titw/pkg/ftp"
@@ -22,15 +25,15 @@ func check(err error) {
 
 func ImportProductFromFile() {
 	ctx := context.Background()
-	sRepo := supplier.NewRepository()
+	sDao := supplier.NewDao(db.DB)
 
-	sup, err := sRepo.GetLastImported(ctx)
+	sup, err := sDao.GetLastImported(ctx)
 	dirName := strings.ToLower(sup.Code)
 
 	check(err)
 
 	sup.ImportedAt = null.TimeFrom(time.Now())
-	err = sRepo.Update(ctx, sup)
+	err = sDao.Update(ctx, sup)
 
 	check(err)
 
@@ -54,32 +57,64 @@ func ImportProductFromFile() {
 			continue
 		}
 
-		_, err := sRepo.GetJobsFromFilename(ctx, *sup, entry.Name)
+		exists, err := sDao.ExistsJobForFilename(ctx, *sup, entry.Name)
 
-		if err != nil {
-			log.Infof(ctx, "job already present for file: %s", entry.Name)
+		if exists {
+			fmt.Println("job already exists")
 			continue
 		}
 
-		fileName := dirName + "/" + entry.Name
-		tmpDir := "import/" + dirName
-		tmpFile := tmpDir + "/" + entry.Name
-		res, err := ftp.Connection.Retr(fileName)
-		check(err)
+		err = db.WithTx(ctx, func(tx *sql.Tx) error {
+			ijService := import_job.NewImportJobService(import_job.NewDao(tx))
+			jobModel, err := ijService.CreateJob(ctx, *sup, entry.Name)
+			if err != nil {
+				return err
+			}
 
-		buf, err := io.ReadAll(res)
-		check(err)
+			fileName := dirName + "/" + entry.Name
+			tmpDir := "import/" + dirName
+			tmpFile := tmpDir + "/" + entry.Name
 
-		err = os.MkdirAll(tmpDir, 0777)
-		check(err)
+			res, err := ftp.Connection.Retr(fileName)
+			if err != nil {
+				return err
+			}
 
-		err = os.WriteFile(tmpFile, buf, 0644)
-		check(err)
+			buf, err := io.ReadAll(res)
+			if err != nil {
+				return err
+			}
 
-		err = factory.ImportProductsFromFile(ctx, tmpFile)
-		check(err)
+			err = os.MkdirAll(tmpDir, 0777)
+			if err != nil {
+				return err
+			}
 
-		err = os.Remove(tmpFile)
+			err = os.WriteFile(tmpFile, buf, 0644)
+			if err != nil {
+				return err
+			}
+
+			ijService.StartNow(ctx, jobModel)
+
+			err = factory.ImportProductsFromFile(ctx, tmpFile)
+
+			if err != nil {
+				ijService.EndNowWithError(ctx, jobModel, err.Error())
+				return nil
+			}
+
+			ijService.EndNow(ctx, jobModel)
+
+			err = os.Remove(tmpFile)
+
+			if err != nil {
+				return err
+			}
+
+			return nil
+		})
+
 		check(err)
 
 		break

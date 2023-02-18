@@ -767,6 +767,7 @@ func (supplierL) LoadProductItems(ctx context.Context, e boil.ContextExecutor, s
 	query := NewQuery(
 		qm.From(`product_items`),
 		qm.WhereIn(`product_items.supplier_id in ?`, args...),
+		qmhelper.WhereIsNull(`product_items.deleted_at`),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -984,7 +985,7 @@ func (o *Supplier) AddProductItems(ctx context.Context, exec boil.ContextExecuto
 
 // Suppliers retrieves all the records using an executor.
 func Suppliers(mods ...qm.QueryMod) supplierQuery {
-	mods = append(mods, qm.From("\"suppliers\""))
+	mods = append(mods, qm.From("\"suppliers\""), qmhelper.WhereIsNull("\"suppliers\".\"deleted_at\""))
 	q := NewQuery(mods...)
 	if len(queries.GetSelect(q)) == 0 {
 		queries.SetSelect(q, []string{"\"suppliers\".*"})
@@ -1003,7 +1004,7 @@ func FindSupplier(ctx context.Context, exec boil.ContextExecutor, iD int64, sele
 		sel = strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, selectCols), ",")
 	}
 	query := fmt.Sprintf(
-		"select %s from \"suppliers\" where \"id\"=$1", sel,
+		"select %s from \"suppliers\" where \"id\"=$1 and \"deleted_at\" is null", sel,
 	)
 
 	q := queries.Raw(query, iD)
@@ -1372,7 +1373,7 @@ func (o *Supplier) Upsert(ctx context.Context, exec boil.ContextExecutor, update
 
 // Delete deletes a single Supplier record with an executor.
 // Delete will match against the primary key column to find the record to delete.
-func (o *Supplier) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+func (o *Supplier) Delete(ctx context.Context, exec boil.ContextExecutor, hardDelete bool) (int64, error) {
 	if o == nil {
 		return 0, errors.New("models: no Supplier provided for delete")
 	}
@@ -1381,8 +1382,26 @@ func (o *Supplier) Delete(ctx context.Context, exec boil.ContextExecutor) (int64
 		return 0, err
 	}
 
-	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), supplierPrimaryKeyMapping)
-	sql := "DELETE FROM \"suppliers\" WHERE \"id\"=$1"
+	var (
+		sql  string
+		args []interface{}
+	)
+	if hardDelete {
+		args = queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), supplierPrimaryKeyMapping)
+		sql = "DELETE FROM \"suppliers\" WHERE \"id\"=$1"
+	} else {
+		currTime := time.Now().In(boil.GetLocation())
+		o.DeletedAt = null.TimeFrom(currTime)
+		wl := []string{"deleted_at"}
+		sql = fmt.Sprintf("UPDATE \"suppliers\" SET %s WHERE \"id\"=$2",
+			strmangle.SetParamNames("\"", "\"", 1, wl),
+		)
+		valueMapping, err := queries.BindMapping(supplierType, supplierMapping, append(wl, supplierPrimaryKeyColumns...))
+		if err != nil {
+			return 0, err
+		}
+		args = queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), valueMapping)
+	}
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1407,12 +1426,17 @@ func (o *Supplier) Delete(ctx context.Context, exec boil.ContextExecutor) (int64
 }
 
 // DeleteAll deletes all matching rows.
-func (q supplierQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+func (q supplierQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor, hardDelete bool) (int64, error) {
 	if q.Query == nil {
 		return 0, errors.New("models: no supplierQuery provided for delete all")
 	}
 
-	queries.SetDelete(q.Query)
+	if hardDelete {
+		queries.SetDelete(q.Query)
+	} else {
+		currTime := time.Now().In(boil.GetLocation())
+		queries.SetUpdate(q.Query, M{"deleted_at": currTime})
+	}
 
 	result, err := q.Query.ExecContext(ctx, exec)
 	if err != nil {
@@ -1428,7 +1452,7 @@ func (q supplierQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor)
 }
 
 // DeleteAll deletes all rows in the slice, using an executor.
-func (o SupplierSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
+func (o SupplierSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor, hardDelete bool) (int64, error) {
 	if len(o) == 0 {
 		return 0, nil
 	}
@@ -1441,14 +1465,31 @@ func (o SupplierSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor)
 		}
 	}
 
-	var args []interface{}
-	for _, obj := range o {
-		pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), supplierPrimaryKeyMapping)
-		args = append(args, pkeyArgs...)
+	var (
+		sql  string
+		args []interface{}
+	)
+	if hardDelete {
+		for _, obj := range o {
+			pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), supplierPrimaryKeyMapping)
+			args = append(args, pkeyArgs...)
+		}
+		sql = "DELETE FROM \"suppliers\" WHERE " +
+			strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, supplierPrimaryKeyColumns, len(o))
+	} else {
+		currTime := time.Now().In(boil.GetLocation())
+		for _, obj := range o {
+			pkeyArgs := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(obj)), supplierPrimaryKeyMapping)
+			args = append(args, pkeyArgs...)
+			obj.DeletedAt = null.TimeFrom(currTime)
+		}
+		wl := []string{"deleted_at"}
+		sql = fmt.Sprintf("UPDATE \"suppliers\" SET %s WHERE "+
+			strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 2, supplierPrimaryKeyColumns, len(o)),
+			strmangle.SetParamNames("\"", "\"", 1, wl),
+		)
+		args = append([]interface{}{currTime}, args...)
 	}
-
-	sql := "DELETE FROM \"suppliers\" WHERE " +
-		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, supplierPrimaryKeyColumns, len(o))
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -1503,7 +1544,8 @@ func (o *SupplierSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor
 	}
 
 	sql := "SELECT \"suppliers\".* FROM \"suppliers\" WHERE " +
-		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, supplierPrimaryKeyColumns, len(*o))
+		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, supplierPrimaryKeyColumns, len(*o)) +
+		"and \"deleted_at\" is null"
 
 	q := queries.Raw(sql, args...)
 
@@ -1520,7 +1562,7 @@ func (o *SupplierSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor
 // SupplierExists checks if the Supplier row exists.
 func SupplierExists(ctx context.Context, exec boil.ContextExecutor, iD int64) (bool, error) {
 	var exists bool
-	sql := "select exists(select 1 from \"suppliers\" where \"id\"=$1 limit 1)"
+	sql := "select exists(select 1 from \"suppliers\" where \"id\"=$1 and \"deleted_at\" is null limit 1)"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)

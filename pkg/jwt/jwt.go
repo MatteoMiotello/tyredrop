@@ -31,7 +31,7 @@ type RefreshTokenClaims struct {
 func CreateAccessTokenFromUser(ctx context.Context, userModel models.User) (string, error) {
 	expirationMin := viper.GetInt64("security.jwt.access_token_expiration")
 	expiration := jwt.NewNumericDate(time.Now().Add(time.Duration(expirationMin) * time.Minute))
-	uRepo := user.NewUserRepo(db.DB)
+	uRepo := user.NewDao(db.DB)
 	uRole, err := uRepo.GetUserRole(ctx, &userModel)
 
 	if err != nil {

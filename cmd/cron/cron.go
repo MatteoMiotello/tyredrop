@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/robfig/cron/v3"
 	"pillowww/titw/internal/bootstrap"
+	"pillowww/titw/internal/db"
 	"pillowww/titw/internal/jobs"
 )
 
@@ -23,12 +24,12 @@ func runCron() {
 	c := cron.New()
 
 	addJobs(c)
-	fmt.Println(c.Entries())
+
 	c.Start()
 }
 
 func main() {
-	//defer db.Close()
+	defer db.Close()
 	runCron()
 	fmt.Scanln()
 }

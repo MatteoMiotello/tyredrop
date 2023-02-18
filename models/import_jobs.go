@@ -24,72 +24,79 @@ import (
 
 // ImportJob is an object representing the database table.
 type ImportJob struct {
-	ID         int64     `boil:"id" json:"id" toml:"id" yaml:"id"`
-	SupplierID int64     `boil:"supplier_id" json:"supplier_id" toml:"supplier_id" yaml:"supplier_id"`
-	Filename   string    `boil:"filename" json:"filename" toml:"filename" yaml:"filename"`
-	StartedAt  null.Time `boil:"started_at" json:"started_at,omitempty" toml:"started_at" yaml:"started_at,omitempty"`
-	EndedAt    null.Time `boil:"ended_at" json:"ended_at,omitempty" toml:"ended_at" yaml:"ended_at,omitempty"`
-	UpdatedAt  time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
-	CreatedAt  time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	ID           int64       `boil:"id" json:"id" toml:"id" yaml:"id"`
+	SupplierID   int64       `boil:"supplier_id" json:"supplier_id" toml:"supplier_id" yaml:"supplier_id"`
+	Filename     string      `boil:"filename" json:"filename" toml:"filename" yaml:"filename"`
+	ErrorMessage null.String `boil:"error_message" json:"error_message,omitempty" toml:"error_message" yaml:"error_message,omitempty"`
+	StartedAt    null.Time   `boil:"started_at" json:"started_at,omitempty" toml:"started_at" yaml:"started_at,omitempty"`
+	EndedAt      null.Time   `boil:"ended_at" json:"ended_at,omitempty" toml:"ended_at" yaml:"ended_at,omitempty"`
+	UpdatedAt    time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	CreatedAt    time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 
 	R *importJobR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L importJobL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var ImportJobColumns = struct {
-	ID         string
-	SupplierID string
-	Filename   string
-	StartedAt  string
-	EndedAt    string
-	UpdatedAt  string
-	CreatedAt  string
+	ID           string
+	SupplierID   string
+	Filename     string
+	ErrorMessage string
+	StartedAt    string
+	EndedAt      string
+	UpdatedAt    string
+	CreatedAt    string
 }{
-	ID:         "id",
-	SupplierID: "supplier_id",
-	Filename:   "filename",
-	StartedAt:  "started_at",
-	EndedAt:    "ended_at",
-	UpdatedAt:  "updated_at",
-	CreatedAt:  "created_at",
+	ID:           "id",
+	SupplierID:   "supplier_id",
+	Filename:     "filename",
+	ErrorMessage: "error_message",
+	StartedAt:    "started_at",
+	EndedAt:      "ended_at",
+	UpdatedAt:    "updated_at",
+	CreatedAt:    "created_at",
 }
 
 var ImportJobTableColumns = struct {
-	ID         string
-	SupplierID string
-	Filename   string
-	StartedAt  string
-	EndedAt    string
-	UpdatedAt  string
-	CreatedAt  string
+	ID           string
+	SupplierID   string
+	Filename     string
+	ErrorMessage string
+	StartedAt    string
+	EndedAt      string
+	UpdatedAt    string
+	CreatedAt    string
 }{
-	ID:         "import_jobs.id",
-	SupplierID: "import_jobs.supplier_id",
-	Filename:   "import_jobs.filename",
-	StartedAt:  "import_jobs.started_at",
-	EndedAt:    "import_jobs.ended_at",
-	UpdatedAt:  "import_jobs.updated_at",
-	CreatedAt:  "import_jobs.created_at",
+	ID:           "import_jobs.id",
+	SupplierID:   "import_jobs.supplier_id",
+	Filename:     "import_jobs.filename",
+	ErrorMessage: "import_jobs.error_message",
+	StartedAt:    "import_jobs.started_at",
+	EndedAt:      "import_jobs.ended_at",
+	UpdatedAt:    "import_jobs.updated_at",
+	CreatedAt:    "import_jobs.created_at",
 }
 
 // Generated where
 
 var ImportJobWhere = struct {
-	ID         whereHelperint64
-	SupplierID whereHelperint64
-	Filename   whereHelperstring
-	StartedAt  whereHelpernull_Time
-	EndedAt    whereHelpernull_Time
-	UpdatedAt  whereHelpertime_Time
-	CreatedAt  whereHelpertime_Time
+	ID           whereHelperint64
+	SupplierID   whereHelperint64
+	Filename     whereHelperstring
+	ErrorMessage whereHelpernull_String
+	StartedAt    whereHelpernull_Time
+	EndedAt      whereHelpernull_Time
+	UpdatedAt    whereHelpertime_Time
+	CreatedAt    whereHelpertime_Time
 }{
-	ID:         whereHelperint64{field: "\"import_jobs\".\"id\""},
-	SupplierID: whereHelperint64{field: "\"import_jobs\".\"supplier_id\""},
-	Filename:   whereHelperstring{field: "\"import_jobs\".\"filename\""},
-	StartedAt:  whereHelpernull_Time{field: "\"import_jobs\".\"started_at\""},
-	EndedAt:    whereHelpernull_Time{field: "\"import_jobs\".\"ended_at\""},
-	UpdatedAt:  whereHelpertime_Time{field: "\"import_jobs\".\"updated_at\""},
-	CreatedAt:  whereHelpertime_Time{field: "\"import_jobs\".\"created_at\""},
+	ID:           whereHelperint64{field: "\"import_jobs\".\"id\""},
+	SupplierID:   whereHelperint64{field: "\"import_jobs\".\"supplier_id\""},
+	Filename:     whereHelperstring{field: "\"import_jobs\".\"filename\""},
+	ErrorMessage: whereHelpernull_String{field: "\"import_jobs\".\"error_message\""},
+	StartedAt:    whereHelpernull_Time{field: "\"import_jobs\".\"started_at\""},
+	EndedAt:      whereHelpernull_Time{field: "\"import_jobs\".\"ended_at\""},
+	UpdatedAt:    whereHelpertime_Time{field: "\"import_jobs\".\"updated_at\""},
+	CreatedAt:    whereHelpertime_Time{field: "\"import_jobs\".\"created_at\""},
 }
 
 // ImportJobRels is where relationship names are stored.
@@ -120,9 +127,9 @@ func (r *importJobR) GetSupplier() *Supplier {
 type importJobL struct{}
 
 var (
-	importJobAllColumns            = []string{"id", "supplier_id", "filename", "started_at", "ended_at", "updated_at", "created_at"}
+	importJobAllColumns            = []string{"id", "supplier_id", "filename", "error_message", "started_at", "ended_at", "updated_at", "created_at"}
 	importJobColumnsWithoutDefault = []string{"filename"}
-	importJobColumnsWithDefault    = []string{"id", "supplier_id", "started_at", "ended_at", "updated_at", "created_at"}
+	importJobColumnsWithDefault    = []string{"id", "supplier_id", "error_message", "started_at", "ended_at", "updated_at", "created_at"}
 	importJobPrimaryKeyColumns     = []string{"id"}
 	importJobGeneratedColumns      = []string{}
 )
@@ -476,6 +483,7 @@ func (importJobL) LoadSupplier(ctx context.Context, e boil.ContextExecutor, sing
 	query := NewQuery(
 		qm.From(`suppliers`),
 		qm.WhereIn(`suppliers.id in ?`, args...),
+		qmhelper.WhereIsNull(`suppliers.deleted_at`),
 	)
 	if mods != nil {
 		mods.Apply(query)

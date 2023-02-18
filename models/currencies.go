@@ -906,6 +906,7 @@ func (currencyL) LoadProductItemPrices(ctx context.Context, e boil.ContextExecut
 	query := NewQuery(
 		qm.From(`product_item_prices`),
 		qm.WhereIn(`product_item_prices.currency_id in ?`, args...),
+		qmhelper.WhereIsNull(`product_item_prices.deleted_at`),
 	)
 	if mods != nil {
 		mods.Apply(query)

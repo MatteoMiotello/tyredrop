@@ -1308,6 +1308,7 @@ func (languageL) LoadDefaultLanguageUsers(ctx context.Context, e boil.ContextExe
 	query := NewQuery(
 		qm.From(`users`),
 		qm.WhereIn(`users.default_language_id in ?`, args...),
+		qmhelper.WhereIsNull(`users.deleted_at`),
 	)
 	if mods != nil {
 		mods.Apply(query)
