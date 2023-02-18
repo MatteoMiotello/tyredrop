@@ -4,9 +4,9 @@ import "context"
 
 type TyreWorld Factory
 
-func (t TyreWorld) ImportProductsFromFile(ctx context.Context, filePath string) error {
+func (t TyreWorld) ReadProductsFromFile(ctx context.Context, filePath string) ([]*ProductRecord, error) {
 
-	return nil
+	return nil, nil
 }
 
 func (t TyreWorld) NeedsImportFromFile() bool {

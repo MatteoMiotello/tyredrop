@@ -12,6 +12,7 @@ import (
 	"pillowww/titw/internal/domain/import_job"
 	"pillowww/titw/internal/domain/supplier"
 	"pillowww/titw/internal/domain/supplier/supplier_factory"
+	"pillowww/titw/models"
 	ftp2 "pillowww/titw/pkg/ftp"
 	"strings"
 	"time"
@@ -95,16 +96,18 @@ func ImportProductFromFile() {
 				return err
 			}
 
-			ijService.StartNow(ctx, jobModel)
+			_ = ijService.StartNow(ctx, jobModel)
 
-			err = factory.ImportProductsFromFile(ctx, tmpFile)
+			records, err := factory.ReadProductsFromFile(ctx, tmpFile)
 
 			if err != nil {
-				ijService.EndNowWithError(ctx, jobModel, err.Error())
+				_ = ijService.EndNowWithError(ctx, jobModel, err.Error())
 				return nil
 			}
 
-			ijService.EndNow(ctx, jobModel)
+			storeRecords(sup, records)
+
+			_ = ijService.EndNow(ctx, jobModel)
 
 			err = os.Remove(tmpFile)
 
@@ -119,4 +122,8 @@ func ImportProductFromFile() {
 
 		break
 	}
+}
+
+func storeRecords(sup *models.Supplier, records []*supplier_factory.ProductRecord) {
+
 }

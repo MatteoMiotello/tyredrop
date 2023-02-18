@@ -6,11 +6,20 @@ import (
 )
 
 type Importer interface {
-	ImportProductsFromFile(ctx context.Context, filePath string) (err error)
+	ReadProductsFromFile(ctx context.Context, filePath string) ([]*ProductRecord, error)
 	NeedsImportFromFile() bool
 }
 
 type Factory struct {
 	Importer
 	S *models.Supplier
+}
+
+type ProductRecord struct {
+	EANNumber    int
+	ProductName  string
+	Manufacturer string
+	Season       string
+	Price        string
+	EprelID      string
 }

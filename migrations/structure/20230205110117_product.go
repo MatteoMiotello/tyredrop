@@ -25,7 +25,7 @@ func upProduct(tx *sql.Tx) error {
 	productCategoryQuery := sqlbuilder.CreateTable("public.product_categories").
 		PKColumn().
 		Column("category_code", types.Varchar.Options("255"), false).
-		Column("color", types.Varchar.Options("7"), false).
+		Column("color", types.Varchar.Options("7"), true).
 		DeletedColumn().
 		UpdatedColumn().
 		CreatedColumn().

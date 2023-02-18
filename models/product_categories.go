@@ -24,12 +24,12 @@ import (
 
 // ProductCategory is an object representing the database table.
 type ProductCategory struct {
-	ID           int64     `boil:"id" json:"id" toml:"id" yaml:"id"`
-	CategoryCode string    `boil:"category_code" json:"category_code" toml:"category_code" yaml:"category_code"`
-	Color        string    `boil:"color" json:"color" toml:"color" yaml:"color"`
-	DeletedAt    null.Time `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
-	UpdatedAt    time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
-	CreatedAt    time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	ID           int64       `boil:"id" json:"id" toml:"id" yaml:"id"`
+	CategoryCode string      `boil:"category_code" json:"category_code" toml:"category_code" yaml:"category_code"`
+	Color        null.String `boil:"color" json:"color,omitempty" toml:"color" yaml:"color,omitempty"`
+	DeletedAt    null.Time   `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
+	UpdatedAt    time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	CreatedAt    time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 
 	R *productCategoryR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L productCategoryL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -72,14 +72,14 @@ var ProductCategoryTableColumns = struct {
 var ProductCategoryWhere = struct {
 	ID           whereHelperint64
 	CategoryCode whereHelperstring
-	Color        whereHelperstring
+	Color        whereHelpernull_String
 	DeletedAt    whereHelpernull_Time
 	UpdatedAt    whereHelpertime_Time
 	CreatedAt    whereHelpertime_Time
 }{
 	ID:           whereHelperint64{field: "\"product_categories\".\"id\""},
 	CategoryCode: whereHelperstring{field: "\"product_categories\".\"category_code\""},
-	Color:        whereHelperstring{field: "\"product_categories\".\"color\""},
+	Color:        whereHelpernull_String{field: "\"product_categories\".\"color\""},
 	DeletedAt:    whereHelpernull_Time{field: "\"product_categories\".\"deleted_at\""},
 	UpdatedAt:    whereHelpertime_Time{field: "\"product_categories\".\"updated_at\""},
 	CreatedAt:    whereHelpertime_Time{field: "\"product_categories\".\"created_at\""},
@@ -134,8 +134,8 @@ type productCategoryL struct{}
 
 var (
 	productCategoryAllColumns            = []string{"id", "category_code", "color", "deleted_at", "updated_at", "created_at"}
-	productCategoryColumnsWithoutDefault = []string{"category_code", "color"}
-	productCategoryColumnsWithDefault    = []string{"id", "deleted_at", "updated_at", "created_at"}
+	productCategoryColumnsWithoutDefault = []string{"category_code"}
+	productCategoryColumnsWithDefault    = []string{"id", "color", "deleted_at", "updated_at", "created_at"}
 	productCategoryPrimaryKeyColumns     = []string{"id"}
 	productCategoryGeneratedColumns      = []string{}
 )

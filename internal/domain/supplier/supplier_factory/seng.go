@@ -4,9 +4,9 @@ import "context"
 
 type Seng Factory
 
-func (s Seng) ImportProductsFromFile(ctx context.Context, filePath string) error {
+func (s Seng) ReadProductsFromFile(ctx context.Context, filePath string) ([]*ProductRecord, error) {
 
-	return nil
+	return nil, nil
 }
 
 func (s Seng) NeedsImportFromFile() bool {

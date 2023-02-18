@@ -4,8 +4,8 @@ import "context"
 
 type PayGo Factory
 
-func (g PayGo) ImportProductsFromFile(ctx context.Context, filePath string) error {
-	return nil
+func (g PayGo) ReadProductsFromFile(ctx context.Context, filePath string) ([]*ProductRecord, error) {
+	return nil, nil
 }
 
 func (g PayGo) NeedsImportFromFile() bool {
