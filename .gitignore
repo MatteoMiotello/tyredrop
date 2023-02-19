@@ -113,3 +113,5 @@ build/
 sqlboiler.toml
 
 import/
+
+assets//*

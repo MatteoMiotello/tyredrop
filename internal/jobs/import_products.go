@@ -7,6 +7,7 @@ import (
 	ftp3 "github.com/jlaffaye/ftp"
 	"github.com/volatiletech/null/v8"
 	"io"
+	"log"
 	"os"
 	"pillowww/titw/internal/db"
 	"pillowww/titw/internal/domain/import_job"
@@ -20,7 +21,7 @@ import (
 
 func check(err error) {
 	if err != nil {
-		panic(err.Error())
+		log.Fatal("error importing file due: " + err.Error())
 	}
 }
 
@@ -124,6 +125,28 @@ func ImportProductFromFile() {
 	}
 }
 
-func storeRecords(sup *models.Supplier, records []*supplier_factory.ProductRecord) {
+func validate(record supplier_factory.ProductRecord) bool {
+	if record.Width == 0 {
+		return false
+	}
 
+	if record.Load == 0 {
+		return false
+	}
+
+	if record.Construction == "" {
+		return false
+	}
+
+	return true
+}
+
+func storeRecords(sup *models.Supplier, records []*supplier_factory.ProductRecord) {
+	for _, record := range records {
+		if !validate(*record) {
+			continue
+		}
+
+		fmt.Println(record)
+	}
 }

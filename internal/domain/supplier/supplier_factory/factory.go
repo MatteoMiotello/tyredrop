@@ -16,10 +16,20 @@ type Factory struct {
 }
 
 type ProductRecord struct {
-	EANNumber    int
-	ProductName  string
-	Manufacturer string
-	Season       string
-	Price        string
-	EprelID      string
+	EANNumber   int
+	ProductName string
+	Brand       string
+	Season      string
+	Price       string
+	EprelID     string
+	ProductDimension
+}
+
+type ProductDimension struct {
+	Width        int
+	AspectRatio  int
+	Construction string
+	Rim          int
+	Load         int
+	Speed        string
 }
