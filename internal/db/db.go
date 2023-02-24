@@ -34,7 +34,7 @@ func Close() {
 }
 
 func WithTx(ctx context.Context, handle func(tx *sql.Tx) error) error {
-	tx, err := DB.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelDefault})
+	tx, err := DB.BeginTx(ctx, nil)
 
 	if err != nil {
 		return err
@@ -47,6 +47,8 @@ func WithTx(ctx context.Context, handle func(tx *sql.Tx) error) error {
 		if err != nil {
 			return err
 		}
+
+		return handleErr
 	}
 
 	err = tx.Commit()

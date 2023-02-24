@@ -1,6 +1,10 @@
 package utils
 
-import "strings"
+import (
+	"github.com/friendsofgo/errors"
+	"strconv"
+	"strings"
+)
 
 func IsEmail(email string) bool {
 	parts := strings.Split(email, "@")
@@ -18,4 +22,27 @@ func IsEmail(email string) bool {
 	}
 
 	return true
+}
+
+func FromStringToInt(stringPrice string, numberOfDecimals int) (int, error) {
+	parts := strings.Split(stringPrice, ".")
+
+	if len(parts) > 2 {
+		return 0, errors.New("not valid number")
+	}
+
+	firstPart := parts[0]
+	secondPart := parts[1]
+
+	if len(secondPart) < numberOfDecimals {
+		toPad := numberOfDecimals - len(secondPart)
+
+		for i := 0; i < toPad; i++ {
+			secondPart += "0"
+		}
+	}
+
+	stringInt := firstPart + secondPart
+
+	return strconv.Atoi(stringInt)
 }

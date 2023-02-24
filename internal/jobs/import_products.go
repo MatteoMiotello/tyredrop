@@ -3,14 +3,18 @@ package jobs
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	ftp3 "github.com/jlaffaye/ftp"
 	"github.com/volatiletech/null/v8"
 	"io"
-	"log"
 	"os"
+	currency2 "pillowww/titw/internal/currency"
 	"pillowww/titw/internal/db"
+	"pillowww/titw/internal/domain/brand"
 	"pillowww/titw/internal/domain/import_job"
+	"pillowww/titw/internal/domain/product"
+	"pillowww/titw/internal/domain/product/pdtos"
 	"pillowww/titw/internal/domain/supplier"
 	"pillowww/titw/internal/domain/supplier/supplier_factory"
 	"pillowww/titw/models"
@@ -21,7 +25,7 @@ import (
 
 func check(err error) {
 	if err != nil {
-		log.Fatal("error importing file due: " + err.Error())
+		fmt.Println("error importing file due: " + err.Error())
 	}
 }
 
@@ -30,9 +34,9 @@ func ImportProductFromFile() {
 	sDao := supplier.NewDao(db.DB)
 
 	sup, err := sDao.GetLastImported(ctx)
-	dirName := strings.ToLower(sup.Code)
-
 	check(err)
+
+	dirName := strings.ToLower(sup.Code)
 
 	sup.ImportedAt = null.TimeFrom(time.Now())
 	err = sDao.Update(ctx, sup)
@@ -42,7 +46,6 @@ func ImportProductFromFile() {
 	var factory supplier_factory.Importer
 
 	ftp, err := ftp2.Init(ctx)
-	defer ftp.Quit()
 
 	check(err)
 
@@ -61,63 +64,50 @@ func ImportProductFromFile() {
 
 		exists, err := sDao.ExistsJobForFilename(ctx, *sup, entry.Name)
 
+		fmt.Println("importing file: " + entry.Name)
+
 		if exists {
 			fmt.Println("job already exists")
 			continue
 		}
 
-		err = db.WithTx(ctx, func(tx *sql.Tx) error {
-			ijService := import_job.NewImportJobService(import_job.NewDao(tx))
-			jobModel, err := ijService.CreateJob(ctx, *sup, entry.Name)
-			if err != nil {
-				return err
-			}
+		ijService := import_job.NewImportJobService(import_job.NewDao(db.DB))
+		jobModel, err := ijService.CreateJob(ctx, *sup, entry.Name)
+		check(err)
 
-			fileName := dirName + "/" + entry.Name
-			tmpDir := "import/" + dirName
-			tmpFile := tmpDir + "/" + entry.Name
+		fileName := dirName + "/" + entry.Name
+		tmpDir := "import/" + dirName
+		tmpFile := tmpDir + "/" + entry.Name
 
-			res, err := ftp.Connection.Retr(fileName)
-			if err != nil {
-				return err
-			}
+		res, err := ftp.Connection.Retr(fileName)
+		check(err)
 
-			buf, err := io.ReadAll(res)
-			if err != nil {
-				return err
-			}
+		buf, err := io.ReadAll(res)
+		check(err)
 
-			err = os.MkdirAll(tmpDir, 0777)
-			if err != nil {
-				return err
-			}
+		err = os.MkdirAll(tmpDir, 0777)
+		check(err)
 
-			err = os.WriteFile(tmpFile, buf, 0644)
-			if err != nil {
-				return err
-			}
+		err = os.WriteFile(tmpFile, buf, 0644)
+		check(err)
 
-			_ = ijService.StartNow(ctx, jobModel)
+		ftp.Quit()
 
-			records, err := factory.ReadProductsFromFile(ctx, tmpFile)
+		_ = ijService.StartNow(ctx, jobModel)
 
-			if err != nil {
-				_ = ijService.EndNowWithError(ctx, jobModel, err.Error())
-				return nil
-			}
+		records, err := factory.ReadProductsFromFile(ctx, tmpFile)
 
-			storeRecords(sup, records)
+		if err != nil {
+			_ = ijService.EndNowWithError(ctx, jobModel, err.Error())
+			break
+		}
 
-			_ = ijService.EndNow(ctx, jobModel)
+		err = storeRecords(ctx, sup, records)
+		_ = ijService.EndNow(ctx, jobModel)
 
-			err = os.Remove(tmpFile)
+		check(err)
 
-			if err != nil {
-				return err
-			}
-
-			return nil
-		})
+		err = os.Remove(tmpFile)
 
 		check(err)
 
@@ -125,28 +115,49 @@ func ImportProductFromFile() {
 	}
 }
 
-func validate(record supplier_factory.ProductRecord) bool {
-	if record.Width == 0 {
-		return false
-	}
+func importNextRecord(ctx context.Context, sup *models.Supplier, record pdtos.ProductDto) {
+	err := db.WithTx(ctx, func(tx *sql.Tx) error {
+		dao := product.NewDao(tx)
+		bDao := brand.NewDao(tx)
+		cDao := currency2.NewDao(tx)
+		pService := product.NewService(dao, bDao, cDao)
 
-	if record.Load == 0 {
-		return false
-	}
-
-	if record.Construction == "" {
-		return false
-	}
-
-	return true
-}
-
-func storeRecords(sup *models.Supplier, records []*supplier_factory.ProductRecord) {
-	for _, record := range records {
-		if !validate(*record) {
-			continue
+		if !record.Validate() {
+			return errors.New("record is not valid")
 		}
 
-		fmt.Println(record)
+		p, err := pService.FindOrCreateProduct(ctx, record)
+		if err != nil {
+			return err
+		}
+
+		err = pService.UpdateSpecifications(ctx, p, record)
+		if err != nil {
+			return err
+		}
+
+		pi, err := pService.CreateProductItem(ctx, p, sup, record.GetSupplierProductPrice(), record.GetSupplierProductQuantity())
+
+		if err != nil {
+			return err
+		}
+
+		err = pService.CalculateAndStoreProductPrices(ctx, pi)
+
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+
+	if err != nil {
+		fmt.Println(err.Error())
 	}
+}
+
+func storeRecords(ctx context.Context, sup *models.Supplier, records []pdtos.ProductDto) error {
+	for _, record := range records {
+		go importNextRecord(ctx, sup, record)
+	}
+	return nil
 }

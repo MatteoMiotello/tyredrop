@@ -44,7 +44,7 @@ func upProduct(tx *sql.Tx) error {
 		PKColumn().
 		FKColumn("public.product_categories", "product_category_id", false).
 		FKColumn("public.brands", "brand_id", false).
-		Column("EAN_code", types.Varchar.Options("255"), true).
+		Column("product_code", types.Varchar.Options("255"), true).
 		Column("manufacturer_code", types.Varchar.Options("255"), true).
 		DeletedColumn().
 		UpdatedColumn().

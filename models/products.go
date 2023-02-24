@@ -27,7 +27,7 @@ type Product struct {
 	ID                int64       `boil:"id" json:"id" toml:"id" yaml:"id"`
 	ProductCategoryID int64       `boil:"product_category_id" json:"product_category_id" toml:"product_category_id" yaml:"product_category_id"`
 	BrandID           int64       `boil:"brand_id" json:"brand_id" toml:"brand_id" yaml:"brand_id"`
-	EanCode           null.String `boil:"ean_code" json:"ean_code,omitempty" toml:"ean_code" yaml:"ean_code,omitempty"`
+	ProductCode       null.String `boil:"product_code" json:"product_code,omitempty" toml:"product_code" yaml:"product_code,omitempty"`
 	ManufacturerCode  null.String `boil:"manufacturer_code" json:"manufacturer_code,omitempty" toml:"manufacturer_code" yaml:"manufacturer_code,omitempty"`
 	DeletedAt         null.Time   `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
 	UpdatedAt         time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
@@ -41,7 +41,7 @@ var ProductColumns = struct {
 	ID                string
 	ProductCategoryID string
 	BrandID           string
-	EanCode           string
+	ProductCode       string
 	ManufacturerCode  string
 	DeletedAt         string
 	UpdatedAt         string
@@ -50,7 +50,7 @@ var ProductColumns = struct {
 	ID:                "id",
 	ProductCategoryID: "product_category_id",
 	BrandID:           "brand_id",
-	EanCode:           "ean_code",
+	ProductCode:       "product_code",
 	ManufacturerCode:  "manufacturer_code",
 	DeletedAt:         "deleted_at",
 	UpdatedAt:         "updated_at",
@@ -61,7 +61,7 @@ var ProductTableColumns = struct {
 	ID                string
 	ProductCategoryID string
 	BrandID           string
-	EanCode           string
+	ProductCode       string
 	ManufacturerCode  string
 	DeletedAt         string
 	UpdatedAt         string
@@ -70,7 +70,7 @@ var ProductTableColumns = struct {
 	ID:                "products.id",
 	ProductCategoryID: "products.product_category_id",
 	BrandID:           "products.brand_id",
-	EanCode:           "products.ean_code",
+	ProductCode:       "products.product_code",
 	ManufacturerCode:  "products.manufacturer_code",
 	DeletedAt:         "products.deleted_at",
 	UpdatedAt:         "products.updated_at",
@@ -83,7 +83,7 @@ var ProductWhere = struct {
 	ID                whereHelperint64
 	ProductCategoryID whereHelperint64
 	BrandID           whereHelperint64
-	EanCode           whereHelpernull_String
+	ProductCode       whereHelpernull_String
 	ManufacturerCode  whereHelpernull_String
 	DeletedAt         whereHelpernull_Time
 	UpdatedAt         whereHelpertime_Time
@@ -92,7 +92,7 @@ var ProductWhere = struct {
 	ID:                whereHelperint64{field: "\"products\".\"id\""},
 	ProductCategoryID: whereHelperint64{field: "\"products\".\"product_category_id\""},
 	BrandID:           whereHelperint64{field: "\"products\".\"brand_id\""},
-	EanCode:           whereHelpernull_String{field: "\"products\".\"ean_code\""},
+	ProductCode:       whereHelpernull_String{field: "\"products\".\"product_code\""},
 	ManufacturerCode:  whereHelpernull_String{field: "\"products\".\"manufacturer_code\""},
 	DeletedAt:         whereHelpernull_Time{field: "\"products\".\"deleted_at\""},
 	UpdatedAt:         whereHelpertime_Time{field: "\"products\".\"updated_at\""},
@@ -106,6 +106,7 @@ var ProductRels = struct {
 	OrderRows                  string
 	ProductItems               string
 	ProductLanguages           string
+	ProductPriceMarkups        string
 	ProductSpecificationValues string
 }{
 	Brand:                      "Brand",
@@ -113,6 +114,7 @@ var ProductRels = struct {
 	OrderRows:                  "OrderRows",
 	ProductItems:               "ProductItems",
 	ProductLanguages:           "ProductLanguages",
+	ProductPriceMarkups:        "ProductPriceMarkups",
 	ProductSpecificationValues: "ProductSpecificationValues",
 }
 
@@ -123,6 +125,7 @@ type productR struct {
 	OrderRows                  OrderRowSlice                  `boil:"OrderRows" json:"OrderRows" toml:"OrderRows" yaml:"OrderRows"`
 	ProductItems               ProductItemSlice               `boil:"ProductItems" json:"ProductItems" toml:"ProductItems" yaml:"ProductItems"`
 	ProductLanguages           ProductLanguageSlice           `boil:"ProductLanguages" json:"ProductLanguages" toml:"ProductLanguages" yaml:"ProductLanguages"`
+	ProductPriceMarkups        ProductPriceMarkupSlice        `boil:"ProductPriceMarkups" json:"ProductPriceMarkups" toml:"ProductPriceMarkups" yaml:"ProductPriceMarkups"`
 	ProductSpecificationValues ProductSpecificationValueSlice `boil:"ProductSpecificationValues" json:"ProductSpecificationValues" toml:"ProductSpecificationValues" yaml:"ProductSpecificationValues"`
 }
 
@@ -166,6 +169,13 @@ func (r *productR) GetProductLanguages() ProductLanguageSlice {
 	return r.ProductLanguages
 }
 
+func (r *productR) GetProductPriceMarkups() ProductPriceMarkupSlice {
+	if r == nil {
+		return nil
+	}
+	return r.ProductPriceMarkups
+}
+
 func (r *productR) GetProductSpecificationValues() ProductSpecificationValueSlice {
 	if r == nil {
 		return nil
@@ -177,9 +187,9 @@ func (r *productR) GetProductSpecificationValues() ProductSpecificationValueSlic
 type productL struct{}
 
 var (
-	productAllColumns            = []string{"id", "product_category_id", "brand_id", "ean_code", "manufacturer_code", "deleted_at", "updated_at", "created_at"}
+	productAllColumns            = []string{"id", "product_category_id", "brand_id", "product_code", "manufacturer_code", "deleted_at", "updated_at", "created_at"}
 	productColumnsWithoutDefault = []string{}
-	productColumnsWithDefault    = []string{"id", "product_category_id", "brand_id", "ean_code", "manufacturer_code", "deleted_at", "updated_at", "created_at"}
+	productColumnsWithDefault    = []string{"id", "product_category_id", "brand_id", "product_code", "manufacturer_code", "deleted_at", "updated_at", "created_at"}
 	productPrimaryKeyColumns     = []string{"id"}
 	productGeneratedColumns      = []string{}
 )
@@ -524,6 +534,20 @@ func (o *Product) ProductLanguages(mods ...qm.QueryMod) productLanguageQuery {
 	)
 
 	return ProductLanguages(queryMods...)
+}
+
+// ProductPriceMarkups retrieves all the product_price_markup's ProductPriceMarkups with an executor.
+func (o *Product) ProductPriceMarkups(mods ...qm.QueryMod) productPriceMarkupQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("\"product_price_markup\".\"product_id\"=?", o.ID),
+	)
+
+	return ProductPriceMarkups(queryMods...)
 }
 
 // ProductSpecificationValues retrieves all the product_specification_value's ProductSpecificationValues with an executor.
@@ -1125,6 +1149,121 @@ func (productL) LoadProductLanguages(ctx context.Context, e boil.ContextExecutor
 	return nil
 }
 
+// LoadProductPriceMarkups allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (productL) LoadProductPriceMarkups(ctx context.Context, e boil.ContextExecutor, singular bool, maybeProduct interface{}, mods queries.Applicator) error {
+	var slice []*Product
+	var object *Product
+
+	if singular {
+		var ok bool
+		object, ok = maybeProduct.(*Product)
+		if !ok {
+			object = new(Product)
+			ok = queries.SetFromEmbeddedStruct(&object, &maybeProduct)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", object, maybeProduct))
+			}
+		}
+	} else {
+		s, ok := maybeProduct.(*[]*Product)
+		if ok {
+			slice = *s
+		} else {
+			ok = queries.SetFromEmbeddedStruct(&slice, maybeProduct)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", slice, maybeProduct))
+			}
+		}
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &productR{}
+		}
+		args = append(args, object.ID)
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &productR{}
+			}
+
+			for _, a := range args {
+				if queries.Equal(a, obj.ID) {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.ID)
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`product_price_markup`),
+		qm.WhereIn(`product_price_markup.product_id in ?`, args...),
+		qmhelper.WhereIsNull(`product_price_markup.deleted_at`),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load product_price_markup")
+	}
+
+	var resultSlice []*ProductPriceMarkup
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice product_price_markup")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on product_price_markup")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for product_price_markup")
+	}
+
+	if len(productPriceMarkupAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
+				return err
+			}
+		}
+	}
+	if singular {
+		object.R.ProductPriceMarkups = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &productPriceMarkupR{}
+			}
+			foreign.R.Product = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if queries.Equal(local.ID, foreign.ProductID) {
+				local.R.ProductPriceMarkups = append(local.R.ProductPriceMarkups, foreign)
+				if foreign.R == nil {
+					foreign.R = &productPriceMarkupR{}
+				}
+				foreign.R.Product = local
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
 // LoadProductSpecificationValues allows an eager lookup of values, cached into the
 // loaded structs of the objects. This is for a 1-M or N-M relationship.
 func (productL) LoadProductSpecificationValues(ctx context.Context, e boil.ContextExecutor, singular bool, maybeProduct interface{}, mods queries.Applicator) error {
@@ -1490,6 +1629,133 @@ func (o *Product) AddProductLanguages(ctx context.Context, exec boil.ContextExec
 			rel.R.Product = o
 		}
 	}
+	return nil
+}
+
+// AddProductPriceMarkups adds the given related objects to the existing relationships
+// of the product, optionally inserting them as new records.
+// Appends related to o.R.ProductPriceMarkups.
+// Sets related.R.Product appropriately.
+func (o *Product) AddProductPriceMarkups(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*ProductPriceMarkup) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			queries.Assign(&rel.ProductID, o.ID)
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE \"product_price_markup\" SET %s WHERE %s",
+				strmangle.SetParamNames("\"", "\"", 1, []string{"product_id"}),
+				strmangle.WhereClause("\"", "\"", 2, productPriceMarkupPrimaryKeyColumns),
+			)
+			values := []interface{}{o.ID, rel.ID}
+
+			if boil.IsDebug(ctx) {
+				writer := boil.DebugWriterFrom(ctx)
+				fmt.Fprintln(writer, updateQuery)
+				fmt.Fprintln(writer, values)
+			}
+			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			queries.Assign(&rel.ProductID, o.ID)
+		}
+	}
+
+	if o.R == nil {
+		o.R = &productR{
+			ProductPriceMarkups: related,
+		}
+	} else {
+		o.R.ProductPriceMarkups = append(o.R.ProductPriceMarkups, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &productPriceMarkupR{
+				Product: o,
+			}
+		} else {
+			rel.R.Product = o
+		}
+	}
+	return nil
+}
+
+// SetProductPriceMarkups removes all previously related items of the
+// product replacing them completely with the passed
+// in related items, optionally inserting them as new records.
+// Sets o.R.Product's ProductPriceMarkups accordingly.
+// Replaces o.R.ProductPriceMarkups with related.
+// Sets related.R.Product's ProductPriceMarkups accordingly.
+func (o *Product) SetProductPriceMarkups(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*ProductPriceMarkup) error {
+	query := "update \"product_price_markup\" set \"product_id\" = null where \"product_id\" = $1"
+	values := []interface{}{o.ID}
+	if boil.IsDebug(ctx) {
+		writer := boil.DebugWriterFrom(ctx)
+		fmt.Fprintln(writer, query)
+		fmt.Fprintln(writer, values)
+	}
+	_, err := exec.ExecContext(ctx, query, values...)
+	if err != nil {
+		return errors.Wrap(err, "failed to remove relationships before set")
+	}
+
+	if o.R != nil {
+		for _, rel := range o.R.ProductPriceMarkups {
+			queries.SetScanner(&rel.ProductID, nil)
+			if rel.R == nil {
+				continue
+			}
+
+			rel.R.Product = nil
+		}
+		o.R.ProductPriceMarkups = nil
+	}
+
+	return o.AddProductPriceMarkups(ctx, exec, insert, related...)
+}
+
+// RemoveProductPriceMarkups relationships from objects passed in.
+// Removes related items from R.ProductPriceMarkups (uses pointer comparison, removal does not keep order)
+// Sets related.R.Product.
+func (o *Product) RemoveProductPriceMarkups(ctx context.Context, exec boil.ContextExecutor, related ...*ProductPriceMarkup) error {
+	if len(related) == 0 {
+		return nil
+	}
+
+	var err error
+	for _, rel := range related {
+		queries.SetScanner(&rel.ProductID, nil)
+		if rel.R != nil {
+			rel.R.Product = nil
+		}
+		if _, err = rel.Update(ctx, exec, boil.Whitelist("product_id")); err != nil {
+			return err
+		}
+	}
+	if o.R == nil {
+		return nil
+	}
+
+	for _, rel := range related {
+		for i, ri := range o.R.ProductPriceMarkups {
+			if rel != ri {
+				continue
+			}
+
+			ln := len(o.R.ProductPriceMarkups)
+			if ln > 1 && i < ln-1 {
+				o.R.ProductPriceMarkups[i] = o.R.ProductPriceMarkups[ln-1]
+			}
+			o.R.ProductPriceMarkups = o.R.ProductPriceMarkups[:ln-1]
+			break
+		}
+	}
+
 	return nil
 }
 

@@ -23,7 +23,7 @@ func (r dao) GetAll(ctx context.Context) (models.SupplierSlice, error) {
 }
 
 func (r dao) GetLastImported(ctx context.Context) (*models.Supplier, error) {
-	return models.Suppliers(qm.OrderBy(models.SupplierColumns.ImportedAt+" ASC")).One(ctx, r.GetConnection(ctx))
+	return models.Suppliers(qm.OrderBy(models.SupplierColumns.ImportedAt+" ASC NULLS FIRST")).One(ctx, r.GetConnection(ctx))
 }
 
 func (r dao) Update(ctx context.Context, supplier *models.Supplier) error {

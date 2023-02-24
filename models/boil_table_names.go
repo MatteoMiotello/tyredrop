@@ -17,6 +17,7 @@ var TableNames = struct {
 	ProductItemPrices             string
 	ProductItems                  string
 	ProductLanguages              string
+	ProductPriceMarkup            string
 	ProductSpecificationLanguages string
 	ProductSpecificationValues    string
 	ProductSpecifications         string
@@ -42,6 +43,7 @@ var TableNames = struct {
 	ProductItemPrices:             "product_item_prices",
 	ProductItems:                  "product_items",
 	ProductLanguages:              "product_languages",
+	ProductPriceMarkup:            "product_price_markup",
 	ProductSpecificationLanguages: "product_specification_languages",
 	ProductSpecificationValues:    "product_specification_values",
 	ProductSpecifications:         "product_specifications",

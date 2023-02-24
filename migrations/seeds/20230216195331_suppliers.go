@@ -15,7 +15,7 @@ func upSuppliers(tx *sql.Tx) error {
 		Cols("name", "code").
 		Values("Seng", "SENG").
 		Values("Gundlach", "GUN").
-		Values("Tyre World", "TYRE_WORLD").
+		Values("T World", "TYRE_WORLD").
 		Values("PAY&GO", "PAY_GO").
 		BuildWithFlavor(sqlbuilder.PostgreSQL)
 

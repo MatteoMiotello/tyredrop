@@ -1,6 +1,7 @@
 package fshandlers
 
 import (
+	"github.com/spf13/viper"
 	"os"
 	"strings"
 )
@@ -35,4 +36,10 @@ func (h fsHandler) GetFilePath(fileName string) string {
 
 func (h fsHandler) ReadFile(fileName string) ([]byte, error) {
 	return os.ReadFile(h.GetFilePath(fileName))
+}
+
+func (h fsHandler) GetPublicUrl(fileName string) string {
+	pubUrl := viper.GetString("APPLICATION_URL")
+
+	return concat(pubUrl, h.GetFilePath(fileName))
 }

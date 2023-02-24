@@ -223,19 +223,29 @@ var BrandWhere = struct {
 
 // BrandRels is where relationship names are stored.
 var BrandRels = struct {
-	Products string
+	ProductPriceMarkups string
+	Products            string
 }{
-	Products: "Products",
+	ProductPriceMarkups: "ProductPriceMarkups",
+	Products:            "Products",
 }
 
 // brandR is where relationships are stored.
 type brandR struct {
-	Products ProductSlice `boil:"Products" json:"Products" toml:"Products" yaml:"Products"`
+	ProductPriceMarkups ProductPriceMarkupSlice `boil:"ProductPriceMarkups" json:"ProductPriceMarkups" toml:"ProductPriceMarkups" yaml:"ProductPriceMarkups"`
+	Products            ProductSlice            `boil:"Products" json:"Products" toml:"Products" yaml:"Products"`
 }
 
 // NewStruct creates a new relationship struct
 func (*brandR) NewStruct() *brandR {
 	return &brandR{}
+}
+
+func (r *brandR) GetProductPriceMarkups() ProductPriceMarkupSlice {
+	if r == nil {
+		return nil
+	}
+	return r.ProductPriceMarkups
 }
 
 func (r *brandR) GetProducts() ProductSlice {
@@ -534,6 +544,20 @@ func (q brandQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (bool
 	return count > 0, nil
 }
 
+// ProductPriceMarkups retrieves all the product_price_markup's ProductPriceMarkups with an executor.
+func (o *Brand) ProductPriceMarkups(mods ...qm.QueryMod) productPriceMarkupQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("\"product_price_markup\".\"brand_id\"=?", o.ID),
+	)
+
+	return ProductPriceMarkups(queryMods...)
+}
+
 // Products retrieves all the product's Products with an executor.
 func (o *Brand) Products(mods ...qm.QueryMod) productQuery {
 	var queryMods []qm.QueryMod
@@ -546,6 +570,121 @@ func (o *Brand) Products(mods ...qm.QueryMod) productQuery {
 	)
 
 	return Products(queryMods...)
+}
+
+// LoadProductPriceMarkups allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (brandL) LoadProductPriceMarkups(ctx context.Context, e boil.ContextExecutor, singular bool, maybeBrand interface{}, mods queries.Applicator) error {
+	var slice []*Brand
+	var object *Brand
+
+	if singular {
+		var ok bool
+		object, ok = maybeBrand.(*Brand)
+		if !ok {
+			object = new(Brand)
+			ok = queries.SetFromEmbeddedStruct(&object, &maybeBrand)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", object, maybeBrand))
+			}
+		}
+	} else {
+		s, ok := maybeBrand.(*[]*Brand)
+		if ok {
+			slice = *s
+		} else {
+			ok = queries.SetFromEmbeddedStruct(&slice, maybeBrand)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", slice, maybeBrand))
+			}
+		}
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &brandR{}
+		}
+		args = append(args, object.ID)
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &brandR{}
+			}
+
+			for _, a := range args {
+				if queries.Equal(a, obj.ID) {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.ID)
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`product_price_markup`),
+		qm.WhereIn(`product_price_markup.brand_id in ?`, args...),
+		qmhelper.WhereIsNull(`product_price_markup.deleted_at`),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load product_price_markup")
+	}
+
+	var resultSlice []*ProductPriceMarkup
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice product_price_markup")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on product_price_markup")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for product_price_markup")
+	}
+
+	if len(productPriceMarkupAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
+				return err
+			}
+		}
+	}
+	if singular {
+		object.R.ProductPriceMarkups = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &productPriceMarkupR{}
+			}
+			foreign.R.Brand = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if queries.Equal(local.ID, foreign.BrandID) {
+				local.R.ProductPriceMarkups = append(local.R.ProductPriceMarkups, foreign)
+				if foreign.R == nil {
+					foreign.R = &productPriceMarkupR{}
+				}
+				foreign.R.Brand = local
+				break
+			}
+		}
+	}
+
+	return nil
 }
 
 // LoadProducts allows an eager lookup of values, cached into the
@@ -657,6 +796,133 @@ func (brandL) LoadProducts(ctx context.Context, e boil.ContextExecutor, singular
 				foreign.R.Brand = local
 				break
 			}
+		}
+	}
+
+	return nil
+}
+
+// AddProductPriceMarkups adds the given related objects to the existing relationships
+// of the brand, optionally inserting them as new records.
+// Appends related to o.R.ProductPriceMarkups.
+// Sets related.R.Brand appropriately.
+func (o *Brand) AddProductPriceMarkups(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*ProductPriceMarkup) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			queries.Assign(&rel.BrandID, o.ID)
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE \"product_price_markup\" SET %s WHERE %s",
+				strmangle.SetParamNames("\"", "\"", 1, []string{"brand_id"}),
+				strmangle.WhereClause("\"", "\"", 2, productPriceMarkupPrimaryKeyColumns),
+			)
+			values := []interface{}{o.ID, rel.ID}
+
+			if boil.IsDebug(ctx) {
+				writer := boil.DebugWriterFrom(ctx)
+				fmt.Fprintln(writer, updateQuery)
+				fmt.Fprintln(writer, values)
+			}
+			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			queries.Assign(&rel.BrandID, o.ID)
+		}
+	}
+
+	if o.R == nil {
+		o.R = &brandR{
+			ProductPriceMarkups: related,
+		}
+	} else {
+		o.R.ProductPriceMarkups = append(o.R.ProductPriceMarkups, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &productPriceMarkupR{
+				Brand: o,
+			}
+		} else {
+			rel.R.Brand = o
+		}
+	}
+	return nil
+}
+
+// SetProductPriceMarkups removes all previously related items of the
+// brand replacing them completely with the passed
+// in related items, optionally inserting them as new records.
+// Sets o.R.Brand's ProductPriceMarkups accordingly.
+// Replaces o.R.ProductPriceMarkups with related.
+// Sets related.R.Brand's ProductPriceMarkups accordingly.
+func (o *Brand) SetProductPriceMarkups(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*ProductPriceMarkup) error {
+	query := "update \"product_price_markup\" set \"brand_id\" = null where \"brand_id\" = $1"
+	values := []interface{}{o.ID}
+	if boil.IsDebug(ctx) {
+		writer := boil.DebugWriterFrom(ctx)
+		fmt.Fprintln(writer, query)
+		fmt.Fprintln(writer, values)
+	}
+	_, err := exec.ExecContext(ctx, query, values...)
+	if err != nil {
+		return errors.Wrap(err, "failed to remove relationships before set")
+	}
+
+	if o.R != nil {
+		for _, rel := range o.R.ProductPriceMarkups {
+			queries.SetScanner(&rel.BrandID, nil)
+			if rel.R == nil {
+				continue
+			}
+
+			rel.R.Brand = nil
+		}
+		o.R.ProductPriceMarkups = nil
+	}
+
+	return o.AddProductPriceMarkups(ctx, exec, insert, related...)
+}
+
+// RemoveProductPriceMarkups relationships from objects passed in.
+// Removes related items from R.ProductPriceMarkups (uses pointer comparison, removal does not keep order)
+// Sets related.R.Brand.
+func (o *Brand) RemoveProductPriceMarkups(ctx context.Context, exec boil.ContextExecutor, related ...*ProductPriceMarkup) error {
+	if len(related) == 0 {
+		return nil
+	}
+
+	var err error
+	for _, rel := range related {
+		queries.SetScanner(&rel.BrandID, nil)
+		if rel.R != nil {
+			rel.R.Brand = nil
+		}
+		if _, err = rel.Update(ctx, exec, boil.Whitelist("brand_id")); err != nil {
+			return err
+		}
+	}
+	if o.R == nil {
+		return nil
+	}
+
+	for _, rel := range related {
+		for i, ri := range o.R.ProductPriceMarkups {
+			if rel != ri {
+				continue
+			}
+
+			ln := len(o.R.ProductPriceMarkups)
+			if ln > 1 && i < ln-1 {
+				o.R.ProductPriceMarkups[i] = o.R.ProductPriceMarkups[ln-1]
+			}
+			o.R.ProductPriceMarkups = o.R.ProductPriceMarkups[:ln-1]
+			break
 		}
 	}
 

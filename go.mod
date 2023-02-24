@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/99designs/gqlgen v0.17.24
-	github.com/MatteoMiotello/go-sqlbuilder v1.0.1-0.20230121180634-020913af55f3
+	github.com/MatteoMiotello/go-sqlbuilder v1.0.1-0.20230222222845-885af5478019
 	github.com/friendsofgo/errors v0.9.2
 	github.com/getsentry/sentry-go v0.18.0
 	github.com/gin-contrib/cors v1.4.0
@@ -27,6 +27,8 @@ require (
 
 require (
 	github.com/agnivade/levenshtein v1.1.1 // indirect
+	github.com/bojanz/currency v1.1.0 // indirect
+	github.com/cockroachdb/apd/v3 v3.1.2 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/gin-gonic/contrib v0.0.0-20221130124618-7e01895a63f2 // indirect

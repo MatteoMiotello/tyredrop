@@ -1,10 +1,13 @@
 package supplier_factory
 
-import "context"
+import (
+	"context"
+	"pillowww/titw/internal/domain/product/pdtos"
+)
 
 type Seng Factory
 
-func (s Seng) ReadProductsFromFile(ctx context.Context, filePath string) ([]*ProductRecord, error) {
+func (s Seng) ReadProductsFromFile(ctx context.Context, filePath string) (pdtos.ProductDtoSlice, error) {
 
 	return nil, nil
 }

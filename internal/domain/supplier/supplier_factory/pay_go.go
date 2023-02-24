@@ -1,10 +1,13 @@
 package supplier_factory
 
-import "context"
+import (
+	"context"
+	"pillowww/titw/internal/domain/product/pdtos"
+)
 
 type PayGo Factory
 
-func (g PayGo) ReadProductsFromFile(ctx context.Context, filePath string) ([]*ProductRecord, error) {
+func (g PayGo) ReadProductsFromFile(ctx context.Context, filePath string) (pdtos.ProductDtoSlice, error) {
 	return nil, nil
 }
 

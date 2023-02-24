@@ -3,6 +3,7 @@ package supplier_factory
 import (
 	"context"
 	"github.com/friendsofgo/errors"
+	"pillowww/titw/internal/domain/product/pdtos"
 	"pillowww/titw/pkg/constants"
 	"pillowww/titw/pkg/utils"
 	"regexp"
@@ -12,19 +13,19 @@ import (
 
 type Gun Factory
 
-func (g Gun) ReadProductsFromFile(ctx context.Context, filePath string) ([]*ProductRecord, error) {
+func (g Gun) ReadProductsFromFile(ctx context.Context, filePath string) (pdtos.ProductDtoSlice, error) {
 	records, err := utils.CsvReadFile(filePath)
 
 	if err != nil {
 		return nil, err
 	}
 
-	var recordSlice []*ProductRecord
+	var recordSlice pdtos.ProductDtoSlice
 
 	for _, record := range records {
 		slices := strings.Split(record[0], ";")
 
-		var pRecord = &ProductRecord{}
+		var pRecord = &pdtos.Tyre{}
 		var err error = nil
 
 		for i, slice := range slices {
@@ -49,17 +50,12 @@ func (g Gun) NeedsImportFromFile() bool {
 	return true
 }
 
-func matchRecords(pRecord *ProductRecord, index int, slice string) error {
+func matchRecords(pRecord *pdtos.Tyre, index int, slice string) error {
 	var err error
 
 	switch index {
 	case 1:
-		pRecord.EANNumber, err = strconv.Atoi(slice)
-
-		if err != nil {
-			return err
-		}
-
+		pRecord.EANCode = slice
 		break
 	case 3:
 		pRecord.Brand = slice
@@ -71,7 +67,7 @@ func matchRecords(pRecord *ProductRecord, index int, slice string) error {
 		pRecord.Season = getSeason(slice)
 		break
 	case 10:
-		w, err := strconv.ParseFloat(slice, 2)
+		w, err := strconv.ParseFloat(slice, 32)
 
 		pRecord.Width = int(w)
 
@@ -81,7 +77,7 @@ func matchRecords(pRecord *ProductRecord, index int, slice string) error {
 
 		break
 	case 11:
-		a, err := strconv.ParseFloat(slice, 2)
+		a, err := strconv.ParseFloat(slice, 32)
 
 		pRecord.AspectRatio = int(a)
 
@@ -91,7 +87,7 @@ func matchRecords(pRecord *ProductRecord, index int, slice string) error {
 
 		break
 	case 12:
-		r, err := strconv.ParseFloat(slice, 2)
+		r, err := strconv.ParseFloat(slice, 32)
 
 		pRecord.Rim = int(r)
 		if err != nil {
@@ -111,6 +107,14 @@ func matchRecords(pRecord *ProductRecord, index int, slice string) error {
 	case 19:
 		pRecord.Price = slice
 		break
+	case 20:
+		f, err := strconv.ParseFloat(slice, 32)
+
+		if err != nil {
+			return err
+		}
+
+		pRecord.Quantity = int(f)
 	case 42:
 		pRecord.EprelID = extractEprelCode(slice)
 		break
@@ -147,7 +151,7 @@ func extractEprelCode(slice string) string {
 	return splitted[4]
 }
 
-func extractDimensions(slice string) (*ProductDimension, error) {
+func extractDimensions(slice string) (*pdtos.TyreDimension, error) {
 	r := regexp.MustCompile("/([0-9]){2,3}/([0-9]{2,3})[A-Z]([0-9]){2,3} ([0-9]){2,3}([A-Z])(.*)/")
 
 	match := r.Match([]byte(slice))
