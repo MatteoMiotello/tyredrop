@@ -6,11 +6,13 @@ import (
 	"pillowww/titw/internal/bootstrap"
 	"pillowww/titw/internal/db"
 	"pillowww/titw/internal/jobs"
+	"pillowww/titw/pkg/log"
 )
 
 func init() {
 	bootstrap.InitConfig()
 	bootstrap.InitDb()
+	bootstrap.InitLog("cron")
 }
 
 func addJobs(c *cron.Cron) {
@@ -30,6 +32,8 @@ func runCron() {
 
 func main() {
 	defer db.Close()
+
+	log.Info("Cron started")
 	runCron()
 	fmt.Scanln()
 }

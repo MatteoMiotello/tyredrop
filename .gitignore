@@ -115,3 +115,5 @@ sqlboiler.toml
 import/
 
 assets//*
+
+logs/

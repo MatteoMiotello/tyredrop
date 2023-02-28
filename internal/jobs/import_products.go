@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	ftp3 "github.com/jlaffaye/ftp"
 	"github.com/volatiletech/null/v8"
 	"io"
@@ -19,13 +18,15 @@ import (
 	"pillowww/titw/internal/domain/supplier/supplier_factory"
 	"pillowww/titw/models"
 	ftp2 "pillowww/titw/pkg/ftp"
+	"pillowww/titw/pkg/log"
+	"pillowww/titw/pkg/task"
 	"strings"
 	"time"
 )
 
 func check(err error) {
 	if err != nil {
-		fmt.Println("error importing file due: " + err.Error())
+		log.Panic("Error importing file", err.Error())
 	}
 }
 
@@ -64,10 +65,10 @@ func ImportProductFromFile() {
 
 		exists, err := sDao.ExistsJobForFilename(ctx, *sup, entry.Name)
 
-		fmt.Println("importing file: " + entry.Name)
+		log.GetEntry().WithField("entry", entry).Info("Importing file")
 
 		if exists {
-			fmt.Println("job already exists")
+			log.GetEntry().WithField("entry", entry).Warning("File already imported")
 			continue
 		}
 
@@ -98,6 +99,7 @@ func ImportProductFromFile() {
 		records, err := factory.ReadProductsFromFile(ctx, tmpFile)
 
 		if err != nil {
+			log.Warning("error reading from file: " + tmpFile)
 			_ = ijService.EndNowWithError(ctx, jobModel, err.Error())
 			break
 		}
@@ -116,7 +118,7 @@ func ImportProductFromFile() {
 }
 
 func importNextRecord(ctx context.Context, sup *models.Supplier, record pdtos.ProductDto) {
-	err := db.WithTx(ctx, func(tx *sql.Tx) error {
+	db.WithTx(ctx, func(tx *sql.Tx) error {
 		dao := product.NewDao(tx)
 		bDao := brand.NewDao(tx)
 		cDao := currency2.NewDao(tx)
@@ -149,15 +151,16 @@ func importNextRecord(ctx context.Context, sup *models.Supplier, record pdtos.Pr
 		}
 		return nil
 	})
-
-	if err != nil {
-		fmt.Println(err.Error())
-	}
 }
 
 func storeRecords(ctx context.Context, sup *models.Supplier, records []pdtos.ProductDto) error {
+	worker := task.NewWorker(8)
+	worker.Run()
+
 	for _, record := range records {
-		go importNextRecord(ctx, sup, record)
+		worker.AddTask(func() {
+			importNextRecord(ctx, sup, record)
+		})
 	}
 	return nil
 }

@@ -1,23 +1,22 @@
 package main
 
 import (
-	"github.com/getsentry/sentry-go"
 	"pillowww/titw/internal/api"
 	"pillowww/titw/internal/bootstrap"
 	"pillowww/titw/internal/db"
-	"time"
+	"pillowww/titw/pkg/log"
 )
 
 func init() {
 	bootstrap.InitConfig()
 	bootstrap.InitDb()
 	bootstrap.InitLanguage()
-	bootstrap.InitLog()
+	bootstrap.InitLog("server")
 }
 
 func main() {
 	defer db.Close()
-	defer sentry.Flush(2 * time.Second) //to check
 
+	log.Info("Application started")
 	api.Serve()
 }
