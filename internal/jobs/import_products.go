@@ -65,10 +65,10 @@ func ImportProductFromFile() {
 
 		exists, err := sDao.ExistsJobForFilename(ctx, *sup, entry.Name)
 
-		log.GetEntry().WithField("entry", entry).Info("Importing file")
+		log.WithField("entry", entry).Info("Importing file")
 
 		if exists {
-			log.GetEntry().WithField("entry", entry).Warning("File already imported")
+			log.WithField("entry", entry).Warn("File already imported")
 			continue
 		}
 
@@ -99,7 +99,7 @@ func ImportProductFromFile() {
 		records, err := factory.ReadProductsFromFile(ctx, tmpFile)
 
 		if err != nil {
-			log.Warning("error reading from file: " + tmpFile)
+			log.Warn("error reading from file: " + tmpFile)
 			_ = ijService.EndNowWithError(ctx, jobModel, err.Error())
 			break
 		}

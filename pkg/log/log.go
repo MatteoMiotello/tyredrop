@@ -4,44 +4,78 @@ import "github.com/sirupsen/logrus"
 
 type customLogger struct {
 	*logrus.Logger
-	environmentName string
+	entry *entry
+}
+
+type entry struct {
+	logEntry *logrus.Entry
 }
 
 var Log *customLogger
 
 func New(envName string) *customLogger {
+	l := logrus.New()
+
 	Log = &customLogger{
-		logrus.New(),
-		envName,
+		Logger: l,
+		entry:  buildEntry(l, envName),
 	}
 
 	return Log
 }
 
-func (c customLogger) getEntry() *logrus.Entry {
-	return c.WithField("env", c.environmentName)
+func buildEntry(l *logrus.Logger, envName string) *entry {
+	return &entry{l.WithField("env", envName)}
 }
 
-func GetEntry() *logrus.Entry {
-	return Log.getEntry()
+func GetEntry() *entry {
+	return Log.entry
+}
+
+func WithField(key string, value interface{}) *entry {
+	return Log.entry.WithField(key, value)
+}
+
+func (e *entry) WithField(key string, value interface{}) *entry {
+	return &entry{e.logEntry.WithField(key, value)}
+}
+
+func (e *entry) Info(args ...interface{}) {
+	e.logEntry.Info(args)
+}
+
+func (e *entry) Warn(args ...interface{}) {
+	e.logEntry.Warn(args)
+}
+
+func (e *entry) Panic(args ...interface{}) {
+	e.logEntry.Panic(args)
+}
+
+func (e *entry) Fatal(args ...interface{}) {
+	e.logEntry.Fatal(args)
+}
+
+func (e *entry) Error(args ...interface{}) {
+	e.logEntry.Error(args)
 }
 
 func Info(args ...interface{}) {
-	Log.getEntry().Info(args)
+	Log.entry.Info(args)
 }
 
-func Warning(args ...interface{}) {
-	Log.getEntry().Warn(args)
+func Warn(args ...interface{}) {
+	Log.entry.Warn(args)
 }
 
 func Panic(args ...interface{}) {
-	Log.getEntry().Panic(args)
+	Log.entry.Panic(args)
 }
 
 func Fatal(args ...interface{}) {
-	Log.getEntry().Fatal(args)
+	Log.entry.Fatal(args)
 }
 
 func Error(args ...interface{}) {
-	Log.getEntry().Error(args)
+	Log.entry.Error(args)
 }

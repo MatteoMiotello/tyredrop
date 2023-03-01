@@ -27,7 +27,6 @@ func InitLog(applicationName string) {
 	}
 
 	log.Log.SetOutput(writer)
-	log.Log.WithField("application_name", applicationName)
 
 	hook, err := logrus_sentry.NewSentryHook(viper.GetString("SENTRY_DSN"), []logrus.Level{
 		logrus.ErrorLevel,
