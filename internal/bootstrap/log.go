@@ -38,5 +38,7 @@ func InitLog(applicationName string) {
 		panic(err.Error())
 	}
 
+	hook.SetEnvironment(viper.GetString("APPLICATION_ENV"))
+	hook.SetDefaultLoggerName(applicationName)
 	log.Log.Hooks.Add(hook)
 }

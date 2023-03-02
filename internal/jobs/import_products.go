@@ -26,7 +26,7 @@ import (
 
 func check(err error) {
 	if err != nil {
-		log.Panic("Error importing file", err.Error())
+		log.Error("Error importing file", err.Error())
 	}
 }
 
@@ -69,6 +69,8 @@ func ImportProductFromFile() {
 
 		if exists {
 			log.WithField("entry", entry).Warn("File already imported")
+			err := ftp.Quit()
+			check(err)
 			continue
 		}
 
@@ -92,7 +94,8 @@ func ImportProductFromFile() {
 		err = os.WriteFile(tmpFile, buf, 0644)
 		check(err)
 
-		ftp.Quit()
+		err = ftp.Quit()
+		check(err)
 
 		_ = ijService.StartNow(ctx, jobModel)
 

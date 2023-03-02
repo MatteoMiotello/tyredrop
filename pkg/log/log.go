@@ -28,10 +28,6 @@ func buildEntry(l *logrus.Logger, envName string) *entry {
 	return &entry{l.WithField("env", envName)}
 }
 
-func GetEntry() *entry {
-	return Log.entry
-}
-
 func WithField(key string, value interface{}) *entry {
 	return Log.entry.WithField(key, value)
 }
