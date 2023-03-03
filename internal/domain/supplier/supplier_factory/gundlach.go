@@ -2,11 +2,8 @@ package supplier_factory
 
 import (
 	"context"
-	"github.com/friendsofgo/errors"
 	"pillowww/titw/internal/domain/product/pdtos"
-	"pillowww/titw/pkg/constants"
 	"pillowww/titw/pkg/utils"
-	"regexp"
 	"strconv"
 	"strings"
 )
@@ -29,11 +26,11 @@ func (g Gun) ReadProductsFromFile(ctx context.Context, filePath string) (pdtos.P
 		var err error = nil
 
 		for i, slice := range slices {
-			err = matchRecords(pRecord, i, slice)
-		}
+			err = g.matchRecords(pRecord, i, slice)
 
-		if err != nil {
-			continue
+			if err != nil {
+				continue
+			}
 		}
 
 		if pRecord.Construction == "" {
@@ -50,7 +47,7 @@ func (g Gun) NeedsImportFromFile() bool {
 	return true
 }
 
-func matchRecords(pRecord *pdtos.Tyre, index int, slice string) error {
+func (g Gun) matchRecords(pRecord *pdtos.Tyre, index int, slice string) error {
 	var err error
 
 	switch index {
@@ -64,24 +61,21 @@ func matchRecords(pRecord *pdtos.Tyre, index int, slice string) error {
 		pRecord.ProductName = slice
 		break
 	case 8:
-		pRecord.Season = getSeason(slice)
+		pRecord.Season = getSeasonFromGerman(slice)
 		break
 	case 10:
 		w, err := strconv.ParseFloat(slice, 32)
 
-		pRecord.Width = int(w)
-
-		if err != nil {
-			return err
+		if err == nil {
+			pRecord.Width = int(w)
 		}
 
 		break
 	case 11:
 		a, err := strconv.ParseFloat(slice, 32)
 
-		pRecord.AspectRatio = int(a)
-
-		if err != nil {
+		if err == nil {
+			pRecord.AspectRatio = int(a)
 			return err
 		}
 
@@ -89,16 +83,14 @@ func matchRecords(pRecord *pdtos.Tyre, index int, slice string) error {
 	case 12:
 		r, err := strconv.ParseFloat(slice, 32)
 
-		pRecord.Rim = int(r)
-		if err != nil {
-			return err
+		if err == nil {
+			pRecord.Rim = int(r)
 		}
 
 		break
 	case 13:
-		pRecord.Load, err = strconv.Atoi(slice)
-		if err != nil {
-			return err
+		if err == nil {
+			pRecord.Load, err = strconv.Atoi(slice)
 		}
 		break
 	case 15:
@@ -110,55 +102,14 @@ func matchRecords(pRecord *pdtos.Tyre, index int, slice string) error {
 	case 20:
 		f, err := strconv.ParseFloat(slice, 32)
 
-		if err != nil {
-			return err
+		if err == nil {
+			pRecord.Quantity = int(f)
 		}
 
-		pRecord.Quantity = int(f)
 	case 42:
-		pRecord.EprelID = extractEprelCode(slice)
+		pRecord.EprelID = extractEprelIDFromLink(slice)
 		break
 	}
 
 	return nil
-}
-
-func getSeason(slice string) string {
-	switch slice {
-	case "SOMMER":
-		return constants.TYPE_SUMMER
-	case "WINTER":
-		return constants.TYPE_WINTER
-	case "ANHÄNGER":
-		return constants.TYPE_TRAILER
-	case "GANZJAHR":
-		return constants.TYPE_ALL_SEASON
-	}
-	return ""
-}
-
-func extractEprelCode(slice string) string {
-	if slice == "" {
-		return ""
-	}
-
-	splitted := strings.Split(slice, "/")
-
-	if len(splitted) != 5 {
-		return ""
-	}
-
-	return splitted[4]
-}
-
-func extractDimensions(slice string) (*pdtos.TyreDimension, error) {
-	r := regexp.MustCompile("/([0-9]){2,3}/([0-9]{2,3})[A-Z]([0-9]){2,3} ([0-9]){2,3}([A-Z])(.*)/")
-
-	match := r.Match([]byte(slice))
-
-	if !match {
-		return nil, errors.New("slice not match tyre pattern")
-	}
-
-	return nil, nil
 }

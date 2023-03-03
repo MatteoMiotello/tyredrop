@@ -1,6 +1,7 @@
 package pdtos
 
 import (
+	"fmt"
 	"pillowww/titw/pkg/constants"
 	"strconv"
 )
@@ -75,4 +76,8 @@ func (t *Tyre) Validate() bool {
 
 func (t *Tyre) GetSupplierProductQuantity() int {
 	return t.Quantity
+}
+
+func (t *Tyre) BuildName() string {
+	return fmt.Sprintf("%d/%d %s %d %d %s", t.Width, t.AspectRatio, t.Construction, t.Rim, t.Load, t.Speed)
 }

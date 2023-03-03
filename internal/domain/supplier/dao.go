@@ -42,3 +42,10 @@ func (r dao) ExistsJobForFilename(ctx context.Context, supplier models.Supplier,
 		models.ImportJobWhere.Filename.EQ(fileName),
 	).Exists(ctx, r.GetConnection(ctx))
 }
+
+func (r dao) ExistRunningJob(ctx context.Context) (bool, error) {
+	return models.ImportJobs(
+		qm.Where(models.ImportJobColumns.StartedAt+" IS NOT NULL"),
+		qm.And(models.ImportJobColumns.EndedAt+" IS NULL"),
+	).Exists(ctx, r.Db)
+}

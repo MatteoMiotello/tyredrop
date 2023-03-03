@@ -2,9 +2,7 @@ package brand
 
 import (
 	"context"
-	"fmt"
 	"github.com/volatiletech/sqlboiler/v4/boil"
-	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"pillowww/titw/internal/db"
 	"pillowww/titw/models"
 )
@@ -23,8 +21,8 @@ func (d Dao) FindOneById(ctx context.Context, id int64) (*models.Brand, error) {
 	return models.FindBrand(ctx, d.Db, id)
 }
 
-func (d Dao) FindOneByName(ctx context.Context, name string) (*models.Brand, error) {
-	return models.Brands(qm.Where(models.BrandColumns.Name+" LIKE ? ", fmt.Sprintf("%%%s%%", name))).One(ctx, d.Db)
+func (d Dao) FindOneByCode(ctx context.Context, code string) (*models.Brand, error) {
+	return models.Brands(models.BrandWhere.BrandCode.EQ(code)).One(ctx, d.Db)
 }
 
 func (d Dao) Update(ctx context.Context, brand *models.Brand) error {

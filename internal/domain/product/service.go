@@ -5,11 +5,14 @@ import (
 	"errors"
 	"github.com/bojanz/currency"
 	"github.com/volatiletech/null/v8"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	currency2 "pillowww/titw/internal/currency"
 	"pillowww/titw/internal/domain/brand"
 	"pillowww/titw/internal/domain/product/pdtos"
 	"pillowww/titw/models"
 	"pillowww/titw/pkg/constants"
+	"pillowww/titw/pkg/log"
 	"strings"
 )
 
@@ -100,6 +103,7 @@ func (s Service) CreateProductItem(ctx context.Context, product *models.Product,
 		return nil, err
 	}
 
+	price = strings.Replace(price, ",", ".", 1)
 	amount, err := currency.NewAmount(price, "EUR")
 	if err != nil {
 		return nil, err
@@ -198,12 +202,17 @@ func (s Service) findPriceMarkup(ctx context.Context, pi *models.ProductItem) (*
 }
 
 func (s Service) findOrCreateBrand(ctx context.Context, name string) (*models.Brand, error) {
-	b, _ := s.BrandDao.FindOneByName(ctx, name)
+	code := cases.Upper(language.Und).String(name)
+	b, err := s.BrandDao.FindOneByCode(ctx, code)
+
+	if err != nil {
+		log.Warn("error finding brand", err)
+	}
 
 	if b == nil {
 		b = &models.Brand{
 			Name:      name,
-			BrandCode: strings.ToUpper(name),
+			BrandCode: code,
 		}
 
 		err := s.BrandDao.Insert(ctx, b)

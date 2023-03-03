@@ -16,5 +16,7 @@ func CsvReadFile(filePath string) ([][]string, error) {
 
 	reader := csv.NewReader(f)
 	reader.FieldsPerRecord = -1
+	reader.LazyQuotes = true
+	reader.TrimLeadingSpace = true
 	return reader.ReadAll()
 }
