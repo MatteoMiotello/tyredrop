@@ -29,14 +29,12 @@ func check(err error) {
 }
 
 func ImportProductFromFile() {
-	log.Info("Import Job started")
 	ctx := context.Background()
 	sDao := supplier.NewDao(db.DB)
 
 	jobExists, _ := sDao.ExistRunningJob(ctx)
 
 	if jobExists {
-		log.Info("One job is running, skip")
 		return
 	}
 

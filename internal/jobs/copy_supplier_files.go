@@ -13,8 +13,6 @@ import (
 )
 
 func CopySupplierFiles() {
-	log.Info("Copy Job started")
-
 	ctx := context.Background()
 
 	sDao := supplier.NewDao(db.DB)
