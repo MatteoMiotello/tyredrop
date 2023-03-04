@@ -12,7 +12,6 @@ import (
 	"pillowww/titw/internal/domain/product/pdtos"
 	"pillowww/titw/models"
 	"pillowww/titw/pkg/constants"
-	"pillowww/titw/pkg/log"
 	"strings"
 )
 
@@ -34,7 +33,8 @@ func (s Service) FindOrCreateProduct(ctx context.Context, dto pdtos.ProductDto) 
 	p, _ := s.ProductDao.FindOneByProductCode(ctx, dto.GetProductCode())
 
 	if p == nil {
-		b, err := s.findOrCreateBrand(ctx, dto.GetBrandName())
+		code := cases.Upper(language.Und).String(dto.GetBrandName())
+		b, err := s.BrandDao.FindOneByCode(ctx, code)
 		if err != nil {
 			return nil, err
 		}
@@ -199,30 +199,6 @@ func (s Service) findPriceMarkup(ctx context.Context, pi *models.ProductItem) (*
 	}
 
 	return markup, nil
-}
-
-func (s Service) findOrCreateBrand(ctx context.Context, name string) (*models.Brand, error) {
-	code := cases.Upper(language.Und).String(name)
-	b, err := s.BrandDao.FindOneByCode(ctx, code)
-
-	if err != nil {
-		log.Warn("error finding brand", err)
-	}
-
-	if b == nil {
-		b = &models.Brand{
-			Name:      name,
-			BrandCode: code,
-		}
-
-		err := s.BrandDao.Insert(ctx, b)
-
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return b, nil
 }
 
 func (s Service) findCategory(ctx context.Context, code constants.ProductCategoryType) (*models.ProductCategory, error) {

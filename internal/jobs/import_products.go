@@ -5,9 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	ftp3 "github.com/jlaffaye/ftp"
 	"github.com/volatiletech/null/v8"
-	"io"
 	"os"
 	currency2 "pillowww/titw/internal/currency"
 	"pillowww/titw/internal/db"
@@ -18,8 +16,8 @@ import (
 	"pillowww/titw/internal/domain/supplier"
 	"pillowww/titw/internal/domain/supplier/supplier_factory"
 	"pillowww/titw/models"
-	ftp2 "pillowww/titw/pkg/ftp"
 	"pillowww/titw/pkg/log"
+	"pillowww/titw/pkg/task"
 	"strings"
 	"time"
 )
@@ -31,6 +29,7 @@ func check(err error) {
 }
 
 func ImportProductFromFile() {
+	log.Info("Import Job started")
 	ctx := context.Background()
 	sDao := supplier.NewDao(db.DB)
 
@@ -45,6 +44,7 @@ func ImportProductFromFile() {
 	check(err)
 
 	dirName := strings.ToLower(sup.Code)
+	tmpDir := "import/" + dirName
 
 	sup.ImportedAt = null.TimeFrom(time.Now())
 	err = sDao.Update(ctx, sup)
@@ -53,73 +53,57 @@ func ImportProductFromFile() {
 
 	var factory supplier_factory.Importer
 
-	ftp, err := ftp2.Init(ctx)
-
-	check(err)
-
 	factory = supplier.GetFactory(sup)
 	if !factory.NeedsImportFromFile() {
 		return
 	}
 
-	list, err := ftp.Connection.List(dirName)
-	check(err)
+	list, err := os.ReadDir(tmpDir)
+	if err != nil {
+		return
+	}
 
 	for _, entry := range list {
-		if entry.Type != ftp3.EntryTypeFile {
+		if entry.IsDir() {
 			continue
 		}
 
-		exists, err := sDao.ExistsJobForFilename(ctx, *sup, entry.Name)
+		exists, err := sDao.ExistsJobForFilename(ctx, *sup, entry.Name())
 
 		log.WithField("entry", entry).Info("Importing file")
 
 		if exists {
 			log.WithField("entry", entry).Warn("File already imported")
-			err := ftp.Quit()
 			check(err)
 			continue
 		}
 
 		ijService := import_job.NewImportJobService(import_job.NewDao(db.DB))
-		jobModel, err := ijService.CreateJob(ctx, *sup, entry.Name)
+		jobModel, err := ijService.CreateJob(ctx, *sup, entry.Name())
 		check(err)
 
-		fileName := dirName + "/" + entry.Name
-		tmpDir := "import/" + dirName
-		tmpFile := tmpDir + "/" + entry.Name
-
-		res, err := ftp.Connection.Retr(fileName)
-		check(err)
-
-		buf, err := io.ReadAll(res)
-		check(err)
-
-		err = os.MkdirAll(tmpDir, 0777)
-		check(err)
-
-		err = os.WriteFile(tmpFile, buf, 0644)
-		check(err)
-
-		err = ftp.Quit()
-		check(err)
+		fileName := tmpDir + "/" + entry.Name()
 
 		_ = ijService.StartNow(ctx, jobModel)
 
-		records, err := factory.ReadProductsFromFile(ctx, tmpFile)
+		records, err := factory.ReadProductsFromFile(ctx, fileName)
 
 		if err != nil {
-			log.Error("error reading from file: " + tmpFile)
+			log.Error("error reading from file: " + entry.Name())
 			_ = ijService.EndNowWithError(ctx, jobModel, err.Error())
 			break
 		}
+
+		storeBrands(ctx, records)
+
+		storeProducts(ctx, records)
 
 		err = storeRecords(ctx, sup, records)
 		_ = ijService.EndNow(ctx, jobModel)
 
 		check(err)
 
-		err = os.Remove(tmpFile)
+		err = os.Remove(fileName)
 
 		check(err)
 
@@ -127,18 +111,82 @@ func ImportProductFromFile() {
 	}
 }
 
+func storeProducts(ctx context.Context, records []pdtos.ProductDto) {
+	var uniqueP = make(map[string]pdtos.ProductDto)
+	dao := product.NewDao(db.DB)
+	bDao := brand.NewDao(db.DB)
+	cDao := currency2.NewDao(db.DB)
+	pService := product.NewService(dao, bDao, cDao)
+
+	for _, record := range records {
+		if !record.Validate() {
+			continue
+		}
+
+		if _, found := uniqueP[record.GetProductCode()]; found {
+			continue
+		}
+
+		uniqueP[record.GetProductCode()] = record
+	}
+
+	for _, record := range uniqueP {
+		_, err := pService.FindOrCreateProduct(ctx, record)
+		if err != nil {
+			log.Error("Error creating product", err)
+		}
+	}
+}
+
+func storeBrands(ctx context.Context, records []pdtos.ProductDto) {
+	var uniqueB = make(map[string]string)
+	bDao := brand.NewDao(db.DB)
+	bService := brand.NewBrandService(bDao)
+
+	for _, record := range records {
+		if !record.Validate() {
+			continue
+		}
+
+		if _, found := uniqueB[record.GetBrandName()]; found {
+			continue
+		}
+
+		uniqueB[record.GetBrandName()] = record.GetBrandName()
+	}
+
+	for _, brandName := range uniqueB {
+		_, err := bService.FindOrCreateBrand(ctx, brandName)
+		if err != nil {
+			log.Error("Error creating brand: ", err)
+		}
+	}
+}
+
+func storeRecords(ctx context.Context, sup *models.Supplier, records []pdtos.ProductDto) error {
+	worker := task.NewWorker(8)
+	worker.Run()
+
+	for _, record := range records {
+		worker.AddTask(func() {
+			importNextRecord(ctx, sup, record)
+		})
+	}
+	return nil
+}
+
 func importNextRecord(ctx context.Context, sup *models.Supplier, record pdtos.ProductDto) {
 	err := db.WithTx(ctx, func(tx *sql.Tx) error {
+		if !record.Validate() {
+			return errors.New("record is not valid")
+		}
+
 		dao := product.NewDao(tx)
 		bDao := brand.NewDao(tx)
 		cDao := currency2.NewDao(tx)
 		pService := product.NewService(dao, bDao, cDao)
 
-		if !record.Validate() {
-			return errors.New("record is not valid")
-		}
-
-		p, err := pService.FindOrCreateProduct(ctx, record)
+		p, err := dao.FindOneByProductCode(ctx, record.GetProductCode())
 		if err != nil {
 			return err
 		}
@@ -165,11 +213,4 @@ func importNextRecord(ctx context.Context, sup *models.Supplier, record pdtos.Pr
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-}
-
-func storeRecords(ctx context.Context, sup *models.Supplier, records []pdtos.ProductDto) error {
-	for _, record := range records {
-		importNextRecord(ctx, sup, record)
-	}
-	return nil
 }

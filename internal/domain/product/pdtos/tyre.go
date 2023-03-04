@@ -71,6 +71,14 @@ func (t *Tyre) Validate() bool {
 		return false
 	}
 
+	if t.Brand == "" {
+		return false
+	}
+
+	if t.EANCode == "" {
+		return false
+	}
+
 	return true
 }
 
