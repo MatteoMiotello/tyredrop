@@ -7,6 +7,7 @@ import (
 	"pillowww/titw/models"
 	"pillowww/titw/pkg/constants"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -49,13 +50,27 @@ func extractEprelIDFromLink(slice string) string {
 }
 
 func extractDimensionsFromName(slice string) (*pdtos.TyreDimension, error) {
-	r := regexp.MustCompile("/([0-9]){2,3}/([0-9]{2,3})[A-Z]([0-9]){2,3} ([0-9]){2,3}([A-Z])(.*)/")
+	r := regexp.MustCompile(`^(\d{3})\/(\d{2})\s(\w{1,3})(\d{2})\s(?:\w{2}\s)?(\d{2,3})([A-Z])\s([A-Z])(?:\s([\w-]+)\s)?`)
 
-	match := r.Match([]byte(slice))
+	match := r.FindStringSubmatch(slice)
 
-	if !match {
-		return nil, errors.New("slice not match tyre pattern")
+	if len(match) > 0 {
+		width, _ := strconv.Atoi(match[1])
+		aspectRatio, _ := strconv.Atoi(match[2])
+		construction := match[3]
+		diameter, _ := strconv.Atoi(match[4])
+		loadIndex, _ := strconv.Atoi(match[5])
+		speedIndex := match[6]
+
+		return &pdtos.TyreDimension{
+			Width:        width,
+			AspectRatio:  aspectRatio,
+			Construction: construction,
+			Rim:          diameter,
+			Load:         loadIndex,
+			Speed:        speedIndex,
+		}, nil
 	}
 
-	return nil, nil
+	return nil, errors.New("String not matching")
 }

@@ -3,7 +3,6 @@ package product
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/bojanz/currency"
 	"github.com/volatiletech/null/v8"
 	"golang.org/x/text/cases"
@@ -32,10 +31,6 @@ func NewService(dao *Dao, bDao *brand.Dao, cDao *currency2.Dao) *Service {
 
 func (s Service) FindOrCreateProduct(ctx context.Context, dto pdtos.ProductDto) (*models.Product, error) {
 	p, _ := s.ProductDao.FindOneByProductCode(ctx, dto.GetProductCode())
-
-	if p != nil {
-		fmt.Println("hit")
-	}
 
 	if p == nil {
 		code := cases.Upper(language.Und).String(dto.GetBrandName())
@@ -67,32 +62,12 @@ func (s Service) FindOrCreateProduct(ctx context.Context, dto pdtos.ProductDto) 
 }
 
 func (s Service) UpdateSpecifications(ctx context.Context, product *models.Product, dto pdtos.ProductDto) error {
-	specLen := len(dto.GetSpecifications())
-	keys := make([]string, specLen)
-
-	for code, _ := range dto.GetSpecifications() {
-		keys = append(keys, string(code))
-	}
-
-	pSpecifications, _ := s.ProductDao.FindProductSpecificationValuesByCodes(ctx, product, keys)
-
-	if len(pSpecifications) == specLen {
-		return nil
-	}
-
 	for key, value := range dto.GetSpecifications() {
 		if value == "" {
 			continue
 		}
 
-		var pValue *models.ProductSpecificationValue
-
-		for _, specificationValue := range pSpecifications {
-			if specificationValue.R.ProductSpecification.SpecificationCode == string(key) {
-				pValue = specificationValue
-				break
-			}
-		}
+		pValue, _ := s.ProductDao.FindProductSpecificationValue(ctx, product, string(key))
 
 		if pValue != nil {
 			continue
@@ -113,7 +88,6 @@ func (s Service) UpdateSpecifications(ctx context.Context, product *models.Produ
 		}
 
 		err := s.ProductDao.Insert(ctx, pValue)
-
 		if err != nil {
 			return err
 		}

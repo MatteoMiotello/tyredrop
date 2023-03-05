@@ -88,6 +88,12 @@ func ImportProductFromFile() {
 			break
 		}
 
+		if len(records) == 0 {
+			log.Warn("no records found for file: " + entry.Name())
+			_ = ijService.EndNowWithError(ctx, jobModel, err.Error())
+			break
+		}
+
 		storeBrands(ctx, records)
 
 		err = storeRecords(ctx, sup, records)
@@ -95,7 +101,7 @@ func ImportProductFromFile() {
 
 		check(err)
 
-		err = os.Remove(fileName)
+		//err = os.Remove(fileName)
 
 		check(err)
 
