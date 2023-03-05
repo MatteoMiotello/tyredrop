@@ -14,11 +14,9 @@ import (
 
 func CopySupplierFiles() {
 	ctx := context.Background()
-
 	sDao := supplier.NewDao(db.DB)
 
 	suppliers, err := sDao.GetAll(ctx)
-
 	check(err)
 
 	ftp, err := ftp2.Init(ctx)

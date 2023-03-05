@@ -28,11 +28,11 @@ func (d Dao) FindOneById(ctx context.Context, id int64) (*models.Product, error)
 }
 
 func (d Dao) FindOneByProductCode(ctx context.Context, productCode string) (*models.Product, error) {
-	return models.Products(models.ProductWhere.ProductCode.EQ(null.StringFrom(productCode))).One(ctx, d.Db)
+	return models.Products(models.ProductWhere.ProductCode.EQ(null.StringFrom(productCode)), qm.Limit(1)).One(ctx, d.Db)
 }
 
 func (d Dao) FindCategoryByCode(ctx context.Context, code string) (*models.ProductCategory, error) {
-	return models.ProductCategories(models.ProductCategoryWhere.CategoryCode.EQ(code)).One(ctx, d.Db)
+	return models.ProductCategories(models.ProductCategoryWhere.CategoryCode.EQ(code), qm.Limit(1)).One(ctx, d.Db)
 }
 
 func (d Dao) Insert(ctx context.Context, product Inserter) error {
@@ -63,20 +63,29 @@ func (d Dao) FindProductSpecificationValue(ctx context.Context, product *models.
 	).One(ctx, d.Db)
 }
 
+func (d Dao) FindProductSpecificationValuesByCodes(ctx context.Context, product *models.Product, specificationCodes []string) (models.ProductSpecificationValueSlice, error) {
+	return models.ProductSpecificationValues(
+		qm.LeftOuterJoin("product_specifications on product_specifications.id = product_specification_values.product_specification_id"),
+		models.ProductSpecificationValueWhere.ProductID.EQ(product.ID),
+		models.ProductSpecificationWhere.SpecificationCode.IN(specificationCodes),
+		qm.Load(models.ProductSpecificationValueRels.ProductSpecification),
+	).All(ctx, d.Db)
+}
+
 func (d Dao) FindOneProductSpecificationByCode(ctx context.Context, specCode string) (*models.ProductSpecification, error) {
-	return models.ProductSpecifications(models.ProductSpecificationWhere.SpecificationCode.EQ(specCode)).One(ctx, d.Db)
+	return models.ProductSpecifications(models.ProductSpecificationWhere.SpecificationCode.EQ(specCode), qm.Limit(1)).One(ctx, d.Db)
 }
 
 func (d Dao) FindPriceMarkupByProductId(ctx context.Context, product *models.Product) (*models.ProductPriceMarkup, error) {
-	return models.ProductPriceMarkups(models.ProductPriceMarkupWhere.ProductID.EQ(null.Int64From(product.ID))).One(ctx, d.Db)
+	return models.ProductPriceMarkups(models.ProductPriceMarkupWhere.ProductID.EQ(null.Int64From(product.ID)), qm.Limit(1)).One(ctx, d.Db)
 }
 
 func (d Dao) FindPriceMarkupByBrandId(ctx context.Context, id int64) (*models.ProductPriceMarkup, error) {
-	return models.ProductPriceMarkups(models.ProductPriceMarkupWhere.BrandID.EQ(null.Int64From(id))).One(ctx, d.Db)
+	return models.ProductPriceMarkups(models.ProductPriceMarkupWhere.BrandID.EQ(null.Int64From(id)), qm.Limit(1)).One(ctx, d.Db)
 }
 
 func (d Dao) FindPriceMarkupByProductCategoryId(ctx context.Context, categoryId int64) (*models.ProductPriceMarkup, error) {
-	return models.ProductPriceMarkups(models.ProductPriceMarkupWhere.ProductCategoryID.EQ(null.Int64From(categoryId))).One(ctx, d.Db)
+	return models.ProductPriceMarkups(models.ProductPriceMarkupWhere.ProductCategoryID.EQ(null.Int64From(categoryId)), qm.Limit(1)).One(ctx, d.Db)
 }
 
 func (d Dao) FindPriceMarkupDefault(ctx context.Context) (*models.ProductPriceMarkup, error) {

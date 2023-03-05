@@ -3,7 +3,6 @@ package jobs
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"github.com/volatiletech/null/v8"
 	"os"
@@ -68,10 +67,7 @@ func ImportProductFromFile() {
 
 		exists, err := sDao.ExistsJobForFilename(ctx, *sup, entry.Name())
 
-		log.WithField("entry", entry).Info("Importing file")
-
 		if exists {
-			log.WithField("entry", entry).Warn("File already imported")
 			check(err)
 			continue
 		}
@@ -94,8 +90,6 @@ func ImportProductFromFile() {
 
 		storeBrands(ctx, records)
 
-		storeProducts(ctx, records)
-
 		err = storeRecords(ctx, sup, records)
 		_ = ijService.EndNow(ctx, jobModel)
 
@@ -106,33 +100,6 @@ func ImportProductFromFile() {
 		check(err)
 
 		break
-	}
-}
-
-func storeProducts(ctx context.Context, records []pdtos.ProductDto) {
-	var uniqueP = make(map[string]pdtos.ProductDto)
-	dao := product.NewDao(db.DB)
-	bDao := brand.NewDao(db.DB)
-	cDao := currency2.NewDao(db.DB)
-	pService := product.NewService(dao, bDao, cDao)
-
-	for _, record := range records {
-		if !record.Validate() {
-			continue
-		}
-
-		if _, found := uniqueP[record.GetProductCode()]; found {
-			continue
-		}
-
-		uniqueP[record.GetProductCode()] = record
-	}
-
-	for _, record := range uniqueP {
-		_, err := pService.FindOrCreateProduct(ctx, record)
-		if err != nil {
-			log.Error("Error creating product", err)
-		}
 	}
 }
 
@@ -162,29 +129,33 @@ func storeBrands(ctx context.Context, records []pdtos.ProductDto) {
 }
 
 func storeRecords(ctx context.Context, sup *models.Supplier, records []pdtos.ProductDto) error {
-	worker := task.NewWorker(8)
-	worker.Run()
+	rChan := make(chan pdtos.ProductDto)
+	chanWorker := task.NewChannelWorker[pdtos.ProductDto](24, rChan)
+	chanWorker.Run(func(record pdtos.ProductDto) {
+		importNextRecord(ctx, sup, record)
+	})
 
 	for _, record := range records {
-		worker.AddTask(func() {
-			importNextRecord(ctx, sup, record)
-		})
+		chanWorker.InsertToChannel(record)
 	}
+
+	close(rChan)
+
 	return nil
 }
 
 func importNextRecord(ctx context.Context, sup *models.Supplier, record pdtos.ProductDto) {
-	err := db.WithTx(ctx, func(tx *sql.Tx) error {
-		if !record.Validate() {
-			return errors.New("record is not valid")
-		}
+	if !record.Validate() {
+		return
+	}
 
+	err := db.WithTx(ctx, func(tx *sql.Tx) error {
 		dao := product.NewDao(tx)
 		bDao := brand.NewDao(tx)
 		cDao := currency2.NewDao(tx)
 		pService := product.NewService(dao, bDao, cDao)
 
-		p, err := dao.FindOneByProductCode(ctx, record.GetProductCode())
+		p, err := pService.FindOrCreateProduct(ctx, record)
 		if err != nil {
 			return err
 		}
