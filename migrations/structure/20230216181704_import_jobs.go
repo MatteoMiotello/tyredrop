@@ -12,7 +12,7 @@ func init() {
 }
 
 func upImportJobs(tx *sql.Tx) error {
-	query := sqlbuilder.CreateTable("import_jobs").
+	query := sqlbuilder.CreateTable("public.import_jobs").
 		PKColumn().
 		FKColumn("public.suppliers", "supplier_id", false).
 		Column("filename", types.Varchar.Options("255"), false).

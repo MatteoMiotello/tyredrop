@@ -23,6 +23,14 @@ type Inserter interface {
 	Insert(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) error
 }
 
+type Upserter interface {
+	Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnConflict bool, conflictColumns []string, updateColumns, insertColumns boil.Columns) error
+}
+
+func (d Dao) Upsert(ctx context.Context, model Upserter, updateOnConflict bool, cols []string) error {
+	return model.Upsert(ctx, d.Db, updateOnConflict, cols, boil.Infer(), boil.Infer())
+}
+
 func (d Dao) FindOneById(ctx context.Context, id int64) (*models.Product, error) {
 	return models.FindProduct(ctx, d.Db, id)
 }

@@ -2,6 +2,10 @@ package log
 
 import "github.com/sirupsen/logrus"
 
+var (
+	Log *customLogger
+)
+
 type customLogger struct {
 	*logrus.Logger
 	entry *entry
@@ -10,8 +14,6 @@ type customLogger struct {
 type entry struct {
 	logEntry *logrus.Entry
 }
-
-var Log *customLogger
 
 func New(envName string) *customLogger {
 	l := logrus.New()
@@ -37,41 +39,41 @@ func (e *entry) WithField(key string, value interface{}) *entry {
 }
 
 func (e *entry) Info(args ...interface{}) {
-	e.logEntry.Info(args)
+	e.logEntry.Info(args...)
 }
 
 func (e *entry) Warn(args ...interface{}) {
-	e.logEntry.Warn(args)
+	e.logEntry.Warn(args...)
 }
 
 func (e *entry) Panic(args ...interface{}) {
-	e.logEntry.Panic(args)
+	e.logEntry.Panic(args...)
 }
 
 func (e *entry) Fatal(args ...interface{}) {
-	e.logEntry.Fatal(args)
+	e.logEntry.Fatal(args...)
 }
 
 func (e *entry) Error(args ...interface{}) {
-	e.logEntry.Error(args)
+	e.logEntry.Error(args...)
 }
 
 func Info(args ...interface{}) {
-	Log.entry.Info(args)
+	Log.entry.Info(args...)
 }
 
 func Warn(args ...interface{}) {
-	Log.entry.Warn(args)
+	Log.entry.Warn(args...)
 }
 
 func Panic(args ...interface{}) {
-	Log.entry.Panic(args)
+	Log.entry.Panic(args...)
 }
 
 func Fatal(args ...interface{}) {
-	Log.entry.Fatal(args)
+	Log.entry.Fatal(args...)
 }
 
 func Error(args ...interface{}) {
-	Log.entry.Error(args)
+	Log.entry.Error(args...)
 }

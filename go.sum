@@ -71,6 +71,14 @@ github.com/Masterminds/semver/v3 v3.1.1/go.mod h1:VPu/7SZ7ePZ3QOrcuXROw5FAcLl4a0
 github.com/Masterminds/sprig/v3 v3.2.2/go.mod h1:UoaO7Yp8KlPnJIYWTFkMaqPUYKTfGFPhxNuwnnxkKlk=
 github.com/MatteoMiotello/go-sqlbuilder v1.0.1-0.20230222222845-885af5478019 h1:OKQLQj0tQeZhVR2vbulI5v/nUwEA2cWimYa1UiE9MJI=
 github.com/MatteoMiotello/go-sqlbuilder v1.0.1-0.20230222222845-885af5478019/go.mod h1:eSUoDkePY67E4KgQ93YPpH0bsvft/NqRwbtqZ0MSke8=
+github.com/MatteoMiotello/go-sqlbuilder v1.0.1-0.20230310201849-c58cd4398066 h1:HXV1BiUj9zUmEkMYvqQvDy90zjK9QfGEp4Pm4BeKG4o=
+github.com/MatteoMiotello/go-sqlbuilder v1.0.1-0.20230310201849-c58cd4398066/go.mod h1:eSUoDkePY67E4KgQ93YPpH0bsvft/NqRwbtqZ0MSke8=
+github.com/MatteoMiotello/go-sqlbuilder v1.0.1-0.20230310210202-a4f676b885eb h1:lbqQDnY3p4MM2sAu9QiUxWlSoYpx1XI/FqhC+arBBmY=
+github.com/MatteoMiotello/go-sqlbuilder v1.0.1-0.20230310210202-a4f676b885eb/go.mod h1:eSUoDkePY67E4KgQ93YPpH0bsvft/NqRwbtqZ0MSke8=
+github.com/MatteoMiotello/go-sqlbuilder v1.0.1-0.20230310212615-4aef06999991 h1:N4uSu5lwNI7js9QAJsMcPJeQF44f7qkOQ3jJDr77RBs=
+github.com/MatteoMiotello/go-sqlbuilder v1.0.1-0.20230310212615-4aef06999991/go.mod h1:eSUoDkePY67E4KgQ93YPpH0bsvft/NqRwbtqZ0MSke8=
+github.com/MatteoMiotello/go-sqlbuilder v1.0.1-0.20230310213322-8a4d5c78ef63 h1:j8oSqFwcxeyoeQ4nmEqlrjxugxo5Z9l+rHkxaQFrLTk=
+github.com/MatteoMiotello/go-sqlbuilder v1.0.1-0.20230310213322-8a4d5c78ef63/go.mod h1:eSUoDkePY67E4KgQ93YPpH0bsvft/NqRwbtqZ0MSke8=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/agnivade/levenshtein v1.0.1/go.mod h1:CURSv5d9Uaml+FovSIICkLbAUZ9S4RqaHDIsdSBg7lM=
 github.com/agnivade/levenshtein v1.1.1 h1:QY8M92nrzkmr798gCo3kmMyqXFzdQVpxLlGPRBij0P8=

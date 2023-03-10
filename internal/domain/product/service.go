@@ -3,6 +3,7 @@ package product
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/bojanz/currency"
 	"github.com/volatiletech/null/v8"
 	"golang.org/x/text/cases"
@@ -13,6 +14,7 @@ import (
 	"pillowww/titw/models"
 	"pillowww/titw/pkg/constants"
 	"strings"
+	"time"
 )
 
 type Service struct {
@@ -30,46 +32,37 @@ func NewService(dao *Dao, bDao *brand.Dao, cDao *currency2.Dao) *Service {
 }
 
 func (s Service) FindOrCreateProduct(ctx context.Context, dto pdtos.ProductDto) (*models.Product, error) {
-	p, _ := s.ProductDao.FindOneByProductCode(ctx, dto.GetProductCode())
+	code := cases.Upper(language.Und).String(dto.GetBrandName())
+	b, err := s.BrandDao.FindOneByCode(ctx, code)
+	if err != nil {
+		return nil, err
+	}
 
-	if p == nil {
-		code := cases.Upper(language.Und).String(dto.GetBrandName())
-		b, err := s.BrandDao.FindOneByCode(ctx, code)
-		if err != nil {
-			return nil, err
-		}
+	category, err := s.findCategory(ctx, dto.GetProductCategoryCode())
 
-		category, err := s.findCategory(ctx, dto.GetProductCategoryCode())
+	if err != nil {
+		return nil, err
+	}
 
-		if err != nil {
-			return nil, err
-		}
+	p := &models.Product{
+		ProductCode:       null.StringFrom(dto.GetProductCode()),
+		BrandID:           b.ID,
+		ProductCategoryID: category.ID,
+	}
 
-		p = &models.Product{
-			ProductCode:       null.StringFrom(dto.GetProductCode()),
-			BrandID:           b.ID,
-			ProductCategoryID: category.ID,
-		}
+	err = s.ProductDao.Upsert(ctx, p, false, []string{models.ProductColumns.ProductCode})
 
-		err = s.ProductDao.Insert(ctx, p)
-
-		if err != nil {
-			return nil, err
-		}
+	if err != nil {
+		return nil, err
 	}
 
 	return p, nil
 }
 
 func (s Service) UpdateSpecifications(ctx context.Context, product *models.Product, dto pdtos.ProductDto) error {
+	t := time.Now()
 	for key, value := range dto.GetSpecifications() {
 		if value == "" {
-			continue
-		}
-
-		pValue, _ := s.ProductDao.FindProductSpecificationValue(ctx, product, string(key))
-
-		if pValue != nil {
 			continue
 		}
 
@@ -81,17 +74,22 @@ func (s Service) UpdateSpecifications(ctx context.Context, product *models.Produ
 			continue
 		}
 
-		pValue = &models.ProductSpecificationValue{
+		pValue := &models.ProductSpecificationValue{
 			ProductID:              product.ID,
 			ProductSpecificationID: pSpec.ID,
 			SpecificationValue:     value,
 		}
 
-		err := s.ProductDao.Insert(ctx, pValue)
+		err := s.ProductDao.Upsert(ctx, pValue, false, []string{
+			models.ProductSpecificationValueColumns.ProductSpecificationID,
+			models.ProductSpecificationValueColumns.ProductID,
+		})
+
 		if err != nil {
 			return err
 		}
 	}
+	fmt.Println(time.Since(t))
 
 	return nil
 }

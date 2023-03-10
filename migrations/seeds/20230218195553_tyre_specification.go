@@ -37,6 +37,11 @@ func upTyreSpecification(tx *sql.Tx) error {
 		Values(catId, "SPEED", constants.SPEC_TYPE_STRING).
 		Values(catId, "SEASON", constants.SPEC_TYPE_STRING).
 		Values(catId, "EPREL_ID", constants.SPEC_TYPE_INT).
+		Values(catId, "FUEL_EFFICIENCY", constants.SPEC_TYPE_STRING).
+		Values(catId, "WET_GRIP_CLASS", constants.SPEC_TYPE_STRING).
+		Values(catId, "EXTERNAL_ROLLING_NOISE_CLASS", constants.SPEC_TYPE_STRING).
+		Values(catId, "EXTERNAL_ROLLING_NOISE_LEVEL", constants.SPEC_TYPE_INT).
+		Values(catId, "LOAD_VERSION", constants.SPEC_TYPE_STRING).
 		BuildWithFlavor(sqlbuilder.PostgreSQL)
 
 	_, err = tx.Exec(query, values...)
@@ -70,6 +75,11 @@ func upTyreSpecification(tx *sql.Tx) error {
 		Values(1, ids[7], "Velocità").
 		Values(1, ids[8], "Stagione").
 		Values(1, ids[9], "Id Eprel").
+		Values(1, ids[10], "Categoria di consumo carburante").
+		Values(1, ids[11], "Categoria di aderenza sul bagnato").
+		Values(1, ids[12], "Categoria di rumore esterno di rotolamento").
+		Values(1, ids[13], "Livello di rumore esterno di rotolamento").
+		Values(1, ids[14], "Versione rispetto al carico").
 		BuildWithFlavor(sqlbuilder.PostgreSQL)
 
 	_, err = tx.Exec(query, values...)

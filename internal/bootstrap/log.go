@@ -28,7 +28,7 @@ func InitLog(applicationName string) {
 
 	log.Log.SetOutput(writer)
 
-	hook, err := logrus_sentry.NewSentryHook(viper.GetString("SENTRY_DSN"), []logrus.Level{
+	hook, err := logrus_sentry.NewAsyncSentryHook(viper.GetString("SENTRY_DSN"), []logrus.Level{
 		logrus.ErrorLevel,
 		logrus.FatalLevel,
 		logrus.PanicLevel,
@@ -40,5 +40,8 @@ func InitLog(applicationName string) {
 
 	hook.SetEnvironment(viper.GetString("APPLICATION_ENV"))
 	hook.SetDefaultLoggerName(applicationName)
+	hook.StacktraceConfiguration.Enable = true
+	hook.Timeout = time.Second * 20
+
 	log.Log.Hooks.Add(hook)
 }

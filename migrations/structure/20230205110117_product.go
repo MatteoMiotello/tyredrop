@@ -46,6 +46,7 @@ func upProduct(tx *sql.Tx) error {
 		FKColumn("public.brands", "brand_id", false).
 		Column("product_code", types.Varchar.Options("255"), true).
 		Column("manufacturer_code", types.Varchar.Options("255"), true).
+		Column("eprel_updated_at", types.Timestamptz, true).
 		DeletedColumn().
 		UpdatedColumn().
 		CreatedColumn().
@@ -116,12 +117,10 @@ func upProduct(tx *sql.Tx) error {
 	if err != nil {
 		return err
 	}
-
 	_, err = tx.Exec(productCategoryQuery)
 	if err != nil {
 		return err
 	}
-
 	_, err = tx.Exec(productCategoryLanguage)
 	if err != nil {
 		return err
@@ -154,6 +153,10 @@ func upProduct(tx *sql.Tx) error {
 	if err != nil {
 		return err
 	}
+	_, err = tx.Exec("CREATE INDEX spec_code_idx ON public.product_specifications (specification_code);")
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -164,7 +167,6 @@ func downProduct(tx *sql.Tx) error {
 		return err
 	}
 	_, err = tx.Exec("DROP TABLE public.product_items")
-
 	if err != nil {
 		return err
 	}

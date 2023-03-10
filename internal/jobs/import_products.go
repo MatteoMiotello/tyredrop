@@ -101,7 +101,7 @@ func ImportProductFromFile() {
 
 		check(err)
 
-		//err = os.Remove(fileName)
+		err = os.Remove(fileName)
 
 		check(err)
 
