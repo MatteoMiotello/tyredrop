@@ -1,2 +1,4 @@
 api:
   port: "8080"
+clients:
+  eprel: "https://eprel.ec.europa.eu/api"

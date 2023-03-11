@@ -20,10 +20,17 @@ func addJobs(c *cron.Cron) {
 	if err != nil {
 		panic(err.Error())
 	}
-	_, err = c.AddFunc("@every 1m", jobs.CopySupplierFiles)
+	_, err = c.AddFunc("@every 15m", jobs.CopySupplierFiles)
 	if err != nil {
 		panic(err.Error())
 	}
+
+	_, err = c.AddJob("@every 1s", jobs.UpdateTyresSpecificationJob{})
+
+	if err != nil {
+		panic(err.Error())
+	}
+
 }
 
 func runCron() {

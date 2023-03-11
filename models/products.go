@@ -29,6 +29,8 @@ type Product struct {
 	BrandID           int64       `boil:"brand_id" json:"brand_id" toml:"brand_id" yaml:"brand_id"`
 	ProductCode       null.String `boil:"product_code" json:"product_code,omitempty" toml:"product_code" yaml:"product_code,omitempty"`
 	ManufacturerCode  null.String `boil:"manufacturer_code" json:"manufacturer_code,omitempty" toml:"manufacturer_code" yaml:"manufacturer_code,omitempty"`
+	EprelUpdatedAt    null.Time   `boil:"eprel_updated_at" json:"eprel_updated_at,omitempty" toml:"eprel_updated_at" yaml:"eprel_updated_at,omitempty"`
+	Completed         bool        `boil:"completed" json:"completed" toml:"completed" yaml:"completed"`
 	DeletedAt         null.Time   `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
 	UpdatedAt         time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
 	CreatedAt         time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
@@ -43,6 +45,8 @@ var ProductColumns = struct {
 	BrandID           string
 	ProductCode       string
 	ManufacturerCode  string
+	EprelUpdatedAt    string
+	Completed         string
 	DeletedAt         string
 	UpdatedAt         string
 	CreatedAt         string
@@ -52,6 +56,8 @@ var ProductColumns = struct {
 	BrandID:           "brand_id",
 	ProductCode:       "product_code",
 	ManufacturerCode:  "manufacturer_code",
+	EprelUpdatedAt:    "eprel_updated_at",
+	Completed:         "completed",
 	DeletedAt:         "deleted_at",
 	UpdatedAt:         "updated_at",
 	CreatedAt:         "created_at",
@@ -63,6 +69,8 @@ var ProductTableColumns = struct {
 	BrandID           string
 	ProductCode       string
 	ManufacturerCode  string
+	EprelUpdatedAt    string
+	Completed         string
 	DeletedAt         string
 	UpdatedAt         string
 	CreatedAt         string
@@ -72,6 +80,8 @@ var ProductTableColumns = struct {
 	BrandID:           "products.brand_id",
 	ProductCode:       "products.product_code",
 	ManufacturerCode:  "products.manufacturer_code",
+	EprelUpdatedAt:    "products.eprel_updated_at",
+	Completed:         "products.completed",
 	DeletedAt:         "products.deleted_at",
 	UpdatedAt:         "products.updated_at",
 	CreatedAt:         "products.created_at",
@@ -85,6 +95,8 @@ var ProductWhere = struct {
 	BrandID           whereHelperint64
 	ProductCode       whereHelpernull_String
 	ManufacturerCode  whereHelpernull_String
+	EprelUpdatedAt    whereHelpernull_Time
+	Completed         whereHelperbool
 	DeletedAt         whereHelpernull_Time
 	UpdatedAt         whereHelpertime_Time
 	CreatedAt         whereHelpertime_Time
@@ -94,6 +106,8 @@ var ProductWhere = struct {
 	BrandID:           whereHelperint64{field: "\"products\".\"brand_id\""},
 	ProductCode:       whereHelpernull_String{field: "\"products\".\"product_code\""},
 	ManufacturerCode:  whereHelpernull_String{field: "\"products\".\"manufacturer_code\""},
+	EprelUpdatedAt:    whereHelpernull_Time{field: "\"products\".\"eprel_updated_at\""},
+	Completed:         whereHelperbool{field: "\"products\".\"completed\""},
 	DeletedAt:         whereHelpernull_Time{field: "\"products\".\"deleted_at\""},
 	UpdatedAt:         whereHelpertime_Time{field: "\"products\".\"updated_at\""},
 	CreatedAt:         whereHelpertime_Time{field: "\"products\".\"created_at\""},
@@ -187,9 +201,9 @@ func (r *productR) GetProductSpecificationValues() ProductSpecificationValueSlic
 type productL struct{}
 
 var (
-	productAllColumns            = []string{"id", "product_category_id", "brand_id", "product_code", "manufacturer_code", "deleted_at", "updated_at", "created_at"}
-	productColumnsWithoutDefault = []string{}
-	productColumnsWithDefault    = []string{"id", "product_category_id", "brand_id", "product_code", "manufacturer_code", "deleted_at", "updated_at", "created_at"}
+	productAllColumns            = []string{"id", "product_category_id", "brand_id", "product_code", "manufacturer_code", "eprel_updated_at", "completed", "deleted_at", "updated_at", "created_at"}
+	productColumnsWithoutDefault = []string{"product_category_id", "brand_id", "completed"}
+	productColumnsWithDefault    = []string{"id", "product_code", "manufacturer_code", "eprel_updated_at", "deleted_at", "updated_at", "created_at"}
 	productPrimaryKeyColumns     = []string{"id"}
 	productGeneratedColumns      = []string{}
 )

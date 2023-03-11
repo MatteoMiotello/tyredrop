@@ -121,8 +121,8 @@ type refreshTokenL struct{}
 
 var (
 	refreshTokenAllColumns            = []string{"id", "user_id", "refresh_token", "expires_at", "time_last_use", "deleted_at", "created_at"}
-	refreshTokenColumnsWithoutDefault = []string{"refresh_token", "expires_at"}
-	refreshTokenColumnsWithDefault    = []string{"id", "user_id", "time_last_use", "deleted_at", "created_at"}
+	refreshTokenColumnsWithoutDefault = []string{"user_id", "refresh_token", "expires_at"}
+	refreshTokenColumnsWithDefault    = []string{"id", "time_last_use", "deleted_at", "created_at"}
 	refreshTokenPrimaryKeyColumns     = []string{"id"}
 	refreshTokenGeneratedColumns      = []string{}
 )

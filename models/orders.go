@@ -192,8 +192,8 @@ type orderL struct{}
 
 var (
 	orderAllColumns            = []string{"id", "currency_id", "tax_rate_id", "user_billing_id", "status", "address_line_1", "address_line_2", "city", "province", "country", "cap", "updated_at", "created_at"}
-	orderColumnsWithoutDefault = []string{"status", "address_line_1", "address_line_2", "city", "province", "country", "cap"}
-	orderColumnsWithDefault    = []string{"id", "currency_id", "tax_rate_id", "user_billing_id", "updated_at", "created_at"}
+	orderColumnsWithoutDefault = []string{"currency_id", "tax_rate_id", "user_billing_id", "status", "address_line_1", "address_line_2", "city", "province", "country", "cap"}
+	orderColumnsWithDefault    = []string{"id", "updated_at", "created_at"}
 	orderPrimaryKeyColumns     = []string{"id"}
 	orderGeneratedColumns      = []string{}
 )

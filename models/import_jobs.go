@@ -128,8 +128,8 @@ type importJobL struct{}
 
 var (
 	importJobAllColumns            = []string{"id", "supplier_id", "filename", "error_message", "started_at", "ended_at", "updated_at", "created_at"}
-	importJobColumnsWithoutDefault = []string{"filename"}
-	importJobColumnsWithDefault    = []string{"id", "supplier_id", "error_message", "started_at", "ended_at", "updated_at", "created_at"}
+	importJobColumnsWithoutDefault = []string{"supplier_id", "filename"}
+	importJobColumnsWithDefault    = []string{"id", "error_message", "started_at", "ended_at", "updated_at", "created_at"}
 	importJobPrimaryKeyColumns     = []string{"id"}
 	importJobGeneratedColumns      = []string{}
 )

@@ -131,8 +131,8 @@ type productSpecificationLanguageL struct{}
 
 var (
 	productSpecificationLanguageAllColumns            = []string{"id", "product_specification_id", "language_id", "name", "description", "updated_at", "created_at"}
-	productSpecificationLanguageColumnsWithoutDefault = []string{"name"}
-	productSpecificationLanguageColumnsWithDefault    = []string{"id", "product_specification_id", "language_id", "description", "updated_at", "created_at"}
+	productSpecificationLanguageColumnsWithoutDefault = []string{"product_specification_id", "language_id", "name"}
+	productSpecificationLanguageColumnsWithDefault    = []string{"id", "description", "updated_at", "created_at"}
 	productSpecificationLanguagePrimaryKeyColumns     = []string{"id"}
 	productSpecificationLanguageGeneratedColumns      = []string{}
 )

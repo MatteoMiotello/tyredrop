@@ -47,6 +47,7 @@ func upProduct(tx *sql.Tx) error {
 		Column("product_code", types.Varchar.Options("255"), true).
 		Column("manufacturer_code", types.Varchar.Options("255"), true).
 		Column("eprel_updated_at", types.Timestamptz, true).
+		Column("completed", types.Bool, false).
 		DeletedColumn().
 		UpdatedColumn().
 		CreatedColumn().
@@ -67,6 +68,7 @@ func upProduct(tx *sql.Tx) error {
 		FKColumn("public.product_categories", "product_category_id", false).
 		Column("specification_code", types.Varchar.Options("45"), false).
 		Column("type", types.Varchar.Options("45"), false).
+		Column("mandatory", types.Bool, false).
 		DeletedColumn().
 		UpdatedColumn().
 		CreatedColumn().

@@ -131,8 +131,8 @@ type productItemPriceL struct{}
 
 var (
 	productItemPriceAllColumns            = []string{"id", "product_item_id", "currency_id", "price", "deleted_at", "updated_at", "created_at"}
-	productItemPriceColumnsWithoutDefault = []string{"price"}
-	productItemPriceColumnsWithDefault    = []string{"id", "product_item_id", "currency_id", "deleted_at", "updated_at", "created_at"}
+	productItemPriceColumnsWithoutDefault = []string{"product_item_id", "currency_id", "price"}
+	productItemPriceColumnsWithDefault    = []string{"id", "deleted_at", "updated_at", "created_at"}
 	productItemPricePrimaryKeyColumns     = []string{"id"}
 	productItemPriceGeneratedColumns      = []string{}
 )

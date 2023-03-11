@@ -23,7 +23,7 @@ import (
 
 func check(err error) {
 	if err != nil {
-		log.Error("Error importing file", err.Error())
+		log.Error("Error importing file", err)
 	}
 }
 

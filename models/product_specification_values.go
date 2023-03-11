@@ -131,8 +131,8 @@ type productSpecificationValueL struct{}
 
 var (
 	productSpecificationValueAllColumns            = []string{"id", "product_id", "product_specification_id", "specification_value", "deleted_at", "updated_at", "created_at"}
-	productSpecificationValueColumnsWithoutDefault = []string{"specification_value"}
-	productSpecificationValueColumnsWithDefault    = []string{"id", "product_id", "product_specification_id", "deleted_at", "updated_at", "created_at"}
+	productSpecificationValueColumnsWithoutDefault = []string{"product_id", "product_specification_id", "specification_value"}
+	productSpecificationValueColumnsWithDefault    = []string{"id", "deleted_at", "updated_at", "created_at"}
 	productSpecificationValuePrimaryKeyColumns     = []string{"id"}
 	productSpecificationValueGeneratedColumns      = []string{}
 )

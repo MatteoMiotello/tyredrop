@@ -181,8 +181,8 @@ type languageL struct{}
 
 var (
 	languageAllColumns            = []string{"id", "currency_id", "name", "iso_code", "tag", "std_timezone", "created_at"}
-	languageColumnsWithoutDefault = []string{"name", "iso_code", "tag"}
-	languageColumnsWithDefault    = []string{"id", "currency_id", "std_timezone", "created_at"}
+	languageColumnsWithoutDefault = []string{"currency_id", "name", "iso_code", "tag"}
+	languageColumnsWithDefault    = []string{"id", "std_timezone", "created_at"}
 	languagePrimaryKeyColumns     = []string{"id"}
 	languageGeneratedColumns      = []string{}
 )

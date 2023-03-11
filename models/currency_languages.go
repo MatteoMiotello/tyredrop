@@ -116,8 +116,8 @@ type currencyLanguageL struct{}
 
 var (
 	currencyLanguageAllColumns            = []string{"id", "currency_id", "language_id", "name", "created_at"}
-	currencyLanguageColumnsWithoutDefault = []string{"name"}
-	currencyLanguageColumnsWithDefault    = []string{"id", "currency_id", "language_id", "created_at"}
+	currencyLanguageColumnsWithoutDefault = []string{"currency_id", "language_id", "name"}
+	currencyLanguageColumnsWithDefault    = []string{"id", "created_at"}
 	currencyLanguagePrimaryKeyColumns     = []string{"id"}
 	currencyLanguageGeneratedColumns      = []string{}
 )

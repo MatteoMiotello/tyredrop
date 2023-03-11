@@ -123,8 +123,8 @@ type productCategoryLanguageL struct{}
 
 var (
 	productCategoryLanguageAllColumns            = []string{"id", "language_id", "product_category_id", "name", "updated_at", "created_at"}
-	productCategoryLanguageColumnsWithoutDefault = []string{"name"}
-	productCategoryLanguageColumnsWithDefault    = []string{"id", "language_id", "product_category_id", "updated_at", "created_at"}
+	productCategoryLanguageColumnsWithoutDefault = []string{"language_id", "product_category_id", "name"}
+	productCategoryLanguageColumnsWithDefault    = []string{"id", "updated_at", "created_at"}
 	productCategoryLanguagePrimaryKeyColumns     = []string{"id"}
 	productCategoryLanguageGeneratedColumns      = []string{}
 )

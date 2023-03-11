@@ -131,8 +131,8 @@ type productLanguageL struct{}
 
 var (
 	productLanguageAllColumns            = []string{"id", "product_id", "language_id", "name", "description", "updated_at", "created_at"}
-	productLanguageColumnsWithoutDefault = []string{"name"}
-	productLanguageColumnsWithDefault    = []string{"id", "product_id", "language_id", "description", "updated_at", "created_at"}
+	productLanguageColumnsWithoutDefault = []string{"product_id", "language_id", "name"}
+	productLanguageColumnsWithDefault    = []string{"id", "description", "updated_at", "created_at"}
 	productLanguagePrimaryKeyColumns     = []string{"id"}
 	productLanguageGeneratedColumns      = []string{}
 )

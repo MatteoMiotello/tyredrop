@@ -28,6 +28,7 @@ type ProductSpecification struct {
 	ProductCategoryID int64     `boil:"product_category_id" json:"product_category_id" toml:"product_category_id" yaml:"product_category_id"`
 	SpecificationCode string    `boil:"specification_code" json:"specification_code" toml:"specification_code" yaml:"specification_code"`
 	Type              string    `boil:"type" json:"type" toml:"type" yaml:"type"`
+	Mandatory         bool      `boil:"mandatory" json:"mandatory" toml:"mandatory" yaml:"mandatory"`
 	DeletedAt         null.Time `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
 	UpdatedAt         time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
 	CreatedAt         time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
@@ -41,6 +42,7 @@ var ProductSpecificationColumns = struct {
 	ProductCategoryID string
 	SpecificationCode string
 	Type              string
+	Mandatory         string
 	DeletedAt         string
 	UpdatedAt         string
 	CreatedAt         string
@@ -49,6 +51,7 @@ var ProductSpecificationColumns = struct {
 	ProductCategoryID: "product_category_id",
 	SpecificationCode: "specification_code",
 	Type:              "type",
+	Mandatory:         "mandatory",
 	DeletedAt:         "deleted_at",
 	UpdatedAt:         "updated_at",
 	CreatedAt:         "created_at",
@@ -59,6 +62,7 @@ var ProductSpecificationTableColumns = struct {
 	ProductCategoryID string
 	SpecificationCode string
 	Type              string
+	Mandatory         string
 	DeletedAt         string
 	UpdatedAt         string
 	CreatedAt         string
@@ -67,6 +71,7 @@ var ProductSpecificationTableColumns = struct {
 	ProductCategoryID: "product_specifications.product_category_id",
 	SpecificationCode: "product_specifications.specification_code",
 	Type:              "product_specifications.type",
+	Mandatory:         "product_specifications.mandatory",
 	DeletedAt:         "product_specifications.deleted_at",
 	UpdatedAt:         "product_specifications.updated_at",
 	CreatedAt:         "product_specifications.created_at",
@@ -74,11 +79,21 @@ var ProductSpecificationTableColumns = struct {
 
 // Generated where
 
+type whereHelperbool struct{ field string }
+
+func (w whereHelperbool) EQ(x bool) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
+func (w whereHelperbool) NEQ(x bool) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
+func (w whereHelperbool) LT(x bool) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
+func (w whereHelperbool) LTE(x bool) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
+func (w whereHelperbool) GT(x bool) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
+func (w whereHelperbool) GTE(x bool) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
+
 var ProductSpecificationWhere = struct {
 	ID                whereHelperint64
 	ProductCategoryID whereHelperint64
 	SpecificationCode whereHelperstring
 	Type              whereHelperstring
+	Mandatory         whereHelperbool
 	DeletedAt         whereHelpernull_Time
 	UpdatedAt         whereHelpertime_Time
 	CreatedAt         whereHelpertime_Time
@@ -87,6 +102,7 @@ var ProductSpecificationWhere = struct {
 	ProductCategoryID: whereHelperint64{field: "\"product_specifications\".\"product_category_id\""},
 	SpecificationCode: whereHelperstring{field: "\"product_specifications\".\"specification_code\""},
 	Type:              whereHelperstring{field: "\"product_specifications\".\"type\""},
+	Mandatory:         whereHelperbool{field: "\"product_specifications\".\"mandatory\""},
 	DeletedAt:         whereHelpernull_Time{field: "\"product_specifications\".\"deleted_at\""},
 	UpdatedAt:         whereHelpertime_Time{field: "\"product_specifications\".\"updated_at\""},
 	CreatedAt:         whereHelpertime_Time{field: "\"product_specifications\".\"created_at\""},
@@ -140,9 +156,9 @@ func (r *productSpecificationR) GetProductSpecificationValues() ProductSpecifica
 type productSpecificationL struct{}
 
 var (
-	productSpecificationAllColumns            = []string{"id", "product_category_id", "specification_code", "type", "deleted_at", "updated_at", "created_at"}
-	productSpecificationColumnsWithoutDefault = []string{"specification_code", "type"}
-	productSpecificationColumnsWithDefault    = []string{"id", "product_category_id", "deleted_at", "updated_at", "created_at"}
+	productSpecificationAllColumns            = []string{"id", "product_category_id", "specification_code", "type", "mandatory", "deleted_at", "updated_at", "created_at"}
+	productSpecificationColumnsWithoutDefault = []string{"product_category_id", "specification_code", "type", "mandatory"}
+	productSpecificationColumnsWithDefault    = []string{"id", "deleted_at", "updated_at", "created_at"}
 	productSpecificationPrimaryKeyColumns     = []string{"id"}
 	productSpecificationGeneratedColumns      = []string{}
 )

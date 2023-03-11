@@ -116,8 +116,8 @@ type userRoleLanguageL struct{}
 
 var (
 	userRoleLanguageAllColumns            = []string{"id", "language_id", "user_role_id", "name", "created_at"}
-	userRoleLanguageColumnsWithoutDefault = []string{"name"}
-	userRoleLanguageColumnsWithDefault    = []string{"id", "language_id", "user_role_id", "created_at"}
+	userRoleLanguageColumnsWithoutDefault = []string{"language_id", "user_role_id", "name"}
+	userRoleLanguageColumnsWithDefault    = []string{"id", "created_at"}
 	userRoleLanguagePrimaryKeyColumns     = []string{"id"}
 	userRoleLanguageGeneratedColumns      = []string{}
 )

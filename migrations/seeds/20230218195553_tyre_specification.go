@@ -26,22 +26,22 @@ func upTyreSpecification(tx *sql.Tx) error {
 	}
 
 	query, values := sqlbuilder.InsertInto("public.product_specifications").
-		Cols("product_category_id", "specification_code", "type").
-		Values(catId, "NAME", constants.SPEC_TYPE_STRING).
-		Values(catId, "REFERENCE", constants.SPEC_TYPE_STRING).
-		Values(catId, "WIDTH", constants.SPEC_TYPE_INT).
-		Values(catId, "ASPECT_RATIO", constants.SPEC_TYPE_INT).
-		Values(catId, "CONSTRUCTION", constants.SPEC_TYPE_STRING).
-		Values(catId, "RIM", constants.SPEC_TYPE_INT).
-		Values(catId, "LOAD", constants.SPEC_TYPE_INT).
-		Values(catId, "SPEED", constants.SPEC_TYPE_STRING).
-		Values(catId, "SEASON", constants.SPEC_TYPE_STRING).
-		Values(catId, "EPREL_ID", constants.SPEC_TYPE_INT).
-		Values(catId, "FUEL_EFFICIENCY", constants.SPEC_TYPE_STRING).
-		Values(catId, "WET_GRIP_CLASS", constants.SPEC_TYPE_STRING).
-		Values(catId, "EXTERNAL_ROLLING_NOISE_CLASS", constants.SPEC_TYPE_STRING).
-		Values(catId, "EXTERNAL_ROLLING_NOISE_LEVEL", constants.SPEC_TYPE_INT).
-		Values(catId, "LOAD_VERSION", constants.SPEC_TYPE_STRING).
+		Cols("product_category_id", "specification_code", "type", "mandatory").
+		Values(catId, "NAME", constants.SPEC_TYPE_STRING, true).
+		Values(catId, "REFERENCE", constants.SPEC_TYPE_STRING, true).
+		Values(catId, "WIDTH", constants.SPEC_TYPE_INT, true).
+		Values(catId, "ASPECT_RATIO", constants.SPEC_TYPE_INT, true).
+		Values(catId, "CONSTRUCTION", constants.SPEC_TYPE_STRING, true).
+		Values(catId, "RIM", constants.SPEC_TYPE_INT, true).
+		Values(catId, "LOAD", constants.SPEC_TYPE_INT, true).
+		Values(catId, "SPEED", constants.SPEC_TYPE_STRING, true).
+		Values(catId, "SEASON", constants.SPEC_TYPE_STRING, true).
+		Values(catId, "EPREL_ID", constants.SPEC_TYPE_INT, false).
+		Values(catId, "FUEL_EFFICIENCY", constants.SPEC_TYPE_STRING, false).
+		Values(catId, "WET_GRIP_CLASS", constants.SPEC_TYPE_STRING, false).
+		Values(catId, "EXTERNAL_ROLLING_NOISE_CLASS", constants.SPEC_TYPE_STRING, false).
+		Values(catId, "EXTERNAL_ROLLING_NOISE_LEVEL", constants.SPEC_TYPE_INT, false).
+		Values(catId, "LOAD_VERSION", constants.SPEC_TYPE_STRING, false).
 		BuildWithFlavor(sqlbuilder.PostgreSQL)
 
 	_, err = tx.Exec(query, values...)

@@ -3,7 +3,6 @@ package product
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/bojanz/currency"
 	"github.com/volatiletech/null/v8"
 	"golang.org/x/text/cases"
@@ -14,7 +13,6 @@ import (
 	"pillowww/titw/models"
 	"pillowww/titw/pkg/constants"
 	"strings"
-	"time"
 )
 
 type Service struct {
@@ -32,6 +30,12 @@ func NewService(dao *Dao, bDao *brand.Dao, cDao *currency2.Dao) *Service {
 }
 
 func (s Service) FindOrCreateProduct(ctx context.Context, dto pdtos.ProductDto) (*models.Product, error) {
+	p, _ := s.ProductDao.FindOneByProductCode(ctx, dto.GetProductCode())
+
+	if p != nil {
+		return p, nil
+	}
+
 	code := cases.Upper(language.Und).String(dto.GetBrandName())
 	b, err := s.BrandDao.FindOneByCode(ctx, code)
 	if err != nil {
@@ -44,7 +48,7 @@ func (s Service) FindOrCreateProduct(ctx context.Context, dto pdtos.ProductDto) 
 		return nil, err
 	}
 
-	p := &models.Product{
+	p = &models.Product{
 		ProductCode:       null.StringFrom(dto.GetProductCode()),
 		BrandID:           b.ID,
 		ProductCategoryID: category.ID,
@@ -60,23 +64,31 @@ func (s Service) FindOrCreateProduct(ctx context.Context, dto pdtos.ProductDto) 
 }
 
 func (s Service) UpdateSpecifications(ctx context.Context, product *models.Product, dto pdtos.ProductDto) error {
-	t := time.Now()
-	for key, value := range dto.GetSpecifications() {
-		if value == "" {
+	if product.Completed {
+		return nil
+	}
+
+	specs, err := s.ProductDao.FindProductSpecificationsByProduct(ctx, product)
+
+	if err != nil {
+		return err
+	}
+
+	dtoSpecs := dto.GetSpecifications()
+	specInserted := 0
+	for _, spec := range specs {
+		value, found := dtoSpecs[constants.ProductSpecification(spec.SpecificationCode)]
+		if !found {
 			continue
 		}
 
-		keyS := string(key)
-
-		pSpec, _ := s.ProductDao.FindOneProductSpecificationByCode(ctx, keyS)
-
-		if pSpec == nil {
+		if value == "" {
 			continue
 		}
 
 		pValue := &models.ProductSpecificationValue{
 			ProductID:              product.ID,
-			ProductSpecificationID: pSpec.ID,
+			ProductSpecificationID: spec.ID,
 			SpecificationValue:     value,
 		}
 
@@ -88,10 +100,26 @@ func (s Service) UpdateSpecifications(ctx context.Context, product *models.Produ
 		if err != nil {
 			return err
 		}
+
+		specInserted++
 	}
-	fmt.Println(time.Since(t))
+
+	mandatories, err := s.ProductDao.FindMandatoryProductSpecificationsByProduct(ctx, product)
+
+	if len(mandatories) <= specInserted {
+		err = s.setProductComplete(ctx, product)
+
+		if err != nil {
+			return err
+		}
+	}
 
 	return nil
+}
+
+func (s Service) setProductComplete(ctx context.Context, product *models.Product) error {
+	product.Completed = true
+	return s.ProductDao.Update(ctx, product)
 }
 
 func (s Service) CreateProductItem(ctx context.Context, product *models.Product, supplier *models.Supplier, price string, quantity int) (*models.ProductItem, error) {

@@ -162,8 +162,8 @@ type orderRowL struct{}
 
 var (
 	orderRowAllColumns            = []string{"id", "order_id", "product_id", "supplier_id", "amount", "tracking_number", "carrier", "sent_at", "updated_at", "created_at"}
-	orderRowColumnsWithoutDefault = []string{"amount"}
-	orderRowColumnsWithDefault    = []string{"id", "order_id", "product_id", "supplier_id", "tracking_number", "carrier", "sent_at", "updated_at", "created_at"}
+	orderRowColumnsWithoutDefault = []string{"order_id", "product_id", "supplier_id", "amount"}
+	orderRowColumnsWithDefault    = []string{"id", "tracking_number", "carrier", "sent_at", "updated_at", "created_at"}
 	orderRowPrimaryKeyColumns     = []string{"id"}
 	orderRowGeneratedColumns      = []string{}
 )
