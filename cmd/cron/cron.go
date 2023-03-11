@@ -16,7 +16,7 @@ func init() {
 }
 
 func addJobs(c *cron.Cron) {
-	_, err := c.AddFunc("@every 1s", jobs.ImportProductFromFile)
+	_, err := c.AddFunc("@every 1m", jobs.ImportProductsFromFile)
 	if err != nil {
 		panic(err.Error())
 	}

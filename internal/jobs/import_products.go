@@ -27,7 +27,7 @@ func check(err error) {
 	}
 }
 
-func ImportProductFromFile() {
+func ImportProductsFromFile() {
 	ctx := context.Background()
 	sDao := supplier.NewDao(db.DB)
 
