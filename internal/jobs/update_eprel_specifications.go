@@ -46,7 +46,7 @@ func UpdateTyresSpecifications() {
 			return err
 		}
 
-		value, _ := pDao.FindProductSpecificationValue(ctx, p, string(constants.TYRE_SPEC_EPREL_ID))
+		value, _ := pDao.FindProductSpecificationValueByProductAndCode(ctx, p, string(constants.TYRE_SPEC_EPREL_ID))
 		if value == nil {
 			return nil
 		}

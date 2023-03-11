@@ -54,7 +54,7 @@ type TyreResponse struct {
 	OnMarketFirstStartDate    *[]int      `json:"onMarketFirstStartDate"`
 	ProductModelCoreId        int         `json:"productModelCoreId"`
 	VersionNumber             int         `json:"versionNumber"`
-	UploadedLabels            string      `json:"uploadedLabels"`
+	UploadedLabels            interface{} `json:"uploadedLabels"`
 	IceTyre                   bool        `json:"iceTyre"`
 	SupplierOrTrademark       string      `json:"supplierOrTrademark"`
 	ProductGroup              string      `json:"productGroup"`

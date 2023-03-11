@@ -38,10 +38,6 @@ func (u Dao) FindOneById(ctx context.Context, id int64) (*models.User, error) {
 	return models.FindUser(ctx, u.Db, id)
 }
 
-func (u Dao) Insert(ctx context.Context, user *models.User) error {
-	return user.Insert(ctx, u.Db, boil.Infer())
-}
-
 func (u Dao) GetUserRole(ctx context.Context, user *models.User) (*models.UserRole, error) {
 	return user.UserRole().One(ctx, u.Db)
 }

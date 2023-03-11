@@ -40,14 +40,14 @@ func (d Dao) DeleteProductItem(ctx context.Context, item *models.ProductItem) er
 	return nil
 }
 
-func (d Dao) FindProductItems(ctx context.Context, product *models.Product, supplier *models.Supplier) (models.ProductItemSlice, error) {
+func (d Dao) FindProductItemsByProductAndSupplier(ctx context.Context, product *models.Product, supplier *models.Supplier) (models.ProductItemSlice, error) {
 	return models.ProductItems(
 		models.ProductItemWhere.ProductID.EQ(product.ID),
 		models.ProductItemWhere.SupplierID.EQ(supplier.ID),
 	).All(ctx, d.Db)
 }
 
-func (d Dao) FindProductSpecificationValue(ctx context.Context, product *models.Product, specificationCode string) (*models.ProductSpecificationValue, error) {
+func (d Dao) FindProductSpecificationValueByProductAndCode(ctx context.Context, product *models.Product, specificationCode string) (*models.ProductSpecificationValue, error) {
 	return models.ProductSpecificationValues(
 		qm.LeftOuterJoin("product_specifications on product_specifications.id = product_specification_values.product_specification_id"),
 		models.ProductSpecificationValueWhere.ProductID.EQ(product.ID),
@@ -128,4 +128,22 @@ func (d Dao) FindProductSpecificationsByProduct(ctx context.Context, product *mo
 	return models.ProductSpecifications(
 		models.ProductSpecificationWhere.ProductCategoryID.EQ(product.ProductCategoryID),
 	).All(ctx, d.Db)
+}
+
+func (d Dao) FindProductItemsByCategory(ctx context.Context, category *models.ProductCategory) (models.ProductItemSlice, error) {
+	return models.ProductItems(
+		qm.LeftOuterJoin("products on products.id = product_items.product_id"),
+		models.ProductWhere.ProductCategoryID.EQ(category.ID),
+	).All(ctx, d.Db)
+}
+
+func (d Dao) FindProductItemByBrand(ctx context.Context, brand *models.Brand) (models.ProductItemSlice, error) {
+	return models.ProductItems(
+		qm.LeftOuterJoin("products on products.id = product_items.product_id"),
+		models.ProductWhere.BrandID.EQ(brand.ID),
+	).All(ctx, d.Db)
+}
+
+func (d Dao) FindProductItemByProduct(ctx context.Context, product *models.Product) (models.ProductItemSlice, error) {
+	return product.ProductItems().All(ctx, d.Db)
 }

@@ -17,6 +17,10 @@ type Updater interface {
 	Update(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) (int64, error)
 }
 
+type Deleter interface {
+	Delete(ctx context.Context, exec boil.ContextExecutor, hardDelete bool) (int64, error)
+}
+
 type Dao struct {
 	Db boil.ContextExecutor
 }
@@ -27,7 +31,7 @@ func DaoFromExecutor(executor boil.ContextExecutor) Dao {
 	}
 }
 
-func (r Dao) GetConnection(ctx context.Context) boil.ContextExecutor {
+func (d Dao) GetConnection(ctx context.Context) boil.ContextExecutor {
 	return DB
 }
 
@@ -41,6 +45,12 @@ func (d Dao) Update(ctx context.Context, model Updater) error {
 	return err
 }
 
-func (d Dao) Insert(ctx context.Context, product Inserter) error {
-	return product.Insert(ctx, d.Db, boil.Infer())
+func (d Dao) Insert(ctx context.Context, model Inserter) error {
+	return model.Insert(ctx, d.Db, boil.Infer())
+}
+
+func (d Dao) Delete(ctx context.Context, model Deleter) error {
+	_, err := model.Delete(ctx, d.Db, false)
+
+	return err
 }

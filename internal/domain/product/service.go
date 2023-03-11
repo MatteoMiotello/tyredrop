@@ -30,6 +30,63 @@ func NewService(dao *Dao, bDao *brand.Dao, cDao *currency2.Dao) *Service {
 	}
 }
 
+func (s Service) findPriceMarkup(ctx context.Context, pi *models.ProductItem) (*models.ProductPriceMarkup, error) {
+	product, err := s.ProductDao.FindOneById(ctx, pi.ProductID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	markup, _ := s.ProductDao.FindPriceMarkupByProductId(ctx, product)
+
+	if markup != nil {
+		return markup, nil
+	}
+
+	markup, _ = s.ProductDao.FindPriceMarkupByBrandId(ctx, product.BrandID)
+
+	if markup != nil {
+		return markup, nil
+	}
+
+	markup, _ = s.ProductDao.FindPriceMarkupByProductCategoryId(ctx, product.ProductCategoryID)
+
+	if markup != nil {
+		return markup, nil
+	}
+
+	markup, _ = s.ProductDao.FindPriceMarkupDefault(ctx)
+
+	if markup == nil {
+		return nil, errors.New("markup default not found")
+	}
+
+	return markup, nil
+}
+
+func (s Service) findCategory(ctx context.Context, code constants.ProductCategoryType) (*models.ProductCategory, error) {
+	return s.ProductDao.FindCategoryByCode(ctx, string(code))
+}
+
+func (s Service) deleteOldItems(ctx context.Context, product *models.Product, supplier *models.Supplier) error {
+	items, err := s.ProductDao.FindProductItemsByProductAndSupplier(ctx, product, supplier)
+
+	fmt.Println(err)
+
+	if items == nil {
+		return nil
+	}
+
+	for _, item := range items {
+		err := s.ProductDao.DeleteProductItem(ctx, item)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (s Service) FindOrCreateProduct(ctx context.Context, dto pdtos.ProductDto) (*models.Product, error) {
 	p, _ := s.ProductDao.FindOneByProductCode(ctx, dto.GetProductCode())
 
@@ -193,55 +250,14 @@ func (s Service) CalculateAndStoreProductPrices(ctx context.Context, pi *models.
 	return nil
 }
 
-func (s Service) findPriceMarkup(ctx context.Context, pi *models.ProductItem) (*models.ProductPriceMarkup, error) {
-	product, err := s.ProductDao.FindOneById(ctx, pi.ProductID)
-
-	if err != nil {
-		return nil, err
-	}
-
-	markup, _ := s.ProductDao.FindPriceMarkupByProductId(ctx, product)
-
-	if markup != nil {
-		return markup, nil
-	}
-
-	markup, _ = s.ProductDao.FindPriceMarkupByBrandId(ctx, product.BrandID)
-
-	if markup != nil {
-		return markup, nil
-	}
-
-	markup, _ = s.ProductDao.FindPriceMarkupByProductCategoryId(ctx, product.ProductCategoryID)
-
-	if markup != nil {
-		return markup, nil
-	}
-
-	markup, _ = s.ProductDao.FindPriceMarkupDefault(ctx)
-
-	if markup == nil {
-		return nil, errors.New("markup default not found")
-	}
-
-	return markup, nil
-}
-
-func (s Service) findCategory(ctx context.Context, code constants.ProductCategoryType) (*models.ProductCategory, error) {
-	return s.ProductDao.FindCategoryByCode(ctx, string(code))
-}
-
-func (s Service) deleteOldItems(ctx context.Context, product *models.Product, supplier *models.Supplier) error {
-	items, err := s.ProductDao.FindProductItems(ctx, product, supplier)
-
-	fmt.Println(err)
-
-	if items == nil {
+func (s Service) UpdatePricesByCategory(ctx context.Context, category *models.ProductCategory) error {
+	pItems, _ := s.ProductDao.FindProductItemsByCategory(ctx, category)
+	if pItems == nil {
 		return nil
 	}
 
-	for _, item := range items {
-		err := s.ProductDao.DeleteProductItem(ctx, item)
+	for _, pi := range pItems {
+		err := s.CalculateAndStoreProductPrices(ctx, pi)
 		if err != nil {
 			return err
 		}
