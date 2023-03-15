@@ -2,9 +2,19 @@
 
 package model
 
+type UnionValues interface {
+	IsUnionValues()
+}
+
+type Brand struct {
+	ID        int64  `json:"id"`
+	Name      string `json:"name"`
+	ImageLogo string `json:"image_logo"`
+}
+
 type CreateUserBilling struct {
-	UserID            *string `json:"userId"`
-	LegalEntityTypeID string  `json:"legalEntityTypeId"`
+	UserID            *int64  `json:"userId"`
+	LegalEntityTypeID int64   `json:"legalEntityTypeId"`
 	Name              string  `json:"name"`
 	Surname           string  `json:"surname"`
 	FiscalCode        string  `json:"fiscalCode"`
@@ -17,19 +27,79 @@ type CreateUserBilling struct {
 	Country           string  `json:"country"`
 }
 
+type Currency struct {
+	ID      int64  `json:"id"`
+	IsoCode string `json:"iso_code"`
+	Symbol  string `json:"symbol"`
+	Tag     string `json:"tag"`
+	Name    string `json:"name"`
+}
+
+type CurrencyQuery struct {
+	Currency   *Currency   `json:"currency"`
+	Currencies []*Currency `json:"currencies"`
+}
+
 type LegalEntityType struct {
-	ID   string `json:"id"`
+	ID   int64  `json:"id"`
 	Name string `json:"name"`
 }
 
+type Price struct {
+	Value        float64 `json:"value"`
+	CurrencyCode string  `json:"currency_code"`
+}
+
+type ProductSpecificationInput struct {
+	Code  string `json:"code"`
+	Value string `json:"value"`
+}
+
+type ProductSpecificationValue struct {
+	ID    int64       `json:"id"`
+	Code  string      `json:"code"`
+	Name  string      `json:"name"`
+	Value UnionValues `json:"value"`
+}
+
+type ProductSpecificationValueBool struct {
+	Value bool `json:"value"`
+}
+
+func (ProductSpecificationValueBool) IsUnionValues() {}
+
+type ProductSpecificationValueFloat struct {
+	Value float64 `json:"value"`
+}
+
+func (ProductSpecificationValueFloat) IsUnionValues() {}
+
+type ProductSpecificationValueInt struct {
+	Value int `json:"value"`
+}
+
+func (ProductSpecificationValueInt) IsUnionValues() {}
+
+type ProductSpecificationValueString struct {
+	Value string `json:"value"`
+}
+
+func (ProductSpecificationValueString) IsUnionValues() {}
+
+type Supplier struct {
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
+	Code string `json:"code"`
+}
+
 type TaxRate struct {
-	ID               string  `json:"id"`
+	ID               int64   `json:"id"`
 	MarkupPercentage float64 `json:"markupPercentage"`
 	Name             string  `json:"name"`
 }
 
 type User struct {
-	ID          string       `json:"id"`
+	ID          int64        `json:"id"`
 	Email       string       `json:"email"`
 	Username    *string      `json:"username"`
 	UserRole    *UserRole    `json:"userRole"`
@@ -37,7 +107,7 @@ type User struct {
 }
 
 type UserBilling struct {
-	ID              string           `json:"id"`
+	ID              int64            `json:"id"`
 	LegalEntityType *LegalEntityType `json:"legalEntityType"`
 	TaxRate         *TaxRate         `json:"taxRate"`
 	Name            string           `json:"name"`
@@ -54,7 +124,7 @@ type UserBilling struct {
 }
 
 type UserRole struct {
-	ID       string `json:"id"`
+	ID       int64  `json:"id"`
 	RoleCode string `json:"roleCode"`
 	Name     string `json:"name"`
 	IsAdmin  *bool  `json:"isAdmin"`

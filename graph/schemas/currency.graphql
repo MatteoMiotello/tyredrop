@@ -1,0 +1,12 @@
+type Currency {
+    id: ID!
+    iso_code: String!
+    symbol: String!
+    tag: String!
+    name: String!
+}
+
+type CurrencyQuery {
+    currency( id: ID! ): Currency
+    currencies: [Currency]
+}

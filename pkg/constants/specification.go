@@ -3,6 +3,8 @@ package constants
 const (
 	SPEC_TYPE_STRING = "STRING"
 	SPEC_TYPE_INT    = "INT"
+	SPEC_TYPE_FLOAT  = "FLOAT"
+	SPEC_TYPE_JSON   = "JSON"
 )
 
 type ProductSpecification string

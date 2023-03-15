@@ -154,12 +154,16 @@ func (s Service) CreateProductItem(ctx context.Context, product *models.Product,
 		return nil, err
 	}
 
-	priceInt := int(amount.BigInt().Int64())
+	priceInt, err := amount.Int64()
+
+	if err != nil {
+		return nil, err
+	}
 
 	i := &models.ProductItem{
 		ProductID:        product.ID,
 		SupplierID:       supplier.ID,
-		SupplierPrice:    priceInt,
+		SupplierPrice:    int(priceInt),
 		SupplierQuantity: quantity,
 	}
 

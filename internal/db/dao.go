@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"github.com/volatiletech/sqlboiler/v4/boil"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 type Inserter interface {
@@ -22,13 +23,22 @@ type Deleter interface {
 }
 
 type Dao struct {
-	Db boil.ContextExecutor
+	Db   boil.ContextExecutor
+	Mods []qm.QueryMod
 }
 
 func DaoFromExecutor(executor boil.ContextExecutor) Dao {
 	return Dao{
 		Db: executor,
 	}
+}
+
+func (d *Dao) addMod(mod qm.QueryMod) {
+	d.Mods = append(d.Mods, mod)
+}
+
+func (d Dao) GetMods(mods ...qm.QueryMod) []qm.QueryMod {
+	return append(mods, d.Mods...)
 }
 
 func (d Dao) GetConnection(ctx context.Context) boil.ContextExecutor {

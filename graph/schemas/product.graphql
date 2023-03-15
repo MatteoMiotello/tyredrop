@@ -1,0 +1,45 @@
+type ProductCategory {
+    id: ID!
+    code: String!
+    name: String!
+    specifications: [ProductSpecification]
+}
+
+type Brand {
+    id: ID!
+    name: String!
+    image_logo: String!
+}
+
+type Product {
+    id: ID!
+    code: String!
+    brand: Brand!
+    category: ProductCategory!
+    specifications: [ProductSpecificationValue]
+}
+
+type Price {
+    value: Float!
+    currency_code: String!
+}
+
+type Supplier {
+    id: ID!
+    name: String!
+    code: String!
+}
+
+type ProductItem {
+    id: ID!
+    product: Product!
+    price: [Price]!
+    supplier: Supplier!
+    supplier_price: Price!
+    supplier_quantity: Int!
+}
+
+extend type Query {
+    searchByProductCode( code: String! ): ProductItem
+    search( input: [ProductSpecificationInput]! ): [ProductItem]
+}

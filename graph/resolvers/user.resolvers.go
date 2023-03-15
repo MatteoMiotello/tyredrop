@@ -16,6 +16,11 @@ func (r *mutationResolver) CreateUserBilling(ctx context.Context, input *model.C
 	panic(fmt.Errorf("not implemented: CreateUserBilling - createUserBilling"))
 }
 
+// User is the resolver for the user field.
+func (r *queryResolver) User(ctx context.Context, id int64) (*model.User, error) {
+	panic(fmt.Errorf("not implemented: User - user"))
+}
+
 // Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
 	panic(fmt.Errorf("not implemented: Users - users"))
@@ -26,9 +31,9 @@ func (r *queryResolver) TaxRates(ctx context.Context) ([]*model.TaxRate, error) 
 	panic(fmt.Errorf("not implemented: TaxRates - taxRates"))
 }
 
-// LegalEntityType is the resolver for the legalEntityType field.
-func (r *queryResolver) LegalEntityType(ctx context.Context) ([]*model.LegalEntityType, error) {
-	panic(fmt.Errorf("not implemented: LegalEntityType - legalEntityType"))
+// LegalEntityTypes is the resolver for the legalEntityTypes field.
+func (r *queryResolver) LegalEntityTypes(ctx context.Context) ([]*model.LegalEntityType, error) {
+	panic(fmt.Errorf("not implemented: LegalEntityTypes - legalEntityTypes"))
 }
 
 // Mutation returns graph.MutationResolver implementation.
