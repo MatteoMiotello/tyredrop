@@ -9,13 +9,21 @@ import (
 )
 
 type ItemPriceDao struct {
-	db.Dao
+	*db.Dao
 }
 
 func NewItemPriceDao(executor boil.ContextExecutor) *ItemPriceDao {
 	return &ItemPriceDao{
 		db.DaoFromExecutor(executor),
 	}
+}
+
+func (d *ItemPriceDao) SetDao(dao *db.Dao) {
+	d.Dao = dao
+}
+
+func (d *ItemPriceDao) GetDao() *db.Dao {
+	return d.Dao
 }
 
 func (d *ItemPriceDao) Load(relationship string, mods ...qm.QueryMod) *ItemPriceDao {

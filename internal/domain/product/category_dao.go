@@ -9,13 +9,21 @@ import (
 )
 
 type CategoryDao struct {
-	db.Dao
+	*db.Dao
 }
 
 func NewCategoryDao(executor boil.ContextExecutor) *CategoryDao {
 	return &CategoryDao{
 		db.DaoFromExecutor(executor),
 	}
+}
+
+func (d *CategoryDao) SetDao(dao *db.Dao) {
+	d.Dao = dao
+}
+
+func (d *CategoryDao) GetDao() *db.Dao {
+	return d.Dao
 }
 
 func (d *CategoryDao) Load(relationship string, mods ...qm.QueryMod) *CategoryDao {

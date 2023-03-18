@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/volatiletech/null/v8"
 	"pillowww/titw/internal/db"
@@ -27,8 +26,6 @@ type Auth struct {
 
 func FromCtx(ctx context.Context) (access *Auth) {
 	value := ctx.Value(ctxKey)
-
-	fmt.Println(value)
 
 	if value == nil {
 		return &Auth{

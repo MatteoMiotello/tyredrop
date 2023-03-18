@@ -9,13 +9,21 @@ import (
 )
 
 type SpecificationValueDao struct {
-	db.Dao
+	*db.Dao
 }
 
 func NewSpecificationValueDao(exec boil.ContextExecutor) *SpecificationValueDao {
 	return &SpecificationValueDao{
 		db.DaoFromExecutor(exec),
 	}
+}
+
+func (d *SpecificationValueDao) SetDao(dao *db.Dao) {
+	d.Dao = dao
+}
+
+func (d *SpecificationValueDao) GetDao() *db.Dao {
+	return d.Dao
 }
 
 func (d *SpecificationValueDao) Load(relationship string, mods ...qm.QueryMod) *SpecificationValueDao {

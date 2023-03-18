@@ -1,20 +1,37 @@
 package db
 
-import "github.com/volatiletech/sqlboiler/v4/queries/qm"
+import (
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
+)
 
 type DaoMod interface {
-	addMods(mod ...qm.QueryMod)
+	SetDao(dao *Dao)
+	GetDao() *Dao
 }
 
-func Load(dao DaoMod, relation string, mods ...qm.QueryMod) DaoMod {
-	dao.addMods(qm.Load(relation, mods...))
-
-	return dao
+type DaoModded[T DaoMod] struct {
+	dao T
 }
 
-func Paginate(dao DaoMod, first int, offset int) {
-	dao.addMods(
+func Load(d DaoMod, relation string, mods ...qm.QueryMod) {
+	n := &Dao{
+		Db:   d.GetDao().Db,
+		Mods: d.GetDao().Mods,
+	}
+
+	n.addMods(qm.Load(relation, mods...))
+	d.SetDao(n)
+}
+
+func Paginate(d DaoMod, first int, offset int) {
+	n := &Dao{
+		Db:   d.GetDao().Db,
+		Mods: d.GetDao().Mods,
+	}
+
+	n.addMods(
 		qm.Limit(first),
 		qm.Offset(offset),
 	)
+	d.SetDao(n)
 }

@@ -8,7 +8,7 @@ import (
 )
 
 type Dao struct {
-	db.Dao
+	*db.Dao
 }
 
 func NewDao(executor boil.ContextExecutor) *Dao {

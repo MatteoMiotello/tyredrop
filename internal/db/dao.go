@@ -27,8 +27,8 @@ type Dao struct {
 	Mods []qm.QueryMod
 }
 
-func DaoFromExecutor(executor boil.ContextExecutor) Dao {
-	return Dao{
+func DaoFromExecutor(executor boil.ContextExecutor) *Dao {
+	return &Dao{
 		Db: executor,
 	}
 }
@@ -38,10 +38,11 @@ func (d *Dao) addMods(mods ...qm.QueryMod) {
 }
 
 func (d *Dao) GetMods(mods ...qm.QueryMod) []qm.QueryMod {
-	mods = append(mods, d.Mods...)
-	d.Mods = nil
+	defer func() {
+		d.Mods = nil
+	}()
 
-	return mods
+	return append(mods, d.Mods...)
 }
 
 func (d Dao) GetConnection(ctx context.Context) boil.ContextExecutor {

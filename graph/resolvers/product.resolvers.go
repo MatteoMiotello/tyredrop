@@ -42,11 +42,11 @@ func (r *productResolver) Category(ctx context.Context, obj *model.Product) (*mo
 func (r *productResolver) ProductSpecificationValues(ctx context.Context, obj *model.Product) ([]*model.ProductSpecificationValue, error) {
 	values, err := r.ProductSpecificationValueDao.FindByProductId(ctx, obj.ID)
 
-	if err != nil {
-		return nil, err
-	}
-
 	var graphValues []*model.ProductSpecificationValue
+
+	if err != nil {
+		return graphValues, err
+	}
 
 	for _, val := range values {
 		graphValues = append(
@@ -64,11 +64,10 @@ func (r *productCategoryResolver) Specifications(ctx context.Context, obj *model
 		Load(models.ProductSpecificationRels.ProductSpecificationLanguages).
 		FindByCategoryId(ctx, obj.ID)
 
-	if err != nil {
-		return nil, err
-	}
-
 	var graphSpecs []*model.ProductSpecification
+	if err != nil {
+		return graphSpecs, err
+	}
 
 	for _, spec := range specs {
 		graphSpecs = append(

@@ -10,7 +10,12 @@ import (
 )
 
 type SpecificationDao struct {
-	db.Dao
+	*db.Dao
+}
+
+type DaoModded struct {
+	*SpecificationDao
+	mods []qm.QueryMod
 }
 
 func NewSpecificationDao(exec boil.ContextExecutor) *SpecificationDao {
@@ -19,16 +24,32 @@ func NewSpecificationDao(exec boil.ContextExecutor) *SpecificationDao {
 	}
 }
 
-func (d *SpecificationDao) Load(relationship string, mods ...qm.QueryMod) *SpecificationDao {
-	db.Load(d, relationship, mods...)
+func (d *SpecificationDao) SetDao(dao *db.Dao) {
+	d.Dao = dao
+}
 
-	return d
+func (d *SpecificationDao) GetDao() *db.Dao {
+	return d.Dao
+}
+
+func (d *SpecificationDao) Load(relationship string, mods ...qm.QueryMod) *SpecificationDao {
+	new := &SpecificationDao{
+		d.Dao,
+	}
+
+	db.Load(new, relationship, mods...)
+
+	return new
 }
 
 func (d *SpecificationDao) Paginate(first int, offset int) *SpecificationDao {
-	db.Paginate(d, first, offset)
+	new := &SpecificationDao{
+		d.Dao,
+	}
 
-	return d
+	db.Paginate(new, first, offset)
+
+	return new
 }
 
 func (d *SpecificationDao) ProductSpecificationLanguage(ctx context.Context, spec *models.ProductSpecification, language *language.Language) (*models.ProductSpecificationLanguage, error) {

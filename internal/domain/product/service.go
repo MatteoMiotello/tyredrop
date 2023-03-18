@@ -2,7 +2,6 @@ package product
 
 import (
 	"context"
-	"fmt"
 	"github.com/bojanz/currency"
 	"github.com/volatiletech/null/v8"
 	"golang.org/x/text/cases"
@@ -37,9 +36,7 @@ func (s Service) findCategory(ctx context.Context, code constants.ProductCategor
 }
 
 func (s Service) deleteOldItems(ctx context.Context, product *models.Product, supplier *models.Supplier) error {
-	items, err := s.ItemDao.FindByProductAndSupplier(ctx, product, supplier)
-
-	fmt.Println(err)
+	items, _ := s.ItemDao.FindByProductAndSupplier(ctx, product, supplier)
 
 	if items == nil {
 		return nil
