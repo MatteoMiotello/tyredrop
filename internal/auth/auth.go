@@ -38,6 +38,10 @@ func FromCtx(ctx context.Context) (access *Auth) {
 	}
 }
 
+func CurrentLanguage(ctx context.Context) *language.Language {
+	return FromCtx(ctx).GetLanguage(ctx)
+}
+
 func (a *Auth) InsertToCtx(ctx *gin.Context) {
 	ctx.Set(ctxKey, a)
 }

@@ -30,6 +30,7 @@ func ProductToGraphQL(product *models.Product) *model.Product {
 		ID:                product.ID,
 		Code:              product.ProductCode.String,
 		ProductCategoryID: product.ProductCategoryID,
+		BrandID:           product.BrandID,
 	}
 }
 
@@ -38,6 +39,7 @@ func ProductItemToGraphQL(productItem *models.ProductItem) *model.ProductItem {
 		ID:               productItem.ID,
 		SupplierQuantity: productItem.SupplierQuantity,
 		ProductID:        productItem.ProductID,
+		SupplierID:       productItem.SupplierID,
 	}
 }
 

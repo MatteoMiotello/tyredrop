@@ -21,8 +21,15 @@ func ProductItemPriceToGraphQL(price *models.ProductItemPrice) (*model.ProductPr
 		return nil, err
 	}
 
+	curGraph, err := CurrencyToGraphQL(cur)
+
+	if err != nil {
+		return nil, err
+	}
+
 	return &model.ProductPrice{
-		ID:    price.ID,
-		Value: floatValue,
+		ID:       price.ID,
+		Value:    floatValue,
+		Currency: curGraph,
 	}, nil
 }

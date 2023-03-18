@@ -7,9 +7,11 @@ package resolvers
 import (
 	"context"
 	"fmt"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"pillowww/titw/graph"
 	"pillowww/titw/graph/converters"
 	"pillowww/titw/graph/model"
+	"pillowww/titw/internal/auth"
 	"pillowww/titw/models"
 )
 
@@ -27,8 +29,13 @@ func (r *productResolver) Brand(ctx context.Context, obj *model.Product) (*model
 
 // Category is the resolver for the category field.
 func (r *productResolver) Category(ctx context.Context, obj *model.Product) (*model.ProductCategory, error) {
+	lang := auth.CurrentLanguage(ctx)
+
 	category, err := r.ProductCategoryDao.
-		Load(models.ProductCategoryRels.ProductCategoryLanguages).
+		Load(
+			models.ProductCategoryRels.ProductCategoryLanguages,
+			models.ProductCategoryLanguageWhere.LanguageID.EQ(lang.L.ID),
+		).
 		FindCategoryById(ctx, obj.ProductCategoryID)
 
 	if err != nil {
@@ -60,8 +67,13 @@ func (r *productResolver) ProductSpecificationValues(ctx context.Context, obj *m
 
 // Specifications is the resolver for the specifications field.
 func (r *productCategoryResolver) Specifications(ctx context.Context, obj *model.ProductCategory) ([]*model.ProductSpecification, error) {
+	lang := auth.CurrentLanguage(ctx)
+
 	specs, err := r.ProductSpecificationDao.
-		Load(models.ProductSpecificationRels.ProductSpecificationLanguages).
+		Load(
+			models.ProductSpecificationRels.ProductSpecificationLanguages,
+			models.ProductSpecificationLanguageWhere.LanguageID.EQ(lang.L.ID),
+		).
 		FindByCategoryId(ctx, obj.ID)
 
 	var graphSpecs []*model.ProductSpecification
@@ -92,8 +104,17 @@ func (r *productItemResolver) Product(ctx context.Context, obj *model.ProductIte
 
 // Price is the resolver for the price field.
 func (r *productItemResolver) Price(ctx context.Context, obj *model.ProductItem) ([]*model.ProductPrice, error) {
+	defLang := auth.CurrentLanguage(ctx)
+
 	item, err := r.ProductItemDao.
-		Load(models.ProductItemRels.ProductItemPrices).
+		Load(
+			qm.Rels(
+				models.ProductItemRels.ProductItemPrices,
+				models.ProductItemPriceRels.Currency,
+				models.CurrencyRels.CurrencyLanguages,
+			),
+			models.CurrencyLanguageWhere.LanguageID.EQ(defLang.L.ID),
+		).
 		FindProductItemById(ctx, obj.ID)
 
 	if err != nil {
