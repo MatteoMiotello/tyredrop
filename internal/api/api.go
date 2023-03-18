@@ -10,7 +10,7 @@ func Serve() {
 
 	registerGlobalMiddlewares(router)
 	registerRoutes(router)
-
+	
 	err := router.Run(":" + viper.GetString("api.port"))
 
 	if err != nil {

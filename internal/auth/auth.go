@@ -25,19 +25,19 @@ type Auth struct {
 	LanguageCode string
 }
 
-func FromCtx(ctx context.Context) (access Auth) {
+func FromCtx(ctx context.Context) (access *Auth) {
 	value := ctx.Value(ctxKey)
 
 	fmt.Println(value)
 
 	if value == nil {
-		return Auth{
+		return &Auth{
 			language:     language.FallbackLanguage(),
 			LanguageCode: language.FallbackLanguage().L.IsoCode,
 			user:         nil,
 		}
 	} else {
-		return value.(Auth)
+		return value.(*Auth)
 	}
 }
 

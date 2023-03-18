@@ -2,10 +2,6 @@
 
 package model
 
-type UnionValues interface {
-	IsUnionValues()
-}
-
 type Brand struct {
 	ID        int64  `json:"id"`
 	Name      string `json:"name"`
@@ -45,46 +41,16 @@ type LegalEntityType struct {
 	Name string `json:"name"`
 }
 
-type Price struct {
-	Value        float64 `json:"value"`
-	CurrencyCode string  `json:"currency_code"`
+type ProductPrice struct {
+	ID       int64     `json:"id"`
+	Value    float64   `json:"value"`
+	Currency *Currency `json:"currency"`
 }
 
 type ProductSpecificationInput struct {
 	Code  string `json:"code"`
 	Value string `json:"value"`
 }
-
-type ProductSpecificationValue struct {
-	ID    int64       `json:"id"`
-	Code  string      `json:"code"`
-	Name  string      `json:"name"`
-	Value UnionValues `json:"value"`
-}
-
-type ProductSpecificationValueBool struct {
-	Value bool `json:"value"`
-}
-
-func (ProductSpecificationValueBool) IsUnionValues() {}
-
-type ProductSpecificationValueFloat struct {
-	Value float64 `json:"value"`
-}
-
-func (ProductSpecificationValueFloat) IsUnionValues() {}
-
-type ProductSpecificationValueInt struct {
-	Value int `json:"value"`
-}
-
-func (ProductSpecificationValueInt) IsUnionValues() {}
-
-type ProductSpecificationValueString struct {
-	Value string `json:"value"`
-}
-
-func (ProductSpecificationValueString) IsUnionValues() {}
 
 type Supplier struct {
 	ID   int64  `json:"id"`
@@ -96,31 +62,6 @@ type TaxRate struct {
 	ID               int64   `json:"id"`
 	MarkupPercentage float64 `json:"markupPercentage"`
 	Name             string  `json:"name"`
-}
-
-type User struct {
-	ID          int64        `json:"id"`
-	Email       string       `json:"email"`
-	Username    *string      `json:"username"`
-	UserRole    *UserRole    `json:"userRole"`
-	UserBilling *UserBilling `json:"userBilling"`
-}
-
-type UserBilling struct {
-	ID              int64            `json:"id"`
-	LegalEntityType *LegalEntityType `json:"legalEntityType"`
-	TaxRate         *TaxRate         `json:"taxRate"`
-	Name            string           `json:"name"`
-	Surname         string           `json:"surname"`
-	FiscalCode      string           `json:"fiscalCode"`
-	VatNumber       string           `json:"vatNumber"`
-	AddressLine1    string           `json:"addressLine1"`
-	AddressLine2    *string          `json:"addressLine2"`
-	City            string           `json:"city"`
-	Province        *string          `json:"province"`
-	Cap             string           `json:"cap"`
-	Country         string           `json:"country"`
-	User            *User            `json:"user"`
 }
 
 type UserRole struct {

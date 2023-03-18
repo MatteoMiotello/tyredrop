@@ -6,13 +6,21 @@ import (
 	"github.com/gin-gonic/gin"
 	"pillowww/titw/graph"
 	"pillowww/titw/graph/resolvers"
+	"pillowww/titw/internal/db"
+	"pillowww/titw/internal/domain/brand"
+	"pillowww/titw/internal/domain/product"
+	"pillowww/titw/internal/domain/supplier"
 )
 
 type GraphqlController Controller
 
 func (g *GraphqlController) Query(ctx *gin.Context) {
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
-		Resolvers: &resolvers.Resolver{}}))
+		Resolvers: &resolvers.Resolver{
+			ProductDao:  product.NewDao(db.DB),
+			BrandDao:    brand.NewDao(db.DB),
+			SupplierDao: supplier.NewDao(db.DB),
+		}}))
 	srv.ServeHTTP(ctx.Writer, ctx.Request)
 }
 

@@ -39,3 +39,9 @@ func (r Dao) ExistRunningJob(ctx context.Context) (bool, error) {
 		qm.And(models.ImportJobColumns.EndedAt+" IS NULL"),
 	).Exists(ctx, r.Db)
 }
+
+func (r Dao) FindOneById(ctx context.Context, id int64) (*models.Supplier, error) {
+	return models.Suppliers(
+		models.SupplierWhere.ID.EQ(id),
+	).One(ctx, db.DB)
+}

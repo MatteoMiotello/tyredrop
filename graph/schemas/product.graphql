@@ -2,7 +2,7 @@ type ProductCategory {
     id: ID!
     code: String!
     name: String!
-    specifications: [ProductSpecification]
+    specifications: [ProductSpecification]!
 }
 
 type Brand {
@@ -14,14 +14,17 @@ type Brand {
 type Product {
     id: ID!
     code: String!
+    brandID: ID!
     brand: Brand!
+    productCategoryID: ID!
     category: ProductCategory!
-    specifications: [ProductSpecificationValue]
+    productSpecificationValues: [ProductSpecificationValue]!
 }
 
-type Price {
+type ProductPrice {
+    id: ID!
     value: Float!
-    currency_code: String!
+    currency: Currency!
 }
 
 type Supplier {
@@ -32,10 +35,12 @@ type Supplier {
 
 type ProductItem {
     id: ID!
+    productID: ID!
     product: Product!
-    price: [Price]!
+    price: [ProductPrice]!
+    supplierID: ID!
     supplier: Supplier!
-    supplier_price: Price!
+    supplier_price: Float!
     supplier_quantity: Int!
 }
 

@@ -8,52 +8,138 @@ import (
 	"context"
 	"fmt"
 	"pillowww/titw/graph"
+	"pillowww/titw/graph/converters"
 	"pillowww/titw/graph/model"
+	"pillowww/titw/models"
 )
 
 // Brand is the resolver for the brand field.
 func (r *productResolver) Brand(ctx context.Context, obj *model.Product) (*model.Brand, error) {
-	panic(fmt.Errorf("not implemented: Brand - brand"))
+	brand, err := r.BrandDao.
+		FindOneById(ctx, obj.BrandID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return converters.BrandToGraphQL(brand), nil
 }
 
 // Category is the resolver for the category field.
 func (r *productResolver) Category(ctx context.Context, obj *model.Product) (*model.ProductCategory, error) {
-	panic(fmt.Errorf("not implemented: Category - category"))
+	category, err := r.ProductDao.
+		Load(models.ProductCategoryRels.ProductCategoryLanguages).
+		FindCategoryById(ctx, obj.ProductCategoryID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return converters.ProductCategoryToGraphQL(category), err
 }
 
-// Specifications is the resolver for the specifications field.
-func (r *productResolver) Specifications(ctx context.Context, obj *model.Product) ([]*model.ProductSpecificationValue, error) {
-	panic(fmt.Errorf("not implemented: Specifications - specifications"))
+// ProductSpecificationValues is the resolver for the productSpecificationValues field.
+func (r *productResolver) ProductSpecificationValues(ctx context.Context, obj *model.Product) ([]*model.ProductSpecificationValue, error) {
+	values, err := r.ProductDao.FindProductSpecificationValuesByProductId(ctx, obj.ID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var graphValues []*model.ProductSpecificationValue
+
+	for _, val := range values {
+		graphValues = append(
+			graphValues,
+			converters.ProductSpecificationValueToGraphQL(val),
+		)
+	}
+
+	return graphValues, nil
 }
 
 // Specifications is the resolver for the specifications field.
 func (r *productCategoryResolver) Specifications(ctx context.Context, obj *model.ProductCategory) ([]*model.ProductSpecification, error) {
-	panic(fmt.Errorf("not implemented: Specifications - specifications"))
+	specs, err := r.ProductDao.
+		Load(models.ProductSpecificationRels.ProductSpecificationLanguages).
+		FindProductSpecificationsByCategoryId(ctx, obj.ID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var graphSpecs []*model.ProductSpecification
+
+	for _, spec := range specs {
+		graphSpecs = append(
+			graphSpecs,
+			converters.ProductSpecificationToGraphQL(spec),
+		)
+	}
+
+	return graphSpecs, nil
 }
 
 // Product is the resolver for the product field.
 func (r *productItemResolver) Product(ctx context.Context, obj *model.ProductItem) (*model.Product, error) {
-	panic(fmt.Errorf("not implemented: Product - product"))
+	p, err := r.ProductDao.FindOneById(ctx, obj.ProductID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return converters.ProductToGraphQL(p), nil
 }
 
 // Price is the resolver for the price field.
-func (r *productItemResolver) Price(ctx context.Context, obj *model.ProductItem) ([]*model.Price, error) {
-	panic(fmt.Errorf("not implemented: Price - price"))
+func (r *productItemResolver) Price(ctx context.Context, obj *model.ProductItem) ([]*model.ProductPrice, error) {
+	item, err := r.ProductDao.
+		Load(models.ProductItemRels.ProductItemPrices).
+		FindProductItemById(ctx, obj.ID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var graphPrices []*model.ProductPrice
+	prices := item.R.ProductItemPrices
+
+	for _, price := range prices {
+		p, err := converters.ProductItemPriceToGraphQL(price)
+
+		if err != nil {
+			return nil, err
+		}
+
+		graphPrices = append(
+			graphPrices,
+			p,
+		)
+	}
+
+	return graphPrices, nil
 }
 
 // Supplier is the resolver for the supplier field.
 func (r *productItemResolver) Supplier(ctx context.Context, obj *model.ProductItem) (*model.Supplier, error) {
-	panic(fmt.Errorf("not implemented: Supplier - supplier"))
-}
+	sup, err := r.SupplierDao.FindOneById(ctx, obj.SupplierID)
 
-// SupplierPrice is the resolver for the supplier_price field.
-func (r *productItemResolver) SupplierPrice(ctx context.Context, obj *model.ProductItem) (*model.Price, error) {
-	panic(fmt.Errorf("not implemented: SupplierPrice - supplier_price"))
+	if err != nil {
+		return nil, err
+	}
+
+	return converters.SupplierToGraphQL(sup), nil
 }
 
 // SearchByProductCode is the resolver for the searchByProductCode field.
 func (r *queryResolver) SearchByProductCode(ctx context.Context, code string) (*model.ProductItem, error) {
-	panic(fmt.Errorf("not implemented: SearchByProductCode - searchByProductCode"))
+	pItem, err := r.ProductDao.FindLessExpensiveProductItemByProductCode(ctx, code)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return converters.ProductItemToGraphQL(pItem), nil
 }
 
 // Search is the resolver for the search field.

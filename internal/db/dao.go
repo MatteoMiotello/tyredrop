@@ -33,12 +33,15 @@ func DaoFromExecutor(executor boil.ContextExecutor) Dao {
 	}
 }
 
-func (d *Dao) addMod(mod qm.QueryMod) {
-	d.Mods = append(d.Mods, mod)
+func (d *Dao) addMods(mods ...qm.QueryMod) {
+	d.Mods = append(d.Mods, mods...)
 }
 
-func (d Dao) GetMods(mods ...qm.QueryMod) []qm.QueryMod {
-	return append(mods, d.Mods...)
+func (d *Dao) GetMods(mods ...qm.QueryMod) []qm.QueryMod {
+	mods = append(mods, d.Mods...)
+	d.Mods = nil
+
+	return mods
 }
 
 func (d Dao) GetConnection(ctx context.Context) boil.ContextExecutor {

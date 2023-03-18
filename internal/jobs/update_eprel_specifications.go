@@ -92,16 +92,19 @@ func createSpecificationValues(ctx context.Context, pDao *product.Dao, product *
 			return err
 		}
 
-		value := &models.ProductSpecificationValue{
+		v, _ := pDao.FindProductSpecificationValueByProductAndCode(ctx, product, string(key))
+
+		if v != nil {
+			continue
+		}
+
+		v = &models.ProductSpecificationValue{
 			SpecificationValue:     value,
 			ProductID:              product.ID,
 			ProductSpecificationID: specification.ID,
 		}
 
-		err = pDao.Upsert(ctx, value, false, []string{
-			models.ProductSpecificationValueColumns.ProductID,
-			models.ProductSpecificationValueColumns.ProductSpecificationID,
-		})
+		err = pDao.Insert(ctx, v)
 
 		if err != nil {
 			return err

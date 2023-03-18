@@ -6,6 +6,21 @@ import (
 	"pillowww/titw/internal/controllers"
 )
 
+type SpecificationValues struct {
+	Code  string `json:"code"`
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
+type Response struct {
+	Name                string                `json:"name"`
+	Code                string                `json:"code"`
+	Price               string                `json:"price"`
+	Brand               string                `json:"brand"`
+	Supplier            string                `json:"supplier"`
+	SpecificationValues []SpecificationValues `json:"specification_values"`
+}
+
 func registerRoutes(router *gin.Engine) {
 	//auth
 	authController := new(controllers.AuthController)

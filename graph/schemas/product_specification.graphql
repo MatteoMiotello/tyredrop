@@ -1,23 +1,8 @@
-type ProductSpecificationValueInt {
-    value: Int!
-}
-type ProductSpecificationValueString {
-    value: String!
-}
-type ProductSpecificationValueFloat {
-    value: Float!
-}
-type ProductSpecificationValueBool {
-    value: Boolean!
-}
-
-union UnionValues = ProductSpecificationValueInt|ProductSpecificationValueString|ProductSpecificationValueFloat|ProductSpecificationValueBool
-
 type ProductSpecificationValue {
     id: ID!
-    code: String!
-    name: String!
-    value: UnionValues!
+    value: String!
+    specificationId: ID!
+    specification: ProductSpecification!
 }
 
 type ProductSpecification {
@@ -25,8 +10,8 @@ type ProductSpecification {
     code: String!
     name: String!
     type: String!
-    values: [UnionValues]!
-    possible_values: [String]
+    productCategoryID: ID!
+    productCategory: ProductCategory
 }
 
 input ProductSpecificationInput {
