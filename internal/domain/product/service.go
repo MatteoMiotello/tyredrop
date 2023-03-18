@@ -15,23 +15,29 @@ import (
 )
 
 type Service struct {
-	ProductDao *Dao
-	BrandDao   *brand.Dao
+	ProductDao       *Dao
+	ItemDao          *ItemDao
+	SpecificationDao *SpecificationDao
+	CategoryDao      *CategoryDao
+	BrandDao         *brand.Dao
 }
 
-func NewService(dao *Dao, bDao *brand.Dao) *Service {
+func NewService(dao *Dao, bDao *brand.Dao, cDao *CategoryDao, iDao *ItemDao, sDao *SpecificationDao) *Service {
 	return &Service{
 		dao,
+		iDao,
+		sDao,
+		cDao,
 		bDao,
 	}
 }
 
 func (s Service) findCategory(ctx context.Context, code constants.ProductCategoryType) (*models.ProductCategory, error) {
-	return s.ProductDao.FindCategoryByCode(ctx, string(code))
+	return s.CategoryDao.FindByCode(ctx, string(code))
 }
 
 func (s Service) deleteOldItems(ctx context.Context, product *models.Product, supplier *models.Supplier) error {
-	items, err := s.ProductDao.FindProductItemsByProductAndSupplier(ctx, product, supplier)
+	items, err := s.ItemDao.FindByProductAndSupplier(ctx, product, supplier)
 
 	fmt.Println(err)
 
@@ -40,7 +46,7 @@ func (s Service) deleteOldItems(ctx context.Context, product *models.Product, su
 	}
 
 	for _, item := range items {
-		err := s.ProductDao.DeleteProductItem(ctx, item)
+		err := s.ProductDao.Delete(ctx, item)
 		if err != nil {
 			return err
 		}
@@ -50,7 +56,7 @@ func (s Service) deleteOldItems(ctx context.Context, product *models.Product, su
 }
 
 func (s Service) FindOrCreateProduct(ctx context.Context, dto pdtos.ProductDto) (*models.Product, error) {
-	p, _ := s.ProductDao.FindOneByProductCode(ctx, dto.GetProductCode())
+	p, _ := s.ProductDao.FindOneByCode(ctx, dto.GetProductCode())
 
 	if p != nil {
 		return p, nil
@@ -88,7 +94,7 @@ func (s Service) UpdateSpecifications(ctx context.Context, product *models.Produ
 		return nil
 	}
 
-	specs, err := s.ProductDao.FindProductSpecificationsByProduct(ctx, product)
+	specs, err := s.SpecificationDao.FindByProduct(ctx, product)
 
 	if err != nil {
 		return err
@@ -124,7 +130,7 @@ func (s Service) UpdateSpecifications(ctx context.Context, product *models.Produ
 		specInserted++
 	}
 
-	mandatories, err := s.ProductDao.FindMandatoryProductSpecificationsByProduct(ctx, product)
+	mandatories, err := s.SpecificationDao.FindMandatoryByProduct(ctx, product)
 
 	if len(mandatories) <= specInserted {
 		err = s.setProductComplete(ctx, product)

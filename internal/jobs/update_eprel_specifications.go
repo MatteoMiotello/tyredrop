@@ -38,15 +38,15 @@ func UpdateTyresSpecifications() {
 		return
 	}
 	err := db.WithTx(ctx, func(tx *sql.Tx) error {
-		pDao := product.NewDao(tx)
+		vDao := product.NewSpecificationValueDao(tx)
 
 		p.EprelUpdatedAt = null.TimeFrom(time.Now())
-		err := pDao.Update(ctx, p)
+		err := vDao.Update(ctx, p)
 		if err != nil {
 			return err
 		}
 
-		value, _ := pDao.FindProductSpecificationValueByProductAndCode(ctx, p, string(constants.TYRE_SPEC_EPREL_ID))
+		value, _ := vDao.FindByProductAndCode(ctx, p, string(constants.TYRE_SPEC_EPREL_ID))
 		if value == nil {
 			return nil
 		}
@@ -57,7 +57,8 @@ func UpdateTyresSpecifications() {
 			return nil
 		}
 
-		err = createSpecificationValues(ctx, pDao, p, eprelSpec)
+		sDao := product.NewSpecificationDao(tx)
+		err = createSpecificationValues(ctx, sDao, vDao, p, eprelSpec)
 		if err != nil {
 			return err
 		}
@@ -77,7 +78,7 @@ func UpdateTyresSpecifications() {
 	}
 }
 
-func createSpecificationValues(ctx context.Context, pDao *product.Dao, product *models.Product, response *eprel.TyreResponse) error {
+func createSpecificationValues(ctx context.Context, psDao *product.SpecificationDao, vDao *product.SpecificationValueDao, product *models.Product, response *eprel.TyreResponse) error {
 	specs := map[constants.ProductSpecification]string{
 		constants.TYRE_SPEC_FUEL_EFFICIENCY:              response.EnergyClass,
 		constants.TYRE_SPEC_WET_GRIP_CLASS:               response.WetGripClass,
@@ -87,12 +88,12 @@ func createSpecificationValues(ctx context.Context, pDao *product.Dao, product *
 	}
 
 	for key, value := range specs {
-		specification, err := pDao.FindOneProductSpecificationByCode(ctx, string(key))
+		specification, err := psDao.FindOneByCode(ctx, string(key))
 		if err != nil {
 			return err
 		}
 
-		v, _ := pDao.FindProductSpecificationValueByProductAndCode(ctx, product, string(key))
+		v, _ := vDao.FindByProductAndCode(ctx, product, string(key))
 
 		if v != nil {
 			continue
@@ -104,7 +105,7 @@ func createSpecificationValues(ctx context.Context, pDao *product.Dao, product *
 			ProductSpecificationID: specification.ID,
 		}
 
-		err = pDao.Insert(ctx, v)
+		err = vDao.Insert(ctx, v)
 
 		if err != nil {
 			return err

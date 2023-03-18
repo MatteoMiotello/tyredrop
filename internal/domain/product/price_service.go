@@ -8,13 +8,17 @@ import (
 )
 
 type PriceService struct {
-	ProductDao  *Dao
-	CurrencyDao *currency.Dao
+	ProductDao     *Dao
+	ProductItemDao *ItemDao
+	PriceMarkupDao *PriceMarkupDao
+	CurrencyDao    *currency.Dao
 }
 
-func NewPriceService(productDao *Dao, currencyDao *currency.Dao) *PriceService {
+func NewPriceService(productDao *Dao, itemDao *ItemDao, markupDao *PriceMarkupDao, currencyDao *currency.Dao) *PriceService {
 	return &PriceService{
 		productDao,
+		itemDao,
+		markupDao,
 		currencyDao,
 	}
 }
@@ -26,25 +30,25 @@ func (p PriceService) findPriceMarkup(ctx context.Context, pi *models.ProductIte
 		return nil, err
 	}
 
-	markup, _ := p.ProductDao.FindPriceMarkupByProductId(ctx, product)
+	markup, _ := p.PriceMarkupDao.FindPriceMarkupByProductId(ctx, product)
 
 	if markup != nil {
 		return markup, nil
 	}
 
-	markup, _ = p.ProductDao.FindPriceMarkupByBrandId(ctx, product.BrandID)
+	markup, _ = p.PriceMarkupDao.FindPriceMarkupByBrandId(ctx, product.BrandID)
 
 	if markup != nil {
 		return markup, nil
 	}
 
-	markup, _ = p.ProductDao.FindPriceMarkupByProductCategoryId(ctx, product.ProductCategoryID)
+	markup, _ = p.PriceMarkupDao.FindPriceMarkupByProductCategoryId(ctx, product.ProductCategoryID)
 
 	if markup != nil {
 		return markup, nil
 	}
 
-	markup, _ = p.ProductDao.FindPriceMarkupDefault(ctx)
+	markup, _ = p.PriceMarkupDao.FindPriceMarkupDefault(ctx)
 
 	if markup == nil {
 		return nil, errors.New("markup default not found")
@@ -65,7 +69,7 @@ func (p PriceService) CalculateAndStoreProductPrices(ctx context.Context, pi *mo
 		}
 	}
 
-	defCur, _ := p.CurrencyDao.FindDefault(ctx)
+	defCur, _ := p.CurrencyDao.FindDefault(ctx) //todo supplier currency
 
 	if defCur == nil {
 		return errors.New("currency not found")
@@ -95,7 +99,7 @@ func (p PriceService) CalculateAndStoreProductPrices(ctx context.Context, pi *mo
 }
 
 func (p PriceService) UpdatePricesByCategory(ctx context.Context, category *models.ProductCategory) error {
-	pItems, _ := p.ProductDao.FindProductItemsByCategory(ctx, category)
+	pItems, _ := p.ProductItemDao.FindByCategory(ctx, category)
 	if pItems == nil {
 		return nil
 	}

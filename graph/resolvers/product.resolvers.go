@@ -27,7 +27,7 @@ func (r *productResolver) Brand(ctx context.Context, obj *model.Product) (*model
 
 // Category is the resolver for the category field.
 func (r *productResolver) Category(ctx context.Context, obj *model.Product) (*model.ProductCategory, error) {
-	category, err := r.ProductDao.
+	category, err := r.ProductCategoryDao.
 		Load(models.ProductCategoryRels.ProductCategoryLanguages).
 		FindCategoryById(ctx, obj.ProductCategoryID)
 
@@ -40,7 +40,7 @@ func (r *productResolver) Category(ctx context.Context, obj *model.Product) (*mo
 
 // ProductSpecificationValues is the resolver for the productSpecificationValues field.
 func (r *productResolver) ProductSpecificationValues(ctx context.Context, obj *model.Product) ([]*model.ProductSpecificationValue, error) {
-	values, err := r.ProductDao.FindProductSpecificationValuesByProductId(ctx, obj.ID)
+	values, err := r.ProductSpecificationValueDao.FindByProductId(ctx, obj.ID)
 
 	if err != nil {
 		return nil, err
@@ -60,9 +60,9 @@ func (r *productResolver) ProductSpecificationValues(ctx context.Context, obj *m
 
 // Specifications is the resolver for the specifications field.
 func (r *productCategoryResolver) Specifications(ctx context.Context, obj *model.ProductCategory) ([]*model.ProductSpecification, error) {
-	specs, err := r.ProductDao.
+	specs, err := r.ProductSpecificationDao.
 		Load(models.ProductSpecificationRels.ProductSpecificationLanguages).
-		FindProductSpecificationsByCategoryId(ctx, obj.ID)
+		FindByCategoryId(ctx, obj.ID)
 
 	if err != nil {
 		return nil, err
@@ -93,7 +93,7 @@ func (r *productItemResolver) Product(ctx context.Context, obj *model.ProductIte
 
 // Price is the resolver for the price field.
 func (r *productItemResolver) Price(ctx context.Context, obj *model.ProductItem) ([]*model.ProductPrice, error) {
-	item, err := r.ProductDao.
+	item, err := r.ProductItemDao.
 		Load(models.ProductItemRels.ProductItemPrices).
 		FindProductItemById(ctx, obj.ID)
 
@@ -133,7 +133,7 @@ func (r *productItemResolver) Supplier(ctx context.Context, obj *model.ProductIt
 
 // SearchByProductCode is the resolver for the searchByProductCode field.
 func (r *queryResolver) SearchByProductCode(ctx context.Context, code string) (*model.ProductItem, error) {
-	pItem, err := r.ProductDao.FindLessExpensiveProductItemByProductCode(ctx, code)
+	pItem, err := r.ProductItemDao.FindLessExpensiveByProductCode(ctx, code)
 
 	if err != nil {
 		return nil, err

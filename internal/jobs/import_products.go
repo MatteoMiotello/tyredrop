@@ -157,10 +157,21 @@ func importNextRecord(ctx context.Context, sup *models.Supplier, record pdtos.Pr
 
 	err := db.WithTx(ctx, func(tx *sql.Tx) error {
 		dao := product.NewDao(tx)
-		bDao := brand.NewDao(tx)
-		cDao := currency2.NewDao(tx)
-		pService := product.NewService(dao, bDao)
-		pPriceService := product.NewPriceService(dao, cDao)
+		itemDao := product.NewItemDao(tx)
+		pService := product.NewService(
+			dao,
+			brand.NewDao(tx),
+			product.NewCategoryDao(tx),
+			itemDao,
+			product.NewSpecificationDao(tx),
+		)
+
+		pPriceService := product.NewPriceService(
+			dao,
+			itemDao,
+			product.NewPriceMarkupDao(tx),
+			currency2.NewDao(tx),
+		)
 
 		p, err := pService.FindOrCreateProduct(ctx, record)
 		if err != nil {

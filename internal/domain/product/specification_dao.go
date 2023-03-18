@@ -38,3 +38,45 @@ func (d *SpecificationDao) ProductSpecificationLanguage(ctx context.Context, spe
 		)...,
 	).One(ctx, d.Db)
 }
+
+func (d *SpecificationDao) FindOneByCode(ctx context.Context, specCode string) (*models.ProductSpecification, error) {
+	return models.ProductSpecifications(
+		d.GetMods(
+			models.ProductSpecificationWhere.SpecificationCode.EQ(specCode),
+			qm.Limit(1),
+		)...,
+	).One(ctx, d.Db)
+}
+
+func (d *SpecificationDao) FindMandatoryByProduct(ctx context.Context, product *models.Product) (models.ProductSpecificationSlice, error) {
+	return models.ProductSpecifications(
+		d.GetMods(
+			models.ProductSpecificationWhere.ProductCategoryID.EQ(product.ProductCategoryID),
+			models.ProductSpecificationWhere.Mandatory.EQ(true),
+		)...,
+	).All(ctx, d.Db)
+}
+
+func (d *SpecificationDao) FindByProduct(ctx context.Context, product *models.Product) (models.ProductSpecificationSlice, error) {
+	return models.ProductSpecifications(
+		d.GetMods(
+			models.ProductSpecificationWhere.ProductCategoryID.EQ(product.ProductCategoryID),
+		)...,
+	).All(ctx, d.Db)
+}
+
+func (d *SpecificationDao) FindByCategoryId(ctx context.Context, id int64) (models.ProductSpecificationSlice, error) {
+	return models.ProductSpecifications(
+		d.GetMods(
+			models.ProductSpecificationWhere.ProductCategoryID.EQ(id),
+		)...,
+	).All(ctx, d.Db)
+}
+
+func (d *SpecificationDao) FindById(ctx context.Context, id int64) (*models.ProductSpecification, error) {
+	return models.ProductSpecifications(
+		d.GetMods(
+			models.ProductSpecificationWhere.ID.EQ(id),
+		)...,
+	).One(ctx, db.DB)
+}

@@ -14,7 +14,7 @@ import (
 
 // ProductCategory is the resolver for the productCategory field.
 func (r *productSpecificationResolver) ProductCategory(ctx context.Context, obj *model.ProductSpecification) (*model.ProductCategory, error) {
-	c, err := r.ProductDao.
+	c, err := r.ProductCategoryDao.
 		Load(models.ProductCategoryRels.ProductCategoryLanguages).
 		FindCategoryById(ctx, obj.ProductCategoryID)
 
@@ -27,9 +27,9 @@ func (r *productSpecificationResolver) ProductCategory(ctx context.Context, obj 
 
 // Specification is the resolver for the specification field.
 func (r *productSpecificationValueResolver) Specification(ctx context.Context, obj *model.ProductSpecificationValue) (*model.ProductSpecification, error) {
-	spec, err := r.ProductDao.
+	spec, err := r.ProductSpecificationDao.
 		Load(models.ProductSpecificationRels.ProductSpecificationLanguages).
-		FindProductSpecificationById(ctx, obj.SpecificationID)
+		FindById(ctx, obj.SpecificationID)
 
 	if err != nil {
 		return nil, err
