@@ -18,30 +18,54 @@ func NewDao(executor boil.ContextExecutor) *Dao {
 	}
 }
 
-func (r Dao) GetAll(ctx context.Context) (models.SupplierSlice, error) {
-	return models.Suppliers().All(ctx, r.GetConnection(ctx))
+func (d Dao) Clone() db.DaoMod {
+	return Dao{
+		d.Dao.Clone(),
+	}
 }
 
-func (r Dao) GetLastImported(ctx context.Context) (*models.Supplier, error) {
-	return models.Suppliers(qm.OrderBy(models.SupplierColumns.ImportedAt+" ASC NULLS FIRST")).One(ctx, r.GetConnection(ctx))
+func (d Dao) Load(relationship string, mods ...qm.QueryMod) *Dao {
+	return db.Load(d, relationship, mods...)
 }
 
-func (r Dao) ExistsJobForFilename(ctx context.Context, supplier models.Supplier, fileName string) (bool, error) {
-	return models.ImportJobs(
-		models.ImportJobWhere.SupplierID.EQ(supplier.ID),
-		models.ImportJobWhere.Filename.EQ(fileName),
-	).Exists(ctx, r.GetConnection(ctx))
+func (d Dao) Paginate(first int, offset int) *Dao {
+	return db.Paginate(d, first, offset)
 }
 
-func (r Dao) ExistRunningJob(ctx context.Context) (bool, error) {
-	return models.ImportJobs(
-		qm.Where(models.ImportJobColumns.StartedAt+" IS NOT NULL"),
-		qm.And(models.ImportJobColumns.EndedAt+" IS NULL"),
-	).Exists(ctx, r.Db)
+func (d Dao) GetAll(ctx context.Context) (models.SupplierSlice, error) {
+	return models.Suppliers(d.GetMods()...).All(ctx, d.GetConnection(ctx))
 }
 
-func (r Dao) FindOneById(ctx context.Context, id int64) (*models.Supplier, error) {
+func (d Dao) GetLastImported(ctx context.Context) (*models.Supplier, error) {
 	return models.Suppliers(
-		models.SupplierWhere.ID.EQ(id),
+		d.GetMods(
+			qm.OrderBy(models.SupplierColumns.ImportedAt+" ASC NULLS FIRST"),
+		)...,
+	).One(ctx, d.GetConnection(ctx))
+}
+
+func (d Dao) ExistsJobForFilename(ctx context.Context, supplier models.Supplier, fileName string) (bool, error) {
+	return models.ImportJobs(
+		d.GetMods(
+			models.ImportJobWhere.SupplierID.EQ(supplier.ID),
+			models.ImportJobWhere.Filename.EQ(fileName),
+		)...,
+	).Exists(ctx, d.GetConnection(ctx))
+}
+
+func (d Dao) ExistRunningJob(ctx context.Context) (bool, error) {
+	return models.ImportJobs(
+		d.GetMods(
+			qm.Where(models.ImportJobColumns.StartedAt+" IS NOT NULL"),
+			qm.And(models.ImportJobColumns.EndedAt+" IS NULL"),
+		)...,
+	).Exists(ctx, d.Db)
+}
+
+func (d Dao) FindOneById(ctx context.Context, id int64) (*models.Supplier, error) {
+	return models.Suppliers(
+		d.GetMods(
+			models.SupplierWhere.ID.EQ(id),
+		)...,
 	).One(ctx, db.DB)
 }

@@ -18,24 +18,18 @@ func NewCategoryDao(executor boil.ContextExecutor) *CategoryDao {
 	}
 }
 
-func (d *CategoryDao) SetDao(dao *db.Dao) {
-	d.Dao = dao
+func (d CategoryDao) Clone() db.DaoMod {
+	return CategoryDao{
+		d.Dao.Clone(),
+	}
 }
 
-func (d *CategoryDao) GetDao() *db.Dao {
-	return d.Dao
+func (d CategoryDao) Load(relationship string, mods ...qm.QueryMod) *CategoryDao {
+	return db.Load(d, relationship, mods...)
 }
 
-func (d *CategoryDao) Load(relationship string, mods ...qm.QueryMod) *CategoryDao {
-	db.Load(d, relationship, mods...)
-
-	return d
-}
-
-func (d *CategoryDao) Paginate(first int, offset int) *CategoryDao {
-	db.Paginate(d, first, offset)
-
-	return d
+func (d CategoryDao) Paginate(first int, offset int) *CategoryDao {
+	return db.Paginate(d, first, offset)
 }
 
 func (d *CategoryDao) FindByCode(ctx context.Context, code string) (*models.ProductCategory, error) {

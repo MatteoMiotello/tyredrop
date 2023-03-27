@@ -18,6 +18,24 @@ func NewDao(executor boil.ContextExecutor) *dao {
 	}
 }
 
-func (l dao) FindOneFromIsoCode(ctx context.Context, isoCode string) (*models.Language, error) {
-	return models.Languages(qm.Where(models.LanguageColumns.IsoCode+"= ?", isoCode)).One(ctx, l.Db)
+func (d dao) Clone() db.DaoMod {
+	return dao{
+		d.Dao.Clone(),
+	}
+}
+
+func (d dao) Load(relationship string, mods ...qm.QueryMod) *dao {
+	return db.Load(d, relationship, mods...)
+}
+
+func (d dao) Paginate(first int, offset int) *dao {
+	return db.Paginate(d, first, offset)
+}
+
+func (d *dao) FindOneFromIsoCode(ctx context.Context, isoCode string) (*models.Language, error) {
+	return models.Languages(
+		d.GetMods(
+			qm.Where(models.LanguageColumns.IsoCode+"= ?", isoCode),
+		)...,
+	).One(ctx, d.Db)
 }

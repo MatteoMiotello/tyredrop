@@ -19,24 +19,18 @@ func NewItemDao(exec boil.ContextExecutor) *ItemDao {
 	}
 }
 
-func (d *ItemDao) SetDao(dao *db.Dao) {
-	d.Dao = dao
+func (d ItemDao) Clone() db.DaoMod {
+	return ItemDao{
+		d.Dao.Clone(),
+	}
 }
 
-func (d *ItemDao) GetDao() *db.Dao {
-	return d.Dao
+func (d ItemDao) Load(relationship string, mods ...qm.QueryMod) *ItemDao {
+	return db.Load(d, relationship, mods...)
 }
 
-func (d *ItemDao) Load(relationship string, mods ...qm.QueryMod) *ItemDao {
-	db.Load(d, relationship, mods...)
-
-	return d
-}
-
-func (d *ItemDao) Paginate(first int, offset int) *ItemDao {
-	db.Paginate(d, first, offset)
-
-	return d
+func (d ItemDao) Paginate(first int, offset int) *ItemDao {
+	return db.Paginate(d, first, offset)
 }
 
 func (d *ItemDao) Product(ctx context.Context, productItem *models.ProductItem) (*models.Product, error) {

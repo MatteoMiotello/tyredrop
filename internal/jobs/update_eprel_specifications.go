@@ -31,13 +31,16 @@ func (r UpdateTyresSpecificationJob) Run() {
 
 func UpdateTyresSpecifications() {
 	ctx := context.Background()
-	pDao := product.NewDao(db.DB)
 
-	p, _ := pDao.FindNextRemainingEprelProduct(ctx, string(constants.PRODUCT_CATEGORY_TYRE))
-	if p == nil {
-		return
-	}
 	err := db.WithTx(ctx, func(tx *sql.Tx) error {
+		pDao := product.NewDao(tx)
+		p, _ := pDao.
+			FindNextRemainingEprelProduct(ctx, string(constants.PRODUCT_CATEGORY_TYRE))
+
+		if p == nil {
+			return nil
+		}
+
 		vDao := product.NewSpecificationValueDao(tx)
 
 		p.EprelUpdatedAt = null.TimeFrom(time.Now())
@@ -74,7 +77,6 @@ func UpdateTyresSpecifications() {
 	if err != nil {
 		log.Warn("Unable to update eprel spec", err)
 		return
-
 	}
 }
 

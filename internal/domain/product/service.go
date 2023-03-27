@@ -2,6 +2,7 @@ package product
 
 import (
 	"context"
+	"fmt"
 	"github.com/bojanz/currency"
 	"github.com/volatiletech/null/v8"
 	"golang.org/x/text/cases"
@@ -14,18 +15,20 @@ import (
 )
 
 type Service struct {
-	ProductDao       *Dao
-	ItemDao          *ItemDao
-	SpecificationDao *SpecificationDao
-	CategoryDao      *CategoryDao
-	BrandDao         *brand.Dao
+	ProductDao            *Dao
+	ItemDao               *ItemDao
+	SpecificationDao      *SpecificationDao
+	SpecificationValueDao *SpecificationValueDao
+	CategoryDao           *CategoryDao
+	BrandDao              *brand.Dao
 }
 
-func NewService(dao *Dao, bDao *brand.Dao, cDao *CategoryDao, iDao *ItemDao, sDao *SpecificationDao) *Service {
+func NewService(dao *Dao, bDao *brand.Dao, cDao *CategoryDao, iDao *ItemDao, sDao *SpecificationDao, sVDao *SpecificationValueDao) *Service {
 	return &Service{
 		dao,
 		iDao,
 		sDao,
+		sVDao,
 		cDao,
 		bDao,
 	}
@@ -99,6 +102,8 @@ func (s Service) UpdateSpecifications(ctx context.Context, product *models.Produ
 
 	dtoSpecs := dto.GetSpecifications()
 	specInserted := 0
+
+	var specsToInsert []*models.ProductSpecificationValue
 	for _, spec := range specs {
 		value, found := dtoSpecs[constants.ProductSpecification(spec.SpecificationCode)]
 		if !found {
@@ -109,22 +114,31 @@ func (s Service) UpdateSpecifications(ctx context.Context, product *models.Produ
 			continue
 		}
 
-		pValue := &models.ProductSpecificationValue{
-			ProductID:              product.ID,
+		pValue, _ := s.SpecificationValueDao.FindByProductAndCode(ctx, product, spec.SpecificationCode)
+
+		if pValue != nil {
+			continue
+		}
+
+		pValue = &models.ProductSpecificationValue{
 			ProductSpecificationID: spec.ID,
 			SpecificationValue:     value,
 		}
 
-		err := s.ProductDao.Upsert(ctx, pValue, false, []string{
-			models.ProductSpecificationValueColumns.ProductSpecificationID,
-			models.ProductSpecificationValueColumns.ProductID,
-		})
+		specsToInsert = append(specsToInsert, pValue)
 
 		if err != nil {
+			fmt.Println(value)
 			return err
 		}
 
 		specInserted++
+	}
+
+	err = s.ProductDao.AddProductSpecificationValues(ctx, product, specsToInsert...)
+
+	if err != nil {
+		return err
 	}
 
 	mandatories, err := s.SpecificationDao.FindMandatoryByProduct(ctx, product)

@@ -34,6 +34,7 @@ func ImportProductsFromFile() {
 	jobExists, _ := sDao.ExistRunningJob(ctx)
 
 	if jobExists {
+		fmt.Println("one job is running")
 		return
 	}
 
@@ -78,7 +79,8 @@ func ImportProductsFromFile() {
 
 		fileName := tmpDir + "/" + entry.Name()
 
-		_ = ijService.StartNow(ctx, jobModel)
+		err = ijService.StartNow(ctx, jobModel)
+		check(err)
 
 		records, err := factory.ReadProductsFromFile(ctx, fileName)
 
@@ -97,7 +99,10 @@ func ImportProductsFromFile() {
 		storeBrands(ctx, records)
 
 		err = storeRecords(ctx, sup, records)
-		_ = ijService.EndNow(ctx, jobModel)
+
+		check(err)
+
+		err = ijService.EndNow(ctx, jobModel)
 
 		check(err)
 
@@ -136,7 +141,7 @@ func storeBrands(ctx context.Context, records []pdtos.ProductDto) {
 
 func storeRecords(ctx context.Context, sup *models.Supplier, records []pdtos.ProductDto) error {
 	rChan := make(chan pdtos.ProductDto)
-	chanWorker := task.NewChannelWorker[pdtos.ProductDto](24, rChan)
+	chanWorker := task.NewChannelWorker[pdtos.ProductDto](100, rChan)
 	chanWorker.Run(func(record pdtos.ProductDto) {
 		importNextRecord(ctx, sup, record)
 	})
@@ -164,6 +169,7 @@ func importNextRecord(ctx context.Context, sup *models.Supplier, record pdtos.Pr
 			product.NewCategoryDao(tx),
 			itemDao,
 			product.NewSpecificationDao(tx),
+			product.NewSpecificationValueDao(tx),
 		)
 
 		pPriceService := product.NewPriceService(

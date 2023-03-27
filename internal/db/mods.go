@@ -5,33 +5,36 @@ import (
 )
 
 type DaoMod interface {
-	SetDao(dao *Dao)
-	GetDao() *Dao
+	Clone() DaoMod
+	AddMods(mods ...qm.QueryMod)
 }
 
-type DaoModded[T DaoMod] struct {
-	dao T
+func newInstanceWithMods[T DaoMod](d T, mods ...qm.QueryMod) *T {
+	no := d.Clone()
+	no.AddMods(mods...)
+	n := no.(T)
+
+	return &n
 }
 
-func Load(d DaoMod, relation string, mods ...qm.QueryMod) {
-	n := &Dao{
-		Db:   d.GetDao().Db,
-		Mods: d.GetDao().Mods,
-	}
-
-	n.addMods(qm.Load(relation, mods...))
-	d.SetDao(n)
+func Load[T DaoMod](d T, relation string, mods ...qm.QueryMod) *T {
+	return newInstanceWithMods(
+		d,
+		qm.Load(relation, mods...),
+	)
 }
 
-func Paginate(d DaoMod, first int, offset int) {
-	n := &Dao{
-		Db:   d.GetDao().Db,
-		Mods: d.GetDao().Mods,
-	}
-
-	n.addMods(
+func Paginate[T DaoMod](d T, first int, offset int) *T {
+	return newInstanceWithMods(
+		d,
 		qm.Limit(first),
 		qm.Offset(offset),
 	)
-	d.SetDao(n)
+}
+
+func ForUpdate[T DaoMod](d T) *T {
+	return newInstanceWithMods(
+		d,
+		qm.For("UPDATE"),
+	)
 }

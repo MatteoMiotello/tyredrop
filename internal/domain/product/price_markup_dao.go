@@ -19,24 +19,18 @@ func NewPriceMarkupDao(executor boil.ContextExecutor) *PriceMarkupDao {
 	}
 }
 
-func (d *PriceMarkupDao) SetDao(dao *db.Dao) {
-	d.Dao = dao
+func (d PriceMarkupDao) Load(relationship string, mods ...qm.QueryMod) *PriceMarkupDao {
+	return db.Load(d, relationship, mods...)
 }
 
-func (d *PriceMarkupDao) GetDao() *db.Dao {
-	return d.Dao
+func (d PriceMarkupDao) Paginate(first int, offset int) *PriceMarkupDao {
+	return db.Paginate(d, first, offset)
 }
 
-func (d *PriceMarkupDao) Load(relationship string, mods ...qm.QueryMod) *PriceMarkupDao {
-	db.Load(d, relationship, mods...)
-
-	return d
-}
-
-func (d *PriceMarkupDao) Paginate(first int, offset int) *PriceMarkupDao {
-	db.Paginate(d, first, offset)
-
-	return d
+func (d PriceMarkupDao) Clone() db.DaoMod {
+	return PriceMarkupDao{
+		d.Dao.Clone(),
+	}
 }
 
 func (d *PriceMarkupDao) FindPriceMarkupByProductId(ctx context.Context, product *models.Product) (*models.ProductPriceMarkup, error) {

@@ -18,24 +18,18 @@ func NewSpecificationValueDao(exec boil.ContextExecutor) *SpecificationValueDao 
 	}
 }
 
-func (d *SpecificationValueDao) SetDao(dao *db.Dao) {
-	d.Dao = dao
+func (d SpecificationValueDao) Clone() db.DaoMod {
+	return SpecificationValueDao{
+		d.Dao.Clone(),
+	}
 }
 
-func (d *SpecificationValueDao) GetDao() *db.Dao {
-	return d.Dao
+func (d SpecificationValueDao) Load(relationship string, mods ...qm.QueryMod) *SpecificationValueDao {
+	return db.Load(d, relationship, mods...)
 }
 
-func (d *SpecificationValueDao) Load(relationship string, mods ...qm.QueryMod) *SpecificationValueDao {
-	db.Load(d, relationship, mods...)
-
-	return d
-}
-
-func (d *SpecificationValueDao) Paginate(first int, offset int) *SpecificationValueDao {
-	db.Paginate(d, first, offset)
-
-	return d
+func (d SpecificationValueDao) Paginate(first int, offset int) *SpecificationValueDao {
+	return db.Paginate(d, first, offset)
 }
 
 func (d *SpecificationValueDao) ProductSpecification(ctx context.Context, specificationValue *models.ProductSpecificationValue) (*models.ProductSpecification, error) {

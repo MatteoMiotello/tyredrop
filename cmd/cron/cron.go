@@ -25,7 +25,6 @@ func addJobs(c *cron.Cron) {
 		panic(err.Error())
 	}
 	_, err = c.AddJob("@every 1s", jobs.UpdateTyresSpecificationJob{})
-
 	if err != nil {
 		panic(err.Error())
 	}

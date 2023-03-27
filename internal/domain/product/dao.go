@@ -19,24 +19,22 @@ func NewDao(executor boil.ContextExecutor) *Dao {
 	}
 }
 
-func (d *Dao) SetDao(dao *db.Dao) {
-	d.Dao = dao
+func (d Dao) Load(relationship string, mods ...qm.QueryMod) *Dao {
+	return db.Load(d, relationship, mods...)
 }
 
-func (d *Dao) GetDao() *db.Dao {
-	return d.Dao
+func (d Dao) Paginate(first int, offset int) *Dao {
+	return db.Paginate(d, first, offset)
 }
 
-func (d *Dao) Load(relationship string, mods ...qm.QueryMod) *Dao {
-	db.Load(d, relationship, mods...)
-
-	return d
+func (d Dao) ForUpdate() *Dao {
+	return db.ForUpdate(d)
 }
 
-func (d *Dao) Paginate(first int, offset int) *Dao {
-	db.Paginate(d, first, offset)
-
-	return d
+func (d Dao) Clone() db.DaoMod {
+	return Dao{
+		d.Dao.Clone(),
+	}
 }
 
 func (d *Dao) ProductSpecificationValues(ctx context.Context, product *models.Product) (models.ProductSpecificationValueSlice, error) {
@@ -92,4 +90,8 @@ func (d Dao) FindNextRemainingEprelProduct(ctx context.Context, categoryCodes ..
 			models.ProductWhere.EprelUpdatedAt.IsNull(),
 		)...,
 	).One(ctx, d.Db)
+}
+
+func (d Dao) AddProductSpecificationValues(ctx context.Context, product *models.Product, values ...*models.ProductSpecificationValue) error {
+	return product.AddProductSpecificationValues(ctx, d.Db, true, values...)
 }

@@ -26,6 +26,12 @@ func NewDao(executor boil.ContextExecutor) *Dao {
 	}
 }
 
+func (d Dao) Clone() *Dao {
+	return &Dao{
+		d.Dao.Clone(),
+	}
+}
+
 func (u Dao) FindOneByUsername(ctx context.Context, username string) (*models.User, error) {
 	return models.Users(qm.Where("username = ?", username), qm.Load(models.UserRels.UserRole)).One(ctx, u.Db)
 }

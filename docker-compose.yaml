@@ -15,6 +15,7 @@ services:
     restart: always
     volumes:
       - .:/app
+      - ./import:/import
     depends_on:
       - postgresdb
     networks:
@@ -37,6 +38,7 @@ services:
 
 volumes:
   pg_data:
+  import:
 
 # Networks to be created to facilitate communication between containers
 networks:

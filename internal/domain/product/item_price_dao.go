@@ -18,24 +18,18 @@ func NewItemPriceDao(executor boil.ContextExecutor) *ItemPriceDao {
 	}
 }
 
-func (d *ItemPriceDao) SetDao(dao *db.Dao) {
-	d.Dao = dao
+func (d ItemPriceDao) Load(relationship string, mods ...qm.QueryMod) *ItemPriceDao {
+	return db.Load(d, relationship, mods...)
 }
 
-func (d *ItemPriceDao) GetDao() *db.Dao {
-	return d.Dao
+func (d ItemPriceDao) Paginate(first int, offset int) *ItemPriceDao {
+	return db.Paginate(d, first, offset)
 }
 
-func (d *ItemPriceDao) Load(relationship string, mods ...qm.QueryMod) *ItemPriceDao {
-	db.Load(d, relationship, mods...)
-
-	return d
-}
-
-func (d *ItemPriceDao) Paginate(first int, offset int) *ItemPriceDao {
-	db.Paginate(d, first, offset)
-
-	return d
+func (d ItemPriceDao) Clone() db.DaoMod {
+	return ItemPriceDao{
+		d.Dao.Clone(),
+	}
 }
 
 func (d *ItemPriceDao) Currency(ctx context.Context, price *models.ProductItemPrice) (*models.Currency, error) {
