@@ -19,6 +19,8 @@ type Product {
     productCategoryID: ID!
     category: ProductCategory!
     productSpecificationValues: [ProductSpecificationValue]!
+    vehicleTypeID: ID!
+    vehicleType: VehicleType!
 }
 
 type ProductPrice {

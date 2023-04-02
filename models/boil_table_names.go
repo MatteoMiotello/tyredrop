@@ -29,6 +29,8 @@ var TableNames = struct {
 	UserRoleLanguages             string
 	UserRoles                     string
 	Users                         string
+	VehicleTypeLanguages          string
+	VehicleTypes                  string
 }{
 	Brands:                        "brands",
 	Currencies:                    "currencies",
@@ -55,4 +57,6 @@ var TableNames = struct {
 	UserRoleLanguages:             "user_role_languages",
 	UserRoles:                     "user_roles",
 	Users:                         "users",
+	VehicleTypeLanguages:          "vehicle_type_languages",
+	VehicleTypes:                  "vehicle_types",
 }

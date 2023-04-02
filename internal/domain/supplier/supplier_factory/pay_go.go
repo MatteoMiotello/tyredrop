@@ -69,11 +69,13 @@ func (g PayGo) matchRecords(pRecord *pdtos.Tyre, index int, slice string) error 
 		pRecord.Brand = cases.Title(language.Und).String(s)
 
 		break
+	case 6:
+		pRecord.VehicleType = g.getVehicleType(slice)
 	case 7:
 		pRecord.Season = g.getSeason(slice)
 		break
 	case 8:
-		pRecord.ProductName = slice
+		pRecord.Reference = slice
 	case 10:
 		f, err := strconv.ParseFloat(slice, 32)
 
@@ -107,12 +109,74 @@ func (g PayGo) matchRecords(pRecord *pdtos.Tyre, index int, slice string) error 
 	case 17:
 		pRecord.Speed = slice
 		break
+	case 23:
+		if slice != "" {
+			pRecord.ProductName = slice
+		} else {
+			pRecord.ProductName = pRecord.Reference
+		}
+		break
 	}
 	return nil
 }
 
 func (g PayGo) NeedsImportFromFile() bool {
 	return true
+}
+
+func (g PayGo) getVehicleType(slice string) constants.VehicleType {
+	switch slice {
+	case "4 X 4 M&S":
+		return constants.VEHICLE_CAR
+	case "4X4":
+		return constants.VEHICLE_CAR
+	case "4x4":
+		return constants.VEHICLE_CAR
+	case "ALL-SEASON LIGHT-TRUCK/VAN":
+		return constants.VEHICLE_TRUCK
+	case "ALL-SEASON PW":
+		return constants.VEHICLE_CAR
+	case "ATV":
+		return constants.VEHICLE_QUAD
+	case "FURGONETA":
+		return constants.VEHICLE_TRUCK
+	case "LITRUCK":
+		return constants.VEHICLE_TRUCK
+	case "LUXE BANDEN":
+		return constants.VEHICLE_CAR
+	case "LUXE BANDEN M&S":
+		return constants.VEHICLE_CAR
+	case "MOT":
+		return constants.VEHICLE_MOTO
+	case "MOTO":
+		return constants.VEHICLE_MOTO
+	case "N4X4":
+		return constants.VEHICLE_CAR
+	case "NCTA":
+		return constants.VEHICLE_TRUCK
+	case "NMOTO":
+		return constants.VEHICLE_MOTO
+	case "NTURISMO":
+		return constants.VEHICLE_CAR
+	case "PCR":
+		return constants.VEHICLE_CAR
+	case "QUAD":
+		return constants.VEHICLE_QUAD
+	case "quad":
+		return constants.VEHICLE_QUAD
+	case "RMOTO":
+		return constants.VEHICLE_MOTO
+	case "RUNFLAT BANDEN":
+		return constants.VEHICLE_CAR
+	case "RUNFLAT BANDEN M&S":
+		return constants.VEHICLE_CAR
+	case "TODO TERRENO 4X4":
+		return constants.VEHICLE_CAR
+	case "TURISMO":
+		return constants.VEHICLE_CAR
+	}
+
+	return constants.VEHICLE_CAR
 }
 
 func (g PayGo) getSeason(slice string) string {

@@ -7,6 +7,7 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"pillowww/titw/internal/domain/product/pdtos"
+	"pillowww/titw/pkg/constants"
 	"pillowww/titw/pkg/log"
 	"strconv"
 )
@@ -70,7 +71,8 @@ func (t TyreWorld) matchCells(f *excelize.File, sheet string, rowNumber int) (*p
 	if err != nil {
 		return nil, err
 	}
-	pDto.ProductName = name
+	pDto.Reference = name
+	pDto.ProductName, _ = extractNameFromReference(name)
 	dimensions, err := extractDimensionsFromName(name)
 
 	if err != nil {
@@ -89,6 +91,8 @@ func (t TyreWorld) matchCells(f *excelize.File, sheet string, rowNumber int) (*p
 		return nil, err
 	}
 	pDto.Price = price
+
+	pDto.VehicleType = constants.VEHICLE_CAR
 
 	return pDto, nil
 }

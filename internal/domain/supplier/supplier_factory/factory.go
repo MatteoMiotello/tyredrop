@@ -3,6 +3,7 @@ package supplier_factory
 import (
 	"context"
 	"errors"
+	"fmt"
 	"pillowww/titw/internal/domain/product/pdtos"
 	"pillowww/titw/models"
 	"pillowww/titw/pkg/constants"
@@ -50,7 +51,11 @@ func extractEprelIDFromLink(slice string) string {
 }
 
 func extractDimensionsFromName(slice string) (*pdtos.TyreDimension, error) {
-	r := regexp.MustCompile(`^(\d{3})\/(\d{2})\s(\w{1,3})(\d{2})\s(?:\w{2}\s)?(\d{2,3})([A-Z])\s([A-Z])(?:\s([\w-]+)\s)?`)
+	r, err := regexp.Compile(`^(\d{3})\/(\d{2})\s(\w{1,3})(\d{2})\s(?:\w{2}\s)?(\d{2,3})([A-Z])\s([A-Z])(?:\s([\w-]+)\s)?`)
+
+	if err != nil {
+		return nil, err
+	}
 
 	match := r.FindStringSubmatch(slice)
 
@@ -73,4 +78,22 @@ func extractDimensionsFromName(slice string) (*pdtos.TyreDimension, error) {
 	}
 
 	return nil, errors.New("String not matching")
+}
+
+func extractNameFromReference(slice string) (string, error) {
+	r, err := regexp.Compile("([0-9]{2,3}\\/[0-9]{2}\\s[A-Z][0-9]{1,2}\\s[A-Z]{1,3}\\s[0-9]{1,3}[A-Z]\\s)(.*)")
+
+	if err != nil {
+		return "", err
+	}
+
+	match := r.FindStringSubmatch(slice)
+
+	fmt.Println(match)
+
+	if len(match) > 1 {
+		return match[1], nil
+	}
+
+	return "", nil
 }

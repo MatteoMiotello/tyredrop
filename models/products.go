@@ -34,6 +34,8 @@ type Product struct {
 	DeletedAt         null.Time   `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
 	UpdatedAt         time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
 	CreatedAt         time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	VehicleTypeID     int64       `boil:"vehicle_type_id" json:"vehicle_type_id" toml:"vehicle_type_id" yaml:"vehicle_type_id"`
+	Name              null.String `boil:"name" json:"name,omitempty" toml:"name" yaml:"name,omitempty"`
 
 	R *productR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L productL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -50,6 +52,8 @@ var ProductColumns = struct {
 	DeletedAt         string
 	UpdatedAt         string
 	CreatedAt         string
+	VehicleTypeID     string
+	Name              string
 }{
 	ID:                "id",
 	ProductCategoryID: "product_category_id",
@@ -61,6 +65,8 @@ var ProductColumns = struct {
 	DeletedAt:         "deleted_at",
 	UpdatedAt:         "updated_at",
 	CreatedAt:         "created_at",
+	VehicleTypeID:     "vehicle_type_id",
+	Name:              "name",
 }
 
 var ProductTableColumns = struct {
@@ -74,6 +80,8 @@ var ProductTableColumns = struct {
 	DeletedAt         string
 	UpdatedAt         string
 	CreatedAt         string
+	VehicleTypeID     string
+	Name              string
 }{
 	ID:                "products.id",
 	ProductCategoryID: "products.product_category_id",
@@ -85,6 +93,8 @@ var ProductTableColumns = struct {
 	DeletedAt:         "products.deleted_at",
 	UpdatedAt:         "products.updated_at",
 	CreatedAt:         "products.created_at",
+	VehicleTypeID:     "products.vehicle_type_id",
+	Name:              "products.name",
 }
 
 // Generated where
@@ -100,6 +110,8 @@ var ProductWhere = struct {
 	DeletedAt         whereHelpernull_Time
 	UpdatedAt         whereHelpertime_Time
 	CreatedAt         whereHelpertime_Time
+	VehicleTypeID     whereHelperint64
+	Name              whereHelpernull_String
 }{
 	ID:                whereHelperint64{field: "\"products\".\"id\""},
 	ProductCategoryID: whereHelperint64{field: "\"products\".\"product_category_id\""},
@@ -111,12 +123,15 @@ var ProductWhere = struct {
 	DeletedAt:         whereHelpernull_Time{field: "\"products\".\"deleted_at\""},
 	UpdatedAt:         whereHelpertime_Time{field: "\"products\".\"updated_at\""},
 	CreatedAt:         whereHelpertime_Time{field: "\"products\".\"created_at\""},
+	VehicleTypeID:     whereHelperint64{field: "\"products\".\"vehicle_type_id\""},
+	Name:              whereHelpernull_String{field: "\"products\".\"name\""},
 }
 
 // ProductRels is where relationship names are stored.
 var ProductRels = struct {
 	Brand                      string
 	ProductCategory            string
+	VehicleType                string
 	OrderRows                  string
 	ProductItems               string
 	ProductLanguages           string
@@ -125,6 +140,7 @@ var ProductRels = struct {
 }{
 	Brand:                      "Brand",
 	ProductCategory:            "ProductCategory",
+	VehicleType:                "VehicleType",
 	OrderRows:                  "OrderRows",
 	ProductItems:               "ProductItems",
 	ProductLanguages:           "ProductLanguages",
@@ -136,6 +152,7 @@ var ProductRels = struct {
 type productR struct {
 	Brand                      *Brand                         `boil:"Brand" json:"Brand" toml:"Brand" yaml:"Brand"`
 	ProductCategory            *ProductCategory               `boil:"ProductCategory" json:"ProductCategory" toml:"ProductCategory" yaml:"ProductCategory"`
+	VehicleType                *VehicleType                   `boil:"VehicleType" json:"VehicleType" toml:"VehicleType" yaml:"VehicleType"`
 	OrderRows                  OrderRowSlice                  `boil:"OrderRows" json:"OrderRows" toml:"OrderRows" yaml:"OrderRows"`
 	ProductItems               ProductItemSlice               `boil:"ProductItems" json:"ProductItems" toml:"ProductItems" yaml:"ProductItems"`
 	ProductLanguages           ProductLanguageSlice           `boil:"ProductLanguages" json:"ProductLanguages" toml:"ProductLanguages" yaml:"ProductLanguages"`
@@ -160,6 +177,13 @@ func (r *productR) GetProductCategory() *ProductCategory {
 		return nil
 	}
 	return r.ProductCategory
+}
+
+func (r *productR) GetVehicleType() *VehicleType {
+	if r == nil {
+		return nil
+	}
+	return r.VehicleType
 }
 
 func (r *productR) GetOrderRows() OrderRowSlice {
@@ -201,9 +225,9 @@ func (r *productR) GetProductSpecificationValues() ProductSpecificationValueSlic
 type productL struct{}
 
 var (
-	productAllColumns            = []string{"id", "product_category_id", "brand_id", "product_code", "manufacturer_code", "eprel_updated_at", "completed", "deleted_at", "updated_at", "created_at"}
-	productColumnsWithoutDefault = []string{"product_category_id", "brand_id", "completed"}
-	productColumnsWithDefault    = []string{"id", "product_code", "manufacturer_code", "eprel_updated_at", "deleted_at", "updated_at", "created_at"}
+	productAllColumns            = []string{"id", "product_category_id", "brand_id", "product_code", "manufacturer_code", "eprel_updated_at", "completed", "deleted_at", "updated_at", "created_at", "vehicle_type_id", "name"}
+	productColumnsWithoutDefault = []string{"product_category_id", "brand_id", "completed", "vehicle_type_id"}
+	productColumnsWithDefault    = []string{"id", "product_code", "manufacturer_code", "eprel_updated_at", "deleted_at", "updated_at", "created_at", "name"}
 	productPrimaryKeyColumns     = []string{"id"}
 	productGeneratedColumns      = []string{}
 )
@@ -508,6 +532,17 @@ func (o *Product) ProductCategory(mods ...qm.QueryMod) productCategoryQuery {
 	return ProductCategories(queryMods...)
 }
 
+// VehicleType pointed to by the foreign key.
+func (o *Product) VehicleType(mods ...qm.QueryMod) vehicleTypeQuery {
+	queryMods := []qm.QueryMod{
+		qm.Where("\"id\" = ?", o.VehicleTypeID),
+	}
+
+	queryMods = append(queryMods, mods...)
+
+	return VehicleTypes(queryMods...)
+}
+
 // OrderRows retrieves all the order_row's OrderRows with an executor.
 func (o *Product) OrderRows(mods ...qm.QueryMod) orderRowQuery {
 	var queryMods []qm.QueryMod
@@ -810,6 +845,127 @@ func (productL) LoadProductCategory(ctx context.Context, e boil.ContextExecutor,
 				local.R.ProductCategory = foreign
 				if foreign.R == nil {
 					foreign.R = &productCategoryR{}
+				}
+				foreign.R.Products = append(foreign.R.Products, local)
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
+// LoadVehicleType allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for an N-1 relationship.
+func (productL) LoadVehicleType(ctx context.Context, e boil.ContextExecutor, singular bool, maybeProduct interface{}, mods queries.Applicator) error {
+	var slice []*Product
+	var object *Product
+
+	if singular {
+		var ok bool
+		object, ok = maybeProduct.(*Product)
+		if !ok {
+			object = new(Product)
+			ok = queries.SetFromEmbeddedStruct(&object, &maybeProduct)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", object, maybeProduct))
+			}
+		}
+	} else {
+		s, ok := maybeProduct.(*[]*Product)
+		if ok {
+			slice = *s
+		} else {
+			ok = queries.SetFromEmbeddedStruct(&slice, maybeProduct)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", slice, maybeProduct))
+			}
+		}
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &productR{}
+		}
+		args = append(args, object.VehicleTypeID)
+
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &productR{}
+			}
+
+			for _, a := range args {
+				if a == obj.VehicleTypeID {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.VehicleTypeID)
+
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`vehicle_types`),
+		qm.WhereIn(`vehicle_types.id in ?`, args...),
+		qmhelper.WhereIsNull(`vehicle_types.deleted_at`),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load VehicleType")
+	}
+
+	var resultSlice []*VehicleType
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice VehicleType")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results of eager load for vehicle_types")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for vehicle_types")
+	}
+
+	if len(vehicleTypeAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
+				return err
+			}
+		}
+	}
+
+	if len(resultSlice) == 0 {
+		return nil
+	}
+
+	if singular {
+		foreign := resultSlice[0]
+		object.R.VehicleType = foreign
+		if foreign.R == nil {
+			foreign.R = &vehicleTypeR{}
+		}
+		foreign.R.Products = append(foreign.R.Products, object)
+		return nil
+	}
+
+	for _, local := range slice {
+		for _, foreign := range resultSlice {
+			if local.VehicleTypeID == foreign.ID {
+				local.R.VehicleType = foreign
+				if foreign.R == nil {
+					foreign.R = &vehicleTypeR{}
 				}
 				foreign.R.Products = append(foreign.R.Products, local)
 				break
@@ -1478,6 +1634,53 @@ func (o *Product) SetProductCategory(ctx context.Context, exec boil.ContextExecu
 
 	if related.R == nil {
 		related.R = &productCategoryR{
+			Products: ProductSlice{o},
+		}
+	} else {
+		related.R.Products = append(related.R.Products, o)
+	}
+
+	return nil
+}
+
+// SetVehicleType of the product to the related item.
+// Sets o.R.VehicleType to related.
+// Adds o to related.R.Products.
+func (o *Product) SetVehicleType(ctx context.Context, exec boil.ContextExecutor, insert bool, related *VehicleType) error {
+	var err error
+	if insert {
+		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
+			return errors.Wrap(err, "failed to insert into foreign table")
+		}
+	}
+
+	updateQuery := fmt.Sprintf(
+		"UPDATE \"products\" SET %s WHERE %s",
+		strmangle.SetParamNames("\"", "\"", 1, []string{"vehicle_type_id"}),
+		strmangle.WhereClause("\"", "\"", 2, productPrimaryKeyColumns),
+	)
+	values := []interface{}{related.ID, o.ID}
+
+	if boil.IsDebug(ctx) {
+		writer := boil.DebugWriterFrom(ctx)
+		fmt.Fprintln(writer, updateQuery)
+		fmt.Fprintln(writer, values)
+	}
+	if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+		return errors.Wrap(err, "failed to update local table")
+	}
+
+	o.VehicleTypeID = related.ID
+	if o.R == nil {
+		o.R = &productR{
+			VehicleType: related,
+		}
+	} else {
+		o.R.VehicleType = related
+	}
+
+	if related.R == nil {
+		related.R = &vehicleTypeR{
 			Products: ProductSlice{o},
 		}
 	} else {

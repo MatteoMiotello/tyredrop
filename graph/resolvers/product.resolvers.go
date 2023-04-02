@@ -65,6 +65,17 @@ func (r *productResolver) ProductSpecificationValues(ctx context.Context, obj *m
 	return graphValues, nil
 }
 
+// VehicleType is the resolver for the vehicleType field.
+func (r *productResolver) VehicleType(ctx context.Context, obj *model.Product) (*model.VehicleType, error) {
+	vType, err := r.VehicleDao.Load(models.VehicleTypeRels.VehicleTypeLanguages).FindById(ctx, obj.VehicleTypeID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return converters.VehicleTypeToGraphQL(vType), nil
+}
+
 // Specifications is the resolver for the specifications field.
 func (r *productCategoryResolver) Specifications(ctx context.Context, obj *model.ProductCategory) ([]*model.ProductSpecification, error) {
 	lang := auth.CurrentLanguage(ctx)

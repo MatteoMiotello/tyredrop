@@ -14,6 +14,7 @@ import (
 	"pillowww/titw/internal/domain/product/pdtos"
 	"pillowww/titw/internal/domain/supplier"
 	"pillowww/titw/internal/domain/supplier/supplier_factory"
+	"pillowww/titw/internal/domain/vehicle"
 	"pillowww/titw/models"
 	"pillowww/titw/pkg/log"
 	"pillowww/titw/pkg/task"
@@ -170,6 +171,7 @@ func importNextRecord(ctx context.Context, sup *models.Supplier, record pdtos.Pr
 			itemDao,
 			product.NewSpecificationDao(tx),
 			product.NewSpecificationValueDao(tx),
+			vehicle.NewDao(tx),
 		)
 
 		pPriceService := product.NewPriceService(

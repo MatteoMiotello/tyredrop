@@ -81,3 +81,9 @@ type UserRole struct {
 	Name     string `json:"name"`
 	IsAdmin  *bool  `json:"isAdmin"`
 }
+
+type VehicleType struct {
+	ID   int64  `json:"ID"`
+	Code string `json:"code"`
+	Name string `json:"name"`
+}

@@ -6,6 +6,7 @@ import (
 	"pillowww/titw/internal/domain/brand"
 	"pillowww/titw/internal/domain/product"
 	"pillowww/titw/internal/domain/supplier"
+	"pillowww/titw/internal/domain/vehicle"
 )
 
 // This file will not be regenerated automatically.
@@ -21,6 +22,7 @@ type Resolver struct {
 	ProductSpecificationValueDao *product.SpecificationValueDao
 	ProductItemDao               *product.ItemDao
 	CurrencyDao                  *currency.Dao
+	VehicleDao                   *vehicle.Dao
 }
 
 func NewResolver(exec boil.ContextExecutor) *Resolver {
@@ -33,5 +35,6 @@ func NewResolver(exec boil.ContextExecutor) *Resolver {
 		SupplierDao:                  supplier.NewDao(exec),
 		ProductItemDao:               product.NewItemDao(exec),
 		CurrencyDao:                  currency.NewDao(exec),
+		VehicleDao:                   vehicle.NewDao(exec),
 	}
 }

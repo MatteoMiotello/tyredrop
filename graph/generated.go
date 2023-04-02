@@ -89,6 +89,8 @@ type ComplexityRoot struct {
 		ID                         func(childComplexity int) int
 		ProductCategoryID          func(childComplexity int) int
 		ProductSpecificationValues func(childComplexity int) int
+		VehicleType                func(childComplexity int) int
+		VehicleTypeID              func(childComplexity int) int
 	}
 
 	ProductCategory struct {
@@ -191,6 +193,12 @@ type ComplexityRoot struct {
 		Name     func(childComplexity int) int
 		RoleCode func(childComplexity int) int
 	}
+
+	VehicleType struct {
+		Code func(childComplexity int) int
+		ID   func(childComplexity int) int
+		Name func(childComplexity int) int
+	}
 }
 
 type MutationResolver interface {
@@ -201,6 +209,8 @@ type ProductResolver interface {
 
 	Category(ctx context.Context, obj *model.Product) (*model.ProductCategory, error)
 	ProductSpecificationValues(ctx context.Context, obj *model.Product) ([]*model.ProductSpecificationValue, error)
+
+	VehicleType(ctx context.Context, obj *model.Product) (*model.VehicleType, error)
 }
 type ProductCategoryResolver interface {
 	Specifications(ctx context.Context, obj *model.ProductCategory) ([]*model.ProductSpecification, error)
@@ -405,6 +415,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Product.ProductSpecificationValues(childComplexity), true
+
+	case "Product.vehicleType":
+		if e.complexity.Product.VehicleType == nil {
+			break
+		}
+
+		return e.complexity.Product.VehicleType(childComplexity), true
+
+	case "Product.vehicleTypeID":
+		if e.complexity.Product.VehicleTypeID == nil {
+			break
+		}
+
+		return e.complexity.Product.VehicleTypeID(childComplexity), true
 
 	case "ProductCategory.code":
 		if e.complexity.ProductCategory.Code == nil {
@@ -886,6 +910,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UserRole.RoleCode(childComplexity), true
 
+	case "VehicleType.code":
+		if e.complexity.VehicleType.Code == nil {
+			break
+		}
+
+		return e.complexity.VehicleType.Code(childComplexity), true
+
+	case "VehicleType.ID":
+		if e.complexity.VehicleType.ID == nil {
+			break
+		}
+
+		return e.complexity.VehicleType.ID(childComplexity), true
+
+	case "VehicleType.name":
+		if e.complexity.VehicleType.Name == nil {
+			break
+		}
+
+		return e.complexity.VehicleType.Name(childComplexity), true
+
 	}
 	return 0, false
 }
@@ -956,7 +1001,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(parsedSchema, parsedSchema.Types[name]), nil
 }
 
-//go:embed "schemas/currency.graphql" "schemas/product.graphql" "schemas/product_specification.graphql" "schemas/query.graphql" "schemas/user.graphql"
+//go:embed "schemas/currency.graphql" "schemas/product.graphql" "schemas/product_specification.graphql" "schemas/query.graphql" "schemas/user.graphql" "schemas/vehicle.graphql"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -973,6 +1018,7 @@ var sources = []*ast.Source{
 	{Name: "schemas/product_specification.graphql", Input: sourceData("schemas/product_specification.graphql"), BuiltIn: false},
 	{Name: "schemas/query.graphql", Input: sourceData("schemas/query.graphql"), BuiltIn: false},
 	{Name: "schemas/user.graphql", Input: sourceData("schemas/user.graphql"), BuiltIn: false},
+	{Name: "schemas/vehicle.graphql", Input: sourceData("schemas/vehicle.graphql"), BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
@@ -2106,6 +2152,102 @@ func (ec *executionContext) fieldContext_Product_productSpecificationValues(ctx 
 	return fc, nil
 }
 
+func (ec *executionContext) _Product_vehicleTypeID(ctx context.Context, field graphql.CollectedField, obj *model.Product) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Product_vehicleTypeID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.VehicleTypeID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNID2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Product_vehicleTypeID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Product",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Product_vehicleType(ctx context.Context, field graphql.CollectedField, obj *model.Product) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Product_vehicleType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Product().VehicleType(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.VehicleType)
+	fc.Result = res
+	return ec.marshalNVehicleType2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐVehicleType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Product_vehicleType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Product",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "ID":
+				return ec.fieldContext_VehicleType_ID(ctx, field)
+			case "code":
+				return ec.fieldContext_VehicleType_code(ctx, field)
+			case "name":
+				return ec.fieldContext_VehicleType_name(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type VehicleType", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ProductCategory_id(ctx context.Context, field graphql.CollectedField, obj *model.ProductCategory) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ProductCategory_id(ctx, field)
 	if err != nil {
@@ -2437,6 +2579,10 @@ func (ec *executionContext) fieldContext_ProductItem_product(ctx context.Context
 				return ec.fieldContext_Product_category(ctx, field)
 			case "productSpecificationValues":
 				return ec.fieldContext_Product_productSpecificationValues(ctx, field)
+			case "vehicleTypeID":
+				return ec.fieldContext_Product_vehicleTypeID(ctx, field)
+			case "vehicleType":
+				return ec.fieldContext_Product_vehicleType(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Product", field.Name)
 		},
@@ -2779,6 +2925,10 @@ func (ec *executionContext) fieldContext_ProductPaginate_products(ctx context.Co
 				return ec.fieldContext_Product_category(ctx, field)
 			case "productSpecificationValues":
 				return ec.fieldContext_Product_productSpecificationValues(ctx, field)
+			case "vehicleTypeID":
+				return ec.fieldContext_Product_vehicleTypeID(ctx, field)
+			case "vehicleType":
+				return ec.fieldContext_Product_vehicleType(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Product", field.Name)
 		},
@@ -5367,6 +5517,138 @@ func (ec *executionContext) fieldContext_UserRole_isAdmin(ctx context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _VehicleType_ID(ctx context.Context, field graphql.CollectedField, obj *model.VehicleType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VehicleType_ID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNID2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VehicleType_ID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VehicleType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VehicleType_code(ctx context.Context, field graphql.CollectedField, obj *model.VehicleType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VehicleType_code(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Code, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VehicleType_code(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VehicleType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VehicleType_name(ctx context.Context, field graphql.CollectedField, obj *model.VehicleType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_VehicleType_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_VehicleType_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VehicleType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext___Directive_name(ctx, field)
 	if err != nil {
@@ -7632,6 +7914,33 @@ func (ec *executionContext) _Product(ctx context.Context, sel ast.SelectionSet, 
 				return innerFunc(ctx)
 
 			})
+		case "vehicleTypeID":
+
+			out.Values[i] = ec._Product_vehicleTypeID(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "vehicleType":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Product_vehicleType(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -8606,6 +8915,48 @@ func (ec *executionContext) _UserRole(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
+var vehicleTypeImplementors = []string{"VehicleType"}
+
+func (ec *executionContext) _VehicleType(ctx context.Context, sel ast.SelectionSet, obj *model.VehicleType) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, vehicleTypeImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("VehicleType")
+		case "ID":
+
+			out.Values[i] = ec._VehicleType_ID(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "code":
+
+			out.Values[i] = ec._VehicleType_code(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "name":
+
+			out.Values[i] = ec._VehicleType_name(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var __DirectiveImplementors = []string{"__Directive"}
 
 func (ec *executionContext) ___Directive(ctx context.Context, sel ast.SelectionSet, obj *introspection.Directive) graphql.Marshaler {
@@ -9278,6 +9629,20 @@ func (ec *executionContext) marshalNUserRole2ᚖpillowwwᚋtitwᚋgraphᚋmodel�
 		return graphql.Null
 	}
 	return ec._UserRole(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNVehicleType2pillowwwᚋtitwᚋgraphᚋmodelᚐVehicleType(ctx context.Context, sel ast.SelectionSet, v model.VehicleType) graphql.Marshaler {
+	return ec._VehicleType(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNVehicleType2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐVehicleType(ctx context.Context, sel ast.SelectionSet, v *model.VehicleType) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._VehicleType(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

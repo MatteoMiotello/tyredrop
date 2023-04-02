@@ -5,6 +5,7 @@ type Product struct {
 	Code              string `json:"code"`
 	ProductCategoryID int64  `json:"product_category_id"`
 	BrandID           int64  `json:"brand_id"`
+	VehicleTypeID     int64  `json:"vehicle_type_id"`
 }
 
 type ProductCategory struct {

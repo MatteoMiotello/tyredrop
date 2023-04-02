@@ -9,11 +9,13 @@ import (
 type Tyre struct {
 	EANCode     string
 	ProductName string
+	Reference   string
 	Brand       string
 	Season      string
 	Price       string
 	EprelID     string
 	Quantity    int
+	VehicleType constants.VehicleType
 	TyreDimension
 }
 
@@ -24,6 +26,14 @@ type TyreDimension struct {
 	Rim          int
 	Load         int
 	Speed        string
+}
+
+func (t *Tyre) GetProductName() string {
+	return t.Reference
+}
+
+func (t *Tyre) GetVehicleType() constants.VehicleType {
+	return t.VehicleType
 }
 
 func (t *Tyre) GetProductCode() string {
@@ -42,7 +52,7 @@ func (t *Tyre) GetSpecifications() map[constants.ProductSpecification]string {
 	return map[constants.ProductSpecification]string{
 		constants.TYRE_SPEC_EAN:          t.EANCode,
 		constants.TYRE_SPEC_NAME:         t.ProductName,
-		constants.TYRE_SPEC_REFERENCE:    t.ProductName,
+		constants.TYRE_SPEC_REFERENCE:    t.Reference,
 		constants.TYRE_SPEC_WIDTH:        strconv.Itoa(t.Width),
 		constants.TYRE_SPEC_ASPECT_RATIO: strconv.Itoa(t.AspectRatio),
 		constants.TYRE_SPEC_CONSTRUCTION: t.Construction,

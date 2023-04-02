@@ -12,4 +12,6 @@ type ProductDto interface {
 	GetBrandName() string
 	GetSupplierProductPrice() string
 	GetSupplierProductQuantity() int
+	GetVehicleType() constants.VehicleType
+	GetProductName() string
 }

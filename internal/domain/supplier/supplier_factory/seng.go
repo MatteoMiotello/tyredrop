@@ -5,6 +5,7 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"pillowww/titw/internal/domain/product/pdtos"
+	"pillowww/titw/pkg/constants"
 	"pillowww/titw/pkg/utils"
 	"strconv"
 	"strings"
@@ -35,6 +36,8 @@ func (s Seng) ReadProductsFromFile(ctx context.Context, filePath string) (pdtos.
 				continue
 			}
 		}
+
+		pRecord.VehicleType = constants.VEHICLE_CAR
 
 		recordSlice = append(recordSlice, pRecord)
 	}
@@ -91,7 +94,8 @@ func (s Seng) matchRecords(pRecord *pdtos.Tyre, i int, slice string) error {
 		pRecord.Speed = slice
 		break
 	case 9:
-		pRecord.ProductName = pRecord.BuildName() + " " + slice
+		pRecord.Reference = pRecord.BuildName() + " " + slice
+		pRecord.ProductName = slice
 		break
 	case 10:
 		s := cases.Lower(language.Und).String(slice)

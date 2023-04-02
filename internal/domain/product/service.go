@@ -9,6 +9,7 @@ import (
 	"golang.org/x/text/language"
 	"pillowww/titw/internal/domain/brand"
 	"pillowww/titw/internal/domain/product/pdtos"
+	"pillowww/titw/internal/domain/vehicle"
 	"pillowww/titw/models"
 	"pillowww/titw/pkg/constants"
 	"strings"
@@ -20,16 +21,18 @@ type Service struct {
 	SpecificationDao      *SpecificationDao
 	SpecificationValueDao *SpecificationValueDao
 	CategoryDao           *CategoryDao
+	VehicleDao            *vehicle.Dao
 	BrandDao              *brand.Dao
 }
 
-func NewService(dao *Dao, bDao *brand.Dao, cDao *CategoryDao, iDao *ItemDao, sDao *SpecificationDao, sVDao *SpecificationValueDao) *Service {
+func NewService(dao *Dao, bDao *brand.Dao, cDao *CategoryDao, iDao *ItemDao, sDao *SpecificationDao, sVDao *SpecificationValueDao, vDao *vehicle.Dao) *Service {
 	return &Service{
 		dao,
 		iDao,
 		sDao,
 		sVDao,
 		cDao,
+		vDao,
 		bDao,
 	}
 }
@@ -74,10 +77,18 @@ func (s Service) FindOrCreateProduct(ctx context.Context, dto pdtos.ProductDto) 
 		return nil, err
 	}
 
+	vehicleType, err := s.VehicleDao.FindByCode(ctx, dto.GetVehicleType())
+
+	if err != nil {
+		return nil, err
+	}
+
 	p = &models.Product{
 		ProductCode:       null.StringFrom(dto.GetProductCode()),
 		BrandID:           b.ID,
 		ProductCategoryID: category.ID,
+		VehicleTypeID:     null.Int64From(vehicleType.ID),
+		Name:              null.StringFrom(dto.GetProductName()),
 	}
 
 	err = s.ProductDao.Upsert(ctx, p, false, []string{models.ProductColumns.ProductCode})

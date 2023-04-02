@@ -3,6 +3,7 @@ package supplier_factory
 import (
 	"context"
 	"pillowww/titw/internal/domain/product/pdtos"
+	"pillowww/titw/pkg/constants"
 	"pillowww/titw/pkg/utils"
 	"strconv"
 	"strings"
@@ -37,6 +38,8 @@ func (g Gun) ReadProductsFromFile(ctx context.Context, filePath string) (pdtos.P
 			pRecord.Construction = "R"
 		}
 
+		pRecord.VehicleType = constants.VEHICLE_CAR
+
 		recordSlice = append(recordSlice, pRecord)
 	}
 
@@ -58,7 +61,7 @@ func (g Gun) matchRecords(pRecord *pdtos.Tyre, index int, slice string) error {
 		pRecord.Brand = slice
 		break
 	case 4:
-		pRecord.ProductName = slice
+		pRecord.Reference = slice
 		break
 	case 8:
 		pRecord.Season = getSeasonFromGerman(slice)
@@ -95,6 +98,9 @@ func (g Gun) matchRecords(pRecord *pdtos.Tyre, index int, slice string) error {
 		break
 	case 15:
 		pRecord.Speed = slice
+		break
+	case 17:
+		pRecord.ProductName = slice
 		break
 	case 19:
 		pRecord.Price = slice
