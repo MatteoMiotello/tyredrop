@@ -82,3 +82,14 @@ func (d *ItemDao) FindLessExpensiveByProductCode(ctx context.Context, code strin
 		)...,
 	).One(ctx, d.Db)
 }
+
+type SpecificationInput struct {
+	name  string
+	value string
+}
+
+func (d *ItemDao) FindLessExpensiveBySpecifications(ctx context.Context, inputs ...*SpecificationInput) (models.ProductItemSlice, error) {
+	return models.ProductItems(
+		d.GetMods()...,
+	).All(ctx, d.Db)
+}

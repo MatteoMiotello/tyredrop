@@ -23,8 +23,8 @@ func (d Dao) Load(relationship string, mods ...qm.QueryMod) *Dao {
 	return db.Load(d, relationship, mods...)
 }
 
-func (d Dao) Paginate(first int, offset int) *Dao {
-	return db.Paginate(d, first, offset)
+func (d Dao) Paginate(limit int, offset int) *Dao {
+	return db.Paginate(d, limit, offset)
 }
 
 func (d Dao) ForUpdate() *Dao {
@@ -47,6 +47,18 @@ func (d *Dao) Brand(ctx context.Context, product *models.Product) (*models.Brand
 	return product.Brand(
 		d.GetMods()...,
 	).One(ctx, d.Db)
+}
+
+func (d *Dao) FindAll(ctx context.Context) (models.ProductSlice, error) {
+	return models.Products(
+		d.GetMods()...,
+	).All(ctx, db.DB)
+}
+
+func (d *Dao) CountAll(ctx context.Context) (int64, error) {
+	return models.Products(
+		d.GetMods()...,
+	).Count(ctx, d.Db)
 }
 
 func (d *Dao) FindOneById(ctx context.Context, id int64) (*models.Product, error) {

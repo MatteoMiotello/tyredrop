@@ -5,7 +5,7 @@ import (
 	"pillowww/titw/models"
 )
 
-func CurrencyToGraphQL(currency *models.Currency) (*model.Currency, error) {
+func CurrencyToGraphQL(currency *models.Currency) *model.Currency {
 	lang := currency.R.CurrencyLanguages[0]
 
 	return &model.Currency{
@@ -14,5 +14,5 @@ func CurrencyToGraphQL(currency *models.Currency) (*model.Currency, error) {
 		Symbol:  currency.Symbol,
 		Tag:     currency.Tag,
 		Name:    lang.Name,
-	}, nil
+	}
 }

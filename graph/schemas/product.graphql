@@ -43,8 +43,3 @@ type ProductItem {
     supplier_price: Float!
     supplier_quantity: Int!
 }
-
-extend type Query {
-    searchByProductCode( code: String! ): ProductItem
-    search( input: [ProductSpecificationInput]! ): [ProductItem]
-}

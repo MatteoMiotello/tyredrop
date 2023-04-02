@@ -5,8 +5,3 @@ type Currency {
     tag: String!
     name: String!
 }
-
-type CurrencyQuery {
-    currency( id: ID! ): Currency
-    currencies: [Currency]
-}

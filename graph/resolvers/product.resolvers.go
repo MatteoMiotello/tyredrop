@@ -6,13 +6,13 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
-	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"pillowww/titw/graph"
 	"pillowww/titw/graph/converters"
 	"pillowww/titw/graph/model"
 	"pillowww/titw/internal/auth"
 	"pillowww/titw/models"
+
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 // Brand is the resolver for the brand field.
@@ -149,22 +149,6 @@ func (r *productItemResolver) Supplier(ctx context.Context, obj *model.ProductIt
 	}
 
 	return converters.SupplierToGraphQL(sup), nil
-}
-
-// SearchByProductCode is the resolver for the searchByProductCode field.
-func (r *queryResolver) SearchByProductCode(ctx context.Context, code string) (*model.ProductItem, error) {
-	pItem, err := r.ProductItemDao.FindLessExpensiveByProductCode(ctx, code)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return converters.ProductItemToGraphQL(pItem), nil
-}
-
-// Search is the resolver for the search field.
-func (r *queryResolver) Search(ctx context.Context, input []*model.ProductSpecificationInput) ([]*model.ProductItem, error) {
-	panic(fmt.Errorf("not implemented: Search - search"))
 }
 
 // Product returns graph.ProductResolver implementation.

@@ -16,26 +16,6 @@ func (r *mutationResolver) CreateUserBilling(ctx context.Context, input *model.C
 	panic(fmt.Errorf("not implemented: CreateUserBilling - createUserBilling"))
 }
 
-// User is the resolver for the user field.
-func (r *queryResolver) User(ctx context.Context, id int64) (*model.User, error) {
-	panic(fmt.Errorf("not implemented: User - user"))
-}
-
-// Users is the resolver for the users field.
-func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
-	panic(fmt.Errorf("not implemented: Users - users"))
-}
-
-// TaxRates is the resolver for the taxRates field.
-func (r *queryResolver) TaxRates(ctx context.Context) ([]*model.TaxRate, error) {
-	panic(fmt.Errorf("not implemented: TaxRates - taxRates"))
-}
-
-// LegalEntityTypes is the resolver for the legalEntityTypes field.
-func (r *queryResolver) LegalEntityTypes(ctx context.Context) ([]*model.LegalEntityType, error) {
-	panic(fmt.Errorf("not implemented: LegalEntityTypes - legalEntityTypes"))
-}
-
 // UserRole is the resolver for the userRole field.
 func (r *userResolver) UserRole(ctx context.Context, obj *model.User) (*model.UserRole, error) {
 	panic(fmt.Errorf("not implemented: UserRole - userRole"))
@@ -64,9 +44,6 @@ func (r *userBillingResolver) User(ctx context.Context, obj *model.UserBilling) 
 // Mutation returns graph.MutationResolver implementation.
 func (r *Resolver) Mutation() graph.MutationResolver { return &mutationResolver{r} }
 
-// Query returns graph.QueryResolver implementation.
-func (r *Resolver) Query() graph.QueryResolver { return &queryResolver{r} }
-
 // User returns graph.UserResolver implementation.
 func (r *Resolver) User() graph.UserResolver { return &userResolver{r} }
 
@@ -74,6 +51,5 @@ func (r *Resolver) User() graph.UserResolver { return &userResolver{r} }
 func (r *Resolver) UserBilling() graph.UserBillingResolver { return &userBillingResolver{r} }
 
 type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
 type userResolver struct{ *Resolver }
 type userBillingResolver struct{ *Resolver }

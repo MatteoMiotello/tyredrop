@@ -56,12 +56,6 @@ input CreateUserBilling {
     country: String!
 }
 
-type Query {
-    user(ID: ID!): User
-    users: [User]
-    taxRates: [TaxRate]
-    legalEntityTypes: [LegalEntityType]
-}
 
 type Mutation {
     createUserBilling( input: CreateUserBilling ): UserBilling!

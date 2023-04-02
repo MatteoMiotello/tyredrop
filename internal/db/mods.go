@@ -24,10 +24,10 @@ func Load[T DaoMod](d T, relation string, mods ...qm.QueryMod) *T {
 	)
 }
 
-func Paginate[T DaoMod](d T, first int, offset int) *T {
+func Paginate[T DaoMod](d T, limit int, offset int) *T {
 	return newInstanceWithMods(
 		d,
-		qm.Limit(first),
+		qm.Limit(limit),
 		qm.Offset(offset),
 	)
 }

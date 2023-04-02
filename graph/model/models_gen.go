@@ -31,14 +31,25 @@ type Currency struct {
 	Name    string `json:"name"`
 }
 
-type CurrencyQuery struct {
-	Currency   *Currency   `json:"currency"`
-	Currencies []*Currency `json:"currencies"`
-}
-
 type LegalEntityType struct {
 	ID   int64  `json:"id"`
 	Name string `json:"name"`
+}
+
+type Pagination struct {
+	Limit  *int `json:"limit"`
+	Offset *int `json:"offset"`
+	Totals *int `json:"totals"`
+}
+
+type PaginationInput struct {
+	Limit  int `json:"limit"`
+	Offset int `json:"offset"`
+}
+
+type ProductPaginate struct {
+	Pagination *Pagination `json:"pagination"`
+	Products   []*Product  `json:"products"`
 }
 
 type ProductPrice struct {

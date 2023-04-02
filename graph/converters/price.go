@@ -21,7 +21,7 @@ func ProductItemPriceToGraphQL(price *models.ProductItemPrice) (*model.ProductPr
 		return nil, err
 	}
 
-	curGraph, err := CurrencyToGraphQL(cur)
+	curGraph := CurrencyToGraphQL(cur)
 
 	if err != nil {
 		return nil, err
