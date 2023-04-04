@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/friendsofgo/errors"
 	"github.com/volatiletech/null/v8"
 	"os"
 	currency2 "pillowww/titw/internal/currency"
@@ -30,8 +31,8 @@ func check(err error) {
 
 func ImportProductsFromFile() {
 	ctx := context.Background()
-	sDao := supplier.NewDao(db.DB)
 
+	sDao := supplier.NewDao(db.DB)
 	jobExists, _ := sDao.ExistRunningJob(ctx)
 
 	if jobExists {
@@ -41,6 +42,11 @@ func ImportProductsFromFile() {
 
 	sup, err := sDao.GetLastImported(ctx)
 	check(err)
+
+	if sup == nil {
+		log.Error(errors.New("supplier not found in import"))
+		return
+	}
 
 	dirName := strings.ToLower(sup.Code)
 	tmpDir := "import/" + dirName
@@ -142,7 +148,7 @@ func storeBrands(ctx context.Context, records []pdtos.ProductDto) {
 
 func storeRecords(ctx context.Context, sup *models.Supplier, records []pdtos.ProductDto) error {
 	rChan := make(chan pdtos.ProductDto)
-	chanWorker := task.NewChannelWorker[pdtos.ProductDto](100, rChan)
+	chanWorker := task.NewChannelWorker[pdtos.ProductDto](50, rChan)
 	chanWorker.Run(func(record pdtos.ProductDto) {
 		importNextRecord(ctx, sup, record)
 	})
@@ -192,16 +198,15 @@ func importNextRecord(ctx context.Context, sup *models.Supplier, record pdtos.Pr
 		}
 
 		pi, err := pService.CreateProductItem(ctx, p, sup, record.GetSupplierProductPrice(), record.GetSupplierProductQuantity())
-
 		if err != nil {
 			return err
 		}
 
 		err = pPriceService.CalculateAndStoreProductPrices(ctx, pi)
-
 		if err != nil {
 			return err
 		}
+
 		return nil
 	})
 

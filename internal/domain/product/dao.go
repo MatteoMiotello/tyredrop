@@ -100,6 +100,7 @@ func (d Dao) FindNextRemainingEprelProduct(ctx context.Context, categoryCodes ..
 			qm.LeftOuterJoin("product_categories on products.product_category_id = product_categories.id"),
 			models.ProductCategoryWhere.CategoryCode.IN(categoryCodes),
 			models.ProductWhere.EprelUpdatedAt.IsNull(),
+			qm.Limit(1),
 		)...,
 	).One(ctx, d.Db)
 }

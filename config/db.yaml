@@ -1,5 +1,5 @@
 db:
   max-open-connection: 500
-  max-idle-connection: 500
+  max-idle-connection: 20
   max-connection-lifetime: 500
   max-connection-idle-lifetime: 5

@@ -32,13 +32,13 @@ services:
     ports:
       - '2345:5432'
     volumes:
-      - ./pg_data:/var/lib/postgresql/data
+      - pg_data:/var/lib/postgresql/data
+    command: postgres -c 'max_connections=500'
     networks:
       - titw
 
 volumes:
   pg_data:
-  import:
 
 # Networks to be created to facilitate communication between containers
 networks:

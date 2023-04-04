@@ -33,7 +33,7 @@ func (d Dao) Paginate(first int, offset int) *Dao {
 }
 
 func (d Dao) GetAll(ctx context.Context) (models.SupplierSlice, error) {
-	return models.Suppliers(d.GetMods()...).All(ctx, d.GetConnection(ctx))
+	return models.Suppliers(d.GetMods()...).All(ctx, d.Db)
 }
 
 func (d Dao) GetLastImported(ctx context.Context) (*models.Supplier, error) {
@@ -41,7 +41,7 @@ func (d Dao) GetLastImported(ctx context.Context) (*models.Supplier, error) {
 		d.GetMods(
 			qm.OrderBy(models.SupplierColumns.ImportedAt+" ASC NULLS FIRST"),
 		)...,
-	).One(ctx, d.GetConnection(ctx))
+	).One(ctx, d.Db)
 }
 
 func (d Dao) ExistsJobForFilename(ctx context.Context, supplier models.Supplier, fileName string) (bool, error) {
@@ -50,7 +50,7 @@ func (d Dao) ExistsJobForFilename(ctx context.Context, supplier models.Supplier,
 			models.ImportJobWhere.SupplierID.EQ(supplier.ID),
 			models.ImportJobWhere.Filename.EQ(fileName),
 		)...,
-	).Exists(ctx, d.GetConnection(ctx))
+	).Exists(ctx, d.Db)
 }
 
 func (d Dao) ExistRunningJob(ctx context.Context) (bool, error) {
@@ -67,5 +67,5 @@ func (d Dao) FindOneById(ctx context.Context, id int64) (*models.Supplier, error
 		d.GetMods(
 			models.SupplierWhere.ID.EQ(id),
 		)...,
-	).One(ctx, db.DB)
+	).One(ctx, d.Db)
 }

@@ -40,10 +40,11 @@ func WithTx(ctx context.Context, handle func(tx *sql.Tx) error) error {
 		return err
 	}
 
+	defer tx.Rollback()
+
 	handleErr := handle(tx)
 
 	if handleErr != nil {
-		err = tx.Rollback()
 		if err != nil {
 			return err
 		}

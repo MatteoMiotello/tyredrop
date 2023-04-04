@@ -10,7 +10,7 @@ type PostgresAdapter struct {
 }
 
 func (p PostgresAdapter) GetConnector() (*pq.Connector, error) {
-	dsn := fmt.Sprintf("postgres://%s@%s/%s?port=%s&password=%s&sslmode=disable",
+	dsn := fmt.Sprintf("postgres://%s@%s/%s?port=%s&password=%s&sslmode=disable&deadlock_timeout=60s",
 		viper.Get("DB_USER"),
 		viper.Get("DB_HOST"),
 		viper.Get("DB_NAME"),

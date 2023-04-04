@@ -11,7 +11,6 @@ import (
 	"pillowww/titw/pkg/clients/eprel"
 	"pillowww/titw/pkg/constants"
 	"pillowww/titw/pkg/log"
-	"pillowww/titw/pkg/task"
 	"strconv"
 	"time"
 )
@@ -20,13 +19,11 @@ type UpdateTyresSpecificationJob struct {
 }
 
 func (r UpdateTyresSpecificationJob) Run() {
-	worker := task.NewWorker(5)
-	worker.Run()
-
-	worker.AddTask(UpdateTyresSpecifications)
-	worker.AddTask(UpdateTyresSpecifications)
-	worker.AddTask(UpdateTyresSpecifications)
-	worker.AddTask(UpdateTyresSpecifications)
+	go UpdateTyresSpecifications()
+	go UpdateTyresSpecifications()
+	go UpdateTyresSpecifications()
+	go UpdateTyresSpecifications()
+	go UpdateTyresSpecifications()
 }
 
 func UpdateTyresSpecifications() {
@@ -34,17 +31,19 @@ func UpdateTyresSpecifications() {
 
 	err := db.WithTx(ctx, func(tx *sql.Tx) error {
 		pDao := product.NewDao(tx)
-		p, _ := pDao.
+		p, err := pDao.
+			ForUpdate().
 			FindNextRemainingEprelProduct(ctx, string(constants.PRODUCT_CATEGORY_TYRE))
 
-		if p == nil {
+		if err != nil {
+			fmt.Println(err)
 			return nil
 		}
 
 		vDao := product.NewSpecificationValueDao(tx)
 
 		p.EprelUpdatedAt = null.TimeFrom(time.Now())
-		err := vDao.Update(ctx, p)
+		err = vDao.Update(ctx, p)
 		if err != nil {
 			return err
 		}

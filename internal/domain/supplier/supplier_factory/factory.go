@@ -3,7 +3,6 @@ package supplier_factory
 import (
 	"context"
 	"errors"
-	"fmt"
 	"pillowww/titw/internal/domain/product/pdtos"
 	"pillowww/titw/models"
 	"pillowww/titw/pkg/constants"
@@ -88,8 +87,6 @@ func extractNameFromReference(slice string) (string, error) {
 	}
 
 	match := r.FindStringSubmatch(slice)
-
-	fmt.Println(match)
 
 	if len(match) > 1 {
 		return match[1], nil

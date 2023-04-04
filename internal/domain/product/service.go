@@ -83,15 +83,17 @@ func (s Service) FindOrCreateProduct(ctx context.Context, dto pdtos.ProductDto) 
 		return nil, err
 	}
 
+	name := strings.ToValidUTF8(dto.GetProductName(), "")
+
 	p = &models.Product{
 		ProductCode:       null.StringFrom(dto.GetProductCode()),
 		BrandID:           b.ID,
 		ProductCategoryID: category.ID,
-		VehicleTypeID:     null.Int64From(vehicleType.ID),
-		Name:              null.StringFrom(dto.GetProductName()),
+		VehicleTypeID:     vehicleType.ID,
+		Name:              null.StringFrom(name),
 	}
 
-	err = s.ProductDao.Upsert(ctx, p, false, []string{models.ProductColumns.ProductCode})
+	err = s.ProductDao.Insert(ctx, p)
 
 	if err != nil {
 		return nil, err
@@ -114,7 +116,6 @@ func (s Service) UpdateSpecifications(ctx context.Context, product *models.Produ
 	dtoSpecs := dto.GetSpecifications()
 	specInserted := 0
 
-	var specsToInsert []*models.ProductSpecificationValue
 	for _, spec := range specs {
 		value, found := dtoSpecs[constants.ProductSpecification(spec.SpecificationCode)]
 		if !found {
@@ -132,24 +133,19 @@ func (s Service) UpdateSpecifications(ctx context.Context, product *models.Produ
 		}
 
 		pValue = &models.ProductSpecificationValue{
+			ProductID:              product.ID,
 			ProductSpecificationID: spec.ID,
-			SpecificationValue:     value,
+			SpecificationValue:     strings.ToValidUTF8(value, ""),
 		}
 
-		specsToInsert = append(specsToInsert, pValue)
+		err = s.ProductDao.Insert(ctx, pValue)
 
 		if err != nil {
-			fmt.Println(value)
+			fmt.Println(err)
 			return err
 		}
 
 		specInserted++
-	}
-
-	err = s.ProductDao.AddProductSpecificationValues(ctx, product, specsToInsert...)
-
-	if err != nil {
-		return err
 	}
 
 	mandatories, err := s.SpecificationDao.FindMandatoryByProduct(ctx, product)
