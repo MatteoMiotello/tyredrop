@@ -16,14 +16,17 @@ import (
 )
 
 type UpdateTyresSpecificationJob struct {
+	MaxChildren int
 }
 
 func (r UpdateTyresSpecificationJob) Run() {
-	go UpdateTyresSpecifications()
-	go UpdateTyresSpecifications()
-	go UpdateTyresSpecifications()
-	go UpdateTyresSpecifications()
-	go UpdateTyresSpecifications()
+	if r.MaxChildren == 0 {
+		r.MaxChildren = 1
+	}
+
+	for i := 0; i < r.MaxChildren; i++ {
+		go UpdateTyresSpecifications()
+	}
 }
 
 func UpdateTyresSpecifications() {
@@ -72,6 +75,8 @@ func UpdateTyresSpecifications() {
 		}
 		return nil
 	})
+
+	ctx.Done()
 
 	if err != nil {
 		log.Warn("Unable to update eprel spec", err)

@@ -181,16 +181,18 @@ func (g PayGo) getVehicleType(slice string) constants.VehicleType {
 
 func (g PayGo) getSeason(slice string) string {
 	slice = cases.Upper(language.Und).String(slice)
-
-	switch slice {
-	case "SUMMER":
-		return constants.TYPE_SUMMER
-	case "WIN":
-		return constants.TYPE_WINTER
-	case "4SEASON":
-		return constants.TYPE_ALL_SEASON
-	case "ALL SEASONS":
+	slice = strings.ToValidUTF8(slice, "")
+	if strings.ContainsAny(slice, "SUM") {
 		return constants.TYPE_ALL_SEASON
 	}
-	return ""
+
+	if strings.ContainsAny(slice, "WIN") {
+		return constants.TYPE_WINTER
+	}
+
+	if strings.ContainsAny(slice, "SEAS") {
+		return constants.TYPE_ALL_SEASON
+	}
+
+	return constants.TYPE_SUMMER
 }

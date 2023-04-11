@@ -35,12 +35,11 @@ func Close() {
 
 func WithTx(ctx context.Context, handle func(tx *sql.Tx) error) error {
 	tx, err := DB.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelDefault})
+	defer tx.Rollback()
 
 	if err != nil {
 		return err
 	}
-
-	defer tx.Rollback()
 
 	handleErr := handle(tx)
 

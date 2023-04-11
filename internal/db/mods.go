@@ -35,6 +35,6 @@ func Paginate[T DaoMod](d T, limit int, offset int) *T {
 func ForUpdate[T DaoMod](d T) *T {
 	return newInstanceWithMods(
 		d,
-		qm.For("UPDATE"),
+		qm.For("NO KEY UPDATE"),
 	)
 }
