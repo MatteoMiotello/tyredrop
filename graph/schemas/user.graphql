@@ -55,8 +55,3 @@ input CreateUserBilling {
     cap: String!
     country: String!
 }
-
-
-type Mutation {
-    createUserBilling( input: CreateUserBilling ): UserBilling!
-}

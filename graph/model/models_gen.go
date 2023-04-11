@@ -8,17 +8,24 @@ type Brand struct {
 	ImageLogo string `json:"image_logo"`
 }
 
+type CreateAdminUserInput struct {
+	Name     string `json:"name"`
+	Surname  string `json:"surname"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 type CreateUserBilling struct {
-	UserID            *int64  `json:"userId"`
+	UserID            *int64  `json:"userId,omitempty"`
 	LegalEntityTypeID int64   `json:"legalEntityTypeId"`
 	Name              string  `json:"name"`
 	Surname           string  `json:"surname"`
 	FiscalCode        string  `json:"fiscalCode"`
 	VatNumber         string  `json:"vatNumber"`
 	AddressLine1      string  `json:"addressLine1"`
-	AddressLine2      *string `json:"addressLine2"`
+	AddressLine2      *string `json:"addressLine2,omitempty"`
 	City              string  `json:"city"`
-	Province          *string `json:"province"`
+	Province          *string `json:"province,omitempty"`
 	Cap               string  `json:"cap"`
 	Country           string  `json:"country"`
 }
@@ -37,9 +44,9 @@ type LegalEntityType struct {
 }
 
 type Pagination struct {
-	Limit  *int `json:"limit"`
-	Offset *int `json:"offset"`
-	Totals *int `json:"totals"`
+	Limit  *int `json:"limit,omitempty"`
+	Offset *int `json:"offset,omitempty"`
+	Totals *int `json:"totals,omitempty"`
 }
 
 type PaginationInput struct {
@@ -48,8 +55,8 @@ type PaginationInput struct {
 }
 
 type ProductPaginate struct {
-	Pagination *Pagination `json:"pagination"`
-	Products   []*Product  `json:"products"`
+	Pagination *Pagination `json:"pagination,omitempty"`
+	Products   []*Product  `json:"products,omitempty"`
 }
 
 type ProductPrice struct {
@@ -79,7 +86,7 @@ type UserRole struct {
 	ID       int64  `json:"id"`
 	RoleCode string `json:"roleCode"`
 	Name     string `json:"name"`
-	IsAdmin  *bool  `json:"isAdmin"`
+	IsAdmin  *bool  `json:"isAdmin,omitempty"`
 }
 
 type VehicleType struct {

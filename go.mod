@@ -3,7 +3,7 @@ module pillowww/titw
 go 1.19
 
 require (
-	github.com/99designs/gqlgen v0.17.24
+	github.com/99designs/gqlgen v0.17.28
 	github.com/MatteoMiotello/go-sqlbuilder v1.0.1-0.20230310213322-8a4d5c78ef63
 	github.com/bojanz/currency v1.1.0
 	github.com/evalphobia/logrus_sentry v0.8.2
@@ -25,8 +25,8 @@ require (
 	github.com/volatiletech/strmangle v0.0.4
 	github.com/xuri/excelize/v2 v2.7.0
 	golang.org/x/crypto v0.5.0
-	golang.org/x/net v0.5.0
-	golang.org/x/text v0.6.0
+	golang.org/x/net v0.6.0
+	golang.org/x/text v0.7.0
 	google.golang.org/appengine v1.6.7
 )
 
@@ -47,7 +47,7 @@ require (
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
-	github.com/hashicorp/golang-lru v0.5.4 // indirect
+	github.com/hashicorp/golang-lru/v2 v2.0.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/huandu/xstrings v1.3.2 // indirect
 	github.com/jehiah/go-strftime v0.0.0-20171201141054-1d33003b3869 // indirect
