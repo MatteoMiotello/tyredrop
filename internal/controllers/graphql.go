@@ -22,7 +22,7 @@ type GraphqlController Controller
 
 func (g *GraphqlController) buildCoinfig() graph.Config {
 	c := graph.Config{
-		Resolvers: resolvers.NewResolver(db.DB)
+		Resolvers: resolvers.NewResolver(db.DB),
 	}
 
 	c.Directives.IsAdmin = func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error) {

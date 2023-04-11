@@ -16,7 +16,12 @@ import (
 
 // User is the resolver for the user field.
 func (r *queryResolver) User(ctx context.Context, id int64) (*model.User, error) {
-	panic(fmt.Errorf("not implemented: User - user"))
+	user, err := r.UserDao.FindOneById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return converters.UserToGraphQL(user), nil
 }
 
 // Users is the resolver for the users field.
