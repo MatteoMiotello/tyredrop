@@ -3,7 +3,7 @@ import {Button, Form, Input, Layout, Space} from "antd";
 import {Content, Footer} from "antd/es/layout/layout";
 
 export const LoginPage: React.FC = () => {
-    return <Space direction="vertical" style={{width: '100%'}} size={[0, 48]}>
+    return <Space className="m-0" direction="vertical" style={{width: '100%'}}>
         <Layout className="h-screen">
             <Content className="h-full p-24">
                 <Form
@@ -14,7 +14,7 @@ export const LoginPage: React.FC = () => {
                 >
                     <Form.Item
                         name="username"
-                        className="mb-3 w-1/2 my-auto"
+                        className="mb-3 w-md-1/2 my-auto"
                         rules={[{required: true, message:"Username is required"}]}
                     >
                         <Input placeholder="Username"/>
@@ -22,7 +22,7 @@ export const LoginPage: React.FC = () => {
                     <Form.Item
                         name="password"
                         rules={[{required: true, message:"Password is required"}]}
-                        rootClassName="mb-3 w-1/2 my-auto"
+                        rootClassName="mb-3 w-md-1/2 my-auto"
                     >
                         <Input.Password placeholder="Password"/>
                     </Form.Item>

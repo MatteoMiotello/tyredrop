@@ -1,6 +1,7 @@
 version: '3.9'
 services:
   app:
+    dockerfile: golang/Dockerfile
     container_name: titw_go_server
     environment:
       - POSTGRES_USER=${DB_USER}
