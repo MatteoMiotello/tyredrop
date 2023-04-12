@@ -1,0 +1,11 @@
+no-tests=true
+
+[psql]
+dbname="titw"
+user="postuser"
+host="localhost"
+port="2345"
+pass="password"
+sslmode="disable"
+blacklist=[ "goose_db_version" ]
+
