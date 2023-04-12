@@ -1,0 +1,10 @@
+input CreateAdminUserInput {
+    name: String!
+    surname: String!
+    email: String!
+    password: String!
+}
+
+type Mutation {
+    createAdminUser( userInput: CreateAdminUserInput!): User! @isAdmin
+}

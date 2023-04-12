@@ -1,0 +1,1 @@
+    directive @isAdmin on FIELD_DEFINITION
