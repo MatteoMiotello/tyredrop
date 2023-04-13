@@ -1,10 +1,9 @@
 import React from "react";
 import Footer, {FooterColumn} from "./Footer";
 import {useTranslation} from "react-i18next";
-import footer from "./Footer";
 
 const CustomFooter: React.FC = () => {
-    const {t, i18n} = useTranslation()
+    const {t} = useTranslation()
 
     const footerData: FooterColumn[] = [
         {

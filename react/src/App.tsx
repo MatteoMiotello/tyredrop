@@ -1,6 +1,5 @@
 import {useState} from 'react'
 import './App.css'
-import {theme} from "../theme";
 import {Outlet} from "react-router-dom";
 
 function App() {

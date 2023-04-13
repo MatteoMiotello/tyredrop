@@ -1,18 +1,14 @@
-import React, {FormEvent, FormEventHandler} from "react";
+import React from "react";
 import Panel from "../../common/components/Panel";
 import Input from "../../common/components/Input";
 import {useTranslation} from "react-i18next";
 import Button from "../../common/components/Button";
 import logo from "../../assets/logo-transparent.png"
-import Footer from "../../common/components/Footer";
-import CustomFooter from "../../common/components/CustomFooter";
 import useLogin from "../../hooks/backend/useLogin";
-import {useNavigate} from "react-router-dom";
 
 export const LoginPage: React.FC = () => {
     const [ data, handleLogin ] = useLogin()
-    const {t, i18n} = useTranslation()
-    let navigate = useNavigate()
+    const {t} = useTranslation()
 
     function onSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()
