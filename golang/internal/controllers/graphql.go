@@ -20,7 +20,7 @@ import (
 
 type GraphqlController Controller
 
-func (g *GraphqlController) buildCoinfig() graph.Config {
+func (g *GraphqlController) buildConfig() graph.Config {
 	c := graph.Config{
 		Resolvers: resolvers.NewResolver(db.DB),
 	}
@@ -32,14 +32,14 @@ func (g *GraphqlController) buildCoinfig() graph.Config {
 			return nil, fmt.Errorf("Access denied")
 		}
 
-		return next(ctx), nil
+		return next(ctx)
 	}
 
 	return c
 }
 
 func (g *GraphqlController) Query(ctx *gin.Context) {
-	srv := handler.NewDefaultServer(graph.NewExecutableSchema(g.buildCoinfig()))
+	srv := handler.NewDefaultServer(graph.NewExecutableSchema(g.buildConfig()))
 	srv.SetRecoverFunc(func(ctx context.Context, err interface{}) (userMessage error) {
 		log.
 			WithField("path", graphql.GetPath(ctx)).

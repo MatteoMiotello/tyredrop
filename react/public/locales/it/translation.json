@@ -1,5 +1,15 @@
 {
   "login": {
-    "Submit": "Login"
+    "username_placeholder": "Username",
+    "password_placeholder": "Password",
+    "Submit": "Login",
+    "register_label": "Registrati",
+    "forgot_password": "Password dimenticata"
+  },
+  "footer": {
+    "who": "Chi siamo",
+    "newsletter": "Iscriviti alla newsletter",
+    "assistance": "Assistenza Clienti",
+    "faq": "Domande frequenti"
   }
 }
