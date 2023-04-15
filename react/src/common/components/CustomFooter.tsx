@@ -7,18 +7,23 @@ const CustomFooter: React.FC = () => {
 
     const footerData: FooterColumn[] = [
         {
+            key:1,
             links: [
                 {
                     title: t('footer.who'),
+                    key: 1,
                 },
                 {
                     title: t('footer.newsletter'),
+                    key: 2,
                 },
                 {
                     title: t('footer.assistance'),
+                    key: 3
                 },
                 {
                     title: t('footer.faq'),
+                    key: 4
                 }
             ]
         }

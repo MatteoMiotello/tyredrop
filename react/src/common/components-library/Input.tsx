@@ -1,6 +1,6 @@
 import React, {ChangeEventHandler, useState} from "react";
 
-export  type ValidateHandler = ( value: string | null ) => string | null
+export type ValidationHandler = (value: string | null ) => string | null
 
 interface InputProps {
     type: string
@@ -12,7 +12,7 @@ interface InputProps {
     bottomLeftLabelText?: string
     bottomRightLabelText?: string
     className?: string
-    validate?: ValidateHandler
+    validate?: ValidationHandler
 }
 
 

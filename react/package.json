@@ -38,6 +38,7 @@
     "eslint-plugin-import": "^2.25.2",
     "eslint-plugin-n": "^15.0.0",
     "eslint-plugin-promise": "^6.0.0",
+    "eslint-plugin-sort-exports": "^0.8.0",
     "postcss": "^8.4.21",
     "typescript": "*",
     "vite": "^4.2.0"
