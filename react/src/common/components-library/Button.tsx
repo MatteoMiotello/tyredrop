@@ -5,26 +5,31 @@ interface ButtonProps extends PropsWithChildren {
     size?: 'lg' | 'sm' | 'xs' | undefined
     htmlType?: 'submit' | 'reset' | 'button' | undefined;
     outline?: boolean
+    className?: string
 }
 
 const Button: React.FC<ButtonProps> = (props) => {
-    let classes = 'btn'
+    let classes = 'btn my-2';
 
-    if ( props.type ) {
-        classes += ' btn-' + props.type
+    if (props.className) {
+        classes += ' ' + props.className;
     }
 
-    if ( props.outline ) {
-        classes += ' btn-outline'
+    if (props.type) {
+        classes += ' btn-' + props.type;
     }
 
-    if ( props.size ) {
-        classes += ' btn-' + props.size
+    if (props.outline) {
+        classes += ' btn-outline';
+    }
+
+    if (props.size) {
+        classes += ' btn-' + props.size;
     }
 
     return <button className={classes} type={props.htmlType}>
         {props.children}
-    </button>
-}
+    </button>;
+};
 
-export default Button
+export default Button;

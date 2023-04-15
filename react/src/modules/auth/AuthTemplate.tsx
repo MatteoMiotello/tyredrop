@@ -6,7 +6,7 @@ const AuthTemplate: React.FC = ( ) => {
     return <>
         <Outlet/>
         <CustomFooter/>
-    </>
-}
+    </>;
+};
 
-export default AuthTemplate
+export default AuthTemplate;

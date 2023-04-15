@@ -1,9 +1,9 @@
 import React from "react";
-import Footer, {FooterColumn} from "./Footer";
+import Footer, {FooterColumn} from "../components-library/Footer";
 import {useTranslation} from "react-i18next";
 
 const CustomFooter: React.FC = () => {
-    const {t} = useTranslation()
+    const {t} = useTranslation();
 
     const footerData: FooterColumn[] = [
         {
@@ -22,8 +22,8 @@ const CustomFooter: React.FC = () => {
                 }
             ]
         }
-    ]
+    ];
 
-    return <Footer data={footerData}></Footer>
-}
-export default CustomFooter
+    return <Footer data={footerData}></Footer>;
+};
+export default CustomFooter;

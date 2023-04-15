@@ -10,19 +10,19 @@ interface LoginResponse {
 }
 
 const useLogin: HookHandler<any> = () => {
-    const [data, setData] = useState<LoginResponse|null>(null)
-    const path = '/auth'
+    const [data, setData] = useState<LoginResponse|null>(null);
+    const path = '/auth';
 
     const handleLogin = function ( username: string, password: string ) {
         axios.post(backend.endpoint + path, {
             username: username,
             password: password
         }).then( ( res: AxiosResponse<LoginResponse> ) => {
-            setData( res.data)
-        } )
-    }
+            setData( res.data);
+        } );
+    };
 
-    return [data, handleLogin]
-}
+    return [data, handleLogin];
+};
 
-export default useLogin
+export default useLogin;

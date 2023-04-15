@@ -7,7 +7,7 @@ interface PanelProps extends PropsWithChildren {
 const Panel : React.FC<PanelProps> = ( props: PanelProps ) => {
     return <div className={"rounded-sm bg-neutral-content p-4 " + props.className}>
         { props.children }
-    </div>
-}
+    </div>;
+};
 
-export default Panel
+export default Panel;

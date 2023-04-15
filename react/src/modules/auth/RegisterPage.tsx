@@ -1,7 +1,7 @@
 import React from "react";
 
 const RegisterPage: React.FC = () => {
-    return <></>
-}
+    return <></>;
+};
 
-export default RegisterPage
+export default RegisterPage;

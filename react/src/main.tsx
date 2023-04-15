@@ -1,14 +1,13 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App'
-import './index.css'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+import './index.css';
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import {LoginPage} from "./modules/auth/LoginPage";
 import {I18nextProvider} from "react-i18next";
 import i18n from "./common/i18n";
 import RegisterPage from "./modules/auth/RegisterPage";
 import AuthTemplate from "./modules/auth/AuthTemplate";
-
 const router = createBrowserRouter([
     {
         path: '/',
@@ -17,7 +16,7 @@ const router = createBrowserRouter([
     {
         path: '/auth',
         element: <AuthTemplate/>,
-        children:[
+        children: [
             {
                 path: 'login',
                 element: <LoginPage/>
@@ -28,7 +27,7 @@ const router = createBrowserRouter([
             }
         ]
     }
-])
+]);
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <React.StrictMode>
@@ -36,4 +35,4 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
             <RouterProvider router={router}/>
         </I18nextProvider>
     </React.StrictMode>
-)
+);

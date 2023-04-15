@@ -21,14 +21,14 @@ interface RegisterResponse {
 }
 
 const useRegister: HookHandler<any> = () => {
-    const [data, setData] = useState<RegisterResponse>()
+    const [data, setData] = useState<RegisterResponse>();
 
-    const path = '/register'
+    const path = '/register';
 
     const handleRegister = (payload: RegisterRequest) => {
         axios.post(backend.endpoint + path, payload)
-            .then((res: AxiosResponse<RegisterResponse>) => setData(res.data))
-    }
+            .then((res: AxiosResponse<RegisterResponse>) => setData(res.data));
+    };
 
-    return [data, handleRegister]
-}
+    return [data, handleRegister];
+};
