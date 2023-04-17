@@ -1,13 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
+import {Provider} from "react-redux";
 import './index.css';
-import {createBrowserRouter, RouterProvider} from "react-router-dom";
+import {RouterProvider, createBrowserRouter} from "react-router-dom";
 import {LoginPage} from "./modules/auth/LoginPage";
 import {I18nextProvider} from "react-i18next";
 import i18n from "./common/i18n";
 import RegisterPage from "./modules/auth/RegisterPage";
 import AuthTemplate from "./modules/auth/AuthTemplate";
+import {store} from "./store/store";
+
 const router = createBrowserRouter([
     {
         path: '/',
@@ -31,8 +33,10 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <React.StrictMode>
-        <I18nextProvider i18n={i18n}>
-            <RouterProvider router={router}/>
-        </I18nextProvider>
+        <Provider store={store}>
+            <I18nextProvider i18n={i18n}>
+                <RouterProvider router={router}/>
+            </I18nextProvider>
+        </Provider>
     </React.StrictMode>
 );

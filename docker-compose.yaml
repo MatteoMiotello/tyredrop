@@ -2,7 +2,9 @@ version: '3.9'
 services:
   app:
     container_name: titw_go_server
-    build: ./golang
+    build:
+      context: ./golang
+      dockerfile: Dockerfile
     environment:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}

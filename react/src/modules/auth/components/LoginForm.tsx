@@ -1,4 +1,5 @@
 import React from "react";
+import {LoginRequest} from "../../../common/backend/requests/LoginRequest";
 import Input, {ValidationHandler} from "../../../common/components-library/Input";
 import Button from "../../../common/components-library/Button";
 import Form, {FormErrors, FormSubmitHandler, useForm} from "../../../common/components-library/Form";
@@ -6,11 +7,7 @@ import {useTranslation} from "react-i18next";
 
 interface LoginFormProps {
     login: ( request: LoginRequest ) => void
-}
-
-export interface LoginRequest {
-    username: string
-    password: string
+    error?: string
 }
 
 const LoginForm: React.FC<LoginFormProps> = ( props: LoginFormProps ) => {
@@ -47,6 +44,10 @@ const LoginForm: React.FC<LoginFormProps> = ( props: LoginFormProps ) => {
 
         props.login( loginRequest );
     };
+
+    if ( props.error ) {
+        handleFormError( props.error );
+    }
 
     return <Form onSubmit={onSubmit} form={form}>
         <Input name="username"
