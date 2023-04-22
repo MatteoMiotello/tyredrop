@@ -10,4 +10,6 @@ export type UserState = {
     name?: string
     surname?: string
     role: string
+    iss: string,
+    exp: number
 }

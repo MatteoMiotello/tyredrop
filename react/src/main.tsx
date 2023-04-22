@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Suspense} from 'react';
 import ReactDOM from 'react-dom/client';
 import {Provider} from "react-redux";
 import './index.css';
@@ -10,36 +10,37 @@ import i18n from "./common/i18n";
 import RegisterPage from "./modules/auth/RegisterPage";
 import AuthTemplate from "./modules/auth/AuthTemplate";
 import {store} from "./store/store";
+import Spinner from "./common/components/Spinner";
 
 const router = createBrowserRouter([
     {
         path: '/',
         element: <App/>,
+    },
+    {
+        path: '/auth',
+        element: <AuthTemplate/>,
         children: [
             {
-                path: 'auth',
-                element: <AuthTemplate/>,
-                children: [
-                    {
-                        path: 'login',
-                        element: <LoginPage/>
-                    },
-                    {
-                        path: 'register',
-                        element: <RegisterPage/>
-                    }
-                ]
+                path: 'login',
+                element: <LoginPage/>
             },
+            {
+                path: 'register',
+                element: <RegisterPage/>
+            }
         ]
     },
-    ]);
+]);
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-    <React.StrictMode>
-        <Provider store={store}>
-            <I18nextProvider i18n={i18n}>
-                <RouterProvider router={router}/>
-            </I18nextProvider>
-        </Provider>
-    </React.StrictMode>
+    <Suspense fallback={<Spinner/>}>
+        <React.StrictMode>
+            <Provider store={store}>
+                <I18nextProvider i18n={i18n}>
+                    <RouterProvider router={router}/>
+                </I18nextProvider>
+            </Provider>
+        </React.StrictMode>
+    </Suspense>
 );

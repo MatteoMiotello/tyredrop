@@ -17,28 +17,30 @@ export class FormErrors {
     hasErrors(): boolean {
         return this.errors.length > 0;
     }
+
+    resetErrors(): void {
+        this.errors = [];
+    }
 }
 
+export type FormOnSuccessHandler = () => void
 export type FormSubmitHandler<T> = ( values: T ) => void
 
 type FormProps<T = any> = {
     className?: string
     onSubmit: FormSubmitHandler<T>
+    onSuccess?: FormOnSuccessHandler
     form: FormProperties
 } & PropsWithChildren
 
 type FormProperties = {
-    formError: FormErrors | string
+    formError: FormErrors
 }
 
 export const useForm: HookHandler<any> = () => {
     const [form, setForm] = useState<FormProperties>({formError: new FormErrors()});
 
     const handleFormError = (formError: FormErrors | string | null) => {
-        if ( !formError ) {
-            return;
-        }
-
         if ( !(formError instanceof FormErrors)) {
             const sFormError = formError as string;
 
@@ -54,7 +56,9 @@ export const useForm: HookHandler<any> = () => {
 
 const Form: React.FC<FormProps> = (props: FormProps) => {
     const onSubmit = ( e: React.FormEvent<HTMLFormElement> ) => {
+        props.form.formError.resetErrors();
         e.preventDefault();
+
         const formData = new FormData(e.currentTarget);
 
         const values = {};
@@ -65,11 +69,15 @@ const Form: React.FC<FormProps> = (props: FormProps) => {
             values[key] = value;
         } );
 
-        if ( props.form.formError.errors.length > 0 ) {
+        if ( props.form.formError.hasErrors() ) {
             return;
         }
 
         props.onSubmit( values );
+
+        if ( props.onSuccess ) {
+            props.onSuccess();
+        }
     };
 
     return <form

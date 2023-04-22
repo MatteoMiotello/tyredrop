@@ -9,6 +9,9 @@
     "password_required": "La password e` richiesta",
     "wrong_username_or_password": "Username o password errati"
   },
+  "register": {
+    "repeat_password_placeholder": "Ripeti password"
+  },
   "footer": {
     "who": "Chi siamo",
     "newsletter": "Iscriviti alla newsletter",
