@@ -1,13 +1,19 @@
 import axios, {AxiosInstance, AxiosResponse} from "axios";
 import backend from "../../config/backend";
-import {LoginRequest} from "./requests/LoginRequest";
-import {LoginResponse} from "./responses/LoginResponse";
+import {LoginRequest} from "./requests/login-request";
+import {LoginResponse} from "./responses/login-response";
+import {RefreshTokenResponse} from "./responses/refresh-token-response";
+
+export interface BackendClient {
+    login(request: LoginRequest): Promise<AxiosResponse<LoginResponse>>;
+    refreshToken(refreshToken: string): Promise<AxiosResponse<RefreshTokenResponse>>
+}
 
 export const createBackendClient = () => {
-    return new BackendClient();
+    return new Backend();
 };
 
-class BackendClient {
+class Backend implements BackendClient {
     private client: AxiosInstance;
 
     constructor() {
@@ -22,5 +28,9 @@ class BackendClient {
 
     login(request: LoginRequest): Promise<AxiosResponse<LoginResponse>> {
         return this.makePostRequest<LoginResponse>('/login', request);
+    }
+
+    refreshToken(refreshToken: string): Promise<AxiosResponse<RefreshTokenResponse>> {
+        return this.makePostRequest<RefreshTokenResponse>( '/refresh_token', {refresh_token: refreshToken} );
     }
 }

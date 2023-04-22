@@ -28,13 +28,24 @@ type FormProps<T = any> = {
 } & PropsWithChildren
 
 type FormProperties = {
-    formError: FormErrors
+    formError: FormErrors | string
 }
 
 export const useForm: HookHandler<any> = () => {
     const [form, setForm] = useState<FormProperties>({formError: new FormErrors()});
 
-    const handleFormError = (formError: FormErrors) => {
+    const handleFormError = (formError: FormErrors | string | null) => {
+        if ( !formError ) {
+            return;
+        }
+
+        if ( !(formError instanceof FormErrors)) {
+            const sFormError = formError as string;
+
+            formError = new FormErrors();
+            formError.appendError( sFormError );
+        }
+
         setForm({formError: formError});
     };
 
@@ -63,7 +74,7 @@ const Form: React.FC<FormProps> = (props: FormProps) => {
 
     return <form
             className={"w-full inline-grid grid-cols-12 " + (props.className ?? '')}
-            onSubmit={onSubmit}
+            onSubmit={ (e) => onSubmit(e)}
         >
             {props.form.formError.errors.length > 0 ?
                 <Alert

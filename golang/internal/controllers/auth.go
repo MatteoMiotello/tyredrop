@@ -60,7 +60,7 @@ func (a AuthController) Login(ctx *gin.Context) {
 
 	err := ctx.BindJSON(loginPayload)
 	if err != nil {
-		ctx.AbortWithError(http.StatusBadRequest, err)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, responses.ErrorResponse{Error: "Invalid username or password", StatusCode: 4000})
 		return
 	}
 
@@ -75,7 +75,7 @@ func (a AuthController) Login(ctx *gin.Context) {
 	}
 
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusUnauthorized, responses.ErrorResponse{Error: "incorrect username or password"})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, responses.ErrorResponse{Error: "incorrect username or password", StatusCode: 4001})
 		return
 	}
 

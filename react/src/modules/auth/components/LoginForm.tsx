@@ -1,5 +1,5 @@
-import React from "react";
-import {LoginRequest} from "../../../common/backend/requests/LoginRequest";
+import React, {useEffect} from "react";
+import {LoginRequest} from "../../../common/backend/requests/login-request";
 import Input, {ValidationHandler} from "../../../common/components-library/Input";
 import Button from "../../../common/components-library/Button";
 import Form, {FormErrors, FormSubmitHandler, useForm} from "../../../common/components-library/Form";
@@ -13,6 +13,17 @@ interface LoginFormProps {
 const LoginForm: React.FC<LoginFormProps> = ( props: LoginFormProps ) => {
     const [form, handleFormError] = useForm();
     const {t} = useTranslation();
+
+    useEffect( () => {
+        if ( props.error ) {
+            let error = props.error;
+            if ( props.error >= 4000 ) {
+                error = t( 'login.wrong_username_or_password' );
+            }
+
+            handleFormError( error );
+        }
+    }, [props.error] );
 
     const validateUsername: ValidationHandler = ( value ) => {
         if ( !value ) {
@@ -44,10 +55,6 @@ const LoginForm: React.FC<LoginFormProps> = ( props: LoginFormProps ) => {
 
         props.login( loginRequest );
     };
-
-    if ( props.error ) {
-        handleFormError( props.error );
-    }
 
     return <Form onSubmit={onSubmit} form={form}>
         <Input name="username"
