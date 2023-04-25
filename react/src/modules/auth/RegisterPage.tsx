@@ -4,10 +4,8 @@ import Panel from "../../common/components-library/Panel";
 
 const RegisterPage: React.FC = () => {
     return <>
-        <Panel>
-            <RegisterForm>
-
-            </RegisterForm>
+        <Panel className="flex flex-col justify-center items-center my-auto">
+            <RegisterForm/>
         </Panel>
     </>;
 };

@@ -4,7 +4,9 @@ import CustomFooter from "../../common/components/CustomFooter";
 
 const AuthTemplate: React.FC = ( ) => {
     return <>
-        <Outlet/>
+        <main className="bg-base lg:p-24 p-4">
+            <Outlet/>
+        </main>
         <CustomFooter/>
     </>;
 };

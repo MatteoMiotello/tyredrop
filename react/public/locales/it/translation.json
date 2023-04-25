@@ -5,12 +5,14 @@
     "Submit": "Login",
     "register_label": "Registrati",
     "forgot_password": "Password dimenticata",
-    "username_required": "L'username e` richiesto",
-    "password_required": "La password e` richiesta",
-    "wrong_username_or_password": "Username o password errati"
+    "username_required": "L'username è richiesto",
+    "password_required": "La password è richiesta",
+    "wrong_username_or_password": "Username o password errati",
   },
   "register": {
-    "repeat_password_placeholder": "Ripeti password"
+    "repeat_password_placeholder": "Ripeti password",
+    "repeat_password_required": "La password è richiesta",
+    "login_label": "Già registrato? Accedi"
   },
   "footer": {
     "who": "Chi siamo",

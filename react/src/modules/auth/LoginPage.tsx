@@ -1,6 +1,6 @@
 import {AnyAction} from "@reduxjs/toolkit";
-import React, { useState} from "react";
-import {useDispatch} from "react-redux";
+import React from "react";
+import {useDispatch, useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
 import {ThunkDispatch} from "redux-thunk";
 import {LoginRequest} from "../../common/backend/requests/login-request";
@@ -10,10 +10,12 @@ import {Store} from "../../store/store";
 import LoginForm from "./components/LoginForm";
 import {authLogin} from "./store/auth-slice";
 import {useAuthenticated} from "./hooks/useAuthenticated";
+import Spinner from "../../common/components/Spinner";
+import {selectUserStatus} from "./store/auth-selector";
 
 export const LoginPage: React.FC = () => {
     const dispatch: ThunkDispatch<Store, any, AnyAction> = useDispatch();
-    const [ error, setError ] = useState(null);
+    const userStatus = useSelector( selectUserStatus );
     const navigate = useNavigate();
     const isAuthenticated = useAuthenticated();
 
@@ -29,12 +31,11 @@ export const LoginPage: React.FC = () => {
         navigate( '/' );
     }
 
-    return <div>
-        <main className="bg-base lg:p-24 p-4">
+    return <>
             <Panel className="flex flex-col justify-center items-center my-auto">
+                { (userStatus.status == 'pending') && <Spinner></Spinner> }
                 <img src={logo} width={100} alt={"Logo"}/>
                 <LoginForm login={login} onSuccess={onSuccess}/>
             </Panel>
-        </main>
-    </div>;
+    </>;
 };

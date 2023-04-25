@@ -37,7 +37,7 @@ const Input: React.FC<InputProps> = (props) => {
     }
 
     return <div
-        className={"my-2 form-control " + (props.className ?? '')}>
+        className={"my-2 form-control mx-2 " + (props.className ?? '')}>
         {
             props.labelText || props.topRightLabelText ?
                 <label className="label">

@@ -82,21 +82,21 @@ func (a AuthController) Login(ctx *gin.Context) {
 	samePass := security.CheckPassword(uModel.Password, loginPayload.Password)
 
 	if !samePass {
-		ctx.AbortWithStatusJSON(http.StatusUnauthorized, responses.ErrorResponse{Error: "incorrect username or password"})
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, responses.ErrorResponse{Error: "incorrect username or password", StatusCode: 4002})
 		return
 	}
 
 	accessToken, err := jwt.CreateAccessTokenFromUser(ctx, *uModel)
 
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: "error creating access token"})
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: "error creating access token", StatusCode: 4003})
 		return
 	}
 
 	refreshToken, err := jwt.CreateUniqueRefreshToken()
 
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: "error creating refresh token"})
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: "error creating refresh token", StatusCode: 4004})
 		return
 	}
 
@@ -104,7 +104,7 @@ func (a AuthController) Login(ctx *gin.Context) {
 	err = rtService.StoreNew(ctx, *uModel, refreshToken)
 
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: "error storing refresh token"})
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: "error storing refresh token", StatusCode: 4005})
 		return
 	}
 

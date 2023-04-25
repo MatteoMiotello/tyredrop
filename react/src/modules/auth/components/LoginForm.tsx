@@ -6,8 +6,7 @@ import Form, {FormErrors, FormSubmitHandler, useForm} from "../../../common/comp
 import {useTranslation} from "react-i18next";
 import {useSelector} from "react-redux";
 import {Store} from "../../../store/store";
-import {selectUserStatus} from "../store/auth-selector";
-import Spinner from "../../../common/components/Spinner";
+import {UserStatus, selectUserStatus} from "../store/auth-selector";
 
 interface LoginFormProps {
     login: ( request: LoginRequest ) => void
@@ -18,12 +17,12 @@ interface LoginFormProps {
 const LoginForm: React.FC<LoginFormProps> = ( props: LoginFormProps ) => {
     const [form, handleFormError] = useForm();
     const {t} = useTranslation();
-    const userStatus = useSelector<Store>( selectUserStatus );
+    const userStatus = useSelector<Store, UserStatus>( selectUserStatus );
 
     useEffect( () => {
         if ( userStatus.status == 'error' ) {
             let error = userStatus.error;
-            if ( userStatus.error >= 4000 ) {
+            if ( userStatus.error && userStatus.error >= 4000 ) {
                 error = t( 'login.wrong_username_or_password' );
             }
 
@@ -67,7 +66,6 @@ const LoginForm: React.FC<LoginFormProps> = ( props: LoginFormProps ) => {
     };
 
     return <Form onSubmit={(r) => onSubmit(r)} form={form} className={"relative"}>
-        { (userStatus.status == 'pending') && <Spinner></Spinner> }
         <Input name="username"
                type="text"
                placeholder={t('login.username_placeholder')}
@@ -82,7 +80,7 @@ const LoginForm: React.FC<LoginFormProps> = ( props: LoginFormProps ) => {
         />
         <div className="flex justify-between w-full text-sm col-span-12 lg:col-start-4 lg:col-span-6">
             <a className="link link-neutral link-hover"
-               href={"/auth/register"}> {t('login.register_label')} </a>
+               href={"/auth/login"}> {t('login.register_label')} </a>
             <a className="link link-neutral link-hover"> {t('login.forgot_password')} </a>
         </div>
         <Button
