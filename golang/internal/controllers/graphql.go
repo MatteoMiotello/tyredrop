@@ -28,7 +28,7 @@ func (g *GraphqlController) buildConfig() graph.Config {
 	c.Directives.IsAdmin = func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error) {
 		auth := auth2.FromCtx(ctx)
 
-		if auth.Role != string(user.ADMIN_ROLE) {
+		if auth.Role.Code != string(user.ADMIN_ROLE) {
 			return nil, fmt.Errorf("Access denied")
 		}
 

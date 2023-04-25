@@ -31,9 +31,7 @@ const Input: React.FC<InputProps> = (props) => {
         props.validators?.forEach( ( validator: ValidationHandler ) => {
             const error = validator( value );
 
-            if ( error ) {
-                setError( validator( value ) );
-            }
+            setError( error );
         } );
     };
 

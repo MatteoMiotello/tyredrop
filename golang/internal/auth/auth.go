@@ -14,13 +14,16 @@ import (
 const ctxKey string = "auth"
 
 type Auth struct {
-	user         *models.User
-	language     *language.Language
-	Expiration   time.Time
-	UserID       int64
-	Username     null.String
-	Email        string
-	Role         string
+	user       *models.User
+	language   *language.Language
+	Expiration time.Time
+	UserID     int64
+	Username   null.String
+	Email      string
+	Role       struct {
+		Name string `json:"name"`
+		Code string `json:"code"`
+	}
 	LanguageCode string
 }
 

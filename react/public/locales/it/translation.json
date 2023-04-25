@@ -19,7 +19,22 @@
     "surname_placeholder": "Cognome",
     "page_title": "Registrati",
     "submit_button": "Registrati",
-    "invalid_email": "Immettere una email valida"
+    "invalid_email": "Immettere una email valida",
+    "email_already_used": "Questa email e` gia` associata ad un altro account.",
+    "password_requirement": "La password deve avere almento 8 caratteri"
+  },
+  "billing": {
+    "name_placeholder": "Nome",
+    "surname_placeholder":"Cognome",
+    "fiscal_code_placeholder": "Codice Fiscale",
+    "vat_number_placeholder":"P. IVA",
+    "address_line_1_placeholder": "Indirizzo: linea 1",
+    "address_line_2_placeholder":"Indirizzo: linea 2",
+    "country_placeholder": "Paese",
+    "city_placeholder":"Citta`",
+    "province_placeholder": "Provincia",
+    "submit_button": "Salva",
+    "page_title": "Inserisci i dati personali"
   },
   "footer": {
     "who": "Chi siamo",

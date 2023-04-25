@@ -2,10 +2,11 @@ import {AsyncThunk, PayloadAction, Slice, SliceCaseReducers, createAsyncThunk, c
 import {AxiosError, AxiosResponse} from "axios";
 import {createBackendClient} from "../../../common/backend/backendClient";
 import {LoginRequest} from "../../../common/backend/requests/login-request";
+import {RegisterRequest} from "../../../common/backend/requests/register-request";
 import {LoginResponse} from "../../../common/backend/responses/login-response";
 import {RefreshTokenResponse} from "../../../common/backend/responses/refresh-token-response";
-import {jwt} from "../../../common/jwt/jwt";
-import {AuthState, UserState} from "./state";
+import {extractFromJwt} from "../service/user";
+import {AuthState} from "./state";
 
 
 export const authLogin: AsyncThunk<LoginResponse, any, any> = createAsyncThunk('AUTH/LOGIN', async (loginRequest: LoginRequest, thunkAPI) => {
@@ -38,6 +39,21 @@ export const authRefreshToken: AsyncThunk<RefreshTokenResponse, any, any> = crea
         });
 });
 
+export const authRegister: AsyncThunk<LoginResponse, any, any> = createAsyncThunk( 'AUTH/REGISTER', async ( request: RegisterRequest, thunkAPI ) => {
+    return createBackendClient()
+        .signup( request )
+        .then( ( res: AxiosResponse<LoginResponse> ) => {
+            return thunkAPI.fulfillWithValue( res.data );
+        } )
+        .catch( ( err: AxiosError ) => {
+            if ( !err.response ) {
+                return thunkAPI.rejectWithValue( err.message );
+            }
+
+            return thunkAPI.rejectWithValue(err.response.data);
+        } );
+});
+
 const authSlice: Slice<AuthState> = createSlice<AuthState, SliceCaseReducers<AuthState>, string>({
     name: 'auth',
     initialState: {
@@ -66,17 +82,15 @@ const authSlice: Slice<AuthState> = createSlice<AuthState, SliceCaseReducers<Aut
             .addCase(authLogin.fulfilled, (state, action: PayloadAction<LoginResponse>) => {
                 const accessToken = action.payload.access_token;
                 const refreshToken = action.payload.refresh_token;
-                if (jwt.isExpired(accessToken)) {
-                    state.status = 'error';
-                    state.error = 'Token is expired';
-                    state.user = null;
-                    return;
-                }
-                let decoded = null;
+
+                const user = null;
+
                 try {
-                    decoded = jwt.decodeJwt<UserState>(accessToken);
+                    extractFromJwt( accessToken );
                 } catch (error: any) {
-                    state.status = error.message;
+                    state.status = 'error';
+                    state.error = error.message;
+                    state.user = null;
                     return;
                 }
 
@@ -85,8 +99,9 @@ const authSlice: Slice<AuthState> = createSlice<AuthState, SliceCaseReducers<Aut
 
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
-                state.user = decoded;
+                state.user = user;
                 state.status = 'fullfilled';
+                state.error = null;
             })
             .addCase(authRefreshToken.pending, (state, action) => {
                 state.status = 'pending';
@@ -98,24 +113,54 @@ const authSlice: Slice<AuthState> = createSlice<AuthState, SliceCaseReducers<Aut
             })
             .addCase(authRefreshToken.fulfilled, (state, action) => {
                 const accessToken = action.payload.access_token;
-                if (jwt.isExpired(accessToken)) {
-                    state.status = 'error';
-                    state.error = 'Token expired';
-                    state.user = null;
-                    return;
-                }
-                let decoded = null;
+                let user = null;
+
                 try {
-                    decoded = jwt.decodeJwt<UserState>(accessToken);
+                    user = extractFromJwt( accessToken );
                 } catch (error: any) {
-                    state.status = error.message;
+                    state.status = 'error';
+                    state.error = error.message;
+                    state.user = null;
                     return;
                 }
 
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
-                state.user = decoded;
+                state.user = user;
                 state.status = 'fullfilled';
+                state.error = null;
+            })
+            .addCase(authRegister.pending, (state, action) => {
+                state.status = 'pending';
+                state.user = null;
+            })
+            .addCase(authRegister.rejected, (state, action: PayloadAction<any>) => {
+                state.status = 'error';
+                state.error = action.payload.status_code as string;
+            })
+            .addCase(authRegister.fulfilled, (state, action: PayloadAction<LoginResponse>) => {
+                const accessToken = action.payload.access_token;
+                const refreshToken = action.payload.refresh_token;
+
+                let user = null;
+
+                try {
+                    user = extractFromJwt( accessToken );
+                } catch (error: any) {
+                    state.status = 'error';
+                    state.error = error.message;
+                    state.user = null;
+                    return;
+                }
+
+                state.refreshToken = refreshToken;
+                window.localStorage.setItem('refresh_token', refreshToken);
+
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                state.user = user;
+                state.status = 'fullfilled';
+                state.error = null;
             });
     }
 });

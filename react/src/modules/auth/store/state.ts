@@ -1,15 +1,20 @@
 export type AuthState = {
     user: UserState | null
     refreshToken: string | null
-    status: 'pending' | 'fullfilled' | 'error'| null
+    status: 'pending' | 'fullfilled' | 'error' | 'registering' | null
     error: string | null
 }
+
 export type UserState = {
     username: string
     email: string
     name?: string
     surname?: string
-    role: string
-    iss: string,
+    role: {
+        name: string
+        code: string
+    }
+    status: number
+    iss: string
     exp: number
 }

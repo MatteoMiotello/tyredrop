@@ -6,7 +6,6 @@ import (
 	"github.com/volatiletech/null/v8"
 	"google.golang.org/appengine/log"
 	"net/http"
-	"pillowww/titw/internal/auth"
 	"pillowww/titw/internal/cookie"
 	"pillowww/titw/internal/db"
 	"pillowww/titw/internal/domain/rt"
@@ -22,7 +21,7 @@ import (
 type AuthController Controller
 
 type LoginPayload struct {
-	Username string `json:"username" binding:"required"`
+	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
 
@@ -55,37 +54,7 @@ type RefreshTokenResponse struct {
 	RefreshToken string `json:"refresh_token,omitempty"`
 }
 
-func (a AuthController) Login(ctx *gin.Context) {
-	loginPayload := new(LoginPayload)
-
-	err := ctx.BindJSON(loginPayload)
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, responses.ErrorResponse{Error: "Invalid username or password", StatusCode: 4000})
-		return
-	}
-
-	userRepo := user.NewDao(db.DB)
-
-	var uModel *models.User
-
-	if utils.IsEmail(loginPayload.Username) {
-		uModel, err = userRepo.FindOneByEmail(ctx, loginPayload.Username)
-	} else {
-		uModel, err = userRepo.FindOneByUsername(ctx, loginPayload.Username)
-	}
-
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusUnauthorized, responses.ErrorResponse{Error: "incorrect username or password", StatusCode: 4001})
-		return
-	}
-
-	samePass := security.CheckPassword(uModel.Password, loginPayload.Password)
-
-	if !samePass {
-		ctx.AbortWithStatusJSON(http.StatusUnauthorized, responses.ErrorResponse{Error: "incorrect username or password", StatusCode: 4002})
-		return
-	}
-
+func (a AuthController) createTokens(ctx *gin.Context, uModel *models.User) {
 	accessToken, err := jwt.CreateAccessTokenFromUser(ctx, *uModel)
 
 	if err != nil {
@@ -109,11 +78,44 @@ func (a AuthController) Login(ctx *gin.Context) {
 	}
 
 	cookie.StoreAccessToken(ctx, accessToken)
-
 	ctx.JSON(http.StatusOK, LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	})
+}
+
+func (a AuthController) Login(ctx *gin.Context) {
+	loginPayload := new(LoginPayload)
+
+	err := ctx.BindJSON(loginPayload)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, responses.ErrorResponse{Error: "Invalid username or password", StatusCode: 4000})
+		return
+	}
+
+	userRepo := user.NewDao(db.DB)
+
+	var uModel *models.User
+
+	if utils.IsEmail(loginPayload.Email) {
+		uModel, err = userRepo.FindOneByEmail(ctx, loginPayload.Email)
+	} else {
+		uModel, err = userRepo.FindOneByUsername(ctx, loginPayload.Email)
+	}
+
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, responses.ErrorResponse{Error: "incorrect username or password", StatusCode: 4001})
+		return
+	}
+
+	samePass := security.CheckPassword(uModel.Password, loginPayload.Password)
+
+	if !samePass {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, responses.ErrorResponse{Error: "incorrect username or password", StatusCode: 4002})
+		return
+	}
+
+	a.createTokens(ctx, uModel)
 }
 
 func (a AuthController) SignUp(ctx *gin.Context) {
@@ -129,9 +131,10 @@ func (a AuthController) SignUp(ctx *gin.Context) {
 
 	uModel, _ := userDao.FindOneByEmail(ctx, signupPayload.Email)
 
-	if uModel != nil && uModel.DeletedAt.IsZero() {
+	if uModel != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, responses.ErrorResponse{
-			Error: "user with the same email already exists",
+			Error:      "user with the same email already exists",
+			StatusCode: 5000,
 		})
 		return
 	}
@@ -141,7 +144,8 @@ func (a AuthController) SignUp(ctx *gin.Context) {
 
 		if uModel != nil {
 			ctx.AbortWithStatusJSON(http.StatusBadRequest, responses.ErrorResponse{
-				Error: "user with the same username already exists",
+				Error:      "user with the same username already exists",
+				StatusCode: 5001,
 			})
 			return
 		}
@@ -151,39 +155,13 @@ func (a AuthController) SignUp(ctx *gin.Context) {
 	uModel, err = uService.CreateUserFromPayload(ctx, user.CreateUserPayload(*signupPayload))
 
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: "error creating uModel: " + err.Error()})
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{
+			Error: "error creating uModel: " + err.Error(),
+		})
 		return
 	}
 
-	r, err := userDao.GetUserRole(ctx, uModel)
-
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: "uModel role not found for uModel"})
-		return
-	}
-
-	access := auth.FromCtx(ctx)
-	language := access.GetLanguage(ctx)
-
-	rLang, err := user.NewDao(db.DB).GetUserRoleLanguage(ctx, r, *language.L)
-
-	if err != nil {
-		ctx.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
-
-	response := SignUpResponse{
-		Email:    uModel.Email,
-		Username: uModel.Username.String,
-		Name:     uModel.Name,
-		Surname:  uModel.Surname,
-		Role: role{
-			Name: rLang.Name,
-			Code: r.RoleCode,
-		},
-	}
-
-	ctx.JSON(http.StatusOK, response)
+	a.createTokens(ctx, uModel)
 }
 
 func (a AuthController) RefreshToken(ctx *gin.Context) {

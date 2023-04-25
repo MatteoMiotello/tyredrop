@@ -64,3 +64,11 @@ func (u Dao) GetUserRoleLanguage(ctx context.Context, role *models.UserRole, lan
 
 	return l, nil
 }
+
+func (u Dao) GetUserBilling(ctx context.Context, user *models.User) (*models.UserBilling, error) {
+	return models.UserBillings(
+		u.GetMods(
+			models.UserBillingWhere.UserID.EQ(user.ID),
+		)...,
+	).One(ctx, u.Db)
+}

@@ -1,70 +1,100 @@
-import React, {useState} from "react";
-import { z} from "zod";
+import React, {useEffect, useState} from "react";
+import {useSelector} from "react-redux";
+import {z} from "zod";
+import {RegisterRequest} from "../../../common/backend/requests/register-request";
 import Form, {FormErrors, FormSubmitHandler, useForm} from "../../../common/components-library/Form";
 import Input, {ValidationHandler} from "../../../common/components-library/Input";
 import Button from "../../../common/components-library/Button";
 import {useTranslation} from "react-i18next";
+import {zodParser} from "../../../common/validation/zod-parser";
+import {selectAuthStatus} from "../store/auth-selector";
 
-interface RegisterRequest {
-    username: string
-    password: string
-    repeatPassword: string
-    name: string | null
-    surname: string | null
+interface RegisterInput {
+    email: string;
+    password: string;
+    repeat_password: string;
+    name: string | null;
+    surname: string | null;
 }
-const RegisterForm: React.FC = () => {
-    const [ form, handleError ] = useForm();
+
+type RegisterFormProps = {
+    onSuccess?: () => void
+    register: (request: RegisterRequest) => void
+}
+
+const RegisterForm: React.FC<RegisterFormProps> = (props: RegisterFormProps) => {
+    const [form, handleError] = useForm();
     const {t} = useTranslation();
-    const [ currentPassword, setCurrentPassword ] = useState<string|null>( null );
-    const validateEmail: ValidationHandler = ( value: string | null ): string | null => {
-        try {
-            const email = z.string()
-                .nonempty( {message:t( 'login.email_required' ) as string } )
-                .email( {message: t( 'register.invalid_email' ) as string} );
+    const [currentPassword, setCurrentPassword] = useState<string | null>(null);
+    const authStatus = useSelector(selectAuthStatus);
 
-            email.parse( value );
-        } catch (e: ZodError) {
-            if ( !e.isEmpty ) {
-                return e.errors[0].message;
+    useEffect(() => {
+        if (authStatus.status == 'error') {
+            let error = authStatus.error;
+            if (authStatus.error && (typeof authStatus.error == 'number' && authStatus.error >= 5000)) {
+                error = t('register.email_already_used');
             }
+
+            handleError(error);
         }
+
+        if (authStatus.status == 'fullfilled' && props.onSuccess) {
+            props.onSuccess();
+        }
+    }, [authStatus]);
+
+    const validateEmail: ValidationHandler = (value: string | null): string | null => {
+        const email = z.string()
+            .nonempty({message: t('login.email_required') as string})
+            .email({message: t('register.invalid_email') as string});
+
+        return zodParser(email, value);
+    };
+
+    const validatePassword: ValidationHandler = (value: string | null): string | null => {
+        setCurrentPassword(value);
+
+        const passwordSchema = z.string()
+                .nonempty({message: t('login.password_required') as string})
+                .min(8, {message: t('register.password_requirement') as string});
+
+
+        return zodParser(passwordSchema, value);
+
+    };
+
+    const validateRepeatPassword: ValidationHandler = (value: string | null): string | null => {
+        if (!value) {
+            return t('register.repeat_password_required');
+        }
+
+        if (value != currentPassword) {
+            return t('register.password_are_not_equal');
+        }
+
 
         return null;
     };
 
-    const validatePassword: ValidationHandler = ( value: string | null ): string | null => {
-        setCurrentPassword( value );
-        if ( !value ) {
-            return t( 'login.password_required' );
-        }
 
-        return null;
-    };
-
-    const validateRepeatPassword: ValidationHandler = ( value: string | null ): string | null => {
-        if ( !value ) {
-            return  t( 'register.repeat_password_required' );
-        }
-
-        if ( value != currentPassword ) {
-            return t( 'register.password_are_not_equal' );
-        }
-
-
-        return null;
-    };
-
-
-    const onSubmit: FormSubmitHandler<RegisterRequest> = ( registerRequest: RegisterRequest ) => {
+    const onSubmit: FormSubmitHandler<RegisterInput> = (registerRequest: RegisterInput) => {
         const formErrors = new FormErrors();
 
-        formErrors.appendError( validateEmail( registerRequest.username ) );
-        formErrors.appendError( validatePassword( registerRequest.password ) );
-        formErrors.appendError( validateRepeatPassword( registerRequest.repeatPassword ) );
+        formErrors.appendError(validateEmail(registerRequest.email));
+        formErrors.appendError(validatePassword(registerRequest.password));
+        formErrors.appendError(validateRepeatPassword(registerRequest.repeat_password));
 
-        if ( formErrors.hasErrors() ) {
-            handleError( formErrors );
+        if (formErrors.hasErrors()) {
+            handleError(formErrors);
+            return;
         }
+
+        props.register({
+            email: registerRequest.email,
+            password: registerRequest.password,
+            name: registerRequest.name,
+            surname: registerRequest.surname,
+        });
     };
 
     return <Form form={form} onSubmit={onSubmit} className="lg:w-1/2">
@@ -72,28 +102,28 @@ const RegisterForm: React.FC = () => {
                type="text"
                placeholder={t('login.email_placeholder')}
                className="col-span-12"
-               validators={ [validateEmail] }
+               validators={[validateEmail]}
         />
         <Input name="password"
                type="password"
-               placeholder={t( 'login.password_placeholder' )}
+               placeholder={t('login.password_placeholder')}
                className="col-span-6"
-               validators={ [validatePassword] }
+               validators={[validatePassword]}
         />
         <Input name="repeat_password"
                type="password"
-               placeholder={ t( 'register.repeat_password_placeholder' ) }
+               placeholder={t('register.repeat_password_placeholder')}
                className="col-span-6"
-               validators={ [validateRepeatPassword] }
+               validators={[validateRepeatPassword]}
         />
         <Input name="name"
                type="text"
-               placeholder={ t( 'register.name_placeholder' ) }
+               placeholder={t('register.name_placeholder')}
                className="col-span-6"
         />
         <Input name="surname"
                type="text"
-               placeholder={ t( 'register.surname_placeholder' ) }
+               placeholder={t('register.surname_placeholder')}
                className="col-span-6"
         />
         <div className="flex justify-end w-full text-sm col-span-12">

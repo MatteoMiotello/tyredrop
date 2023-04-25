@@ -1,5 +1,5 @@
 import {AnyAction} from "@reduxjs/toolkit";
-import React from "react";
+import React, {useEffect} from "react";
 import {useTranslation} from "react-i18next";
 import {useDispatch, useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
@@ -10,11 +10,11 @@ import LoginForm from "./components/LoginForm";
 import {authLogin} from "./store/auth-slice";
 import {useAuthenticated} from "./hooks/useAuthenticated";
 import Spinner from "../../common/components/Spinner";
-import {selectUserStatus} from "./store/auth-selector";
+import {selectAuthStatus} from "./store/auth-selector";
 
 export const LoginPage: React.FC = () => {
     const dispatch: ThunkDispatch<Store, any, AnyAction> = useDispatch();
-    const userStatus = useSelector( selectUserStatus );
+    const userStatus = useSelector( selectAuthStatus );
     const navigate = useNavigate();
     const isAuthenticated = useAuthenticated();
     const {t} = useTranslation();
@@ -27,9 +27,12 @@ export const LoginPage: React.FC = () => {
         navigate( '/' );
     };
 
-    if ( isAuthenticated ) {
-        navigate( '/' );
-    }
+    useEffect( () => {
+        if ( isAuthenticated ) {
+            navigate( '/' );
+        }
+    }, [isAuthenticated] );
+
 
     return <>
             <div className="flex flex-col justify-center items-center my-auto">

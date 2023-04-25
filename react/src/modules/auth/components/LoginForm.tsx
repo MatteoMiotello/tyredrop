@@ -6,7 +6,7 @@ import Form, {FormErrors, FormSubmitHandler, useForm} from "../../../common/comp
 import {useTranslation} from "react-i18next";
 import {useSelector} from "react-redux";
 import {Store} from "../../../store/store";
-import {UserStatus, selectUserStatus} from "../store/auth-selector";
+import {AuthStatus, selectAuthStatus} from "../store/auth-selector";
 
 interface LoginFormProps {
     login: ( request: LoginRequest ) => void
@@ -17,7 +17,7 @@ interface LoginFormProps {
 const LoginForm: React.FC<LoginFormProps> = ( props: LoginFormProps ) => {
     const [form, handleFormError] = useForm();
     const {t} = useTranslation();
-    const userStatus = useSelector<Store, UserStatus>( selectUserStatus );
+    const userStatus = useSelector<Store, AuthStatus>( selectAuthStatus );
 
     useEffect( () => {
         if ( userStatus.status == 'error' ) {
