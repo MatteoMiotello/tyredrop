@@ -1,5 +1,6 @@
 import {AnyAction} from "@reduxjs/toolkit";
 import React from "react";
+import {useTranslation} from "react-i18next";
 import {useDispatch, useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
 import {ThunkDispatch} from "redux-thunk";
@@ -16,6 +17,7 @@ export const LoginPage: React.FC = () => {
     const userStatus = useSelector( selectUserStatus );
     const navigate = useNavigate();
     const isAuthenticated = useAuthenticated();
+    const {t} = useTranslation();
 
     const login = ( loginRequest: LoginRequest ) => {
         dispatch(authLogin( loginRequest ));
@@ -31,8 +33,10 @@ export const LoginPage: React.FC = () => {
 
     return <>
             <div className="flex flex-col justify-center items-center my-auto">
+                <h1 className="my-10">{t('login.page_title')}</h1>
                 { (userStatus.status == 'pending') && <Spinner></Spinner> }
                 <LoginForm login={login} onSuccess={onSuccess}/>
+                <a className="link link-neutral link-hover text-secondary font-bold mt-5" href={"/auth/register"}> {t('login.register_label')} </a>
             </div>
     </>;
 };

@@ -65,28 +65,26 @@ const LoginForm: React.FC<LoginFormProps> = ( props: LoginFormProps ) => {
         props.login( loginRequest );
     };
 
-    return <Form onSubmit={(r) => onSubmit(r)} form={form} className={"relative"}>
+    return <Form onSubmit={(r) => onSubmit(r)} form={form} className={"relative lg:w-1/2"}>
         <Input name="email"
                type="text"
                placeholder={t('login.email_placeholder')}
-               className="col-span-12 lg:col-start-4 lg:col-span-6"
+               className="col-span-12"
                validators={ [validateEmail] }
         />
         <Input name="password"
                type="password"
                placeholder="Password"
-               className="col-span-12 lg:col-start-4 lg:col-span-6"
+               className="col-span-12"
                validators={ [validatePassword] }
         />
-        <div className="flex justify-between w-full text-sm col-span-12 lg:col-start-4 lg:col-span-6">
-            <a className="link link-neutral link-hover"
-               href={"/auth/register"}> {t('login.register_label')} </a>
+        <div className="flex justify-end w-full text-sm col-span-12">
             <a className="link link-neutral link-hover"> {t('login.forgot_password')} </a>
         </div>
         <Button
             type={"primary"}
             htmlType={"submit"}
-            className="col-span-12 lg:col-start-4 lg:col-span-6"
+            className="col-span-12"
         >
             {t('login.Submit')}
         </Button>

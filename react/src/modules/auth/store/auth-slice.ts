@@ -61,7 +61,7 @@ const authSlice: Slice<AuthState> = createSlice<AuthState, SliceCaseReducers<Aut
                     return;
                 }
 
-                state.error = action.payload.error;
+                state.error = action.payload;
             })
             .addCase(authLogin.fulfilled, (state, action: PayloadAction<LoginResponse>) => {
                 const accessToken = action.payload.access_token;

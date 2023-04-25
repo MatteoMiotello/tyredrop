@@ -7,7 +7,8 @@
     "forgot_password": "Password dimenticata",
     "email_required": "L'email è richiesta",
     "password_required": "La password è richiesta",
-    "wrong_username_or_password": "Username o password errati"
+    "wrong_username_or_password": "Username o password errati",
+    "page_title": "Login"
   },
   "register": {
     "repeat_password_placeholder": "Ripeti password",
@@ -15,7 +16,10 @@
     "login_label": "Già registrato? Accedi",
     "password_are_not_equal": "Le password non coincidono",
     "name_placeholder": "Nome",
-    "surname_placeholder": "Cognome"
+    "surname_placeholder": "Cognome",
+    "page_title": "Registrati",
+    "submit_button": "Registrati",
+    "invalid_email": "Immettere una email valida"
   },
   "footer": {
     "who": "Chi siamo",

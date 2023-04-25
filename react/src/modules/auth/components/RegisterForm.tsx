@@ -1,9 +1,9 @@
 import React, {useState} from "react";
+import { z} from "zod";
 import Form, {FormErrors, FormSubmitHandler, useForm} from "../../../common/components-library/Form";
 import Input, {ValidationHandler} from "../../../common/components-library/Input";
 import Button from "../../../common/components-library/Button";
 import {useTranslation} from "react-i18next";
-
 
 interface RegisterRequest {
     username: string
@@ -17,8 +17,16 @@ const RegisterForm: React.FC = () => {
     const {t} = useTranslation();
     const [ currentPassword, setCurrentPassword ] = useState<string|null>( null );
     const validateEmail: ValidationHandler = ( value: string | null ): string | null => {
-        if ( !value ) {
-            return t( 'login.email_required' );
+        try {
+            const email = z.string()
+                .nonempty( {message:t( 'login.email_required' ) as string } )
+                .email( {message: t( 'register.invalid_email' ) as string} );
+
+            email.parse( value );
+        } catch (e: ZodError) {
+            if ( !e.isEmpty ) {
+                return e.errors[0].message;
+            }
         }
 
         return null;
@@ -68,7 +76,7 @@ const RegisterForm: React.FC = () => {
         />
         <Input name="password"
                type="password"
-               placeholder="Password"
+               placeholder={t( 'login.password_placeholder' )}
                className="col-span-6"
                validators={ [validatePassword] }
         />
@@ -88,9 +96,7 @@ const RegisterForm: React.FC = () => {
                placeholder={ t( 'register.surname_placeholder' ) }
                className="col-span-6"
         />
-        <div className="flex justify-between w-full text-sm col-span-12">
-            <a className="link link-neutral link-hover"
-               href={"/auth/login"}> {t('register.login_label')} </a>
+        <div className="flex justify-end w-full text-sm col-span-12">
             <a className="link link-neutral link-hover"> {t('login.forgot_password')} </a>
         </div>
         <Button
@@ -98,7 +104,7 @@ const RegisterForm: React.FC = () => {
             htmlType={"submit"}
             className="col-span-12"
         >
-            {t('login.Submit')}
+            {t('register.submit_button')}
         </Button>
     </Form>;
 };

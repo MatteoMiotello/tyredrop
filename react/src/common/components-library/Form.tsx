@@ -86,7 +86,7 @@ const Form: React.FC<FormProps> = (props: FormProps) => {
     };
 
     return <form
-            className={"w-full inline-grid grid-cols-12 gap-2 " + (props.className ?? '')}
+            className={"w-full inline-grid grid-cols-12 gap-4 " + (props.className ?? '')}
             onSubmit={ (e) => onSubmit(e)}
         >
             {props.form.formError.errors.length > 0 ?
