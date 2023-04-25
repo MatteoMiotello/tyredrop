@@ -22,7 +22,7 @@ const LoginForm: React.FC<LoginFormProps> = ( props: LoginFormProps ) => {
     useEffect( () => {
         if ( userStatus.status == 'error' ) {
             let error = userStatus.error;
-            if ( userStatus.error && userStatus.error >= 4000 ) {
+            if ( userStatus.error && ( typeof userStatus.error == 'number' && userStatus.error >= 4000 ) ) {
                 error = t( 'login.wrong_username_or_password' );
             }
 
@@ -34,9 +34,9 @@ const LoginForm: React.FC<LoginFormProps> = ( props: LoginFormProps ) => {
         }
     }, [ userStatus ] );
 
-    const validateUsername: ValidationHandler = ( value ) => {
+    const validateEmail: ValidationHandler = ( value ) => {
         if ( !value ) {
-            return t( 'login.username_required' );
+            return t( 'login.email_required' );
         }
 
         return null;
@@ -53,7 +53,7 @@ const LoginForm: React.FC<LoginFormProps> = ( props: LoginFormProps ) => {
     const onSubmit: FormSubmitHandler<LoginRequest> = ( loginRequest: LoginRequest ) => {
         const formErrors = new FormErrors();
 
-        formErrors.appendError( validateUsername( loginRequest.username as string ) );
+        formErrors.appendError( validateEmail( loginRequest.email as string ) );
         formErrors.appendError( validatePassword( loginRequest.password as string ) );
 
         handleFormError( formErrors );
@@ -66,21 +66,21 @@ const LoginForm: React.FC<LoginFormProps> = ( props: LoginFormProps ) => {
     };
 
     return <Form onSubmit={(r) => onSubmit(r)} form={form} className={"relative"}>
-        <Input name="username"
+        <Input name="email"
                type="text"
-               placeholder={t('login.username_placeholder')}
+               placeholder={t('login.email_placeholder')}
                className="col-span-12 lg:col-start-4 lg:col-span-6"
-               validate={ validateUsername }
+               validators={ [validateEmail] }
         />
         <Input name="password"
                type="password"
                placeholder="Password"
                className="col-span-12 lg:col-start-4 lg:col-span-6"
-               validate={ validatePassword }
+               validators={ [validatePassword] }
         />
         <div className="flex justify-between w-full text-sm col-span-12 lg:col-start-4 lg:col-span-6">
             <a className="link link-neutral link-hover"
-               href={"/auth/login"}> {t('login.register_label')} </a>
+               href={"/auth/register"}> {t('login.register_label')} </a>
             <a className="link link-neutral link-hover"> {t('login.forgot_password')} </a>
         </div>
         <Button

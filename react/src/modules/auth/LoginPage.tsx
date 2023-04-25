@@ -4,8 +4,6 @@ import {useDispatch, useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
 import {ThunkDispatch} from "redux-thunk";
 import {LoginRequest} from "../../common/backend/requests/login-request";
-import Panel from "../../common/components-library/Panel";
-import logo from "../../assets/logo-transparent.png";
 import {Store} from "../../store/store";
 import LoginForm from "./components/LoginForm";
 import {authLogin} from "./store/auth-slice";
@@ -32,10 +30,9 @@ export const LoginPage: React.FC = () => {
     }
 
     return <>
-            <Panel className="flex flex-col justify-center items-center my-auto">
+            <div className="flex flex-col justify-center items-center my-auto">
                 { (userStatus.status == 'pending') && <Spinner></Spinner> }
-                <img src={logo} width={100} alt={"Logo"}/>
                 <LoginForm login={login} onSuccess={onSuccess}/>
-            </Panel>
+            </div>
     </>;
 };

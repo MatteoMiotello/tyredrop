@@ -25,7 +25,7 @@ export default {
   daisyui: {
     themes: [
       {
-        corporate: {
+        theme: {
           ...require("daisyui/src/colors/themes")["[data-theme=corporate]"],
           primary: "#F38944",
           "--rounded-box": "0.3rem", // border radius rounded-box utility class, used in card and other large boxes

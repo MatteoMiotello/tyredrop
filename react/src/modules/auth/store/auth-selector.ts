@@ -3,7 +3,7 @@ import {Store} from "../../../store/store";
 import {AuthState} from "./state";
 
 export interface UserStatus {
-    error: string | null,
+    error: string | null | number,
     status: string | null | undefined
 }
 

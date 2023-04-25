@@ -12,7 +12,7 @@ interface InputProps {
     bottomLeftLabelText?: string
     bottomRightLabelText?: string
     className?: string
-    validate?: ValidationHandler
+    validators?: ValidationHandler[] | []
 }
 
 
@@ -24,11 +24,17 @@ const Input: React.FC<InputProps> = (props) => {
     const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
         const value = event.target.value;
 
-        if ( !props.validate) {
+        if ( !props.validators) {
             return;
         }
 
-        setError( props.validate( value ) );
+        props.validators?.forEach( ( validator: ValidationHandler ) => {
+            const error = validator( value );
+
+            if ( error ) {
+                setError( validator( value ) );
+            }
+        } );
     };
 
     if ( error ) {
@@ -37,7 +43,7 @@ const Input: React.FC<InputProps> = (props) => {
     }
 
     return <div
-        className={"my-2 form-control mx-2 " + (props.className ?? '')}>
+        className={"form-control " + (props.className ?? '')}>
         {
             props.labelText || props.topRightLabelText ?
                 <label className="label">

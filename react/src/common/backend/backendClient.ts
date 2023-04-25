@@ -27,7 +27,10 @@ class Backend implements BackendClient {
     }
 
     login(request: LoginRequest): Promise<AxiosResponse<LoginResponse>> {
-        return this.makePostRequest<LoginResponse>('/login', request);
+        return this.makePostRequest<LoginResponse>('/login', {
+            username: request.email,
+            password: request.password,
+        });
     }
 
     refreshToken(refreshToken: string): Promise<AxiosResponse<RefreshTokenResponse>> {

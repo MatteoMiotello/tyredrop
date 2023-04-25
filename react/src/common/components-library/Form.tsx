@@ -41,12 +41,17 @@ export const useForm: HookHandler<any> = () => {
     const [form, setForm] = useState<FormProperties>({formError: new FormErrors()});
 
     const handleFormError = (formError: FormErrors | string | null) => {
+        if ( !formError ) {
+            return;
+        }
+
         if ( !(formError instanceof FormErrors)) {
             const sFormError = formError as string;
 
             formError = new FormErrors();
             formError.appendError( sFormError );
         }
+
 
         setForm({formError: formError});
     };
@@ -81,13 +86,13 @@ const Form: React.FC<FormProps> = (props: FormProps) => {
     };
 
     return <form
-            className={"w-full inline-grid grid-cols-12 " + (props.className ?? '')}
+            className={"w-full inline-grid grid-cols-12 gap-2 " + (props.className ?? '')}
             onSubmit={ (e) => onSubmit(e)}
         >
             {props.form.formError.errors.length > 0 ?
                 <Alert
                     type="error"
-                    className="col-span-12 lg:col-start-4 lg:col-span-6 w-auto text-sm"
+                    className="col-span-12 w-auto text-sm"
                     icon={faTriangleExclamation}
                 >
                     <h3 className="m-1"> Errore nel salvataggio </h3>

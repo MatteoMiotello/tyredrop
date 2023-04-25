@@ -1,12 +1,11 @@
 import React from "react";
 import RegisterForm from "./components/RegisterForm";
-import Panel from "../../common/components-library/Panel";
 
 const RegisterPage: React.FC = () => {
     return <>
-        <Panel className="flex flex-col justify-center items-center my-auto">
+        <div className="flex flex-col justify-center items-center my-auto">
             <RegisterForm/>
-        </Panel>
+        </div>
     </>;
 };
 

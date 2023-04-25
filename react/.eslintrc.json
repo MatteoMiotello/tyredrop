@@ -16,8 +16,7 @@
   },
   "plugins": [
     "react",
-    "unused-imports",
-    "sort-exports"
+    "unused-imports"
   ],
   "rules": {
     "react/jsx-uses-react": "off",
@@ -41,12 +40,6 @@
       "error",
       {
         "ignoreDeclarationSort": true
-      }
-    ],
-    "sort-exports/sort-exports": [
-      "error",
-      {
-        "sortDir": "asc"
       }
     ]
   },
