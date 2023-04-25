@@ -3,9 +3,10 @@ import {useSelector} from "react-redux";
 import {z} from "zod";
 import {RegisterRequest} from "../../../common/backend/requests/register-request";
 import Form, {FormErrors, FormSubmitHandler, useForm} from "../../../common/components-library/Form";
-import Input, {ValidationHandler} from "../../../common/components-library/Input";
+import Input from "../../../common/components-library/Input";
 import Button from "../../../common/components-library/Button";
 import {useTranslation} from "react-i18next";
+import {ValidationHandler} from "../../../common/validation/validators";
 import {zodParser} from "../../../common/validation/zod-parser";
 import {selectAuthStatus} from "../store/auth-selector";
 

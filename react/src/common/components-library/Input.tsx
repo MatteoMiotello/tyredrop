@@ -1,6 +1,5 @@
 import React, {ChangeEventHandler, useState} from "react";
-
-export type ValidationHandler = (value: string | null ) => string | null
+import {ValidationHandler} from "../validation/validators";
 
 interface InputProps {
     type: string
