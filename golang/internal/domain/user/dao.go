@@ -72,3 +72,11 @@ func (u Dao) GetUserBilling(ctx context.Context, user *models.User) (*models.Use
 		)...,
 	).One(ctx, u.Db)
 }
+
+func (d Dao) FindUserBillingById(ctx context.Context, id int64) (*models.UserBilling, error) {
+	return models.UserBillings(
+		d.GetMods(
+			models.UserBillingWhere.ID.EQ(id),
+		)...,
+	).One(ctx, d.Db)
+}

@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	"pillowww/titw/graph"
+	"pillowww/titw/graph/converters"
 	"pillowww/titw/graph/model"
 )
 
@@ -18,12 +19,28 @@ func (r *userResolver) UserRole(ctx context.Context, obj *model.User) (*model.Us
 
 // UserBilling is the resolver for the userBilling field.
 func (r *userResolver) UserBilling(ctx context.Context, obj *model.User) (*model.UserBilling, error) {
-	panic(fmt.Errorf("not implemented: UserBilling - userBilling"))
+	uModel, err := r.UserDao.FindOneById(ctx, obj.ID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	billing, err := r.UserDao.GetUserBilling(ctx, uModel)
+	if err != nil {
+		return nil, err
+	}
+
+	return converters.UserBillingToGraphQL(billing), nil
 }
 
 // LegalEntityType is the resolver for the legalEntityType field.
 func (r *userBillingResolver) LegalEntityType(ctx context.Context, obj *model.UserBilling) (*model.LegalEntityType, error) {
-	panic(fmt.Errorf("not implemented: LegalEntityType - legalEntityType"))
+	entityType, err := r.LegalEntityDao.FindOneById(ctx, obj.LegalEntityTypeID)
+	if err != nil {
+		return nil, err
+	}
+
+	return converters.LegalEntityTypeToGraphQL(*entityType), nil
 }
 
 // TaxRate is the resolver for the taxRate field.

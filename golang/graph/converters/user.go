@@ -12,3 +12,20 @@ func UserToGraphQL(user *models.User) *model.User {
 		Username: &user.Username.String,
 	}
 }
+
+func UserBillingToGraphQL(billing *models.UserBilling) *model.UserBilling {
+	return &model.UserBilling{
+		ID:                billing.ID,
+		LegalEntityTypeID: billing.LegalEntityTypeID,
+		Name:              billing.Name,
+		Surname:           billing.Surname,
+		FiscalCode:        billing.FiscalCode,
+		VatNumber:         billing.VatNumber,
+		AddressLine1:      billing.AddressLine1,
+		AddressLine2:      &billing.AddressLine2.String,
+		City:              billing.City,
+		Province:          billing.Province,
+		Cap:               billing.Cap,
+		Country:           billing.Country,
+	}
+}

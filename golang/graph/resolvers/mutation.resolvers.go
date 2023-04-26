@@ -6,14 +6,69 @@ package resolvers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"pillowww/titw/graph"
+	"pillowww/titw/graph/converters"
 	"pillowww/titw/graph/model"
+	auth2 "pillowww/titw/internal/auth"
+	"pillowww/titw/models"
+
+	null "github.com/volatiletech/null/v8"
 )
 
 // CreateAdminUser is the resolver for the createAdminUser field.
 func (r *mutationResolver) CreateAdminUser(ctx context.Context, userInput model.CreateAdminUserInput) (*model.User, error) {
 	panic(fmt.Errorf("not implemented: CreateAdminUser - createAdminUser"))
+}
+
+// CreateUserBilling is the resolver for the createUserBilling field.
+func (r *mutationResolver) CreateUserBilling(ctx context.Context, billingInput model.CreateUserBilling) (*model.UserBilling, error) {
+	auth := auth2.FromCtx(ctx)
+	currentUser, err := auth.GetUser(ctx)
+
+	if err != nil {
+		return nil, errors.New("User not foud: " + err.Error())
+	}
+
+	var model *models.UserBilling
+
+	model.UserID = currentUser.ID
+	model.DefaultTaxRateID = 1 //todo
+	model.LegalEntityTypeID = billingInput.LegalEntityTypeID
+	model.Name = billingInput.Name
+	model.Surname = billingInput.Surname
+	model.VatNumber = billingInput.VatNumber
+	model.AddressLine1 = billingInput.AddressLine1
+	model.AddressLine2 = null.StringFrom(*billingInput.AddressLine2)
+	model.City = billingInput.City
+	model.Province = billingInput.Province
+	model.Cap = billingInput.Cap
+	model.Country = billingInput.Country
+
+	if billingInput.FiscalCode == nil {
+		model.FiscalCode = billingInput.VatNumber
+	} else {
+		model.FiscalCode = *billingInput.FiscalCode
+	}
+
+	err = r.UserDao.Insert(ctx, model)
+	if err != nil {
+		return nil, err
+	}
+
+	var paymentMethod *models.UserPaymentMethod
+
+	paymentMethod.UserID = currentUser.ID
+	paymentMethod.Name = billingInput.Name + " " + billingInput.Surname
+	paymentMethod.Value = billingInput.Iban
+
+	err = r.UserDao.Insert(ctx, paymentMethod)
+	if err != nil {
+		return nil, err
+	}
+
+	return converters.UserBillingToGraphQL(model), nil
 }
 
 // Mutation returns graph.MutationResolver implementation.

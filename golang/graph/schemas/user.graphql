@@ -31,6 +31,8 @@ type UserBilling {
     cap: String!
     country: String!
     user: User!
+    userID: ID
+    legalEntityTypeID: ID
 }
 
 type User {
@@ -42,16 +44,16 @@ type User {
 }
 
 input CreateUserBilling {
-    userId: ID
     legalEntityTypeId: ID!
     name: String!
     surname: String!
-    fiscalCode: String!
+    fiscalCode: String
     vatNumber: String!
     addressLine1: String!
     addressLine2: String
     city: String!
-    province: String
+    province: String!
     cap: String!
     country: String!
+    iban: String!
 }

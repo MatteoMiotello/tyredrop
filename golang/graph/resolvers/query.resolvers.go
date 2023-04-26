@@ -36,7 +36,19 @@ func (r *queryResolver) TaxRates(ctx context.Context) ([]*model.TaxRate, error) 
 
 // LegalEntityTypes is the resolver for the legalEntityTypes field.
 func (r *queryResolver) LegalEntityTypes(ctx context.Context) ([]*model.LegalEntityType, error) {
-	panic(fmt.Errorf("not implemented: LegalEntityTypes - legalEntityTypes"))
+	types, err := r.LegalEntityDao.GetAllTypes(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var graphModels []*model.LegalEntityType
+
+	for _, t := range types {
+		graphModels = append(graphModels, converters.LegalEntityTypeToGraphQL(*t))
+	}
+
+	return graphModels, nil
 }
 
 // ProductsItemsByCode is the resolver for the productsItemsByCode field.

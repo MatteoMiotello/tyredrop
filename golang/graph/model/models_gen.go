@@ -16,18 +16,18 @@ type CreateAdminUserInput struct {
 }
 
 type CreateUserBilling struct {
-	UserID            *int64  `json:"userId,omitempty"`
 	LegalEntityTypeID int64   `json:"legalEntityTypeId"`
 	Name              string  `json:"name"`
 	Surname           string  `json:"surname"`
-	FiscalCode        string  `json:"fiscalCode"`
+	FiscalCode        *string `json:"fiscalCode,omitempty"`
 	VatNumber         string  `json:"vatNumber"`
 	AddressLine1      string  `json:"addressLine1"`
 	AddressLine2      *string `json:"addressLine2,omitempty"`
 	City              string  `json:"city"`
-	Province          *string `json:"province,omitempty"`
+	Province          string  `json:"province"`
 	Cap               string  `json:"cap"`
 	Country           string  `json:"country"`
+	Iban              string  `json:"iban"`
 }
 
 type Currency struct {

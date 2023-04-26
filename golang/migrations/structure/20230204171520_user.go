@@ -64,7 +64,7 @@ func upUser(tx *sql.Tx) error {
 		Column("fiscal_code", types.Varchar.Options("16"), false).
 		Column("vat_number", types.Varchar.Options("11"), false).
 		Column("address_line_1", types.Varchar.Options("255"), false).
-		Column("address_line_2", types.Varchar.Options("255"), false).
+		Column("address_line_2", types.Varchar.Options("255"), true).
 		Column("city", types.Varchar.Options("45"), false).
 		Column("province", types.Varchar.Options("45"), false).
 		Column("cap", types.Varchar.Options("5"), false).

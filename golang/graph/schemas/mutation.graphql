@@ -7,4 +7,5 @@ input CreateAdminUserInput {
 
 type Mutation {
     createAdminUser( userInput: CreateAdminUserInput!): User! @isAdmin
+    createUserBilling( billingInput: CreateUserBilling! ): UserBilling!
 }

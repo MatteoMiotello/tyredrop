@@ -73,7 +73,8 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateAdminUser func(childComplexity int, userInput model.CreateAdminUserInput) int
+		CreateAdminUser   func(childComplexity int, userInput model.CreateAdminUserInput) int
+		CreateUserBilling func(childComplexity int, billingInput model.CreateUserBilling) int
 	}
 
 	Pagination struct {
@@ -172,20 +173,22 @@ type ComplexityRoot struct {
 	}
 
 	UserBilling struct {
-		AddressLine1    func(childComplexity int) int
-		AddressLine2    func(childComplexity int) int
-		Cap             func(childComplexity int) int
-		City            func(childComplexity int) int
-		Country         func(childComplexity int) int
-		FiscalCode      func(childComplexity int) int
-		ID              func(childComplexity int) int
-		LegalEntityType func(childComplexity int) int
-		Name            func(childComplexity int) int
-		Province        func(childComplexity int) int
-		Surname         func(childComplexity int) int
-		TaxRate         func(childComplexity int) int
-		User            func(childComplexity int) int
-		VatNumber       func(childComplexity int) int
+		AddressLine1      func(childComplexity int) int
+		AddressLine2      func(childComplexity int) int
+		Cap               func(childComplexity int) int
+		City              func(childComplexity int) int
+		Country           func(childComplexity int) int
+		FiscalCode        func(childComplexity int) int
+		ID                func(childComplexity int) int
+		LegalEntityType   func(childComplexity int) int
+		LegalEntityTypeID func(childComplexity int) int
+		Name              func(childComplexity int) int
+		Province          func(childComplexity int) int
+		Surname           func(childComplexity int) int
+		TaxRate           func(childComplexity int) int
+		User              func(childComplexity int) int
+		UserID            func(childComplexity int) int
+		VatNumber         func(childComplexity int) int
 	}
 
 	UserRole struct {
@@ -204,6 +207,7 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	CreateAdminUser(ctx context.Context, userInput model.CreateAdminUserInput) (*model.User, error)
+	CreateUserBilling(ctx context.Context, billingInput model.CreateUserBilling) (*model.UserBilling, error)
 }
 type ProductResolver interface {
 	Brand(ctx context.Context, obj *model.Product) (*model.Brand, error)
@@ -346,6 +350,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateAdminUser(childComplexity, args["userInput"].(model.CreateAdminUserInput)), true
+
+	case "Mutation.createUserBilling":
+		if e.complexity.Mutation.CreateUserBilling == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createUserBilling_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateUserBilling(childComplexity, args["billingInput"].(model.CreateUserBilling)), true
 
 	case "Pagination.limit":
 		if e.complexity.Pagination.Limit == nil {
@@ -841,6 +857,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UserBilling.LegalEntityType(childComplexity), true
 
+	case "UserBilling.legalEntityTypeID":
+		if e.complexity.UserBilling.LegalEntityTypeID == nil {
+			break
+		}
+
+		return e.complexity.UserBilling.LegalEntityTypeID(childComplexity), true
+
 	case "UserBilling.name":
 		if e.complexity.UserBilling.Name == nil {
 			break
@@ -875,6 +898,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.UserBilling.User(childComplexity), true
+
+	case "UserBilling.userID":
+		if e.complexity.UserBilling.UserID == nil {
+			break
+		}
+
+		return e.complexity.UserBilling.UserID(childComplexity), true
 
 	case "UserBilling.vatNumber":
 		if e.complexity.UserBilling.VatNumber == nil {
@@ -1042,6 +1072,21 @@ func (ec *executionContext) field_Mutation_createAdminUser_args(ctx context.Cont
 		}
 	}
 	args["userInput"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createUserBilling_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.CreateUserBilling
+	if tmp, ok := rawArgs["billingInput"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("billingInput"))
+		arg0, err = ec.unmarshalNCreateUserBilling2pillowwwᚋtitwᚋgraphᚋmodelᚐCreateUserBilling(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["billingInput"] = arg0
 	return args, nil
 }
 
@@ -1694,6 +1739,95 @@ func (ec *executionContext) fieldContext_Mutation_createAdminUser(ctx context.Co
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createAdminUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createUserBilling(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createUserBilling(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateUserBilling(rctx, fc.Args["billingInput"].(model.CreateUserBilling))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.UserBilling)
+	fc.Result = res
+	return ec.marshalNUserBilling2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐUserBilling(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createUserBilling(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_UserBilling_id(ctx, field)
+			case "legalEntityType":
+				return ec.fieldContext_UserBilling_legalEntityType(ctx, field)
+			case "taxRate":
+				return ec.fieldContext_UserBilling_taxRate(ctx, field)
+			case "name":
+				return ec.fieldContext_UserBilling_name(ctx, field)
+			case "surname":
+				return ec.fieldContext_UserBilling_surname(ctx, field)
+			case "fiscalCode":
+				return ec.fieldContext_UserBilling_fiscalCode(ctx, field)
+			case "vatNumber":
+				return ec.fieldContext_UserBilling_vatNumber(ctx, field)
+			case "addressLine1":
+				return ec.fieldContext_UserBilling_addressLine1(ctx, field)
+			case "addressLine2":
+				return ec.fieldContext_UserBilling_addressLine2(ctx, field)
+			case "city":
+				return ec.fieldContext_UserBilling_city(ctx, field)
+			case "province":
+				return ec.fieldContext_UserBilling_province(ctx, field)
+			case "cap":
+				return ec.fieldContext_UserBilling_cap(ctx, field)
+			case "country":
+				return ec.fieldContext_UserBilling_country(ctx, field)
+			case "user":
+				return ec.fieldContext_UserBilling_user(ctx, field)
+			case "userID":
+				return ec.fieldContext_UserBilling_userID(ctx, field)
+			case "legalEntityTypeID":
+				return ec.fieldContext_UserBilling_legalEntityTypeID(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UserBilling", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createUserBilling_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -4719,6 +4853,10 @@ func (ec *executionContext) fieldContext_User_userBilling(ctx context.Context, f
 				return ec.fieldContext_UserBilling_country(ctx, field)
 			case "user":
 				return ec.fieldContext_UserBilling_user(ctx, field)
+			case "userID":
+				return ec.fieldContext_UserBilling_userID(ctx, field)
+			case "legalEntityTypeID":
+				return ec.fieldContext_UserBilling_legalEntityTypeID(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UserBilling", field.Name)
 		},
@@ -5200,9 +5338,9 @@ func (ec *executionContext) _UserBilling_province(ctx context.Context, field gra
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_UserBilling_province(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5357,6 +5495,88 @@ func (ec *executionContext) fieldContext_UserBilling_user(ctx context.Context, f
 				return ec.fieldContext_User_userBilling(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserBilling_userID(ctx context.Context, field graphql.CollectedField, obj *model.UserBilling) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserBilling_userID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalOID2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserBilling_userID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserBilling",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserBilling_legalEntityTypeID(ctx context.Context, field graphql.CollectedField, obj *model.UserBilling) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserBilling_legalEntityTypeID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LegalEntityTypeID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalOID2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserBilling_legalEntityTypeID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserBilling",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -7499,21 +7719,13 @@ func (ec *executionContext) unmarshalInputCreateUserBilling(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"userId", "legalEntityTypeId", "name", "surname", "fiscalCode", "vatNumber", "addressLine1", "addressLine2", "city", "province", "cap", "country"}
+	fieldsInOrder := [...]string{"legalEntityTypeId", "name", "surname", "fiscalCode", "vatNumber", "addressLine1", "addressLine2", "city", "province", "cap", "country", "iban"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "userId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			it.UserID, err = ec.unmarshalOID2ᚖint64(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "legalEntityTypeId":
 			var err error
 
@@ -7542,7 +7754,7 @@ func (ec *executionContext) unmarshalInputCreateUserBilling(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fiscalCode"))
-			it.FiscalCode, err = ec.unmarshalNString2string(ctx, v)
+			it.FiscalCode, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7582,7 +7794,7 @@ func (ec *executionContext) unmarshalInputCreateUserBilling(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("province"))
-			it.Province, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			it.Province, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7599,6 +7811,14 @@ func (ec *executionContext) unmarshalInputCreateUserBilling(ctx context.Context,
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("country"))
 			it.Country, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "iban":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("iban"))
+			it.Iban, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7844,6 +8064,15 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createAdminUser(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "createUserBilling":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createUserBilling(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
@@ -8939,6 +9168,14 @@ func (ec *executionContext) _UserBilling(ctx context.Context, sel ast.SelectionS
 				return innerFunc(ctx)
 
 			})
+		case "userID":
+
+			out.Values[i] = ec._UserBilling_userID(ctx, field, obj)
+
+		case "legalEntityTypeID":
+
+			out.Values[i] = ec._UserBilling_legalEntityTypeID(ctx, field, obj)
+
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -9387,6 +9624,11 @@ func (ec *executionContext) marshalNBrand2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐB
 
 func (ec *executionContext) unmarshalNCreateAdminUserInput2pillowwwᚋtitwᚋgraphᚋmodelᚐCreateAdminUserInput(ctx context.Context, v interface{}) (model.CreateAdminUserInput, error) {
 	res, err := ec.unmarshalInputCreateAdminUserInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNCreateUserBilling2pillowwwᚋtitwᚋgraphᚋmodelᚐCreateUserBilling(ctx context.Context, v interface{}) (model.CreateUserBilling, error) {
+	res, err := ec.unmarshalInputCreateUserBilling(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -10058,19 +10300,13 @@ func (ec *executionContext) marshalOCurrency2ᚖpillowwwᚋtitwᚋgraphᚋmodel�
 	return ec._Currency(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOID2ᚖint64(ctx context.Context, v interface{}) (*int64, error) {
-	if v == nil {
-		return nil, nil
-	}
+func (ec *executionContext) unmarshalOID2int64(ctx context.Context, v interface{}) (int64, error) {
 	res, err := graphql.UnmarshalInt64(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOID2ᚖint64(ctx context.Context, sel ast.SelectionSet, v *int64) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	res := graphql.MarshalInt64(*v)
+func (ec *executionContext) marshalOID2int64(ctx context.Context, sel ast.SelectionSet, v int64) graphql.Marshaler {
+	res := graphql.MarshalInt64(v)
 	return res
 }
 
@@ -10290,6 +10526,16 @@ func (ec *executionContext) marshalOProductSpecificationValue2ᚖpillowwwᚋtitw
 		return graphql.Null
 	}
 	return ec._ProductSpecificationValue(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {
+	res, err := graphql.UnmarshalString(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+	res := graphql.MarshalString(v)
+	return res
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
