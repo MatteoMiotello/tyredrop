@@ -16,6 +16,16 @@ function App() {
     const isAuthenticated = useAuthenticated();
 
     useEffect(() => {
+        if ( authStatus.status == 'error' ) {
+            navigate( '/auth/login' );
+            return;
+        }
+
+        if ( user?.status && user.status == UserStatus.REGISTERING ) {
+            navigate( '/auth/billing' );
+            return;
+        }
+
         if (!isAuthenticated) {
             const refreshToken = window.localStorage.getItem('refresh_token');
 
@@ -27,16 +37,7 @@ function App() {
             dispatch(authRefreshToken(refreshToken));
         }
 
-        if ( authStatus.status == 'error' ) {
-            navigate( '/auth/login' );
-            return;
-        }
-
-        if ( user?.status && user.status == UserStatus.REGISTERING ) {
-            navigate( '/auth/billing' );
-            return;
-        }
-    }, []);
+    }, [authStatus]);
 
     return (
         <>

@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, { useEffect} from "react";
 import {LoginRequest} from "../../../common/backend/requests/login-request";
 import Input from "../../../common/components-library/Input";
 import Button from "../../../common/components-library/Button";
@@ -8,6 +8,7 @@ import {useSelector} from "react-redux";
 import {ValidationHandler} from "../../../common/validation/validators";
 import {Store} from "../../../store/store";
 import {AuthStatus, selectAuthStatus} from "../store/auth-selector";
+import {useToast} from "../../../hooks/useToast";
 
 interface LoginFormProps {
     login: ( request: LoginRequest ) => void
@@ -19,6 +20,7 @@ const LoginForm: React.FC<LoginFormProps> = ( props: LoginFormProps ) => {
     const [form, handleFormError] = useForm();
     const {t} = useTranslation();
     const userStatus = useSelector<Store, AuthStatus>( selectAuthStatus );
+    const { addSuccess, addError } = useToast();
 
     useEffect( () => {
         if ( userStatus.status == 'error' ) {
@@ -52,6 +54,7 @@ const LoginForm: React.FC<LoginFormProps> = ( props: LoginFormProps ) => {
     };
 
     const onSubmit: FormSubmitHandler<LoginRequest> = ( loginRequest: LoginRequest ) => {
+        addError( 'ciao' );
         const formErrors = new FormErrors();
 
         formErrors.appendError( validateEmail( loginRequest.email as string ) );

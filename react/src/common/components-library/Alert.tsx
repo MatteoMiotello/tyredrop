@@ -2,7 +2,7 @@ import React, {PropsWithChildren} from "react";
 import {IconDefinition} from "@fortawesome/fontawesome-svg-core";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
-type AlertType = 'info' | 'success' | 'warning' | 'error' | undefined
+export type AlertType = 'info' | 'success' | 'warning' | 'error' | undefined
 
 interface AlertProps extends PropsWithChildren {
     icon?: IconDefinition
