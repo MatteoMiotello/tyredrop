@@ -1,5 +1,5 @@
 import {AnyAction} from "@reduxjs/toolkit";
-import React, {useEffect} from "react";
+import React from "react";
 import {useTranslation} from "react-i18next";
 import {useDispatch, useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
@@ -26,13 +26,10 @@ export const LoginPage: React.FC = () => {
     const onSuccess = () => {
         navigate( '/' );
     };
-
-    useEffect( () => {
-        if ( isAuthenticated ) {
-            navigate( '/' );
-        }
-    }, [isAuthenticated] );
-
+    
+    if ( isAuthenticated ) {
+        navigate( '/' );
+    }
 
     return <>
             <div className="flex flex-col justify-center items-center my-auto">

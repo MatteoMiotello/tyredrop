@@ -8,12 +8,12 @@ export const useAuthenticated = ( ) => {
     const [ isAuthenticated, setIsAuthenticated ] = useState( false );
 
     useEffect( () => {
-        if ( authStatus.error ) {
+        if ( authStatus.isError() ) {
             setIsAuthenticated(false);
             return;
         }
 
-        if ( user === null ) {
+        if ( authStatus.isFullfilled() && user === null ) {
             setIsAuthenticated( false );
             return;
         }
@@ -26,7 +26,7 @@ export const useAuthenticated = ( ) => {
         }
 
         setIsAuthenticated(true);
-    });
+    }, [ authStatus, user ]);
 
     return isAuthenticated;
 };

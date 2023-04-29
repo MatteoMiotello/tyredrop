@@ -1,9 +1,9 @@
 import {faCheck} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Listbox, Transition} from "@headlessui/react";
-import React, {Fragment, useState} from "react";
+import React, {Fragment, useEffect, useState} from "react";
 
-type SelectOption = {
+export type SelectOption = {
     title: string
     value: any
     disabled?: boolean
@@ -12,19 +12,23 @@ type SelectOption = {
 type SelectProps = {
     className?: string
     options: SelectOption[]
+    placeholder?: string
+    name: string
 }
 
 export const SelectComponent: React.FC<SelectProps> = (props: SelectProps) => {
-    if (!props.options || props.options.length == 0) {
-        throw new Error('No options prompted');
-    }
+    const [selected, setSelected] = useState(props.options[0] ?? null);
 
-    const [selected, setSelected] = useState(props.options[0]);
+    useEffect( () => {
+        if ( props.options ) {
+            setSelected( props.options[0] );
+        }
+    }, [props.options] );
 
-    return <Listbox value={selected} onChange={setSelected}>
-        <div className={"relative mt-1 " + props.className}>
+    return <Listbox value={selected?.value || null} onChange={setSelected} name={props.name}>
+        <div className={"relative " + props.className}>
             <Listbox.Button className="select relative w-full cursor-default flex items-center">
-                <span className="truncate">{selected.title}</span>
+                <span className="truncate">{ selected ? selected.title : ( props.placeholder ?? '' ) }</span>
             </Listbox.Button>
             <Transition
                 as={Fragment}

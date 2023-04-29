@@ -1,12 +1,15 @@
-import React, { useState} from "react";
+import { ApolloProvider} from "@apollo/client";
+import React, {useState} from "react";
 import {RouterProvider, createBrowserRouter} from "react-router-dom";
 import App from "./App";
+import client from "./common/contexts/apollo-client-context";
+import ToastContext from "./common/contexts/toast-context";
 import {authRoutes} from "./modules/auth/routes";
 import {store} from "./store/store";
 import i18n from "./common/i18n";
 import {I18nextProvider} from "react-i18next";
 import {Provider} from "react-redux";
-import {CustomToast} from "./common/components/CustomToast";
+import {CustomToast, ToastConfig} from "./common/components/CustomToast";
 
 
 const router = createBrowserRouter([
@@ -17,23 +20,21 @@ const router = createBrowserRouter([
     authRoutes
 ]);
 
-export const ToastContext = React.createContext({
-    toast: null,
-    setToasts: (): void => {}
-});
-
 const Root: React.FC = () => {
-    const [toast, setToasts] = useState(null );
-    const value = { toast: toast, setToasts };
+    const [toasts, setToasts] = useState<ToastConfig[]>([]);
+    const value = {toasts: toasts, setToasts};
 
     return <>
+
         <Provider store={store}>
-            <I18nextProvider i18n={i18n}>
-                <ToastContext.Provider value={value}>
-                    <RouterProvider router={router}/>
-                    <CustomToast toast={toast}/>
-                </ToastContext.Provider>
-            </I18nextProvider>
+            <ApolloProvider client={client}>
+                <I18nextProvider i18n={i18n}>
+                    <ToastContext.Provider value={value}>
+                        <RouterProvider router={router}/>
+                        <CustomToast toasts={toasts}/>
+                    </ToastContext.Provider>
+                </I18nextProvider>
+            </ApolloProvider>
         </Provider>
     </>;
 };

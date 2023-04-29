@@ -36,7 +36,8 @@
     "cap_placeholder": "Cap",
     "submit_button": "Salva",
     "page_title": "Inserisci i dati personali",
-    "page_subtitle": "Per proseguire e` necessario inserire tutti i dati personali."
+    "page_subtitle": "Per proseguire e` necessario inserire tutti i dati personali.",
+    "error_loading": "C'e` stato un problema nel caricamento"
   },
   "footer": {
     "who": "Chi siamo",

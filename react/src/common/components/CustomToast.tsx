@@ -10,21 +10,26 @@ export type ToastConfig = {
 }
 
 type CustomToastProps = {
-    toast: ToastConfig | null
+    toasts: ToastConfig[]
 }
 export const CustomToast: React.FC<CustomToastProps> = (props) => {
-    return <Transition
-        show={props.toast ? true : false}
-    >
-        <Toast>
-            {
-                props.toast ? <Alert
-                    key={props.toast.key}
-                    type={props.toast.type}
-                >
-                    {props.toast.message}
-                </Alert> : <></>
-            }
-        </Toast>
-    </Transition>;
+    return <Toast>
+        {
+            props.toasts.map((toast: ToastConfig, key: number) => {
+                return (
+                    <Transition
+                        key={key}
+                        show={!!toast}
+                    >
+                        <Alert
+                            key={toast.key}
+                            type={toast.type}
+                        >
+                            {toast.message}
+                        </Alert>
+                    </Transition>
+                );
+            })
+        }
+    </Toast>;
 };

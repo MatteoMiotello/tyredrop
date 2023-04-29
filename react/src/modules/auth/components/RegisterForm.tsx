@@ -98,7 +98,7 @@ const RegisterForm: React.FC<RegisterFormProps> = (props: RegisterFormProps) => 
         });
     };
 
-    return <Form form={form} onSubmit={onSubmit} className="lg:w-1/2">
+    return <Form form={form} onSubmit={onSubmit} className="lg:w-1/2 relative">
         <Input name="email"
                type="text"
                placeholder={t('login.email_placeholder')}

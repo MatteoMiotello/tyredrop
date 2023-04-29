@@ -7,8 +7,13 @@ import {useTranslation} from "react-i18next";
 import {useSelector} from "react-redux";
 import {ValidationHandler} from "../../../common/validation/validators";
 import {Store} from "../../../store/store";
+<<<<<<< Updated upstream
 import {AuthStatus, selectAuthStatus} from "../store/auth-selector";
 import {useToast} from "../../../hooks/useToast";
+=======
+import {AuthStatus} from "../service/auth-status";
+import {selectAuthStatus} from "../store/auth-selector";
+>>>>>>> Stashed changes
 
 interface LoginFormProps {
     login: ( request: LoginRequest ) => void
@@ -20,7 +25,7 @@ const LoginForm: React.FC<LoginFormProps> = ( props: LoginFormProps ) => {
     const [form, handleFormError] = useForm();
     const {t} = useTranslation();
     const userStatus = useSelector<Store, AuthStatus>( selectAuthStatus );
-    const { addSuccess, addError } = useToast();
+    const { setSuccess, addError } = useToast();
 
     useEffect( () => {
         if ( userStatus.status == 'error' ) {

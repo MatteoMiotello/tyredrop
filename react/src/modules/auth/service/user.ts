@@ -16,5 +16,22 @@ export const extractFromJwt = ( accessToken: string ): User => {
         throw new Error( 'Token is expired' );
     }
 
-    return jwt.decodeJwt<User>(accessToken);
+    return jwt.decodeJwt<User>(accessToken) as User;
 };
+
+export class UserService {
+    constructor( private _user: UserState ) {
+    }
+
+    public isRegistering(): boolean {
+        return this._user.status == UserStatus.REGISTERING;
+    }
+
+    public isCompleted(): boolean {
+        return this._user.status == UserStatus.COMPLETED;
+    }
+
+    get user(): UserState {
+        return this._user;
+    }
+}

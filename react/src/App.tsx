@@ -10,34 +10,28 @@ import {useAuthenticated} from "./modules/auth/hooks/useAuthenticated";
 
 function App() {
     const authStatus = useSelector(selectAuthStatus);
-    const user = useSelector( selectUser );
+    const user = useSelector(selectUser);
     const dispatch: ThunkDispatch<any, any, any> = useDispatch();
     const navigate = useNavigate();
     const isAuthenticated = useAuthenticated();
 
     useEffect(() => {
-        if ( authStatus.status == 'error' ) {
-            navigate( '/auth/login' );
-            return;
-        }
-
-        if ( user?.status && user.status == UserStatus.REGISTERING ) {
-            navigate( '/auth/billing' );
-            return;
-        }
-
-        if (!isAuthenticated) {
+        if (!isAuthenticated && !authStatus.isPending()) {
             const refreshToken = window.localStorage.getItem('refresh_token');
 
-            if (!refreshToken) {
-                navigate('/auth/login');
+            if (refreshToken && !authStatus.isError()) {
+                dispatch(authRefreshToken(refreshToken));
                 return;
             }
 
-            dispatch(authRefreshToken(refreshToken));
+            navigate('/auth/login');
+            return;
         }
 
-    }, [authStatus]);
+        if (user?.status && user.status == UserStatus.REGISTERING) {
+            navigate('/auth/billing');
+        }
+    }, [ authStatus ]);
 
     return (
         <>

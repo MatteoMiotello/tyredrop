@@ -1,7 +1,10 @@
+
+export type AuthStatusType = 'pending' | 'fullfilled' | 'error' | 'registering' | null
+
 export type AuthState = {
     user: UserState | null
     refreshToken: string | null
-    status: 'pending' | 'fullfilled' | 'error' | 'registering' | null
+    status: AuthStatusType
     error: string | null
 }
 
