@@ -7,5 +7,10 @@ import (
 
 func registerGlobalMiddlewares(router *gin.Engine) {
 	router.Use(gin.Recovery())
-	router.Use(cors.Default())
+
+	config := cors.DefaultConfig()
+	config.AllowCredentials = true
+	config.AllowAllOrigins = false
+	config.AllowOrigins = []string{"http://localhost:5173"}
+	router.Use(cors.New(config))
 }

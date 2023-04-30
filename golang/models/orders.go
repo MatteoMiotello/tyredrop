@@ -25,7 +25,7 @@ import (
 type Order struct {
 	ID            int64     `boil:"id" json:"id" toml:"id" yaml:"id"`
 	CurrencyID    int64     `boil:"currency_id" json:"currency_id" toml:"currency_id" yaml:"currency_id"`
-	TaxRateID     int64     `boil:"tax_rate_id" json:"tax_rate_id" toml:"tax_rate_id" yaml:"tax_rate_id"`
+	TaxID         int64     `boil:"tax_id" json:"tax_id" toml:"tax_id" yaml:"tax_id"`
 	UserBillingID int64     `boil:"user_billing_id" json:"user_billing_id" toml:"user_billing_id" yaml:"user_billing_id"`
 	Status        string    `boil:"status" json:"status" toml:"status" yaml:"status"`
 	AddressLine1  string    `boil:"address_line_1" json:"address_line_1" toml:"address_line_1" yaml:"address_line_1"`
@@ -44,7 +44,7 @@ type Order struct {
 var OrderColumns = struct {
 	ID            string
 	CurrencyID    string
-	TaxRateID     string
+	TaxID         string
 	UserBillingID string
 	Status        string
 	AddressLine1  string
@@ -58,7 +58,7 @@ var OrderColumns = struct {
 }{
 	ID:            "id",
 	CurrencyID:    "currency_id",
-	TaxRateID:     "tax_rate_id",
+	TaxID:         "tax_id",
 	UserBillingID: "user_billing_id",
 	Status:        "status",
 	AddressLine1:  "address_line_1",
@@ -74,7 +74,7 @@ var OrderColumns = struct {
 var OrderTableColumns = struct {
 	ID            string
 	CurrencyID    string
-	TaxRateID     string
+	TaxID         string
 	UserBillingID string
 	Status        string
 	AddressLine1  string
@@ -88,7 +88,7 @@ var OrderTableColumns = struct {
 }{
 	ID:            "orders.id",
 	CurrencyID:    "orders.currency_id",
-	TaxRateID:     "orders.tax_rate_id",
+	TaxID:         "orders.tax_id",
 	UserBillingID: "orders.user_billing_id",
 	Status:        "orders.status",
 	AddressLine1:  "orders.address_line_1",
@@ -106,7 +106,7 @@ var OrderTableColumns = struct {
 var OrderWhere = struct {
 	ID            whereHelperint64
 	CurrencyID    whereHelperint64
-	TaxRateID     whereHelperint64
+	TaxID         whereHelperint64
 	UserBillingID whereHelperint64
 	Status        whereHelperstring
 	AddressLine1  whereHelperstring
@@ -120,7 +120,7 @@ var OrderWhere = struct {
 }{
 	ID:            whereHelperint64{field: "\"orders\".\"id\""},
 	CurrencyID:    whereHelperint64{field: "\"orders\".\"currency_id\""},
-	TaxRateID:     whereHelperint64{field: "\"orders\".\"tax_rate_id\""},
+	TaxID:         whereHelperint64{field: "\"orders\".\"tax_id\""},
 	UserBillingID: whereHelperint64{field: "\"orders\".\"user_billing_id\""},
 	Status:        whereHelperstring{field: "\"orders\".\"status\""},
 	AddressLine1:  whereHelperstring{field: "\"orders\".\"address_line_1\""},
@@ -136,12 +136,12 @@ var OrderWhere = struct {
 // OrderRels is where relationship names are stored.
 var OrderRels = struct {
 	Currency    string
-	TaxRate     string
+	Tax         string
 	UserBilling string
 	OrderRows   string
 }{
 	Currency:    "Currency",
-	TaxRate:     "TaxRate",
+	Tax:         "Tax",
 	UserBilling: "UserBilling",
 	OrderRows:   "OrderRows",
 }
@@ -149,7 +149,7 @@ var OrderRels = struct {
 // orderR is where relationships are stored.
 type orderR struct {
 	Currency    *Currency     `boil:"Currency" json:"Currency" toml:"Currency" yaml:"Currency"`
-	TaxRate     *TaxRate      `boil:"TaxRate" json:"TaxRate" toml:"TaxRate" yaml:"TaxRate"`
+	Tax         *Taxis        `boil:"Tax" json:"Tax" toml:"Tax" yaml:"Tax"`
 	UserBilling *UserBilling  `boil:"UserBilling" json:"UserBilling" toml:"UserBilling" yaml:"UserBilling"`
 	OrderRows   OrderRowSlice `boil:"OrderRows" json:"OrderRows" toml:"OrderRows" yaml:"OrderRows"`
 }
@@ -166,11 +166,11 @@ func (r *orderR) GetCurrency() *Currency {
 	return r.Currency
 }
 
-func (r *orderR) GetTaxRate() *TaxRate {
+func (r *orderR) GetTax() *Taxis {
 	if r == nil {
 		return nil
 	}
-	return r.TaxRate
+	return r.Tax
 }
 
 func (r *orderR) GetUserBilling() *UserBilling {
@@ -191,8 +191,8 @@ func (r *orderR) GetOrderRows() OrderRowSlice {
 type orderL struct{}
 
 var (
-	orderAllColumns            = []string{"id", "currency_id", "tax_rate_id", "user_billing_id", "status", "address_line_1", "address_line_2", "city", "province", "country", "cap", "updated_at", "created_at"}
-	orderColumnsWithoutDefault = []string{"currency_id", "tax_rate_id", "user_billing_id", "status", "address_line_1", "address_line_2", "city", "province", "country", "cap"}
+	orderAllColumns            = []string{"id", "currency_id", "tax_id", "user_billing_id", "status", "address_line_1", "address_line_2", "city", "province", "country", "cap", "updated_at", "created_at"}
+	orderColumnsWithoutDefault = []string{"currency_id", "tax_id", "user_billing_id", "status", "address_line_1", "address_line_2", "city", "province", "country", "cap"}
 	orderColumnsWithDefault    = []string{"id", "updated_at", "created_at"}
 	orderPrimaryKeyColumns     = []string{"id"}
 	orderGeneratedColumns      = []string{}
@@ -487,15 +487,15 @@ func (o *Order) Currency(mods ...qm.QueryMod) currencyQuery {
 	return Currencies(queryMods...)
 }
 
-// TaxRate pointed to by the foreign key.
-func (o *Order) TaxRate(mods ...qm.QueryMod) taxRateQuery {
+// Tax pointed to by the foreign key.
+func (o *Order) Tax(mods ...qm.QueryMod) taxisQuery {
 	queryMods := []qm.QueryMod{
-		qm.Where("\"id\" = ?", o.TaxRateID),
+		qm.Where("\"id\" = ?", o.TaxID),
 	}
 
 	queryMods = append(queryMods, mods...)
 
-	return TaxRates(queryMods...)
+	return Taxes(queryMods...)
 }
 
 // UserBilling pointed to by the foreign key.
@@ -643,9 +643,9 @@ func (orderL) LoadCurrency(ctx context.Context, e boil.ContextExecutor, singular
 	return nil
 }
 
-// LoadTaxRate allows an eager lookup of values, cached into the
+// LoadTax allows an eager lookup of values, cached into the
 // loaded structs of the objects. This is for an N-1 relationship.
-func (orderL) LoadTaxRate(ctx context.Context, e boil.ContextExecutor, singular bool, maybeOrder interface{}, mods queries.Applicator) error {
+func (orderL) LoadTax(ctx context.Context, e boil.ContextExecutor, singular bool, maybeOrder interface{}, mods queries.Applicator) error {
 	var slice []*Order
 	var object *Order
 
@@ -676,7 +676,7 @@ func (orderL) LoadTaxRate(ctx context.Context, e boil.ContextExecutor, singular 
 		if object.R == nil {
 			object.R = &orderR{}
 		}
-		args = append(args, object.TaxRateID)
+		args = append(args, object.TaxID)
 
 	} else {
 	Outer:
@@ -686,12 +686,12 @@ func (orderL) LoadTaxRate(ctx context.Context, e boil.ContextExecutor, singular 
 			}
 
 			for _, a := range args {
-				if a == obj.TaxRateID {
+				if a == obj.TaxID {
 					continue Outer
 				}
 			}
 
-			args = append(args, obj.TaxRateID)
+			args = append(args, obj.TaxID)
 
 		}
 	}
@@ -701,8 +701,8 @@ func (orderL) LoadTaxRate(ctx context.Context, e boil.ContextExecutor, singular 
 	}
 
 	query := NewQuery(
-		qm.From(`tax_rates`),
-		qm.WhereIn(`tax_rates.id in ?`, args...),
+		qm.From(`taxes`),
+		qm.WhereIn(`taxes.id in ?`, args...),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -710,22 +710,22 @@ func (orderL) LoadTaxRate(ctx context.Context, e boil.ContextExecutor, singular 
 
 	results, err := query.QueryContext(ctx, e)
 	if err != nil {
-		return errors.Wrap(err, "failed to eager load TaxRate")
+		return errors.Wrap(err, "failed to eager load Taxis")
 	}
 
-	var resultSlice []*TaxRate
+	var resultSlice []*Taxis
 	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice TaxRate")
+		return errors.Wrap(err, "failed to bind eager loaded slice Taxis")
 	}
 
 	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results of eager load for tax_rates")
+		return errors.Wrap(err, "failed to close results of eager load for taxes")
 	}
 	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for tax_rates")
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for taxes")
 	}
 
-	if len(taxRateAfterSelectHooks) != 0 {
+	if len(taxisAfterSelectHooks) != 0 {
 		for _, obj := range resultSlice {
 			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
 				return err
@@ -739,22 +739,22 @@ func (orderL) LoadTaxRate(ctx context.Context, e boil.ContextExecutor, singular 
 
 	if singular {
 		foreign := resultSlice[0]
-		object.R.TaxRate = foreign
+		object.R.Tax = foreign
 		if foreign.R == nil {
-			foreign.R = &taxRateR{}
+			foreign.R = &taxisR{}
 		}
-		foreign.R.Orders = append(foreign.R.Orders, object)
+		foreign.R.TaxOrders = append(foreign.R.TaxOrders, object)
 		return nil
 	}
 
 	for _, local := range slice {
 		for _, foreign := range resultSlice {
-			if local.TaxRateID == foreign.ID {
-				local.R.TaxRate = foreign
+			if local.TaxID == foreign.ID {
+				local.R.Tax = foreign
 				if foreign.R == nil {
-					foreign.R = &taxRateR{}
+					foreign.R = &taxisR{}
 				}
-				foreign.R.Orders = append(foreign.R.Orders, local)
+				foreign.R.TaxOrders = append(foreign.R.TaxOrders, local)
 				break
 			}
 		}
@@ -1045,10 +1045,10 @@ func (o *Order) SetCurrency(ctx context.Context, exec boil.ContextExecutor, inse
 	return nil
 }
 
-// SetTaxRate of the order to the related item.
-// Sets o.R.TaxRate to related.
-// Adds o to related.R.Orders.
-func (o *Order) SetTaxRate(ctx context.Context, exec boil.ContextExecutor, insert bool, related *TaxRate) error {
+// SetTax of the order to the related item.
+// Sets o.R.Tax to related.
+// Adds o to related.R.TaxOrders.
+func (o *Order) SetTax(ctx context.Context, exec boil.ContextExecutor, insert bool, related *Taxis) error {
 	var err error
 	if insert {
 		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
@@ -1058,7 +1058,7 @@ func (o *Order) SetTaxRate(ctx context.Context, exec boil.ContextExecutor, inser
 
 	updateQuery := fmt.Sprintf(
 		"UPDATE \"orders\" SET %s WHERE %s",
-		strmangle.SetParamNames("\"", "\"", 1, []string{"tax_rate_id"}),
+		strmangle.SetParamNames("\"", "\"", 1, []string{"tax_id"}),
 		strmangle.WhereClause("\"", "\"", 2, orderPrimaryKeyColumns),
 	)
 	values := []interface{}{related.ID, o.ID}
@@ -1072,21 +1072,21 @@ func (o *Order) SetTaxRate(ctx context.Context, exec boil.ContextExecutor, inser
 		return errors.Wrap(err, "failed to update local table")
 	}
 
-	o.TaxRateID = related.ID
+	o.TaxID = related.ID
 	if o.R == nil {
 		o.R = &orderR{
-			TaxRate: related,
+			Tax: related,
 		}
 	} else {
-		o.R.TaxRate = related
+		o.R.Tax = related
 	}
 
 	if related.R == nil {
-		related.R = &taxRateR{
-			Orders: OrderSlice{o},
+		related.R = &taxisR{
+			TaxOrders: OrderSlice{o},
 		}
 	} else {
-		related.R.Orders = append(related.R.Orders, o)
+		related.R.TaxOrders = append(related.R.TaxOrders, o)
 	}
 
 	return nil

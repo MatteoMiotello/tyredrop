@@ -2,9 +2,7 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 	"github.com/volatiletech/null/v8"
-	"google.golang.org/appengine/log"
 	"net/http"
 	"pillowww/titw/internal/cookie"
 	"pillowww/titw/internal/db"
@@ -191,24 +189,8 @@ func (a AuthController) RefreshToken(ctx *gin.Context) {
 	}
 
 	response := RefreshTokenResponse{
-		AccessToken: token,
-	}
-
-	if rToken.ExpiresAt.After(time.Now()) && rToken.ExpiresAt.Before(time.Now().Add(time.Duration(viper.GetInt("security.refresh_token.refresh_threshold"))*time.Minute)) {
-		newRToken, err := jwt.CreateUniqueRefreshToken()
-
-		if err != nil {
-			log.Warningf(ctx, "%s: %s", "error generating new refresh token", err.Error())
-		}
-
-		rtService := rt.NewRefreshTokenService(rtDao)
-		err = rtService.StoreNew(ctx, *uModel, newRToken)
-
-		if err != nil {
-			log.Warningf(ctx, "%s: %s", "error generating new refresh token", err.Error())
-		}
-
-		response.RefreshToken = newRToken
+		AccessToken:  token,
+		RefreshToken: rToken.RefreshToken,
 	}
 
 	cookie.StoreAccessToken(ctx, token)

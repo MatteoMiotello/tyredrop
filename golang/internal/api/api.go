@@ -10,6 +10,7 @@ func Serve() {
 	router := gin.Default()
 	gin.DefaultErrorWriter = log.Log.Writer()
 
+	router.ContextWithFallback = true
 	registerGlobalMiddlewares(router)
 	registerRoutes(router)
 

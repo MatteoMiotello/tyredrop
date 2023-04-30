@@ -41,7 +41,7 @@ func upUser(tx *sql.Tx) error {
 		CreatedColumn().
 		String()
 
-	taxRateQuery := sqlbuilder.CreateTable("public.tax_rates").
+	taxRateQuery := sqlbuilder.CreateTable("public.taxes").
 		PKColumn().
 		Column("markup_percentage", types.Int, false).
 		Column("name", types.Varchar.Options("45"), false).
@@ -57,12 +57,11 @@ func upUser(tx *sql.Tx) error {
 	userBilling := sqlbuilder.CreateTable("public.user_billings").
 		PKColumn().
 		FKColumn("public.users", "user_id", false).
-		FKColumn("public.tax_rates", "default_tax_rate_id", false).
 		FKColumn("public.legal_entity_types", "legal_entity_type_id", false).
 		Column("name", types.Varchar.Options("255"), false).
 		Column("surname", types.Varchar.Options("255"), false).
 		Column("fiscal_code", types.Varchar.Options("16"), false).
-		Column("vat_number", types.Varchar.Options("11"), false).
+		Column("vat_number", types.Varchar.Options("16"), false).
 		Column("address_line_1", types.Varchar.Options("255"), false).
 		Column("address_line_2", types.Varchar.Options("255"), true).
 		Column("city", types.Varchar.Options("45"), false).
@@ -110,7 +109,7 @@ func downUser(tx *sql.Tx) error {
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("DROP TABLE public.tax_rates  ")
+	_, err = tx.Exec("DROP TABLE public.taxes  ")
 	if err != nil {
 		return err
 	}

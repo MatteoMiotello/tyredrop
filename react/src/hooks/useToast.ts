@@ -1,4 +1,4 @@
-import {useContext, useEffect} from "react";
+import { useContext, useEffect} from "react";
 import {ToastConfig} from "../common/components/CustomToast";
 import ToastContext from "../common/contexts/toast-context";
 
@@ -7,45 +7,38 @@ const generateUnique = (): number => {
 };
 
 export const useToast = () => {
-    const {toasts, setToasts: setToast} = useContext(ToastContext);
+    const {toasts, setToasts} = useContext(ToastContext);
+    const removeLastToast = () => {
+        toasts.splice(0, 1);
+
+        setToasts([...toasts]);
+    };
 
     useEffect(() => {
         const i = setInterval(() => {
-
+            removeLastToast();
         }, 3000);
 
         return () => {
             clearInterval(i);
         };
-    }, []);
+    });
 
     const addToast = (newToast: ToastConfig) => {
-        setToast([...toasts, newToast]);
+        setToasts([...toasts, newToast]);
     };
 
     const setSuccess = (message: string) => {
         addToast({key: generateUnique(), type: 'success', message: message});
-
-        removeItem();
     };
 
     const setError = (message: string) => {
         addToast({key: generateUnique(), type: 'error', message: message});
-
-        removeItem();
     };
 
-    const setInfo = (message: string) => {
+    const addInfo = (message: string) => {
         addToast({key: generateUnique(), type: 'info', message: message});
-
-        removeItem();
     };
 
-    const removeItem = () => {
-        setTimeout(() => {
-            setToast(null);
-        }, 3000);
-    };
-
-    return {setSuccess, setError};
+    return {setSuccess, setError, addInfo};
 };

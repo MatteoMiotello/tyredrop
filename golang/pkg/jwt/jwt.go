@@ -26,13 +26,13 @@ type RoleClaims struct {
 }
 type UserJwtClaims struct {
 	jwt.RegisteredClaims
-	Email    string      `json:"email"`
-	UserID   int64       `json:"userID"`
-	Name     null.String `json:"name"`
-	Username null.String `json:"username"`
-	Language string      `json:"language"`
-	Role     RoleClaims  `json:"role"`
-	Status   UserStatus  `json:"status"`
+	Email        string      `json:"email"`
+	UserID       int64       `json:"userID"`
+	Name         null.String `json:"name"`
+	Username     null.String `json:"username"`
+	LanguageCode string      `json:"language_code"`
+	Role         RoleClaims  `json:"role"`
+	Status       UserStatus  `json:"status"`
 }
 
 type RefreshTokenClaims struct {
@@ -66,17 +66,17 @@ func CreateAccessTokenFromUser(ctx context.Context, userModel models.User) (stri
 
 	status := USER_COMPLETED
 
-	uBilling, _ := uRepo.GetUserBilling(ctx, &userModel)
+	uBilling, err := uRepo.GetUserBilling(ctx, &userModel)
 
 	if uBilling == nil {
 		status = USER_REGISTERING
 	}
 
 	userClaims := UserJwtClaims{
-		UserID:   userModel.ID,
-		Email:    userModel.Email,
-		Username: userModel.Username,
-		Language: uLanguage.IsoCode,
+		UserID:       userModel.ID,
+		Email:        userModel.Email,
+		Username:     userModel.Username,
+		LanguageCode: uLanguage.IsoCode,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: expiration,
 			Issuer:    viper.GetString("security.jwt.issuer"),

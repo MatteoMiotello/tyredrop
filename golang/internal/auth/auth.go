@@ -1,9 +1,10 @@
 package auth
 
 import (
-	"context"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/volatiletech/null/v8"
+	"golang.org/x/net/context"
 	"pillowww/titw/internal/db"
 	"pillowww/titw/internal/domain/language"
 	"pillowww/titw/internal/domain/user"
@@ -13,22 +14,26 @@ import (
 
 const ctxKey string = "auth"
 
+type Role struct {
+	Name string `json:"name"`
+	Code string `json:"code"`
+}
+
 type Auth struct {
-	user       *models.User
-	language   *language.Language
-	Expiration time.Time
-	UserID     int64
-	Username   null.String
-	Email      string
-	Role       struct {
-		Name string `json:"name"`
-		Code string `json:"code"`
-	}
+	user         *models.User
+	language     *language.Language
+	Expiration   time.Time
+	UserID       int64       `json:"userID"`
+	Username     null.String `json:"username"`
+	Email        string      `json:"email"`
+	Role         Role
 	LanguageCode string
 }
 
 func FromCtx(ctx context.Context) (access *Auth) {
 	value := ctx.Value(ctxKey)
+
+	fmt.Println(value)
 
 	if value == nil {
 		return &Auth{
@@ -37,7 +42,19 @@ func FromCtx(ctx context.Context) (access *Auth) {
 			user:         nil,
 		}
 	} else {
-		return value.(*Auth)
+		a := value.(*Auth)
+
+		return &Auth{
+			UserID:       a.UserID,
+			Expiration:   a.Expiration,
+			Username:     a.Username,
+			Email:        a.Email,
+			LanguageCode: a.LanguageCode,
+			Role: Role{
+				Name: a.Role.Name,
+				Code: a.Role.Code,
+			},
+		}
 	}
 }
 

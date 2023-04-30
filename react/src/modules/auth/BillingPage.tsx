@@ -1,5 +1,5 @@
 import {useMutation} from "@apollo/client";
-import React from "react";
+import React, {useEffect} from "react";
 import {useTranslation} from "react-i18next";
 import {useNavigate} from "react-router-dom";
 import {
@@ -9,22 +9,19 @@ import {
 import {CREATE_BILLING} from "../../common/backend/graph/mutation/create-billing";
 import Spinner from "../../common/components/Spinner";
 import {BillingForm, BillingInput} from "./components/BillingForm";
-import {useAuthenticated} from "./hooks/useAuthenticated";
+import {useAuth} from "./hooks/useAuth";
 
-export const BillingPage: React.FC<any> = () => {
+const BillingPage: React.FC = () => {
     const {t} = useTranslation();
     const navigate = useNavigate();
-    const isAuthenticated = useAuthenticated();
+    const auth = useAuth();
     const [ saveBilling, { error, data, loading } ] = useMutation<CreateUserBillingMutation, CreateUserBillingMutationVariables>( CREATE_BILLING );
 
-    if ( !isAuthenticated ) {
-        navigate( '/auth/login' );
-        return;
-    }
-
-    if ( error ) {
-        console.log( error );
-    }
+    useEffect( () => {
+        if ( !auth.isAuthenticated() ) {
+            navigate( '/auth/login' );
+        }
+    }, [auth] );
 
     const storeBilling = ( input: BillingInput ) => {
         saveBilling({
@@ -47,10 +44,11 @@ export const BillingPage: React.FC<any> = () => {
         });
     };
 
-    if ( data ) {
-        navigate( '/' );
-        return;
-    }
+    // useEffect( () => {
+    //     if ( data ) {
+    //         navigate( '/' );
+    //     }
+    // }, [data] )
 
     return <div className="flex flex-col justify-center items-center my-auto">
         { loading ?? <Spinner /> }
@@ -61,3 +59,5 @@ export const BillingPage: React.FC<any> = () => {
         <BillingForm store={storeBilling}/>
     </div>;
 };
+
+export default BillingPage;

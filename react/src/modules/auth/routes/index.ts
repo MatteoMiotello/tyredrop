@@ -1,7 +1,7 @@
 import { RouteObject} from "react-router-dom";
 import AuthTemplate from "../AuthTemplate";
-import {BillingPage} from "../BillingPage";
-import {LoginPage} from "../LoginPage";
+import BillingPage from "../BillingPage";
+import LoginPage from "../LoginPage";
 import RegisterPage from "../RegisterPage";
 
 export const loginRoute: RouteObject = {

@@ -17,6 +17,7 @@ export type UserState = {
         name: string
         code: string
     }
+    language_code: string
     status: number
     iss: string
     exp: number

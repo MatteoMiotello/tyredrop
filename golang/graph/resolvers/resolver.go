@@ -16,6 +16,7 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
+	Db                           boil.ContextExecutor
 	ProductDao                   *product.Dao
 	BrandDao                     *brand.Dao
 	SupplierDao                  *supplier.Dao
@@ -31,6 +32,7 @@ type Resolver struct {
 
 func NewResolver(exec boil.ContextExecutor) *Resolver {
 	return &Resolver{
+		Db:                           exec,
 		ProductDao:                   product.NewDao(exec),
 		ProductCategoryDao:           product.NewCategoryDao(exec),
 		ProductSpecificationValueDao: product.NewSpecificationValueDao(exec),

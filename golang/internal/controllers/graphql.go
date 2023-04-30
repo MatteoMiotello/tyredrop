@@ -51,7 +51,12 @@ func (g *GraphqlController) Query(ctx *gin.Context) {
 
 		return gqlerror.Errorf("internal system error")
 	})
-	srv.ServeHTTP(ctx.Writer, ctx.Request)
+
+	auth := auth2.FromCtx(ctx)
+
+	c := context.WithValue(ctx, "auth", auth) //todo
+	r := ctx.Request.WithContext(c)
+	srv.ServeHTTP(ctx.Writer, r)
 }
 
 func (g *GraphqlController) Playground(ctx *gin.Context) {

@@ -24,7 +24,7 @@ var TableNames = struct {
 	Products                      string
 	RefreshTokens                 string
 	Suppliers                     string
-	TaxRates                      string
+	Taxes                         string
 	UserBillings                  string
 	UserPaymentMethods            string
 	UserRoleLanguages             string
@@ -53,7 +53,7 @@ var TableNames = struct {
 	Products:                      "products",
 	RefreshTokens:                 "refresh_tokens",
 	Suppliers:                     "suppliers",
-	TaxRates:                      "tax_rates",
+	Taxes:                         "taxes",
 	UserBillings:                  "user_billings",
 	UserPaymentMethods:            "user_payment_methods",
 	UserRoleLanguages:             "user_role_languages",

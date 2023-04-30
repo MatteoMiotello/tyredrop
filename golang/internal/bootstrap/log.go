@@ -40,7 +40,7 @@ func InitLog(applicationName string) {
 
 	hook.SetEnvironment(viper.GetString("APPLICATION_ENV"))
 	hook.SetDefaultLoggerName(applicationName)
-	hook.StacktraceConfiguration.Enable = true
+	hook.StacktraceConfiguration.Enable = false
 	hook.Timeout = time.Second * 20
 
 	log.Log.Hooks.Add(hook)

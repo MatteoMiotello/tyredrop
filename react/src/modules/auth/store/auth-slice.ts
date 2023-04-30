@@ -7,6 +7,7 @@ import {LoginResponse} from "../../../common/backend/responses/login-response";
 import {RefreshTokenResponse} from "../../../common/backend/responses/refresh-token-response";
 import {extractFromJwt} from "../service/user";
 import {AuthState} from "./state";
+import {set} from "zod";
 
 
 export const authLogin: AsyncThunk<LoginResponse, any, any> = createAsyncThunk('AUTH/LOGIN', async (loginRequest: LoginRequest, thunkAPI) => {
@@ -54,6 +55,28 @@ export const authRegister: AsyncThunk<LoginResponse, any, any> = createAsyncThun
         } );
 });
 
+const setupAuth = ( state: AuthState, accessToken: string, refreshToken: string ) => {
+    let user = null;
+
+    try {
+        user = extractFromJwt( accessToken );
+    } catch (error: any) {
+        state.status = 'error';
+        state.error = error.message;
+        state.user = null;
+        return;
+    }
+
+    state.refreshToken = refreshToken;
+    window.localStorage.setItem('refresh_token', refreshToken);
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    state.user = user;
+    state.status = 'fullfilled';
+    state.error = null;
+}
+
 const authSlice: Slice<AuthState> = createSlice<AuthState, SliceCaseReducers<AuthState>, string>({
     name: 'auth',
     initialState: {
@@ -83,25 +106,7 @@ const authSlice: Slice<AuthState> = createSlice<AuthState, SliceCaseReducers<Aut
                 const accessToken = action.payload.access_token;
                 const refreshToken = action.payload.refresh_token;
 
-                const user = null;
-
-                try {
-                    extractFromJwt( accessToken );
-                } catch (error: any) {
-                    state.status = 'error';
-                    state.error = error.message;
-                    state.user = null;
-                    return;
-                }
-
-                state.refreshToken = refreshToken;
-                window.localStorage.setItem('refresh_token', refreshToken);
-
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                state.user = user;
-                state.status = 'fullfilled';
-                state.error = null;
+                setupAuth( state, accessToken, refreshToken )
             })
             .addCase(authRefreshToken.pending, (state, action) => {
                 state.status = 'pending';
@@ -113,22 +118,8 @@ const authSlice: Slice<AuthState> = createSlice<AuthState, SliceCaseReducers<Aut
             })
             .addCase(authRefreshToken.fulfilled, (state, action) => {
                 const accessToken = action.payload.access_token;
-                let user = null;
-
-                try {
-                    user = extractFromJwt( accessToken );
-                } catch (error: any) {
-                    state.status = 'error';
-                    state.error = error.message;
-                    state.user = null;
-                    return;
-                }
-
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                state.user = user;
-                state.status = 'fullfilled';
-                state.error = null;
+                const refreshToken = action.payload.refresh_token;
+                setupAuth( state, accessToken, refreshToken)
             })
             .addCase(authRegister.pending, (state, action) => {
                 state.status = 'pending';
@@ -142,25 +133,7 @@ const authSlice: Slice<AuthState> = createSlice<AuthState, SliceCaseReducers<Aut
                 const accessToken = action.payload.access_token;
                 const refreshToken = action.payload.refresh_token;
 
-                let user = null;
-
-                try {
-                    user = extractFromJwt( accessToken );
-                } catch (error: any) {
-                    state.status = 'error';
-                    state.error = error.message;
-                    state.user = null;
-                    return;
-                }
-
-                state.refreshToken = refreshToken;
-                window.localStorage.setItem('refresh_token', refreshToken);
-
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                state.user = user;
-                state.status = 'fullfilled';
-                state.error = null;
+                setupAuth( state, accessToken, refreshToken )
             });
     }
 });

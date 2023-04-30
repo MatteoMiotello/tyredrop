@@ -15,7 +15,7 @@ func upOrder(tx *sql.Tx) error {
 	orderQuery := sqlbuilder.CreateTable("public.orders").
 		PKColumn().
 		FKColumn("public.currencies", "currency_id", false).
-		FKColumn("public.tax_rates", "tax_rate_id", false).
+		FKColumn("public.taxes", "tax_id", false).
 		FKColumn("public.user_billings", "user_billing_id", false).
 		Column("status", types.Varchar.Options("45"), false).
 		Column("address_line_1", types.Varchar.Options("255"), false).

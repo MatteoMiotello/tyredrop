@@ -20,7 +20,8 @@ class Backend implements BackendClient {
 
     constructor() {
         this.client = axios.create({
-            baseURL: backend.endpoint
+            baseURL: backend.endpoint,
+            withCredentials: true
         });
     }
 

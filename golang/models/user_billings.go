@@ -26,7 +26,6 @@ import (
 type UserBilling struct {
 	ID                int64       `boil:"id" json:"id" toml:"id" yaml:"id"`
 	UserID            int64       `boil:"user_id" json:"user_id" toml:"user_id" yaml:"user_id"`
-	DefaultTaxRateID  int64       `boil:"default_tax_rate_id" json:"default_tax_rate_id" toml:"default_tax_rate_id" yaml:"default_tax_rate_id"`
 	LegalEntityTypeID int64       `boil:"legal_entity_type_id" json:"legal_entity_type_id" toml:"legal_entity_type_id" yaml:"legal_entity_type_id"`
 	Name              string      `boil:"name" json:"name" toml:"name" yaml:"name"`
 	Surname           string      `boil:"surname" json:"surname" toml:"surname" yaml:"surname"`
@@ -49,7 +48,6 @@ type UserBilling struct {
 var UserBillingColumns = struct {
 	ID                string
 	UserID            string
-	DefaultTaxRateID  string
 	LegalEntityTypeID string
 	Name              string
 	Surname           string
@@ -67,7 +65,6 @@ var UserBillingColumns = struct {
 }{
 	ID:                "id",
 	UserID:            "user_id",
-	DefaultTaxRateID:  "default_tax_rate_id",
 	LegalEntityTypeID: "legal_entity_type_id",
 	Name:              "name",
 	Surname:           "surname",
@@ -87,7 +84,6 @@ var UserBillingColumns = struct {
 var UserBillingTableColumns = struct {
 	ID                string
 	UserID            string
-	DefaultTaxRateID  string
 	LegalEntityTypeID string
 	Name              string
 	Surname           string
@@ -105,7 +101,6 @@ var UserBillingTableColumns = struct {
 }{
 	ID:                "user_billings.id",
 	UserID:            "user_billings.user_id",
-	DefaultTaxRateID:  "user_billings.default_tax_rate_id",
 	LegalEntityTypeID: "user_billings.legal_entity_type_id",
 	Name:              "user_billings.name",
 	Surname:           "user_billings.surname",
@@ -127,7 +122,6 @@ var UserBillingTableColumns = struct {
 var UserBillingWhere = struct {
 	ID                whereHelperint64
 	UserID            whereHelperint64
-	DefaultTaxRateID  whereHelperint64
 	LegalEntityTypeID whereHelperint64
 	Name              whereHelperstring
 	Surname           whereHelperstring
@@ -145,7 +139,6 @@ var UserBillingWhere = struct {
 }{
 	ID:                whereHelperint64{field: "\"user_billings\".\"id\""},
 	UserID:            whereHelperint64{field: "\"user_billings\".\"user_id\""},
-	DefaultTaxRateID:  whereHelperint64{field: "\"user_billings\".\"default_tax_rate_id\""},
 	LegalEntityTypeID: whereHelperint64{field: "\"user_billings\".\"legal_entity_type_id\""},
 	Name:              whereHelperstring{field: "\"user_billings\".\"name\""},
 	Surname:           whereHelperstring{field: "\"user_billings\".\"surname\""},
@@ -165,12 +158,10 @@ var UserBillingWhere = struct {
 // UserBillingRels is where relationship names are stored.
 var UserBillingRels = struct {
 	LegalEntityType string
-	DefaultTaxRate  string
 	User            string
 	Orders          string
 }{
 	LegalEntityType: "LegalEntityType",
-	DefaultTaxRate:  "DefaultTaxRate",
 	User:            "User",
 	Orders:          "Orders",
 }
@@ -178,7 +169,6 @@ var UserBillingRels = struct {
 // userBillingR is where relationships are stored.
 type userBillingR struct {
 	LegalEntityType *LegalEntityType `boil:"LegalEntityType" json:"LegalEntityType" toml:"LegalEntityType" yaml:"LegalEntityType"`
-	DefaultTaxRate  *TaxRate         `boil:"DefaultTaxRate" json:"DefaultTaxRate" toml:"DefaultTaxRate" yaml:"DefaultTaxRate"`
 	User            *User            `boil:"User" json:"User" toml:"User" yaml:"User"`
 	Orders          OrderSlice       `boil:"Orders" json:"Orders" toml:"Orders" yaml:"Orders"`
 }
@@ -193,13 +183,6 @@ func (r *userBillingR) GetLegalEntityType() *LegalEntityType {
 		return nil
 	}
 	return r.LegalEntityType
-}
-
-func (r *userBillingR) GetDefaultTaxRate() *TaxRate {
-	if r == nil {
-		return nil
-	}
-	return r.DefaultTaxRate
 }
 
 func (r *userBillingR) GetUser() *User {
@@ -220,8 +203,8 @@ func (r *userBillingR) GetOrders() OrderSlice {
 type userBillingL struct{}
 
 var (
-	userBillingAllColumns            = []string{"id", "user_id", "default_tax_rate_id", "legal_entity_type_id", "name", "surname", "fiscal_code", "vat_number", "address_line_1", "address_line_2", "city", "province", "cap", "country", "deleted_at", "updated_at", "created_at"}
-	userBillingColumnsWithoutDefault = []string{"user_id", "default_tax_rate_id", "legal_entity_type_id", "name", "surname", "fiscal_code", "vat_number", "address_line_1", "city", "province", "cap", "country"}
+	userBillingAllColumns            = []string{"id", "user_id", "legal_entity_type_id", "name", "surname", "fiscal_code", "vat_number", "address_line_1", "address_line_2", "city", "province", "cap", "country", "deleted_at", "updated_at", "created_at"}
+	userBillingColumnsWithoutDefault = []string{"user_id", "legal_entity_type_id", "name", "surname", "fiscal_code", "vat_number", "address_line_1", "city", "province", "cap", "country"}
 	userBillingColumnsWithDefault    = []string{"id", "address_line_2", "deleted_at", "updated_at", "created_at"}
 	userBillingPrimaryKeyColumns     = []string{"id"}
 	userBillingGeneratedColumns      = []string{}
@@ -516,17 +499,6 @@ func (o *UserBilling) LegalEntityType(mods ...qm.QueryMod) legalEntityTypeQuery 
 	return LegalEntityTypes(queryMods...)
 }
 
-// DefaultTaxRate pointed to by the foreign key.
-func (o *UserBilling) DefaultTaxRate(mods ...qm.QueryMod) taxRateQuery {
-	queryMods := []qm.QueryMod{
-		qm.Where("\"id\" = ?", o.DefaultTaxRateID),
-	}
-
-	queryMods = append(queryMods, mods...)
-
-	return TaxRates(queryMods...)
-}
-
 // User pointed to by the foreign key.
 func (o *UserBilling) User(mods ...qm.QueryMod) userQuery {
 	queryMods := []qm.QueryMod{
@@ -664,126 +636,6 @@ func (userBillingL) LoadLegalEntityType(ctx context.Context, e boil.ContextExecu
 					foreign.R = &legalEntityTypeR{}
 				}
 				foreign.R.UserBillings = append(foreign.R.UserBillings, local)
-				break
-			}
-		}
-	}
-
-	return nil
-}
-
-// LoadDefaultTaxRate allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for an N-1 relationship.
-func (userBillingL) LoadDefaultTaxRate(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUserBilling interface{}, mods queries.Applicator) error {
-	var slice []*UserBilling
-	var object *UserBilling
-
-	if singular {
-		var ok bool
-		object, ok = maybeUserBilling.(*UserBilling)
-		if !ok {
-			object = new(UserBilling)
-			ok = queries.SetFromEmbeddedStruct(&object, &maybeUserBilling)
-			if !ok {
-				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", object, maybeUserBilling))
-			}
-		}
-	} else {
-		s, ok := maybeUserBilling.(*[]*UserBilling)
-		if ok {
-			slice = *s
-		} else {
-			ok = queries.SetFromEmbeddedStruct(&slice, maybeUserBilling)
-			if !ok {
-				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", slice, maybeUserBilling))
-			}
-		}
-	}
-
-	args := make([]interface{}, 0, 1)
-	if singular {
-		if object.R == nil {
-			object.R = &userBillingR{}
-		}
-		args = append(args, object.DefaultTaxRateID)
-
-	} else {
-	Outer:
-		for _, obj := range slice {
-			if obj.R == nil {
-				obj.R = &userBillingR{}
-			}
-
-			for _, a := range args {
-				if a == obj.DefaultTaxRateID {
-					continue Outer
-				}
-			}
-
-			args = append(args, obj.DefaultTaxRateID)
-
-		}
-	}
-
-	if len(args) == 0 {
-		return nil
-	}
-
-	query := NewQuery(
-		qm.From(`tax_rates`),
-		qm.WhereIn(`tax_rates.id in ?`, args...),
-	)
-	if mods != nil {
-		mods.Apply(query)
-	}
-
-	results, err := query.QueryContext(ctx, e)
-	if err != nil {
-		return errors.Wrap(err, "failed to eager load TaxRate")
-	}
-
-	var resultSlice []*TaxRate
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice TaxRate")
-	}
-
-	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results of eager load for tax_rates")
-	}
-	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for tax_rates")
-	}
-
-	if len(taxRateAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
-				return err
-			}
-		}
-	}
-
-	if len(resultSlice) == 0 {
-		return nil
-	}
-
-	if singular {
-		foreign := resultSlice[0]
-		object.R.DefaultTaxRate = foreign
-		if foreign.R == nil {
-			foreign.R = &taxRateR{}
-		}
-		foreign.R.DefaultTaxRateUserBillings = append(foreign.R.DefaultTaxRateUserBillings, object)
-		return nil
-	}
-
-	for _, local := range slice {
-		for _, foreign := range resultSlice {
-			if local.DefaultTaxRateID == foreign.ID {
-				local.R.DefaultTaxRate = foreign
-				if foreign.R == nil {
-					foreign.R = &taxRateR{}
-				}
-				foreign.R.DefaultTaxRateUserBillings = append(foreign.R.DefaultTaxRateUserBillings, local)
 				break
 			}
 		}
@@ -1069,53 +921,6 @@ func (o *UserBilling) SetLegalEntityType(ctx context.Context, exec boil.ContextE
 		}
 	} else {
 		related.R.UserBillings = append(related.R.UserBillings, o)
-	}
-
-	return nil
-}
-
-// SetDefaultTaxRate of the userBilling to the related item.
-// Sets o.R.DefaultTaxRate to related.
-// Adds o to related.R.DefaultTaxRateUserBillings.
-func (o *UserBilling) SetDefaultTaxRate(ctx context.Context, exec boil.ContextExecutor, insert bool, related *TaxRate) error {
-	var err error
-	if insert {
-		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
-			return errors.Wrap(err, "failed to insert into foreign table")
-		}
-	}
-
-	updateQuery := fmt.Sprintf(
-		"UPDATE \"user_billings\" SET %s WHERE %s",
-		strmangle.SetParamNames("\"", "\"", 1, []string{"default_tax_rate_id"}),
-		strmangle.WhereClause("\"", "\"", 2, userBillingPrimaryKeyColumns),
-	)
-	values := []interface{}{related.ID, o.ID}
-
-	if boil.IsDebug(ctx) {
-		writer := boil.DebugWriterFrom(ctx)
-		fmt.Fprintln(writer, updateQuery)
-		fmt.Fprintln(writer, values)
-	}
-	if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
-		return errors.Wrap(err, "failed to update local table")
-	}
-
-	o.DefaultTaxRateID = related.ID
-	if o.R == nil {
-		o.R = &userBillingR{
-			DefaultTaxRate: related,
-		}
-	} else {
-		o.R.DefaultTaxRate = related
-	}
-
-	if related.R == nil {
-		related.R = &taxRateR{
-			DefaultTaxRateUserBillings: UserBillingSlice{o},
-		}
-	} else {
-		related.R.DefaultTaxRateUserBillings = append(related.R.DefaultTaxRateUserBillings, o)
 	}
 
 	return nil

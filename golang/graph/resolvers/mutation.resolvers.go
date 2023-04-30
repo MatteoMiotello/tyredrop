@@ -6,13 +6,17 @@ package resolvers
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"pillowww/titw/graph"
 	"pillowww/titw/graph/converters"
 	"pillowww/titw/graph/model"
 	auth2 "pillowww/titw/internal/auth"
+	"pillowww/titw/internal/db"
+	"pillowww/titw/internal/domain/user"
 	"pillowww/titw/models"
+	"pillowww/titw/pkg/constants"
 
 	null "github.com/volatiletech/null/v8"
 )
@@ -28,47 +32,57 @@ func (r *mutationResolver) CreateUserBilling(ctx context.Context, billingInput m
 	currentUser, err := auth.GetUser(ctx)
 
 	if err != nil {
-		return nil, errors.New("User not foud: " + err.Error())
+		return nil, errors.New("User not found: " + err.Error())
 	}
 
-	var model *models.UserBilling
+	var userBillingModel *models.UserBilling = new(models.UserBilling)
+	var paymentMethod *models.UserPaymentMethod = new(models.UserPaymentMethod)
 
-	model.UserID = currentUser.ID
-	model.DefaultTaxRateID = 1 //todo
-	model.LegalEntityTypeID = billingInput.LegalEntityTypeID
-	model.Name = billingInput.Name
-	model.Surname = billingInput.Surname
-	model.VatNumber = billingInput.VatNumber
-	model.AddressLine1 = billingInput.AddressLine1
-	model.AddressLine2 = null.StringFrom(*billingInput.AddressLine2)
-	model.City = billingInput.City
-	model.Province = billingInput.Province
-	model.Cap = billingInput.Cap
-	model.Country = billingInput.Country
+	err = db.WithTx(ctx, func(tx *sql.Tx) error {
+		userDao := user.NewDao(tx)
+		userBillingModel.UserID = currentUser.ID
+		userBillingModel.LegalEntityTypeID = billingInput.LegalEntityTypeID
+		userBillingModel.Name = billingInput.Name
+		userBillingModel.Surname = billingInput.Surname
+		userBillingModel.VatNumber = billingInput.VatNumber
+		userBillingModel.AddressLine1 = billingInput.AddressLine1
+		userBillingModel.AddressLine2 = null.StringFrom(*billingInput.AddressLine2)
+		userBillingModel.City = billingInput.City
+		userBillingModel.Province = billingInput.Province
+		userBillingModel.Cap = billingInput.Cap
+		userBillingModel.Country = billingInput.Country
 
-	if billingInput.FiscalCode == nil {
-		model.FiscalCode = billingInput.VatNumber
-	} else {
-		model.FiscalCode = *billingInput.FiscalCode
-	}
+		if billingInput.FiscalCode == nil {
+			userBillingModel.FiscalCode = billingInput.VatNumber
+		} else {
+			userBillingModel.FiscalCode = *billingInput.FiscalCode
+		}
 
-	err = r.UserDao.Insert(ctx, model)
+		err = userDao.Insert(ctx, userBillingModel)
+		if err != nil {
+			return err
+		}
+
+		paymentMethod.UserID = currentUser.ID
+		paymentMethod.Name = billingInput.Name + " " + billingInput.Surname
+		paymentMethod.Type = constants.PAYMENT_METHOD_SEPA
+		paymentMethod.Value = billingInput.Iban
+		paymentMethod.TypePrimary = true
+
+		err = userDao.Insert(ctx, paymentMethod)
+
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
 	if err != nil {
 		return nil, err
 	}
 
-	var paymentMethod *models.UserPaymentMethod
-
-	paymentMethod.UserID = currentUser.ID
-	paymentMethod.Name = billingInput.Name + " " + billingInput.Surname
-	paymentMethod.Value = billingInput.Iban
-
-	err = r.UserDao.Insert(ctx, paymentMethod)
-	if err != nil {
-		return nil, err
-	}
-
-	return converters.UserBillingToGraphQL(model), nil
+	return converters.UserBillingToGraphQL(userBillingModel), nil
 }
 
 // Mutation returns graph.MutationResolver implementation.

@@ -11,6 +11,8 @@ import Input from "../../../common/components-library/Input";
 import {SelectComponent, SelectOption} from "../../../common/components-library/SelectComponent";
 import Spinner from "../../../common/components/Spinner";
 import {isRequired} from "../../../common/validation/validators";
+import {Simulate} from "react-dom/test-utils";
+import load = Simulate.load;
 
 const controller = new AbortController();
 const handleQuery: AutocompleteQueryHandler = async (query: string) => {
@@ -56,18 +58,18 @@ export const BillingForm: React.FC<BillingFormProps> = ( props ) => {
     const [options, setOptions] = useState<SelectOption[]>([]);
 
     const onSubmit = (billingInput: BillingInput) => {
-
-
         props.store( billingInput ) ;
         return;
     };
 
-    if (error) {
-        handleFormError(t('billing.error_loading'));
-    }
+    useEffect( () => {
+        if (error) {
+            handleFormError(t('billing.error_loading'));
+        }
+    }, [error] )
 
     useEffect( () => {
-        if (data) {
+        if (data && !loading) {
             if (!data.legalEntityTypes) {
                 setOptions([]);
             } else {
@@ -145,7 +147,7 @@ export const BillingForm: React.FC<BillingFormProps> = ( props ) => {
         validators={[isRequired]}
         />
         <Input type="text"
-        name="postal_code"
+        name="cap"
         placeholder={t('billing.cap_placeholder')}
         className="col-span-4"
         validators={[isRequired]}

@@ -4,43 +4,34 @@ import Input from "../../../common/components-library/Input";
 import Button from "../../../common/components-library/Button";
 import Form, {FormErrors, FormSubmitHandler, useForm} from "../../../common/components-library/Form";
 import {useTranslation} from "react-i18next";
-import {useSelector} from "react-redux";
 import {ValidationHandler} from "../../../common/validation/validators";
-import {Store} from "../../../store/store";
-<<<<<<< Updated upstream
-import {AuthStatus, selectAuthStatus} from "../store/auth-selector";
-import {useToast} from "../../../hooks/useToast";
-=======
-import {AuthStatus} from "../service/auth-status";
-import {selectAuthStatus} from "../store/auth-selector";
->>>>>>> Stashed changes
+import {useAuth} from "../hooks/useAuth";
 
 interface LoginFormProps {
     login: ( request: LoginRequest ) => void
 
-    onSuccess: () => void
+    onSuccess?: () => void
 }
 
 const LoginForm: React.FC<LoginFormProps> = ( props: LoginFormProps ) => {
     const [form, handleFormError] = useForm();
     const {t} = useTranslation();
-    const userStatus = useSelector<Store, AuthStatus>( selectAuthStatus );
-    const { setSuccess, addError } = useToast();
+    const auth = useAuth();
 
     useEffect( () => {
-        if ( userStatus.status == 'error' ) {
-            let error = userStatus.error;
-            if ( userStatus.error && ( typeof userStatus.error == 'number' && userStatus.error >= 4000 ) ) {
+        if ( auth.isError() ) {
+            let error = auth.error;
+            if ( auth.error && ( typeof auth.error == 'number' && auth.error >= 4000 ) ) {
                 error = t( 'login.wrong_username_or_password' );
             }
 
             handleFormError( error );
         }
 
-        if ( userStatus.status == 'fullfilled' ) {
+        if ( auth.isAuthenticated() && props.onSuccess) {
             props.onSuccess();
         }
-    }, [ userStatus ] );
+    }, [ auth ] );
 
     const validateEmail: ValidationHandler = ( value ) => {
         if ( !value ) {
@@ -59,7 +50,6 @@ const LoginForm: React.FC<LoginFormProps> = ( props: LoginFormProps ) => {
     };
 
     const onSubmit: FormSubmitHandler<LoginRequest> = ( loginRequest: LoginRequest ) => {
-        addError( 'ciao' );
         const formErrors = new FormErrors();
 
         formErrors.appendError( validateEmail( loginRequest.email as string ) );

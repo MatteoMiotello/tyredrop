@@ -1,4 +1,4 @@
-import { ApolloProvider} from "@apollo/client";
+import {ApolloProvider} from "@apollo/client";
 import React, {useState} from "react";
 import {RouterProvider, createBrowserRouter} from "react-router-dom";
 import App from "./App";
@@ -22,19 +22,18 @@ const router = createBrowserRouter([
 
 const Root: React.FC = () => {
     const [toasts, setToasts] = useState<ToastConfig[]>([]);
-    const value = {toasts: toasts, setToasts};
+    const value = {toasts: toasts, setToasts: setToasts};
 
     return <>
-
         <Provider store={store}>
-            <ApolloProvider client={client}>
-                <I18nextProvider i18n={i18n}>
-                    <ToastContext.Provider value={value}>
-                        <RouterProvider router={router}/>
-                        <CustomToast toasts={toasts}/>
-                    </ToastContext.Provider>
-                </I18nextProvider>
-            </ApolloProvider>
+                <ApolloProvider client={client}>
+                    <I18nextProvider i18n={i18n}>
+                        <ToastContext.Provider value={value}>
+                            <RouterProvider router={router}/>
+                            <CustomToast toasts={toasts}/>
+                        </ToastContext.Provider>
+                    </I18nextProvider>
+                </ApolloProvider>
         </Provider>
     </>;
 };
