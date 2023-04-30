@@ -27,10 +27,16 @@ const Input: React.FC<InputProps> = (props) => {
             return;
         }
 
-        props.validators?.forEach( ( validator: ValidationHandler ) => {
+        props.validators?.every( ( validator: ValidationHandler ) => {
             const error = validator( value );
 
             setError( error );
+
+            if ( error ) {
+                return false;
+            }
+
+            return true;
         } );
     };
 

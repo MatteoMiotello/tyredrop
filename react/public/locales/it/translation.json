@@ -46,6 +46,8 @@
     "faq": "Domande frequenti"
   },
   "validation": {
-    "is_required": "Il campo e` richiesto"
+    "is_required": "Il campo e` richiesto",
+    "min_characters": "Il testo deve avere un minimo di {{min}} caratteri",
+    "max_characters": "Il testo deve avere un massimo di {{max}} caratteri"
   }
 }

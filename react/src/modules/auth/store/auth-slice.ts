@@ -7,7 +7,6 @@ import {LoginResponse} from "../../../common/backend/responses/login-response";
 import {RefreshTokenResponse} from "../../../common/backend/responses/refresh-token-response";
 import {extractFromJwt} from "../service/user";
 import {AuthState} from "./state";
-import {set} from "zod";
 
 
 export const authLogin: AsyncThunk<LoginResponse, any, any> = createAsyncThunk('AUTH/LOGIN', async (loginRequest: LoginRequest, thunkAPI) => {
@@ -75,7 +74,7 @@ const setupAuth = ( state: AuthState, accessToken: string, refreshToken: string 
     state.user = user;
     state.status = 'fullfilled';
     state.error = null;
-}
+};
 
 const authSlice: Slice<AuthState> = createSlice<AuthState, SliceCaseReducers<AuthState>, string>({
     name: 'auth',
@@ -106,7 +105,7 @@ const authSlice: Slice<AuthState> = createSlice<AuthState, SliceCaseReducers<Aut
                 const accessToken = action.payload.access_token;
                 const refreshToken = action.payload.refresh_token;
 
-                setupAuth( state, accessToken, refreshToken )
+                setupAuth( state, accessToken, refreshToken );
             })
             .addCase(authRefreshToken.pending, (state, action) => {
                 state.status = 'pending';
@@ -119,7 +118,7 @@ const authSlice: Slice<AuthState> = createSlice<AuthState, SliceCaseReducers<Aut
             .addCase(authRefreshToken.fulfilled, (state, action) => {
                 const accessToken = action.payload.access_token;
                 const refreshToken = action.payload.refresh_token;
-                setupAuth( state, accessToken, refreshToken)
+                setupAuth( state, accessToken, refreshToken);
             })
             .addCase(authRegister.pending, (state, action) => {
                 state.status = 'pending';
@@ -133,7 +132,7 @@ const authSlice: Slice<AuthState> = createSlice<AuthState, SliceCaseReducers<Aut
                 const accessToken = action.payload.access_token;
                 const refreshToken = action.payload.refresh_token;
 
-                setupAuth( state, accessToken, refreshToken )
+                setupAuth( state, accessToken, refreshToken );
             });
     }
 });

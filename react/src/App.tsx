@@ -3,10 +3,10 @@ import {useEffect} from "react";
 import {useDispatch} from "react-redux";
 import {Outlet, useNavigate} from "react-router-dom";
 import {ThunkDispatch} from "redux-thunk";
+import CustomFooter from "./common/components/CustomFooter";
 import Spinner from "./common/components/Spinner";
 import {useAuth} from "./modules/auth/hooks/useAuth";
 import {UserStatus} from "./modules/auth/service/user";
-import {authRefreshToken} from "./modules/auth/store/auth-slice";
 
 function App() {
     const auth = useAuth();
@@ -15,29 +15,27 @@ function App() {
 
     useEffect(() => {
         if (!auth.isAuthenticated() && !auth.isPending()) {
-            const refreshToken = window.localStorage.getItem('refresh_token');
+            auth.tryRefreshToken();
 
-            if (refreshToken && auth.isEmpty()) {
-                dispatch(authRefreshToken(refreshToken));
-                return;
-            }
-
-            if ( auth.isEmpty() || auth.isError() ) {
+            if ( auth.isError() ) {
                 navigate('/auth/login');
             }
         }
 
         if (auth.isAuthenticated()) {
             if (auth.user?.status && auth.user.status == UserStatus.REGISTERING) {
-                navigate('/auth/billing');
+                navigate('/billing');
             }
         }
     }, [auth]);
 
     return (
         <>
-            {(auth.isEmpty() || auth.isPending()) && <Spinner/>}
-            <Outlet></Outlet>
+            {auth.isPending() && <Spinner/>}
+            <main className="min-h-screen lg:p-24 p-4 h-full w-full flex flex-col">
+                <Outlet/>
+            </main>
+            <CustomFooter/>
         </>
     );
 }

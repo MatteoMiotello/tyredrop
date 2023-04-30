@@ -1,3 +1,5 @@
+import {store} from "../../../store/store";
+import {authRefreshToken} from "../store/auth-slice";
 import {AuthStatusType, UserState} from "../store/state";
 
 
@@ -54,5 +56,14 @@ export class AuthStatus {
         }
 
         return true;
+    }
+
+    tryRefreshToken() {
+        const refreshToken = window.localStorage.getItem('refresh_token');
+
+        if (refreshToken && this.isEmpty()) {
+            store.dispatch(authRefreshToken(refreshToken));
+            return;
+        }
     }
 }

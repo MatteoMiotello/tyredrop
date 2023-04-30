@@ -5,6 +5,7 @@ import App from "./App";
 import client from "./common/contexts/apollo-client-context";
 import ToastContext from "./common/contexts/toast-context";
 import {authRoutes} from "./modules/auth/routes";
+import {billingRoute} from "./modules/billing/routes";
 import {store} from "./store/store";
 import i18n from "./common/i18n";
 import {I18nextProvider} from "react-i18next";
@@ -16,6 +17,9 @@ const router = createBrowserRouter([
     {
         path: '/',
         element: <App/>,
+        children: [
+            billingRoute
+        ]
     },
     authRoutes
 ]);
