@@ -2,17 +2,16 @@ import {faCheck, faChevronDown} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Combobox, Transition} from "@headlessui/react";
 import React, {ChangeEventHandler, Fragment, useEffect, useState} from "react";
-import {ValidationHandler} from "../validation/validators";
+import {PropsWithValidators, ValidationHandler} from "../validation/validators";
 
 export type AutocompleteQueryHandler = (query: string) => Promise<AutocompleteOption[]>
 
-type AutocompleteProps = {
-    getOptions: AutocompleteQueryHandler
-    initialOptions: AutocompleteOption[]
-    className?: string
-    name: string
-    placeholder?: string | undefined
-    validators?: ValidationHandler[]
+interface AutocompleteProps extends PropsWithValidators {
+    getOptions: AutocompleteQueryHandler;
+    initialOptions: AutocompleteOption[];
+    className?: string;
+    name: string;
+    placeholder?: string | undefined;
 }
 
 type AutocompleteOption = {
@@ -26,28 +25,28 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
     const [filteredOptions, setFilteredOptions] = useState(props.initialOptions);
     const [error, setError] = useState<string | null>(null);
 
-
     useEffect(() => {
         props.getOptions(query).then(res => {
             setFilteredOptions(res);
         })
             .catch((err) => {
                 return null;
-        });
+            });
     }, [query]);
 
     const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
         const value = event.target.value;
 
-        if ( !props.validators) {
+        if (!props.validators) {
             return;
         }
 
-        props.validators?.forEach( ( validator: ValidationHandler ) => {
-            const error = validator( value );
+        props.validators?.every((validator: ValidationHandler) => {
+            const error = validator(value as string);
+            setError(error);
 
-            setError( error );
-        } );
+            return !error;
+        });
     };
 
     return <Combobox value={selected} onChange={setSelected} name={props.name}>
@@ -55,12 +54,12 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
             <label
                 className={`select relative w-full cursor-default overflow-hidden p-0 ${error ? 'select-error' : ''}`}>
                 <Combobox.Input<AutocompleteOption>
-                    className={"input w-full border-none p-4"   }
+                    className={"input w-full border-none p-4"}
                     displayValue={(option) => option ? option.title : ''}
                     onChange={(event) => {
                         setQuery(event.target.value);
-                        onChange( event );
-                    } }
+                        onChange(event);
+                    }}
                     onFocus={onChange}
                     placeholder={props.placeholder}
                 />
@@ -71,7 +70,7 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
                     />
                 </Combobox.Button>
             </label>
-            { error ? <span className="label-text-alt text-error">{error}</span> : ''}
+            {error ? <span className="label-text-alt text-error">{error}</span> : ''}
             <Transition
                 as={Fragment}
                 leave="transition ease-in duration-100"

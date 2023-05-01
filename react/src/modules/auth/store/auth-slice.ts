@@ -1,11 +1,19 @@
-import {AsyncThunk, PayloadAction, Slice, SliceCaseReducers, createAsyncThunk, createSlice} from "@reduxjs/toolkit";
+import {
+    AsyncThunk,
+    PayloadAction,
+    Slice,
+    SliceCaseReducers,
+    createAction,
+    createAsyncThunk,
+    createSlice
+} from "@reduxjs/toolkit";
 import {AxiosError, AxiosResponse} from "axios";
 import {createBackendClient} from "../../../common/backend/backendClient";
 import {LoginRequest} from "../../../common/backend/requests/login-request";
 import {RegisterRequest} from "../../../common/backend/requests/register-request";
 import {LoginResponse} from "../../../common/backend/responses/login-response";
 import {RefreshTokenResponse} from "../../../common/backend/responses/refresh-token-response";
-import {extractFromJwt} from "../service/user";
+import {UserStatus, extractFromJwt} from "../service/user";
 import {AuthState} from "./state";
 
 
@@ -53,6 +61,9 @@ export const authRegister: AsyncThunk<LoginResponse, any, any> = createAsyncThun
             return thunkAPI.rejectWithValue(err.response.data);
         } );
 });
+
+
+export const setUserCompleted = createAction( 'AUTH/COMPLETE_USER');
 
 const setupAuth = ( state: AuthState, accessToken: string, refreshToken: string ) => {
     let user = null;
@@ -133,7 +144,14 @@ const authSlice: Slice<AuthState> = createSlice<AuthState, SliceCaseReducers<Aut
                 const refreshToken = action.payload.refresh_token;
 
                 setupAuth( state, accessToken, refreshToken );
-            });
+            })
+            .addCase( setUserCompleted, ( state ) => {
+                if ( !state.user ) {
+                    return;
+                }
+
+                state.user.status = UserStatus.COMPLETED;
+            } );
     }
 });
 

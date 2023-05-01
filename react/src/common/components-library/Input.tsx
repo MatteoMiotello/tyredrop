@@ -1,7 +1,7 @@
 import React, {ChangeEventHandler, useState} from "react";
-import {ValidationHandler} from "../validation/validators";
+import {PropsWithValidators, ValidationHandler} from "../validation/validators";
 
-interface InputProps {
+interface InputProps extends PropsWithValidators{
     type: string
     name: string
     placeholder: string
@@ -11,12 +11,12 @@ interface InputProps {
     bottomLeftLabelText?: string
     bottomRightLabelText?: string
     className?: string
-    validators?: ValidationHandler[] | []
+    error?: string
 }
 
 
 const Input: React.FC<InputProps> = (props) => {
-    const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(props.error as string);
 
     let bottomLeft = null;
     let classes = null;

@@ -24,7 +24,7 @@
     "password_requirement": "La password deve avere almento 8 caratteri"
   },
   "billing": {
-    "name_placeholder": "Nome",
+    "name_placeholder": "Nome o Ragione Sociale",
     "surname_placeholder":"Cognome",
     "fiscal_code_placeholder": "Codice Fiscale",
     "vat_number_placeholder":"P. IVA",
@@ -37,7 +37,10 @@
     "submit_button": "Salva",
     "page_title": "Inserisci i dati personali",
     "page_subtitle": "Per proseguire e` necessario inserire tutti i dati personali.",
-    "error_loading": "C'e` stato un problema nel caricamento"
+    "error_loading": "C'e` stato un problema nel caricamento",
+    "user_not_found": "Utente non trovato, ti preghiamo di ricaricare la pagina.",
+    "error_storing": "Ops, c'e` stato un errore nel salvataggio. Riprova piu` tardi",
+    "store_success": "Salvataggio avvenuto con successo!"
   },
   "footer": {
     "who": "Chi siamo",
@@ -46,7 +49,7 @@
     "faq": "Domande frequenti"
   },
   "validation": {
-    "is_required": "Il campo e` richiesto",
+    "is_required": "Il campo {{inputName}} e` richiesto",
     "min_characters": "Il testo deve avere un minimo di {{min}} caratteri",
     "max_characters": "Il testo deve avere un massimo di {{max}} caratteri"
   }

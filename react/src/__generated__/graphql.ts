@@ -39,7 +39,7 @@ export type CreateUserBilling = {
   legalEntityTypeId: Scalars['ID'];
   name: Scalars['String'];
   province: Scalars['String'];
-  surname: Scalars['String'];
+  surname?: InputMaybe<Scalars['String']>;
   vatNumber: Scalars['String'];
 };
 
@@ -55,6 +55,7 @@ export type Currency = {
 export type LegalEntityType = {
   __typename?: 'LegalEntityType';
   id: Scalars['ID'];
+  isPerson: Scalars['Boolean'];
   name: Scalars['String'];
 };
 
@@ -163,7 +164,7 @@ export type Query = {
   productItems?: Maybe<Array<Maybe<ProductItem>>>;
   products?: Maybe<ProductPaginate>;
   productsItemsByCode?: Maybe<ProductItem>;
-  taxRates?: Maybe<Array<Maybe<TaxRate>>>;
+  taxRates?: Maybe<Array<Maybe<Tax>>>;
   user?: Maybe<User>;
   users?: Maybe<Array<Maybe<User>>>;
 };
@@ -200,8 +201,8 @@ export type Supplier = {
   name: Scalars['String'];
 };
 
-export type TaxRate = {
-  __typename?: 'TaxRate';
+export type Tax = {
+  __typename?: 'Tax';
   id: Scalars['ID'];
   markupPercentage: Scalars['Float'];
   name: Scalars['String'];
@@ -230,7 +231,7 @@ export type UserBilling = {
   name: Scalars['String'];
   province?: Maybe<Scalars['String']>;
   surname: Scalars['String'];
-  taxRate: TaxRate;
+  taxRate: Tax;
   user: User;
   userID?: Maybe<Scalars['ID']>;
   vatNumber: Scalars['String'];
@@ -261,8 +262,8 @@ export type CreateUserBillingMutation = { __typename?: 'Mutation', createUserBil
 export type GetLegalEntityTypesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetLegalEntityTypesQuery = { __typename?: 'Query', legalEntityTypes?: Array<{ __typename?: 'LegalEntityType', id: string, name: string } | null> | null };
+export type GetLegalEntityTypesQuery = { __typename?: 'Query', legalEntityTypes?: Array<{ __typename?: 'LegalEntityType', id: string, name: string, isPerson: boolean } | null> | null };
 
 
 export const CreateUserBillingDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateUserBilling"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateUserBilling"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createUserBilling"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"billingInput"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"surname"}}]}}]}}]} as unknown as DocumentNode<CreateUserBillingMutation, CreateUserBillingMutationVariables>;
-export const GetLegalEntityTypesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetLegalEntityTypes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"legalEntityTypes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]} as unknown as DocumentNode<GetLegalEntityTypesQuery, GetLegalEntityTypesQueryVariables>;
+export const GetLegalEntityTypesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetLegalEntityTypes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"legalEntityTypes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"isPerson"}}]}}]}}]} as unknown as DocumentNode<GetLegalEntityTypesQuery, GetLegalEntityTypesQueryVariables>;

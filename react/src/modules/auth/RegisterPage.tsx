@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React from "react";
 import {useTranslation} from "react-i18next";
 import {useDispatch} from "react-redux";
 import {useNavigate} from "react-router-dom";
@@ -14,13 +14,7 @@ const RegisterPage: React.FC = () => {
     const dispatch = useDispatch<ThunkDispatch<RegisterRequest, any, any>>();
     const auth = useAuth();
     const navigate = useNavigate();
-
-    useEffect( () => {
-        if ( auth.isAuthenticated() ) {
-            navigate( '/' );
-        }
-    }, [auth]);
-
+    
     const handleRegister = ( registerRequest: RegisterRequest ): void => {
         dispatch( authRegister( registerRequest ) );
     };

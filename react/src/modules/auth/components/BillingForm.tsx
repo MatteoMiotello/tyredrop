@@ -1,9 +1,11 @@
-import {useQuery} from "@apollo/client";
+import {ApolloError, useQuery} from "@apollo/client";
 import axios from "axios";
-import {GraphQLError} from "graphql/error";
 import React, {useEffect, useState} from "react";
 import {useTranslation} from "react-i18next";
-import {GetLegalEntityTypesQuery, LegalEntityType} from "../../../__generated__/graphql";
+import {
+    GetLegalEntityTypesQuery,
+    LegalEntityType
+} from "../../../__generated__/graphql";
 import {GET_LEGAL_ENTITY_TYPES} from "../../../common/backend/graph/query/legal-entities";
 import Autocomplete, {AutocompleteQueryHandler} from "../../../common/components-library/Autocomplete";
 import Button from "../../../common/components-library/Button";
@@ -12,9 +14,7 @@ import Input from "../../../common/components-library/Input";
 import {SelectComponent, SelectOption} from "../../../common/components-library/SelectComponent";
 import Spinner from "../../../common/components/Spinner";
 import {ValidationHandler, isRequired, maxCharacters, minCharacters} from "../../../common/validation/validators";
-import {Simulate} from "react-dom/test-utils";
 import {useToast} from "../../../hooks/useToast";
-import load = Simulate.load;
 
 const controller = new AbortController();
 const handleQuery: AutocompleteQueryHandler = async (query: string) => {
@@ -31,10 +31,10 @@ const handleQuery: AutocompleteQueryHandler = async (query: string) => {
     });
 };
 
-export  type BillingInput = {
+export type BillingInput = {
     entity_type: string
     name: string
-    surname: string
+    surname?: string | undefined
     fiscal_code?: string | null
     vat_number?: string | null
     address_line_1: string
@@ -54,20 +54,43 @@ type BillingFormProps = {
 }
 
 export const BillingForm: React.FC<BillingFormProps> = (props) => {
+    const [isPerson, setIsPerson] = useState<boolean>(true);
+    const [options, setOptions] = useState<(SelectOption | null)[]>([]);
+
+    const {loading, error, data} = useQuery<GetLegalEntityTypesQuery>(GET_LEGAL_ENTITY_TYPES);
+
     const [form, handleFormError] = useForm();
     const {t} = useTranslation();
-    const {loading, error, data} = useQuery<GetLegalEntityTypesQuery>(GET_LEGAL_ENTITY_TYPES);
-    const [options, setOptions] = useState<SelectOption[]>([]);
     const {setError} = useToast();
-
-    const [ vatNumber, setVatNumber ] = useState<string|null>( null );
-    const [ fiscalCode, setFiscalCode ] = useState<string|null>( null );
 
     const onSubmit = (billingInput: BillingInput) => {
         props.store(billingInput)
-            .catch( ( err: GraphQLError ) => {
-                handleFormError( err.toString() );
-            } );
+            .catch((err: ApolloError) => {
+                if (!err.graphQLErrors || !err.graphQLErrors.length || !err.graphQLErrors[0].extensions) {
+                    handleFormError(err.message);
+                    return;
+                }
+
+                const errorCode = err.graphQLErrors[0].extensions.code;
+
+                if (!errorCode) {
+                    handleFormError(err.graphQLErrors[0].message);
+                    return;
+                }
+
+                if (errorCode == "4004") {
+                    handleFormError(t("billing.user_not_found"));
+                    return;
+                }
+
+                if (errorCode == "5001") {
+                    handleFormError(t("billing.error_storing"));
+                    return;
+                }
+
+                handleFormError(err.graphQLErrors[0].message);
+            });
+
         return;
     };
 
@@ -82,7 +105,11 @@ export const BillingForm: React.FC<BillingFormProps> = (props) => {
             if (!data.legalEntityTypes) {
                 setOptions([]);
             } else {
-                setOptions(data.legalEntityTypes?.map((type: LegalEntityType) => {
+                setOptions(data.legalEntityTypes?.map((type: LegalEntityType | null) => {
+                        if (!type) {
+                            return null;
+                        }
+
                         return {
                             value: type.id,
                             title: type.name,
@@ -94,11 +121,25 @@ export const BillingForm: React.FC<BillingFormProps> = (props) => {
         }
     }, [data]);
 
-    const validateFiscalCode: ValidationHandler = ( value: string | null ) => {
-        
-    };
-    const validateVatNumber: ValidationHandler = ( value: string | null ) => {
 
+    const validateEntityType: ValidationHandler<SelectOption | null> = (option): string | null => {
+        if (!option) {
+            return null;
+        }
+
+        if (!data || !data?.legalEntityTypes) {
+            return null;
+        }
+
+        const currentOption = data?.legalEntityTypes.find((opt: LegalEntityType | null) => {
+            return opt?.id === option.value;
+        });
+
+        if (currentOption) {
+            setIsPerson(currentOption.isPerson);
+        }
+
+        return null;
     };
 
 
@@ -108,24 +149,26 @@ export const BillingForm: React.FC<BillingFormProps> = (props) => {
             options={options}
             className="col-span-12"
             name="entity_type"
+            validators={[validateEntityType]}
         />
         <Input name="name"
                type="text"
                placeholder={t('billing.name_placeholder')}
-               className="col-span-6"
-               validators={[isRequired]}
+               className={isPerson ? "col-span-6" : "col-span-12"}
+               validators={[isRequired(t('billing.name_placeholder'))]}
         />
-        <Input name="surname"
-               type="text"
-               placeholder={t('billing.surname_placeholder')}
-               className="col-span-6"
-               validators={[isRequired]}
-        />
+        {isPerson &&
+            <Input name="surname"
+                   type="text"
+                   placeholder={t('billing.surname_placeholder')}
+                   className="col-span-6"
+            />
+        }
         <Input type="text"
                name="fiscal_code"
                placeholder={t('billing.fiscal_code_placeholder')}
                className="col-span-12"
-               validators={[minCharacters(16), maxCharacters(16)]}
+               validators={[minCharacters(16), maxCharacters(16), isRequired(t('billing.fiscal_code_placeholder'))]}
         />
         <Input type="text"
                name="vat_number"
@@ -136,7 +179,7 @@ export const BillingForm: React.FC<BillingFormProps> = (props) => {
                name="address_line_1"
                placeholder={t('billing.address_line_1_placeholder')}
                className="col-span-12"
-               validators={[isRequired]}
+               validators={[isRequired(t('billing.address_line_1_placeholder'))]}
         />
         <Input type="text"
                name="address_line_2"
@@ -147,27 +190,26 @@ export const BillingForm: React.FC<BillingFormProps> = (props) => {
                       className="col-span-12"
                       getOptions={handleQuery}
                       initialOptions={[{value: "IT", title: "Italia"}]}
-                      validators={[isRequired]}
+                      validators={[isRequired(t('billing.country_placeholder'))]}
                       placeholder={t('billing.country_placeholder') as string}
-
         />
         <Input type="text"
                name="city"
                placeholder={t('billing.city_placeholder')}
                className="col-span-4"
-               validators={[isRequired]}
+               validators={[isRequired(t('billing.city_placeholder'))]}
         />
         <Input type="text"
                name="province"
                placeholder={t('billing.province_placeholder')}
                className="col-span-4"
-               validators={[maxCharacters(2), isRequired, minCharacters(2)]}
+               validators={[maxCharacters(2), isRequired(t('billing.province_placeholder')), minCharacters(2)]}
         />
         <Input type="text"
                name="cap"
                placeholder={t('billing.cap_placeholder')}
                className="col-span-4"
-               validators={[isRequired]}
+               validators={[isRequired(t('billing.cap_placeholder'))]}
         />
 
         <h4 className="col-span-12 text-center"> Dati di pagamento </h4>

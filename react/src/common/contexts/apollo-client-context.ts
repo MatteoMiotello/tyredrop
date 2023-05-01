@@ -4,7 +4,9 @@ import backend from "../../config/backend";
 
 const client = new ApolloClient({
     uri: backend.graphEndpoint,
-    cache: new InMemoryCache(),
+    cache: new InMemoryCache({
+        addTypename: false
+    }),
     credentials: 'include'
 });
 

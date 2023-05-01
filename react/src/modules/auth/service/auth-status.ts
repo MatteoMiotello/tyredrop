@@ -1,6 +1,7 @@
 import {store} from "../../../store/store";
 import {authRefreshToken} from "../store/auth-slice";
 import {AuthStatusType, UserState} from "../store/state";
+import {UserStatus} from "./user";
 
 
 
@@ -55,7 +56,19 @@ export class AuthStatus {
             return false;
         }
 
-        return true;
+        if ( this.isFullfilled() && !this.isEmpty() ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    isUserCompleted(): boolean {
+        if ( this.isFullfilled() && this._user?.status == UserStatus.COMPLETED ) {
+            return true;
+        }
+
+        return false;
     }
 
     tryRefreshToken() {

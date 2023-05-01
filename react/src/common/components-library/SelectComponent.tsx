@@ -2,6 +2,7 @@ import {faCheck} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Listbox, Transition} from "@headlessui/react";
 import React, {Fragment, useEffect, useState} from "react";
+import {PropsWithValidators} from "../validation/validators";
 
 export type SelectOption = {
     title: string
@@ -9,15 +10,16 @@ export type SelectOption = {
     disabled?: boolean
 }
 
-type SelectProps = {
+interface SelectProps extends PropsWithValidators<SelectOption | null> {
     className?: string
-    options: SelectOption[]
+    options: (SelectOption | null)[]
     placeholder?: string
     name: string
 }
 
 export const SelectComponent: React.FC<SelectProps> = (props: SelectProps) => {
     const [selected, setSelected] = useState(props.options[0] ?? null);
+    const [ error, setError ] = useState<string | null>( null );
 
     useEffect( () => {
         if ( props.options ) {
@@ -25,11 +27,29 @@ export const SelectComponent: React.FC<SelectProps> = (props: SelectProps) => {
         }
     }, [props.options] );
 
+    useEffect( () => {
+        if ( !props.validators ) {
+            return;
+        }
+
+        props.validators.every( ( validator ) => {
+            const error = validator( selected );
+
+            if ( error ) {
+                setError( error );
+                return false;
+            }
+            return true;
+        } );
+
+    }, [selected] );
+
     return <Listbox value={selected?.value || null} onChange={setSelected} name={props.name}>
         <div className={"relative " + props.className}>
             <Listbox.Button className="select relative w-full cursor-default flex items-center">
                 <span className="truncate">{ selected ? selected.title : ( props.placeholder ?? '' ) }</span>
             </Listbox.Button>
+            { error ? <span className="label-text-alt text-error">{error}</span> : ''}
             <Transition
                 as={Fragment}
                 leave="transition ease-in duration-100"
@@ -54,7 +74,7 @@ export const SelectComponent: React.FC<SelectProps> = (props: SelectProps) => {
                               selected ? 'font-medium' : 'font-normal'
                           }`}
                       >
-                        {option.title}
+                        {option ? option.title : ''}
                       </span>
                                     {selected ? (
                                         <span className="absolute inset-y-0 left-0 flex items-center text-primary ml-2">

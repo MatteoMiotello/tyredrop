@@ -5,6 +5,7 @@ export const GET_LEGAL_ENTITY_TYPES = gql(`
         legalEntityTypes {
             id
             name
+            isPerson
         }
     }
 `);

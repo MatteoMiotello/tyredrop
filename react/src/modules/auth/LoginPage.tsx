@@ -1,5 +1,5 @@
 import {AnyAction} from "@reduxjs/toolkit";
-import React, {useEffect} from "react";
+import React from "react";
 import {useTranslation} from "react-i18next";
 import {useDispatch, useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
@@ -7,7 +7,6 @@ import {ThunkDispatch} from "redux-thunk";
 import {LoginRequest} from "../../common/backend/requests/login-request";
 import {Store} from "../../store/store";
 import LoginForm from "./components/LoginForm";
-import {useAuth} from "./hooks/useAuth";
 import {authLogin} from "./store/auth-slice";
 import Spinner from "../../common/components/Spinner";
 import {selectAuthStatus} from "./store/auth-selector";
@@ -16,17 +15,8 @@ const LoginPage: React.FC = () => {
     const dispatch: ThunkDispatch<Store, any, AnyAction> = useDispatch();
     const userStatus = useSelector( selectAuthStatus );
     const navigate = useNavigate();
-    const auth = useAuth();
     const {t} = useTranslation();
-
-    useEffect( () => {
-        console.log( auth );
-
-        if ( auth.isAuthenticated() ) {
-            navigate( '/' );
-        }
-    }, [ auth ] );
-
+    
     const login = ( loginRequest: LoginRequest ) => {
         dispatch(authLogin( loginRequest ));
     };
