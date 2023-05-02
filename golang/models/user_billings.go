@@ -28,7 +28,7 @@ type UserBilling struct {
 	UserID            int64       `boil:"user_id" json:"user_id" toml:"user_id" yaml:"user_id"`
 	LegalEntityTypeID int64       `boil:"legal_entity_type_id" json:"legal_entity_type_id" toml:"legal_entity_type_id" yaml:"legal_entity_type_id"`
 	Name              string      `boil:"name" json:"name" toml:"name" yaml:"name"`
-	Surname           string      `boil:"surname" json:"surname" toml:"surname" yaml:"surname"`
+	Surname           null.String `boil:"surname" json:"surname,omitempty" toml:"surname" yaml:"surname,omitempty"`
 	FiscalCode        string      `boil:"fiscal_code" json:"fiscal_code" toml:"fiscal_code" yaml:"fiscal_code"`
 	VatNumber         string      `boil:"vat_number" json:"vat_number" toml:"vat_number" yaml:"vat_number"`
 	AddressLine1      string      `boil:"address_line_1" json:"address_line_1" toml:"address_line_1" yaml:"address_line_1"`
@@ -124,7 +124,7 @@ var UserBillingWhere = struct {
 	UserID            whereHelperint64
 	LegalEntityTypeID whereHelperint64
 	Name              whereHelperstring
-	Surname           whereHelperstring
+	Surname           whereHelpernull_String
 	FiscalCode        whereHelperstring
 	VatNumber         whereHelperstring
 	AddressLine1      whereHelperstring
@@ -141,7 +141,7 @@ var UserBillingWhere = struct {
 	UserID:            whereHelperint64{field: "\"user_billings\".\"user_id\""},
 	LegalEntityTypeID: whereHelperint64{field: "\"user_billings\".\"legal_entity_type_id\""},
 	Name:              whereHelperstring{field: "\"user_billings\".\"name\""},
-	Surname:           whereHelperstring{field: "\"user_billings\".\"surname\""},
+	Surname:           whereHelpernull_String{field: "\"user_billings\".\"surname\""},
 	FiscalCode:        whereHelperstring{field: "\"user_billings\".\"fiscal_code\""},
 	VatNumber:         whereHelperstring{field: "\"user_billings\".\"vat_number\""},
 	AddressLine1:      whereHelperstring{field: "\"user_billings\".\"address_line_1\""},
@@ -204,8 +204,8 @@ type userBillingL struct{}
 
 var (
 	userBillingAllColumns            = []string{"id", "user_id", "legal_entity_type_id", "name", "surname", "fiscal_code", "vat_number", "address_line_1", "address_line_2", "city", "province", "cap", "country", "deleted_at", "updated_at", "created_at"}
-	userBillingColumnsWithoutDefault = []string{"user_id", "legal_entity_type_id", "name", "surname", "fiscal_code", "vat_number", "address_line_1", "city", "province", "cap", "country"}
-	userBillingColumnsWithDefault    = []string{"id", "address_line_2", "deleted_at", "updated_at", "created_at"}
+	userBillingColumnsWithoutDefault = []string{"user_id", "legal_entity_type_id", "name", "fiscal_code", "vat_number", "address_line_1", "city", "province", "cap", "country"}
+	userBillingColumnsWithDefault    = []string{"id", "surname", "address_line_2", "deleted_at", "updated_at", "created_at"}
 	userBillingPrimaryKeyColumns     = []string{"id"}
 	userBillingGeneratedColumns      = []string{}
 )

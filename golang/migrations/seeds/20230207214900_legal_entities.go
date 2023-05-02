@@ -12,13 +12,13 @@ func init() {
 
 func upLegalEntities(tx *sql.Tx) error {
 	query, values := sqlbuilder.InsertInto("public.legal_entity_types").
-		Cols("name").
-		Values("Persona fisica").
-		Values("Ditta individuale").
-		Values("Società a responsabilità limitata (S.r.l.)").
-		Values("Società a responsabilità illimitata (S.p.A.)").
-		Values("Società per azioni semplificata (S.p.A.S.)").
-		Values("Società in accomandita semplice (S.a.s.)").
+		Cols("name", "is_person").
+		Values("Persona fisica", true).
+		Values("Ditta individuale", true).
+		Values("Società a responsabilità limitata (S.r.l.)", false).
+		Values("Società a responsabilità illimitata (S.p.A.)", false).
+		Values("Società per azioni semplificata (S.p.A.S.)", false).
+		Values("Società in accomandita semplice (S.a.s.)", false).
 		BuildWithFlavor(sqlbuilder.PostgreSQL)
 
 	_, err := tx.Exec(query, values...)

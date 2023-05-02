@@ -1,5 +1,4 @@
 import {jwt} from "../../../common/jwt/jwt";
-import {User} from "../models/user";
 import {UserState} from "../store/state";
 
 export enum UserStatus {
@@ -19,19 +18,37 @@ export const extractFromJwt = ( accessToken: string ): User => {
     return jwt.decodeJwt<User>(accessToken) as User;
 };
 
-export class UserService {
-    constructor( private _user: UserState ) {
+export class User {
+    constructor( private _userState: UserState | null ) {
     }
 
     public isRegistering(): boolean {
-        return this._user.status == UserStatus.REGISTERING;
+        if ( !this._userState ) {
+            return false;
+        }
+
+        return this._userState.status == UserStatus.REGISTERING;
     }
 
     public isCompleted(): boolean {
-        return this._user.status == UserStatus.COMPLETED;
+        if ( !this._userState ) {
+            return false;
+        }
+
+        return this._userState.status == UserStatus.COMPLETED;
     }
 
-    get user(): UserState {
-        return this._user;
+    public isTokenValid(): boolean {
+        const expiration = this._userState?.exp;
+
+        if ( expiration && Date.now() < expiration * 1000 ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    get user(): UserState | null{
+        return this._userState;
     }
 }

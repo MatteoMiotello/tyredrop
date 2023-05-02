@@ -44,7 +44,7 @@ func (r *userBillingResolver) LegalEntityType(ctx context.Context, obj *model.Us
 }
 
 // TaxRate is the resolver for the taxRate field.
-func (r *userBillingResolver) TaxRate(ctx context.Context, obj *model.UserBilling) (*model.TaxRate, error) {
+func (r *userBillingResolver) TaxRate(ctx context.Context, obj *model.UserBilling) (*model.Tax, error) {
 	panic(fmt.Errorf("not implemented: TaxRate - taxRate"))
 }
 

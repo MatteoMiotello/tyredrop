@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/volatiletech/null/v8"
 	"golang.org/x/net/context"
@@ -32,8 +31,6 @@ type Auth struct {
 
 func FromCtx(ctx context.Context) (access *Auth) {
 	value := ctx.Value(ctxKey)
-
-	fmt.Println(value)
 
 	if value == nil {
 		return &Auth{

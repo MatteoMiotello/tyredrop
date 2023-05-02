@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -10,12 +11,14 @@ import (
 	"github.com/vektah/gqlparser/v2/gqlerror"
 	"os"
 	"pillowww/titw/graph"
+	"pillowww/titw/graph/graphErrors"
 	"pillowww/titw/graph/resolvers"
 	auth2 "pillowww/titw/internal/auth"
 	"pillowww/titw/internal/db"
 	"pillowww/titw/internal/domain/user"
 	"pillowww/titw/pkg/log"
 	"runtime/debug"
+	"strings"
 )
 
 type GraphqlController Controller
@@ -33,6 +36,26 @@ func (g *GraphqlController) buildConfig() graph.Config {
 		}
 
 		return next(ctx)
+	}
+
+	c.Directives.NotEmpty = func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error) {
+		val, err := next(ctx)
+		str, ok := val.(string)
+
+		graphContext := graphql.GetPathContext(ctx)
+		fieldName := graphContext.Field
+
+		if !ok {
+			return nil, graphErrors.NewGraphError(ctx, errors.New("Not empty can be used only on strings."), "2002")
+		}
+
+		str = strings.Replace(str, " ", "", -1)
+
+		if len(str) == 0 {
+			return nil, graphErrors.NewGraphError(ctx, errors.New(fmt.Sprintf("%s field can not be empty.", *fieldName)), "2001")
+		}
+
+		return val, err
 	}
 
 	return c

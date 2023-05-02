@@ -1,12 +1,15 @@
 import {store} from "../../../store/store";
 import {authRefreshToken} from "../store/auth-slice";
 import {AuthStatusType, UserState} from "../store/state";
-import {UserStatus} from "./user";
+import {User} from "./user";
 
 
 
-export class AuthStatus {
-    constructor(private _status: AuthStatusType, private _error: string | null | undefined, private _user: UserState | null) {
+export class AuthService {
+    _user: User | null;
+
+    constructor(private _status: AuthStatusType, private _error: string | null | undefined, _user: UserState | null) {
+        this._user = new User( _user );
     }
 
     isError(): boolean {
@@ -33,7 +36,7 @@ export class AuthStatus {
         return this._error;
     }
 
-    get user(): UserState | null {
+    get user(): User | null {
         return this._user;
     }
 
@@ -50,9 +53,7 @@ export class AuthStatus {
             return false;
         }
 
-        const expiration = this.user?.exp;
-
-        if ( expiration && Date.now() >= expiration * 1000 ) {
+        if ( !this.user?.isTokenValid() ) {
             return false;
         }
 
@@ -64,7 +65,7 @@ export class AuthStatus {
     }
 
     isUserCompleted(): boolean {
-        if ( this.isFullfilled() && this._user?.status == UserStatus.COMPLETED ) {
+        if ( this.isFullfilled() && this.user?.isCompleted()) {
             return true;
         }
 

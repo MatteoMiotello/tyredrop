@@ -18,7 +18,7 @@ func UserBillingToGraphQL(billing *models.UserBilling) *model.UserBilling {
 		ID:                billing.ID,
 		LegalEntityTypeID: billing.LegalEntityTypeID,
 		Name:              billing.Name,
-		Surname:           billing.Surname,
+		Surname:           &billing.Surname.String,
 		FiscalCode:        billing.FiscalCode,
 		VatNumber:         billing.VatNumber,
 		AddressLine1:      billing.AddressLine1,

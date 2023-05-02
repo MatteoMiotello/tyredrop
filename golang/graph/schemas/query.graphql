@@ -17,7 +17,7 @@ type ProductPaginate {
 type Query {
     user(ID: ID!): User
     users: [User]
-    taxRates: [TaxRate]
+    taxRates: [Tax]
     legalEntityTypes: [LegalEntityType]
     productsItemsByCode( code: String! ): ProductItem
     productItems( input: [ProductSpecificationInput]! ): [ProductItem]

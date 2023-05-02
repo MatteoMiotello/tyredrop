@@ -25,6 +25,7 @@ import (
 type LegalEntityType struct {
 	ID        int64     `boil:"id" json:"id" toml:"id" yaml:"id"`
 	Name      string    `boil:"name" json:"name" toml:"name" yaml:"name"`
+	IsPerson  bool      `boil:"is_person" json:"is_person" toml:"is_person" yaml:"is_person"`
 	CreatedAt time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 
 	R *legalEntityTypeR `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -34,32 +35,47 @@ type LegalEntityType struct {
 var LegalEntityTypeColumns = struct {
 	ID        string
 	Name      string
+	IsPerson  string
 	CreatedAt string
 }{
 	ID:        "id",
 	Name:      "name",
+	IsPerson:  "is_person",
 	CreatedAt: "created_at",
 }
 
 var LegalEntityTypeTableColumns = struct {
 	ID        string
 	Name      string
+	IsPerson  string
 	CreatedAt string
 }{
 	ID:        "legal_entity_types.id",
 	Name:      "legal_entity_types.name",
+	IsPerson:  "legal_entity_types.is_person",
 	CreatedAt: "legal_entity_types.created_at",
 }
 
 // Generated where
 
+type whereHelperbool struct{ field string }
+
+func (w whereHelperbool) EQ(x bool) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
+func (w whereHelperbool) NEQ(x bool) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
+func (w whereHelperbool) LT(x bool) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
+func (w whereHelperbool) LTE(x bool) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
+func (w whereHelperbool) GT(x bool) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
+func (w whereHelperbool) GTE(x bool) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
+
 var LegalEntityTypeWhere = struct {
 	ID        whereHelperint64
 	Name      whereHelperstring
+	IsPerson  whereHelperbool
 	CreatedAt whereHelpertime_Time
 }{
 	ID:        whereHelperint64{field: "\"legal_entity_types\".\"id\""},
 	Name:      whereHelperstring{field: "\"legal_entity_types\".\"name\""},
+	IsPerson:  whereHelperbool{field: "\"legal_entity_types\".\"is_person\""},
 	CreatedAt: whereHelpertime_Time{field: "\"legal_entity_types\".\"created_at\""},
 }
 
@@ -91,8 +107,8 @@ func (r *legalEntityTypeR) GetUserBillings() UserBillingSlice {
 type legalEntityTypeL struct{}
 
 var (
-	legalEntityTypeAllColumns            = []string{"id", "name", "created_at"}
-	legalEntityTypeColumnsWithoutDefault = []string{"name"}
+	legalEntityTypeAllColumns            = []string{"id", "name", "is_person", "created_at"}
+	legalEntityTypeColumnsWithoutDefault = []string{"name", "is_person"}
 	legalEntityTypeColumnsWithDefault    = []string{"id", "created_at"}
 	legalEntityTypePrimaryKeyColumns     = []string{"id"}
 	legalEntityTypeGeneratedColumns      = []string{}

@@ -49,7 +49,8 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
-	IsAdmin func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
+	IsAdmin  func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
+	NotEmpty func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -68,8 +69,9 @@ type ComplexityRoot struct {
 	}
 
 	LegalEntityType struct {
-		ID   func(childComplexity int) int
-		Name func(childComplexity int) int
+		ID       func(childComplexity int) int
+		IsPerson func(childComplexity int) int
+		Name     func(childComplexity int) int
 	}
 
 	Mutation struct {
@@ -158,7 +160,7 @@ type ComplexityRoot struct {
 		Name func(childComplexity int) int
 	}
 
-	TaxRate struct {
+	Tax struct {
 		ID               func(childComplexity int) int
 		MarkupPercentage func(childComplexity int) int
 		Name             func(childComplexity int) int
@@ -235,7 +237,7 @@ type ProductSpecificationValueResolver interface {
 type QueryResolver interface {
 	User(ctx context.Context, id int64) (*model.User, error)
 	Users(ctx context.Context) ([]*model.User, error)
-	TaxRates(ctx context.Context) ([]*model.TaxRate, error)
+	TaxRates(ctx context.Context) ([]*model.Tax, error)
 	LegalEntityTypes(ctx context.Context) ([]*model.LegalEntityType, error)
 	ProductsItemsByCode(ctx context.Context, code string) (*model.ProductItem, error)
 	ProductItems(ctx context.Context, input []*model.ProductSpecificationInput) ([]*model.ProductItem, error)
@@ -249,7 +251,7 @@ type UserResolver interface {
 }
 type UserBillingResolver interface {
 	LegalEntityType(ctx context.Context, obj *model.UserBilling) (*model.LegalEntityType, error)
-	TaxRate(ctx context.Context, obj *model.UserBilling) (*model.TaxRate, error)
+	TaxRate(ctx context.Context, obj *model.UserBilling) (*model.Tax, error)
 
 	User(ctx context.Context, obj *model.UserBilling) (*model.User, error)
 }
@@ -331,6 +333,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.LegalEntityType.ID(childComplexity), true
+
+	case "LegalEntityType.isPerson":
+		if e.complexity.LegalEntityType.IsPerson == nil {
+			break
+		}
+
+		return e.complexity.LegalEntityType.IsPerson(childComplexity), true
 
 	case "LegalEntityType.name":
 		if e.complexity.LegalEntityType.Name == nil {
@@ -745,26 +754,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Supplier.Name(childComplexity), true
 
-	case "TaxRate.id":
-		if e.complexity.TaxRate.ID == nil {
+	case "Tax.id":
+		if e.complexity.Tax.ID == nil {
 			break
 		}
 
-		return e.complexity.TaxRate.ID(childComplexity), true
+		return e.complexity.Tax.ID(childComplexity), true
 
-	case "TaxRate.markupPercentage":
-		if e.complexity.TaxRate.MarkupPercentage == nil {
+	case "Tax.markupPercentage":
+		if e.complexity.Tax.MarkupPercentage == nil {
 			break
 		}
 
-		return e.complexity.TaxRate.MarkupPercentage(childComplexity), true
+		return e.complexity.Tax.MarkupPercentage(childComplexity), true
 
-	case "TaxRate.name":
-		if e.complexity.TaxRate.Name == nil {
+	case "Tax.name":
+		if e.complexity.Tax.Name == nil {
 			break
 		}
 
-		return e.complexity.TaxRate.Name(childComplexity), true
+		return e.complexity.Tax.Name(childComplexity), true
 
 	case "User.email":
 		if e.complexity.User.Email == nil {
@@ -1653,6 +1662,50 @@ func (ec *executionContext) fieldContext_LegalEntityType_name(ctx context.Contex
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LegalEntityType_isPerson(ctx context.Context, field graphql.CollectedField, obj *model.LegalEntityType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LegalEntityType_isPerson(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsPerson, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LegalEntityType_isPerson(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LegalEntityType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3822,9 +3875,9 @@ func (ec *executionContext) _Query_taxRates(ctx context.Context, field graphql.C
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]*model.TaxRate)
+	res := resTmp.([]*model.Tax)
 	fc.Result = res
-	return ec.marshalOTaxRate2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐTaxRate(ctx, field.Selections, res)
+	return ec.marshalOTax2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐTax(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_taxRates(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3836,13 +3889,13 @@ func (ec *executionContext) fieldContext_Query_taxRates(ctx context.Context, fie
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_TaxRate_id(ctx, field)
+				return ec.fieldContext_Tax_id(ctx, field)
 			case "markupPercentage":
-				return ec.fieldContext_TaxRate_markupPercentage(ctx, field)
+				return ec.fieldContext_Tax_markupPercentage(ctx, field)
 			case "name":
-				return ec.fieldContext_TaxRate_name(ctx, field)
+				return ec.fieldContext_Tax_name(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type TaxRate", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Tax", field.Name)
 		},
 	}
 	return fc, nil
@@ -3888,6 +3941,8 @@ func (ec *executionContext) fieldContext_Query_legalEntityTypes(ctx context.Cont
 				return ec.fieldContext_LegalEntityType_id(ctx, field)
 			case "name":
 				return ec.fieldContext_LegalEntityType_name(ctx, field)
+			case "isPerson":
+				return ec.fieldContext_LegalEntityType_isPerson(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type LegalEntityType", field.Name)
 		},
@@ -4471,8 +4526,8 @@ func (ec *executionContext) fieldContext_Supplier_code(ctx context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _TaxRate_id(ctx context.Context, field graphql.CollectedField, obj *model.TaxRate) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TaxRate_id(ctx, field)
+func (ec *executionContext) _Tax_id(ctx context.Context, field graphql.CollectedField, obj *model.Tax) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Tax_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4502,9 +4557,9 @@ func (ec *executionContext) _TaxRate_id(ctx context.Context, field graphql.Colle
 	return ec.marshalNID2int64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TaxRate_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Tax_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TaxRate",
+		Object:     "Tax",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -4515,8 +4570,8 @@ func (ec *executionContext) fieldContext_TaxRate_id(ctx context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _TaxRate_markupPercentage(ctx context.Context, field graphql.CollectedField, obj *model.TaxRate) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TaxRate_markupPercentage(ctx, field)
+func (ec *executionContext) _Tax_markupPercentage(ctx context.Context, field graphql.CollectedField, obj *model.Tax) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Tax_markupPercentage(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4546,9 +4601,9 @@ func (ec *executionContext) _TaxRate_markupPercentage(ctx context.Context, field
 	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TaxRate_markupPercentage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Tax_markupPercentage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TaxRate",
+		Object:     "Tax",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -4559,8 +4614,8 @@ func (ec *executionContext) fieldContext_TaxRate_markupPercentage(ctx context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _TaxRate_name(ctx context.Context, field graphql.CollectedField, obj *model.TaxRate) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TaxRate_name(ctx, field)
+func (ec *executionContext) _Tax_name(ctx context.Context, field graphql.CollectedField, obj *model.Tax) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Tax_name(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4590,9 +4645,9 @@ func (ec *executionContext) _TaxRate_name(ctx context.Context, field graphql.Col
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TaxRate_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Tax_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "TaxRate",
+		Object:     "Tax",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -4951,6 +5006,8 @@ func (ec *executionContext) fieldContext_UserBilling_legalEntityType(ctx context
 				return ec.fieldContext_LegalEntityType_id(ctx, field)
 			case "name":
 				return ec.fieldContext_LegalEntityType_name(ctx, field)
+			case "isPerson":
+				return ec.fieldContext_LegalEntityType_isPerson(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type LegalEntityType", field.Name)
 		},
@@ -4984,9 +5041,9 @@ func (ec *executionContext) _UserBilling_taxRate(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.TaxRate)
+	res := resTmp.(*model.Tax)
 	fc.Result = res
-	return ec.marshalNTaxRate2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐTaxRate(ctx, field.Selections, res)
+	return ec.marshalNTax2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐTax(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_UserBilling_taxRate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4998,13 +5055,13 @@ func (ec *executionContext) fieldContext_UserBilling_taxRate(ctx context.Context
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_TaxRate_id(ctx, field)
+				return ec.fieldContext_Tax_id(ctx, field)
 			case "markupPercentage":
-				return ec.fieldContext_TaxRate_markupPercentage(ctx, field)
+				return ec.fieldContext_Tax_markupPercentage(ctx, field)
 			case "name":
-				return ec.fieldContext_TaxRate_name(ctx, field)
+				return ec.fieldContext_Tax_name(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type TaxRate", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Tax", field.Name)
 		},
 	}
 	return fc, nil
@@ -5080,9 +5137,9 @@ func (ec *executionContext) _UserBilling_surname(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_UserBilling_surname(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7738,15 +7795,29 @@ func (ec *executionContext) unmarshalInputCreateUserBilling(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNString2string(ctx, v) }
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				if ec.directives.NotEmpty == nil {
+					return nil, errors.New("directive notEmpty is not implemented")
+				}
+				return ec.directives.NotEmpty(ctx, obj, directive0)
+			}
+
+			tmp, err := directive1(ctx)
 			if err != nil {
-				return it, err
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.Name = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
 			}
 		case "surname":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("surname"))
-			it.Surname, err = ec.unmarshalNString2string(ctx, v)
+			it.Surname, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7770,9 +7841,23 @@ func (ec *executionContext) unmarshalInputCreateUserBilling(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("addressLine1"))
-			it.AddressLine1, err = ec.unmarshalNString2string(ctx, v)
+			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNString2string(ctx, v) }
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				if ec.directives.NotEmpty == nil {
+					return nil, errors.New("directive notEmpty is not implemented")
+				}
+				return ec.directives.NotEmpty(ctx, obj, directive0)
+			}
+
+			tmp, err := directive1(ctx)
 			if err != nil {
-				return it, err
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.AddressLine1 = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
 			}
 		case "addressLine2":
 			var err error
@@ -7786,41 +7871,111 @@ func (ec *executionContext) unmarshalInputCreateUserBilling(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("city"))
-			it.City, err = ec.unmarshalNString2string(ctx, v)
+			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNString2string(ctx, v) }
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				if ec.directives.NotEmpty == nil {
+					return nil, errors.New("directive notEmpty is not implemented")
+				}
+				return ec.directives.NotEmpty(ctx, obj, directive0)
+			}
+
+			tmp, err := directive1(ctx)
 			if err != nil {
-				return it, err
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.City = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
 			}
 		case "province":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("province"))
-			it.Province, err = ec.unmarshalNString2string(ctx, v)
+			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNString2string(ctx, v) }
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				if ec.directives.NotEmpty == nil {
+					return nil, errors.New("directive notEmpty is not implemented")
+				}
+				return ec.directives.NotEmpty(ctx, obj, directive0)
+			}
+
+			tmp, err := directive1(ctx)
 			if err != nil {
-				return it, err
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.Province = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
 			}
 		case "cap":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cap"))
-			it.Cap, err = ec.unmarshalNString2string(ctx, v)
+			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNString2string(ctx, v) }
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				if ec.directives.NotEmpty == nil {
+					return nil, errors.New("directive notEmpty is not implemented")
+				}
+				return ec.directives.NotEmpty(ctx, obj, directive0)
+			}
+
+			tmp, err := directive1(ctx)
 			if err != nil {
-				return it, err
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.Cap = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
 			}
 		case "country":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("country"))
-			it.Country, err = ec.unmarshalNString2string(ctx, v)
+			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNString2string(ctx, v) }
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				if ec.directives.NotEmpty == nil {
+					return nil, errors.New("directive notEmpty is not implemented")
+				}
+				return ec.directives.NotEmpty(ctx, obj, directive0)
+			}
+
+			tmp, err := directive1(ctx)
 			if err != nil {
-				return it, err
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.Country = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
 			}
 		case "iban":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("iban"))
-			it.Iban, err = ec.unmarshalNString2string(ctx, v)
+			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNString2string(ctx, v) }
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				if ec.directives.NotEmpty == nil {
+					return nil, errors.New("directive notEmpty is not implemented")
+				}
+				return ec.directives.NotEmpty(ctx, obj, directive0)
+			}
+
+			tmp, err := directive1(ctx)
 			if err != nil {
-				return it, err
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.Iban = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
 			}
 		}
 	}
@@ -8026,6 +8181,13 @@ func (ec *executionContext) _LegalEntityType(ctx context.Context, sel ast.Select
 		case "name":
 
 			out.Values[i] = ec._LegalEntityType_name(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "isPerson":
+
+			out.Values[i] = ec._LegalEntityType_isPerson(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -8906,33 +9068,33 @@ func (ec *executionContext) _Supplier(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
-var taxRateImplementors = []string{"TaxRate"}
+var taxImplementors = []string{"Tax"}
 
-func (ec *executionContext) _TaxRate(ctx context.Context, sel ast.SelectionSet, obj *model.TaxRate) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, taxRateImplementors)
+func (ec *executionContext) _Tax(ctx context.Context, sel ast.SelectionSet, obj *model.Tax) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, taxImplementors)
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TaxRate")
+			out.Values[i] = graphql.MarshalString("Tax")
 		case "id":
 
-			out.Values[i] = ec._TaxRate_id(ctx, field, obj)
+			out.Values[i] = ec._Tax_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
 		case "markupPercentage":
 
-			out.Values[i] = ec._TaxRate_markupPercentage(ctx, field, obj)
+			out.Values[i] = ec._Tax_markupPercentage(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
 		case "name":
 
-			out.Values[i] = ec._TaxRate_name(ctx, field, obj)
+			out.Values[i] = ec._Tax_name(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -9889,6 +10051,27 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
+func (ec *executionContext) unmarshalNString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
+	res, err := graphql.UnmarshalString(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNString2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	res := graphql.MarshalString(*v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
 func (ec *executionContext) marshalNSupplier2pillowwwᚋtitwᚋgraphᚋmodelᚐSupplier(ctx context.Context, sel ast.SelectionSet, v model.Supplier) graphql.Marshaler {
 	return ec._Supplier(ctx, sel, &v)
 }
@@ -9903,18 +10086,18 @@ func (ec *executionContext) marshalNSupplier2ᚖpillowwwᚋtitwᚋgraphᚋmodel�
 	return ec._Supplier(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNTaxRate2pillowwwᚋtitwᚋgraphᚋmodelᚐTaxRate(ctx context.Context, sel ast.SelectionSet, v model.TaxRate) graphql.Marshaler {
-	return ec._TaxRate(ctx, sel, &v)
+func (ec *executionContext) marshalNTax2pillowwwᚋtitwᚋgraphᚋmodelᚐTax(ctx context.Context, sel ast.SelectionSet, v model.Tax) graphql.Marshaler {
+	return ec._Tax(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNTaxRate2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐTaxRate(ctx context.Context, sel ast.SelectionSet, v *model.TaxRate) graphql.Marshaler {
+func (ec *executionContext) marshalNTax2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐTax(ctx context.Context, sel ast.SelectionSet, v *model.Tax) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TaxRate(ctx, sel, v)
+	return ec._Tax(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNUser2pillowwwᚋtitwᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
@@ -10554,7 +10737,7 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) marshalOTaxRate2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐTaxRate(ctx context.Context, sel ast.SelectionSet, v []*model.TaxRate) graphql.Marshaler {
+func (ec *executionContext) marshalOTax2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐTax(ctx context.Context, sel ast.SelectionSet, v []*model.Tax) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -10581,7 +10764,7 @@ func (ec *executionContext) marshalOTaxRate2ᚕᚖpillowwwᚋtitwᚋgraphᚋmode
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOTaxRate2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐTaxRate(ctx, sel, v[i])
+			ret[i] = ec.marshalOTax2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐTax(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -10595,11 +10778,11 @@ func (ec *executionContext) marshalOTaxRate2ᚕᚖpillowwwᚋtitwᚋgraphᚋmode
 	return ret
 }
 
-func (ec *executionContext) marshalOTaxRate2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐTaxRate(ctx context.Context, sel ast.SelectionSet, v *model.TaxRate) graphql.Marshaler {
+func (ec *executionContext) marshalOTax2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐTax(ctx context.Context, sel ast.SelectionSet, v *model.Tax) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._TaxRate(ctx, sel, v)
+	return ec._Tax(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOUser2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v []*model.User) graphql.Marshaler {

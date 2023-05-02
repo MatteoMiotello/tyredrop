@@ -18,7 +18,7 @@ type CreateAdminUserInput struct {
 type CreateUserBilling struct {
 	LegalEntityTypeID int64   `json:"legalEntityTypeId"`
 	Name              string  `json:"name"`
-	Surname           string  `json:"surname"`
+	Surname           *string `json:"surname,omitempty"`
 	FiscalCode        *string `json:"fiscalCode,omitempty"`
 	VatNumber         string  `json:"vatNumber"`
 	AddressLine1      string  `json:"addressLine1"`
@@ -39,8 +39,9 @@ type Currency struct {
 }
 
 type LegalEntityType struct {
-	ID   int64  `json:"id"`
-	Name string `json:"name"`
+	ID       int64  `json:"id"`
+	Name     string `json:"name"`
+	IsPerson bool   `json:"isPerson"`
 }
 
 type Pagination struct {
@@ -76,7 +77,7 @@ type Supplier struct {
 	Code string `json:"code"`
 }
 
-type TaxRate struct {
+type Tax struct {
 	ID               int64   `json:"id"`
 	MarkupPercentage float64 `json:"markupPercentage"`
 	Name             string  `json:"name"`

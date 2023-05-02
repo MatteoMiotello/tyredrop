@@ -7,10 +7,10 @@ package resolvers
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"pillowww/titw/graph"
 	"pillowww/titw/graph/converters"
+	"pillowww/titw/graph/graphErrors"
 	"pillowww/titw/graph/model"
 	auth2 "pillowww/titw/internal/auth"
 	"pillowww/titw/internal/db"
@@ -18,6 +18,8 @@ import (
 	"pillowww/titw/models"
 	"pillowww/titw/pkg/constants"
 
+	"github.com/99designs/gqlgen/graphql"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 	null "github.com/volatiletech/null/v8"
 )
 
@@ -32,7 +34,13 @@ func (r *mutationResolver) CreateUserBilling(ctx context.Context, billingInput m
 	currentUser, err := auth.GetUser(ctx)
 
 	if err != nil {
-		return nil, errors.New("User not found: " + err.Error())
+		return nil, &gqlerror.Error{
+			Path:    graphql.GetPath(ctx),
+			Message: "User not found",
+			Extensions: map[string]interface{}{
+				"code": "4004",
+			},
+		}
 	}
 
 	var userBillingModel *models.UserBilling = new(models.UserBilling)
@@ -43,10 +51,18 @@ func (r *mutationResolver) CreateUserBilling(ctx context.Context, billingInput m
 		userBillingModel.UserID = currentUser.ID
 		userBillingModel.LegalEntityTypeID = billingInput.LegalEntityTypeID
 		userBillingModel.Name = billingInput.Name
-		userBillingModel.Surname = billingInput.Surname
+
+		if billingInput.Surname != nil {
+			userBillingModel.Surname = null.StringFrom(*billingInput.Surname)
+		}
+
 		userBillingModel.VatNumber = billingInput.VatNumber
 		userBillingModel.AddressLine1 = billingInput.AddressLine1
-		userBillingModel.AddressLine2 = null.StringFrom(*billingInput.AddressLine2)
+
+		if billingInput.AddressLine2 != nil {
+			userBillingModel.AddressLine2 = null.StringFrom(*billingInput.AddressLine2)
+		}
+
 		userBillingModel.City = billingInput.City
 		userBillingModel.Province = billingInput.Province
 		userBillingModel.Cap = billingInput.Cap
@@ -60,11 +76,16 @@ func (r *mutationResolver) CreateUserBilling(ctx context.Context, billingInput m
 
 		err = userDao.Insert(ctx, userBillingModel)
 		if err != nil {
-			return err
+			return graphErrors.NewGraphError(ctx, err, "5001")
 		}
 
 		paymentMethod.UserID = currentUser.ID
-		paymentMethod.Name = billingInput.Name + " " + billingInput.Surname
+		paymentMethod.Name = billingInput.Name
+
+		if billingInput.Surname != nil {
+			paymentMethod.Name += " " + *billingInput.Surname
+		}
+
 		paymentMethod.Type = constants.PAYMENT_METHOD_SEPA
 		paymentMethod.Value = billingInput.Iban
 		paymentMethod.TypePrimary = true
@@ -72,7 +93,7 @@ func (r *mutationResolver) CreateUserBilling(ctx context.Context, billingInput m
 		err = userDao.Insert(ctx, paymentMethod)
 
 		if err != nil {
-			return err
+			return graphErrors.NewGraphError(ctx, err, "5001")
 		}
 
 		return nil

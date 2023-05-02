@@ -7,7 +7,8 @@ import (
 
 func LegalEntityTypeToGraphQL(entityType models.LegalEntityType) *model.LegalEntityType {
 	return &model.LegalEntityType{
-		ID:   entityType.ID,
-		Name: entityType.Name,
+		ID:       entityType.ID,
+		Name:     entityType.Name,
+		IsPerson: entityType.IsPerson,
 	}
 }

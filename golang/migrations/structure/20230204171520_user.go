@@ -51,6 +51,7 @@ func upUser(tx *sql.Tx) error {
 	legalEntitiesTypeQuery := sqlbuilder.CreateTable("public.legal_entity_types").
 		PKColumn().
 		Column("name", types.Varchar.Options("255"), false).
+		Column("is_person", types.Bool, false).
 		CreatedColumn().
 		String()
 
@@ -59,7 +60,7 @@ func upUser(tx *sql.Tx) error {
 		FKColumn("public.users", "user_id", false).
 		FKColumn("public.legal_entity_types", "legal_entity_type_id", false).
 		Column("name", types.Varchar.Options("255"), false).
-		Column("surname", types.Varchar.Options("255"), false).
+		Column("surname", types.Varchar.Options("255"), true).
 		Column("fiscal_code", types.Varchar.Options("16"), false).
 		Column("vat_number", types.Varchar.Options("16"), false).
 		Column("address_line_1", types.Varchar.Options("255"), false).

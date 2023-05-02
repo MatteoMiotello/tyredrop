@@ -30,7 +30,7 @@ func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
 }
 
 // TaxRates is the resolver for the taxRates field.
-func (r *queryResolver) TaxRates(ctx context.Context) ([]*model.TaxRate, error) {
+func (r *queryResolver) TaxRates(ctx context.Context) ([]*model.Tax, error) {
 	panic(fmt.Errorf("not implemented: TaxRates - taxRates"))
 }
 

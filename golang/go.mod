@@ -27,7 +27,6 @@ require (
 	golang.org/x/crypto v0.5.0
 	golang.org/x/net v0.6.0
 	golang.org/x/text v0.7.0
-	google.golang.org/appengine v1.6.7
 )
 
 require (
@@ -43,7 +42,6 @@ require (
 	github.com/go-playground/validator/v10 v10.11.2 // indirect
 	github.com/goccy/go-json v0.10.0 // indirect
 	github.com/gofrs/uuid v4.2.0+incompatible // indirect
-	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect

@@ -11,7 +11,7 @@ type UserBilling struct {
 	UserID            int64   `json:"userID"`
 	LegalEntityTypeID int64   `json:"legalEntityTypeID"`
 	Name              string  `json:"name"`
-	Surname           string  `json:"surname"`
+	Surname           *string `json:"surname"`
 	FiscalCode        string  `json:"fiscalCode"`
 	VatNumber         string  `json:"vatNumber"`
 	AddressLine1      string  `json:"addressLine1"`

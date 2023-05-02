@@ -1,9 +1,10 @@
 type LegalEntityType {
     id: ID!
     name: String!
+    isPerson: Boolean!
 }
 
-type TaxRate {
+type Tax {
     id: ID!
     markupPercentage: Float!
     name: String!
@@ -19,7 +20,7 @@ type UserRole {
 type UserBilling {
     id: ID!
     legalEntityType: LegalEntityType!
-    taxRate: TaxRate!
+    taxRate: Tax!
     name: String!
     surname: String!
     fiscalCode: String!
@@ -45,15 +46,15 @@ type User {
 
 input CreateUserBilling {
     legalEntityTypeId: ID!
-    name: String!
-    surname: String!
+    name: String! @notEmpty
+    surname: String
     fiscalCode: String
     vatNumber: String!
-    addressLine1: String!
+    addressLine1: String! @notEmpty
     addressLine2: String
-    city: String!
-    province: String!
-    cap: String!
-    country: String!
-    iban: String!
+    city: String! @notEmpty
+    province: String! @notEmpty
+    cap: String! @notEmpty
+    country: String! @notEmpty
+    iban: String! @notEmpty
 }
