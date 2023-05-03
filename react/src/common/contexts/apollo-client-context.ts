@@ -1,51 +1,60 @@
-import {ApolloClient, ApolloLink, InMemoryCache} from "@apollo/client";
+import {ApolloClient, ApolloLink, HttpLink, InMemoryCache, from, fromPromise} from "@apollo/client";
+import {onError} from "@apollo/client/link/error";
 import backend from "../../config/backend";
-import {setContext} from "@apollo/client/link/context";
-import {selectAuthStatus} from "../../modules/auth/store/auth-selector";
-import {store} from "../../store/store";
 import moment from "moment/moment";
+import {selectAuthStatus} from "../../modules/auth/store/auth-selector";
 import {authRefreshToken} from "../../modules/auth/store/auth-slice";
-import {Auth} from "../../modules/auth/service/auth";
+import {store} from "../../store/store";
+
+const httpLink = new HttpLink({
+    uri: backend.graphEndpoint,
+    credentials: 'include'
+});
 
 
-const authLink = setContext((_, {headers}) => ({
-    headers: {...headers}
-}));
+const refreshTokenLink = new ApolloLink((operation, forward) => {
+    const auth = selectAuthStatus(store.getState());
 
-const isTokenValid = (auth: Auth | null) => {
-    if (!auth) {
-        return false;
+    if (auth && !auth.user?.isTokenValid()) {
+        return fromPromise(store.dispatch(authRefreshToken(auth.refreshToken)))
+            .flatMap(res => {
+                return forward(operation);
+            });
     }
 
-    if (auth.isEmpty()) {
-        return false;
+    const user = auth?.user;
+
+    if (user && user.getExpiration() !== null) {
+        if (user.getExpiration() as Date >= moment().subtract(1, 'minutes').toDate()) {
+            return fromPromise(store.dispatch(authRefreshToken(auth.refreshToken)))
+                .flatMap(res => {
+                    return forward(operation);
+                });
+        }
     }
 
-    if (!auth.user?.isTokenValid()) {
-        return false;
-    }
+    return forward(operation);
+});
 
-    if (moment(auth.user?.getExpiration()).subtract(1, 'minutes') > moment()) {
-        return false;
-    }
 
-    return true;
-};
+const errorLink = onError(
+    ({graphQLErrors, networkError, operation, forward}) => {
+        const auth = selectAuthStatus(store.getState());
+
+        if (networkError && networkError?.statusCode == 401 && auth?.refreshToken) {
+            return fromPromise(store.dispatch(authRefreshToken(auth.refreshToken)))
+                .flatMap(res => {
+                    return forward(operation);
+                });
+        }
+    }
+);
 
 const client = new ApolloClient({
-    uri: backend.graphEndpoint,
     cache: new InMemoryCache({
         addTypename: false
     }),
-    credentials: 'include',
-    link: new ApolloLink((operation) => {
-            const auth = selectAuthStatus(store.getState());
-
-            if ( auth.refreshToken && !isTokenValid( auth ) ) {
-                console.log( 'ciansoda' );
-                store.dispatch( authRefreshToken( auth.refreshToken ) );
-            }
-        })
+    link: from([errorLink, refreshTokenLink, httpLink])
 });
 
 export default client;
