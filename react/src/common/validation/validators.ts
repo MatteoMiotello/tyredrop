@@ -6,15 +6,15 @@ export interface PropsWithValidators<T = any> {
     validators?: ValidationHandler<T>[]
 }
 
-export const isRequired = (inputName: string | null | undefined= '') => {
-        return (value: string | null) => {
-            if (!value?.length) {
-                return i18n.t('validation.is_required', { inputName: inputName });
-            }
+export const isRequired = (inputName: string | null | undefined = ''): ValidationHandler => {
+    return ( value: string | null ) => {
+        if (!value?.length) {
+            return i18n.t('validation.is_required', {inputName: inputName});
+        }
 
-            return null;
-        };
+        return null;
     };
+};
 
 export const minCharacters = (min: number): ValidationHandler => {
     return (value: string | null) => {

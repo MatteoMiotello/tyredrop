@@ -3,12 +3,15 @@ import {authRefreshToken} from "../store/auth-slice";
 import {AuthStatusType, UserState} from "../store/state";
 import {User} from "./user";
 
-
-
-export class AuthService {
+export class Auth {
     _user: User | null;
 
-    constructor(private _status: AuthStatusType, private _error: string | null | undefined, _user: UserState | null) {
+    constructor(
+        private _status: AuthStatusType,
+        private _error: string | null | undefined,
+        private _refreshToken: string | null,
+        _user: UserState | null
+    ) {
         this._user = new User( _user );
     }
 
@@ -38,6 +41,10 @@ export class AuthService {
 
     get user(): User | null {
         return this._user;
+    }
+
+    get refreshToken(): string | null {
+        return this._refreshToken;
     }
 
     isAuthenticated(): boolean {

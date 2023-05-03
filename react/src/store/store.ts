@@ -1,7 +1,7 @@
 import {configureStore} from "@reduxjs/toolkit";
-import {createBackendClient} from "../common/backend/backendClient";
 import authSlice from "../modules/auth/store/auth-slice";
 import {AuthState} from "../modules/auth/store/state";
+import {createBackendClient} from "../common/backend/backend-client";
 
 export type Store = {
     auth: AuthState

@@ -1,6 +1,6 @@
 import {createSelector} from "@reduxjs/toolkit";
 import {Store} from "../../../store/store";
-import {AuthService} from "../service/auth-service";
+import {Auth} from "../service/auth";
 import {AuthState} from "./state";
 
 const selectAuth = (state: Store) => state.auth;
@@ -11,6 +11,6 @@ export const selectUser = createSelector( [ selectAuth ], ( a: AuthState ) => {
     return a.user;
 } );
 
-export const selectAuthStatus = createSelector( [ selectAuth, selectU ], (a, u ): AuthService => {
-    return new AuthService( a.status, a.error, u );
+export const selectAuthStatus = createSelector( [ selectAuth, selectU ], (a, u ): Auth => {
+    return new Auth( a.status, a.error, a.refreshToken, u );
 } );

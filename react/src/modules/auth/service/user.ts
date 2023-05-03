@@ -1,5 +1,6 @@
 import {jwt} from "../../../common/jwt/jwt";
 import {UserState} from "../store/state";
+import moment from "moment";
 
 export enum UserStatus {
     COMPLETED,
@@ -19,7 +20,9 @@ export const extractFromJwt = ( accessToken: string ): User => {
 };
 
 export class User {
-    constructor( private _userState: UserState | null ) {
+    constructor(
+        private _userState: UserState | null
+    ) {
     }
 
     public isRegistering(): boolean {
@@ -46,6 +49,14 @@ export class User {
         }
 
         return false;
+    }
+
+    public getExpiration(): Date | null {
+        if ( !this._userState ) {
+            return null;
+        }
+
+        return moment( this._userState.exp ).toDate();
     }
 
     get user(): UserState | null{

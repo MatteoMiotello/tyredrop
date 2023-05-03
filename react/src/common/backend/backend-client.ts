@@ -1,9 +1,9 @@
 import axios, {AxiosInstance, AxiosResponse} from "axios";
-import backend from "../../config/backend";
 import {LoginRequest} from "./requests/login-request";
 import {RegisterRequest} from "./requests/register-request";
 import {LoginResponse} from "./responses/login-response";
 import {RefreshTokenResponse} from "./responses/refresh-token-response";
+import config from "../../config";
 
 export interface BackendClient {
     login(request: LoginRequest): Promise<AxiosResponse<LoginResponse>>;
@@ -20,7 +20,7 @@ class Backend implements BackendClient {
 
     constructor() {
         this.client = axios.create({
-            baseURL: backend.endpoint,
+            baseURL: config.backend.endpoint,
             withCredentials: true
         });
     }

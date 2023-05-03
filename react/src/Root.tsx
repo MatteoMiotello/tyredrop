@@ -12,7 +12,6 @@ import {I18nextProvider} from "react-i18next";
 import {Provider} from "react-redux";
 import {CustomToast, ToastConfig} from "./common/components/CustomToast";
 
-
 const router = createBrowserRouter([
     {
         path: '/',
@@ -29,16 +28,16 @@ const Root: React.FC = () => {
     const value = {toasts: toasts, setToasts: setToasts};
 
     return <>
-        <Provider store={store}>
-                <ApolloProvider client={client}>
-                    <I18nextProvider i18n={i18n}>
-                        <ToastContext.Provider value={value}>
-                            <RouterProvider router={router}/>
-                            <CustomToast toasts={toasts}/>
-                        </ToastContext.Provider>
-                    </I18nextProvider>
-                </ApolloProvider>
-        </Provider>
+        <ApolloProvider client={client}>
+            <Provider store={store}>
+                <I18nextProvider i18n={i18n}>
+                    <ToastContext.Provider value={value}>
+                        <RouterProvider router={router}/>
+                        <CustomToast toasts={toasts}/>
+                    </ToastContext.Provider>
+                </I18nextProvider>
+            </Provider>
+        </ApolloProvider>
     </>;
 };
 

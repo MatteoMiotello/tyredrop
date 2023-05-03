@@ -8,13 +8,13 @@ import {
     createSlice
 } from "@reduxjs/toolkit";
 import {AxiosError, AxiosResponse} from "axios";
-import {createBackendClient} from "../../../common/backend/backendClient";
 import {LoginRequest} from "../../../common/backend/requests/login-request";
 import {RegisterRequest} from "../../../common/backend/requests/register-request";
 import {LoginResponse} from "../../../common/backend/responses/login-response";
 import {RefreshTokenResponse} from "../../../common/backend/responses/refresh-token-response";
 import {UserStatus, extractFromJwt} from "../service/user";
 import {AuthState} from "./state";
+import {createBackendClient} from "../../../common/backend/backend-client";
 
 
 export const authLogin: AsyncThunk<LoginResponse, any, any> = createAsyncThunk('AUTH/LOGIN', async (loginRequest: LoginRequest, thunkAPI) => {

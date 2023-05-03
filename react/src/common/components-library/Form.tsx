@@ -89,6 +89,7 @@ const Form: React.FC<FormProps> = (props: FormProps) => {
 
             const formErrors = new FormErrors();
             arrayChildren.forEach((child) => {
+
                 child = child as ReactElement;
 
                 const childProps = child.props;

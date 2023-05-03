@@ -6,7 +6,6 @@ import {ThunkDispatch} from "redux-thunk";
 import CustomFooter from "./common/components/CustomFooter";
 import Spinner from "./common/components/Spinner";
 import {useAuth} from "./modules/auth/hooks/useAuth";
-import {UserStatus} from "./modules/auth/service/user";
 
 function App() {
     const auth = useAuth();
@@ -23,7 +22,7 @@ function App() {
         }
 
         if (auth.isAuthenticated()) {
-            if (auth.user?.status && auth.user.status == UserStatus.REGISTERING) {
+            if (auth.user?.isRegistering()) {
                 navigate('/billing');
             }
         }
