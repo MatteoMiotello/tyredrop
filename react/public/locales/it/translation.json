@@ -40,7 +40,8 @@
     "error_loading": "C'e` stato un problema nel caricamento",
     "user_not_found": "Utente non trovato, ti preghiamo di ricaricare la pagina.",
     "error_storing": "Ops, c'e` stato un errore nel salvataggio. Riprova piu` tardi",
-    "store_success": "Salvataggio avvenuto con successo!"
+    "store_success": "Salvataggio avvenuto con successo!",
+    "iban_placeholder": "IBAN"
   },
   "footer": {
     "who": "Chi siamo",
@@ -48,9 +49,17 @@
     "assistance": "Assistenza Clienti",
     "faq": "Domande frequenti"
   },
-  "validation": {
+  "fields": {
     "is_required": "Il campo {{inputName}} e` richiesto",
     "min_characters": "Il testo deve avere un minimo di {{min}} caratteri",
-    "max_characters": "Il testo deve avere un massimo di {{max}} caratteri"
+    "max_characters": "Il testo deve avere un massimo di {{max}} caratteri",
+    "empty_query": "Nessun risultato trovato, immetti il parametro di ricerca",
+    "no_results": "Nessun risultato trovato"
+  },
+  "searchbar": {
+    "width_field_label": "Larghezza",
+    "height_field_label":"Altezza",
+    "rim_field_label": "Diametro",
+    "brand_field_label": "Brand"
   }
 }

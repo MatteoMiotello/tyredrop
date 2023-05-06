@@ -9,7 +9,7 @@ export interface PropsWithValidators<T = any> {
 export const isRequired = (inputName: string | null | undefined = ''): ValidationHandler => {
     return ( value: string | null ) => {
         if (!value?.length) {
-            return i18n.t('validation.is_required', {inputName: inputName});
+            return i18n.t('fields.is_required', {inputName: inputName});
         }
 
         return null;
@@ -23,7 +23,7 @@ export const minCharacters = (min: number): ValidationHandler => {
         }
 
         if (value?.length < min) {
-            return i18n.t('validation.min_characters', {min: min});
+            return i18n.t('fields.min_characters', {min: min});
         }
 
         return null;
@@ -37,7 +37,7 @@ export const maxCharacters = (max: number): ValidationHandler => {
         }
 
         if (value?.length > max) {
-            return i18n.t('validation.max_characters', {max: max});
+            return i18n.t('fields.max_characters', {max: max});
         }
 
         return null;

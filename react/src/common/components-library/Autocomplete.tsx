@@ -2,9 +2,10 @@ import {faCheck, faChevronDown} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Combobox, Transition} from "@headlessui/react";
 import React, {ChangeEventHandler, Fragment, useEffect, useState} from "react";
+import {useTranslation} from "react-i18next";
 import {PropsWithValidators, ValidationHandler} from "../validation/validators";
 
-export type AutocompleteQueryHandler = (query: string) => Promise<AutocompleteOption[]>
+export type AutocompleteQueryHandler = (query: string) => Promise<AutocompleteOption[] | null>
 
 interface AutocompleteProps extends PropsWithValidators {
     getOptions: AutocompleteQueryHandler;
@@ -12,9 +13,10 @@ interface AutocompleteProps extends PropsWithValidators {
     className?: string;
     name: string;
     placeholder?: string | undefined;
+    labelText?: string | undefined | null;
 }
 
-type AutocompleteOption = {
+export type AutocompleteOption = {
     title: string,
     value: any
 }
@@ -24,10 +26,19 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
     const [query, setQuery] = useState('');
     const [filteredOptions, setFilteredOptions] = useState(props.initialOptions);
     const [error, setError] = useState<string | null>(null);
+    const {t} = useTranslation();
 
     useEffect(() => {
-        props.getOptions(query).then(res => {
-            setFilteredOptions(res);
+        const options = props.getOptions(query);
+
+        if (!options) {
+            return;
+        }
+
+        options.then(res => {
+            if (res) {
+                setFilteredOptions(res);
+            }
         })
             .catch((err) => {
                 return null;
@@ -51,25 +62,32 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
 
     return <Combobox value={selected} onChange={setSelected} name={props.name}>
         <div className={"relative " + props.className}>
-            <label
-                className={`select relative w-full cursor-default overflow-hidden p-0 ${error ? 'select-error' : ''}`}>
-                <Combobox.Input<AutocompleteOption>
-                    className={"input w-full border-none p-4"}
-                    displayValue={(option) => option ? option.title : ''}
-                    onChange={(event) => {
-                        setQuery(event.target.value);
-                        onChange(event);
-                    }}
-                    onFocus={onChange}
-                    placeholder={props.placeholder}
-                />
-                <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2 border-none">
-                    <FontAwesomeIcon icon={faChevronDown}
-                                     className="h-5 w-5 text-primary label-text"
-                                     aria-hidden="true"
+                {props.labelText &&
+                    <label className="label">
+                        <span className="label-text">
+                            {props.labelText}
+                        </span>
+                    </label>
+                }
+                <div
+                    className={`select relative w-full cursor-default overflow-hidden p-0 ${error ? 'select-error' : ''}`}>
+                    <Combobox.Input<AutocompleteOption>
+                        className={"input w-full border-none p-4 font-normal"}
+                        displayValue={(option) => option ? option.title : ''}
+                        onChange={(event) => {
+                            setQuery(event.target.value);
+                            onChange(event);
+                        }}
+                        onFocus={onChange}
+                        placeholder={props.placeholder}
                     />
-                </Combobox.Button>
-            </label>
+                    <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2 border-none">
+                        <FontAwesomeIcon icon={faChevronDown}
+                                         className="h-5 w-5 text-primary label-text"
+                                         aria-hidden="true"
+                        />
+                    </Combobox.Button>
+                </div>
             {error ? <span className="label-text-alt text-error">{error}</span> : ''}
             <Transition
                 as={Fragment}
@@ -80,9 +98,9 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
             >
                 <Combobox.Options
                     className="absolute mt-1 pl-0 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                    {filteredOptions.length === 0 && query !== '' ? (
+                    {filteredOptions.length === 0 ? (
                         <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
-                            Nothing found.
+                            {query.length > 0 ? t('fields.empty_query') : t('fields.no_results')}
                         </div>
                     ) : (
                         filteredOptions.map((option, key) => (

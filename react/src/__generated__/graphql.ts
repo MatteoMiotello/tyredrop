@@ -164,6 +164,7 @@ export type Query = {
   productItems?: Maybe<Array<Maybe<ProductItem>>>;
   products?: Maybe<ProductPaginate>;
   productsItemsByCode?: Maybe<ProductItem>;
+  searchBrands?: Maybe<Array<Maybe<Brand>>>;
   taxRates?: Maybe<Array<Maybe<Tax>>>;
   user?: Maybe<User>;
   users?: Maybe<Array<Maybe<User>>>;
@@ -187,6 +188,11 @@ export type QueryProductsArgs = {
 
 export type QueryProductsItemsByCodeArgs = {
   code: Scalars['String'];
+};
+
+
+export type QuerySearchBrandsArgs = {
+  name: Scalars['String'];
 };
 
 
@@ -259,6 +265,13 @@ export type CreateUserBillingMutationVariables = Exact<{
 
 export type CreateUserBillingMutation = { __typename?: 'Mutation', createUserBilling: { __typename?: 'UserBilling', id: string, name: string, surname: string } };
 
+export type SearchBrandsQueryVariables = Exact<{
+  name: Scalars['String'];
+}>;
+
+
+export type SearchBrandsQuery = { __typename?: 'Query', searchBrands?: Array<{ __typename?: 'Brand', id: string, name: string } | null> | null };
+
 export type GetLegalEntityTypesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -266,4 +279,5 @@ export type GetLegalEntityTypesQuery = { __typename?: 'Query', legalEntityTypes?
 
 
 export const CreateUserBillingDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateUserBilling"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateUserBilling"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createUserBilling"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"billingInput"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"surname"}}]}}]}}]} as unknown as DocumentNode<CreateUserBillingMutation, CreateUserBillingMutationVariables>;
+export const SearchBrandsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SearchBrands"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"name"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"searchBrands"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"name"},"value":{"kind":"Variable","name":{"kind":"Name","value":"name"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]} as unknown as DocumentNode<SearchBrandsQuery, SearchBrandsQueryVariables>;
 export const GetLegalEntityTypesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetLegalEntityTypes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"legalEntityTypes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"isPerson"}}]}}]}}]} as unknown as DocumentNode<GetLegalEntityTypesQuery, GetLegalEntityTypesQueryVariables>;

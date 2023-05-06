@@ -1,22 +1,22 @@
 import React from "react";
-import Logo from "./Logo";
-import Input from "../components-library/Input";
-import {useAuth} from "../../modules/auth/hooks/useAuth";
+import Field from "../components-library/Input";
+import MainLogo from "./Logo";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faSearch, faUser} from "@fortawesome/free-solid-svg-icons";
-import Button from "../components-library/Button";
 
 const Navbar: React.FC = () => {
-    const auth = useAuth();
-
     return <div className="navbar bg-base-100">
-            <Logo width={60}/>
-            <div className="input-group">
-                <Input className="input-sm m-auto w-96" type="text" name="search" placeholder="Search" />
-                <Button>
-                    <FontAwesomeIcon icon={faSearch}/>
-                </Button>
-            </div>
+        <MainLogo width={60}/>
+        <div className="input-group">
+            <Field.FormControl className="m-auto px-4 md:w-1/2 w-full">
+                <Field.InputGroup size="sm">
+                    <Field.Input type="text" name="search" placeholder="Ricerca facile" size="sm"/>
+                    <span>
+                        <FontAwesomeIcon icon={faSearch}/>
+                    </span>
+                </Field.InputGroup>
+            </Field.FormControl>
+        </div>
         <div className="flex-none gap-2">
             <div className="dropdown dropdown-end">
                 <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
@@ -26,7 +26,8 @@ const Navbar: React.FC = () => {
                         </div>
                     </div>
                 </label>
-                <ul tabIndex={0} className="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-52">
+                <ul tabIndex={0}
+                    className="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-52">
                     <li>
                         <a className="justify-between">
                             Profile

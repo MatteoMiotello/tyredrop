@@ -1,20 +1,36 @@
-import React, {ChangeEventHandler, ReactNode, useState} from "react";
+import React, {ChangeEventHandler, PropsWithChildren, useState} from "react";
 import {PropsWithValidators, ValidationHandler} from "../validation/validators";
 
-interface InputProps extends PropsWithValidators{
-    type: string
-    name: string
-    placeholder: string
-    required?: boolean
-    labelText?: string
-    topRightLabelText?: string
-    bottomLeftLabelText?: string
-    bottomRightLabelText?: string
-    className?: string
-    error?: string
-    addon?: ReactNode
+interface FormControlProps extends PropsWithChildren {
+    className?: string;
 }
 
+interface InputProps extends PropsWithValidators {
+    type: string;
+    name: string;
+    placeholder: string;
+    required?: boolean;
+    labelText?: string | undefined | null;
+    topRightLabelText?: string;
+    bottomLeftLabelText?: string;
+    bottomRightLabelText?: string;
+    error?: string;
+    size?:  'lg' | 'md' | 'sm' | 'xs' | undefined;
+}
+
+interface FormInputProps extends FormControlProps, InputProps {
+
+}
+
+interface InputGroupProps extends PropsWithChildren {
+    size?: 'lg' | 'md' | 'sm' | 'xs' | undefined;
+}
+
+const FormControl: React.FC<FormControlProps> = (props) => {
+    return <div className={"form-control " + (props.className ?? '')}>
+        {props.children}
+    </div>;
+};
 
 const Input: React.FC<InputProps> = (props) => {
     const [error, setError] = useState<string | null>(props.error as string);
@@ -24,29 +40,46 @@ const Input: React.FC<InputProps> = (props) => {
     const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
         const value = event.target.value;
 
-        if ( !props.validators) {
+        if (!props.validators) {
             return;
         }
 
-        props.validators?.every( ( validator: ValidationHandler ) => {
-            const error = validator( value );
+        props.validators?.every((validator: ValidationHandler) => {
+            const error = validator(value);
 
-            setError( error );
+            setError(error);
 
-            if ( error ) {
+            if (error) {
                 return false;
             }
 
             return true;
-        } );
+        });
     };
 
-    if ( error ) {
+    if (error) {
         bottomLeft = <span className="label-text-alt text-error">{error}</span>;
         classes = ' input-error ';
     }
 
-    return <div className={"form-control " + (props.className ?? '')}>
+    const getSizeClassName = ( size: string | undefined ): string => {
+        switch ( size ) {
+            case 'lg':
+                return 'input-lg';
+            case 'md':
+                return 'input-md';
+            case 'sm':
+                return 'input-sm';
+            case 'xs':
+                return 'input-xs';
+            default:
+                return '';
+        }
+    };
+
+    classes += ' ' + getSizeClassName( props.size );
+
+    return <>
         {
             props.labelText || props.topRightLabelText ?
                 <label className="label">
@@ -72,7 +105,52 @@ const Input: React.FC<InputProps> = (props) => {
                 :
                 ''
         }
+    </>;
+};
+
+const FormInput: React.FC<FormInputProps> = (props) => {
+    return <FormControl className={props.className}>
+        <Input
+            type={props.type}
+            name={props.name}
+            placeholder={props.placeholder}
+            required={props.required}
+            labelText={props.labelText}
+            topRightLabelText={props.topRightLabelText}
+            bottomLeftLabelText={props.bottomLeftLabelText}
+            bottomRightLabelText={props.bottomRightLabelText}
+            error={props.error}
+            size={props.size}
+        />
+    </FormControl>;
+};
+
+const InputGroup: React.FC<InputGroupProps> = (props) => {
+    const getSizeClass = (size: string | undefined): string => {
+        switch (size) {
+            case 'lg':
+                return 'input-group-lg';
+            case 'md':
+                return 'input-group-md';
+            case 'sm':
+                return 'input-group-sm';
+            case 'xs':
+                return 'input-group-xs';
+            default:
+                return '';
+        }
+    };
+
+    return <div className={"input-group " + getSizeClass( props.size )}>
+        {props.children}
     </div>;
 };
 
-export default Input;
+const Field = {
+    FormControl,
+    Input,
+    FormInput,
+    InputGroup
+};
+
+export default Field;

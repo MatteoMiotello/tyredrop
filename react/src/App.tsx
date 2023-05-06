@@ -1,8 +1,6 @@
 import './App.css';
 import {useEffect} from "react";
-import {useDispatch} from "react-redux";
 import {Outlet, useNavigate} from "react-router-dom";
-import {ThunkDispatch} from "redux-thunk";
 import CustomFooter from "./common/components/CustomFooter";
 import Spinner from "./common/components/Spinner";
 import {useAuth} from "./modules/auth/hooks/useAuth";
@@ -10,14 +8,13 @@ import Navbar from "./common/components/Navbar";
 
 function App() {
     const auth = useAuth();
-    const dispatch: ThunkDispatch<any, any, any> = useDispatch();
     const navigate = useNavigate();
 
     useEffect(() => {
         if (!auth.isAuthenticated() && !auth.isPending()) {
             auth.tryRefreshToken();
 
-            if ( auth.isError() ) {
+            if ( auth.isError() || auth.isEmpty() ) {
                 navigate('/auth/login');
             }
         }
@@ -33,7 +30,7 @@ function App() {
         <>
             {auth.isPending() && <Spinner/>}
             <Navbar></Navbar>
-            <main className="min-h-screen lg:p-24 p-4 h-full w-full flex flex-col">
+            <main className="min-h-screen">
                 <Outlet/>
             </main>
             <CustomFooter/>

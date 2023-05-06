@@ -10,7 +10,7 @@ import {GET_LEGAL_ENTITY_TYPES} from "../../../common/backend/graph/query/legal-
 import Autocomplete, {AutocompleteQueryHandler} from "../../../common/components-library/Autocomplete";
 import Button from "../../../common/components-library/Button";
 import Form, {useForm} from "../../../common/components-library/Form";
-import Input from "../../../common/components-library/Input";
+import Field from "../../../common/components-library/Input";
 import {SelectComponent, SelectOption} from "../../../common/components-library/SelectComponent";
 import Spinner from "../../../common/components/Spinner";
 import {ValidationHandler, isRequired, maxCharacters, minCharacters} from "../../../common/validation/validators";
@@ -151,37 +151,37 @@ export const BillingForm: React.FC<BillingFormProps> = (props) => {
             name="entity_type"
             validators={[validateEntityType]}
         />
-        <Input name="name"
+        <Field.FormInput name="name"
                type="text"
                placeholder={t('billing.name_placeholder')}
                className={isPerson ? "col-span-6" : "col-span-12"}
                validators={[isRequired(t('billing.name_placeholder'))]}
         />
         {isPerson &&
-            <Input name="surname"
+            <Field.FormInput name="surname"
                    type="text"
                    placeholder={t('billing.surname_placeholder')}
                    className="col-span-6"
             />
         }
-        <Input type="text"
+        <Field.FormInput type="text"
                name="fiscal_code"
                placeholder={t('billing.fiscal_code_placeholder')}
                className="col-span-12"
                validators={[minCharacters(16), maxCharacters(16), isRequired(t('billing.fiscal_code_placeholder'))]}
         />
-        <Input type="text"
+        <Field.FormInput type="text"
                name="vat_number"
                placeholder={t('billing.vat_number_placeholder')}
                className="col-span-12"
         />
-        <Input type="text"
+        <Field.FormInput type="text"
                name="address_line_1"
                placeholder={t('billing.address_line_1_placeholder')}
                className="col-span-12"
                validators={[isRequired(t('billing.address_line_1_placeholder'))]}
         />
-        <Input type="text"
+        <Field.FormInput type="text"
                name="address_line_2"
                placeholder={t('billing.address_line_2_placeholder')}
                className="col-span-12"
@@ -193,19 +193,19 @@ export const BillingForm: React.FC<BillingFormProps> = (props) => {
                       validators={[isRequired(t('billing.country_placeholder'))]}
                       placeholder={t('billing.country_placeholder') as string}
         />
-        <Input type="text"
+        <Field.FormInput type="text"
                name="city"
                placeholder={t('billing.city_placeholder')}
                className="col-span-4"
                validators={[isRequired(t('billing.city_placeholder'))]}
         />
-        <Input type="text"
+        <Field.FormInput type="text"
                name="province"
                placeholder={t('billing.province_placeholder')}
                className="col-span-4"
                validators={[maxCharacters(2), isRequired(t('billing.province_placeholder')), minCharacters(2)]}
         />
-        <Input type="text"
+        <Field.FormInput type="text"
                name="cap"
                placeholder={t('billing.cap_placeholder')}
                className="col-span-4"
@@ -213,11 +213,13 @@ export const BillingForm: React.FC<BillingFormProps> = (props) => {
         />
 
         <h4 className="col-span-12 text-center"> Dati di pagamento </h4>
-        <Input
+        <Field.FormInput
             className="col-span-12"
             type="text"
             name="iban"
-            placeholder="IBAN"/>
+            placeholder={t( 'billing.iban_placeholder' )}
+            validators={[ isRequired( t( 'billing.iban_placeholder' ) )  ]}
+        />
         <Button
             type={"primary"}
             htmlType={"submit"}

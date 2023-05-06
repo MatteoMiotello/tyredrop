@@ -58,7 +58,7 @@ const BillingPage: React.FC = () => {
         });
     };
 
-    return <div className="flex flex-col justify-center items-center my-auto">
+    return <div className="flex flex-col justify-center items-center my-auto lg:p-24 p-4">
         {loading ?? <Spinner/>}
         <div className="text-center">
             <h1>{t('billing.page_title')}</h1>

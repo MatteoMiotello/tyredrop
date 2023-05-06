@@ -15,6 +15,10 @@ const httpLink = new HttpLink({
 const refreshTokenLink = new ApolloLink((operation, forward) => {
     const auth = selectAuthStatus(store.getState());
 
+    if ( auth.isEmpty() || auth.isPending() ) {
+        return;
+    }
+
     if (auth && !auth.user?.isTokenValid()) {
         return fromPromise(store.dispatch(authRefreshToken(auth.refreshToken)))
             .flatMap(res => {

@@ -14,6 +14,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  */
 const documents = {
     "\n    mutation CreateUserBilling( $input: CreateUserBilling! ) {\n        createUserBilling( billingInput: $input ) {\n            id\n            name\n            surname\n        }\n    }\n": types.CreateUserBillingDocument,
+    "\n     query SearchBrands( $name: String! ) {\n        searchBrands(  name: $name ) {\n            id\n            name\n        }\n     }  \n": types.SearchBrandsDocument,
     "\n    query GetLegalEntityTypes {\n        legalEntityTypes {\n            id\n            name\n            isPerson\n        }\n    }\n": types.GetLegalEntityTypesDocument,
 };
 
@@ -35,6 +36,10 @@ export function gql(source: string): unknown;
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n    mutation CreateUserBilling( $input: CreateUserBilling! ) {\n        createUserBilling( billingInput: $input ) {\n            id\n            name\n            surname\n        }\n    }\n"): (typeof documents)["\n    mutation CreateUserBilling( $input: CreateUserBilling! ) {\n        createUserBilling( billingInput: $input ) {\n            id\n            name\n            surname\n        }\n    }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n     query SearchBrands( $name: String! ) {\n        searchBrands(  name: $name ) {\n            id\n            name\n        }\n     }  \n"): (typeof documents)["\n     query SearchBrands( $name: String! ) {\n        searchBrands(  name: $name ) {\n            id\n            name\n        }\n     }  \n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

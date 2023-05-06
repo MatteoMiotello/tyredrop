@@ -1,6 +1,6 @@
 import React, { useEffect} from "react";
 import {LoginRequest} from "../../../common/backend/requests/login-request";
-import Input from "../../../common/components-library/Input";
+import Field from "../../../common/components-library/Input";
 import Button from "../../../common/components-library/Button";
 import Form, {FormErrors, FormSubmitHandler, useForm} from "../../../common/components-library/Form";
 import {useTranslation} from "react-i18next";
@@ -65,13 +65,13 @@ const LoginForm: React.FC<LoginFormProps> = ( props: LoginFormProps ) => {
     };
 
     return <Form onSubmit={(r) => onSubmit(r)} form={form} className={"relative lg:w-1/2"}>
-        <Input name="email"
+        <Field.FormInput name="email"
                type="text"
                placeholder={t('login.email_placeholder')}
                className="col-span-12"
                validators={ [validateEmail] }
         />
-        <Input name="password"
+        <Field.FormInput name="password"
                type="password"
                placeholder="Password"
                className="col-span-12"

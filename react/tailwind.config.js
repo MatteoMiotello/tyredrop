@@ -10,15 +10,7 @@ export default {
   theme: {
     fontFamily: {
       'sans': ['Helvetica', 'Arial', 'sans-serif']
-    },
-    extend: {
-      colors: {
-        primary: "#f38944"
-      }
-    },
-  },
-  corePlugins: {
-    preflight: false,
+    }
   },
   plugins: [
       daisyui,

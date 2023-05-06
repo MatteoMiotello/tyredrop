@@ -3,7 +3,7 @@ import {useSelector} from "react-redux";
 import {z} from "zod";
 import {RegisterRequest} from "../../../common/backend/requests/register-request";
 import Form, {FormErrors, FormSubmitHandler, useForm} from "../../../common/components-library/Form";
-import Input from "../../../common/components-library/Input";
+import Field from "../../../common/components-library/Input";
 import Button from "../../../common/components-library/Button";
 import {useTranslation} from "react-i18next";
 import {ValidationHandler} from "../../../common/validation/validators";
@@ -99,30 +99,30 @@ const RegisterForm: React.FC<RegisterFormProps> = (props: RegisterFormProps) => 
     };
 
     return <Form form={form} onSubmit={onSubmit} className="lg:w-1/2 relative">
-        <Input name="email"
+        <Field.FormInput name="email"
                type="text"
                placeholder={t('login.email_placeholder')}
                className="col-span-12"
                validators={[validateEmail]}
         />
-        <Input name="password"
+        <Field.FormInput name="password"
                type="password"
                placeholder={t('login.password_placeholder')}
                className="col-span-6"
                validators={[validatePassword]}
         />
-        <Input name="repeat_password"
+        <Field.FormInput name="repeat_password"
                type="password"
                placeholder={t('register.repeat_password_placeholder')}
                className="col-span-6"
                validators={[validateRepeatPassword]}
         />
-        <Input name="name"
+        <Field.FormInput name="name"
                type="text"
                placeholder={t('register.name_placeholder')}
                className="col-span-6"
         />
-        <Input name="surname"
+        <Field.FormInput name="surname"
                type="text"
                placeholder={t('register.surname_placeholder')}
                className="col-span-6"
