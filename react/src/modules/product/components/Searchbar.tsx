@@ -15,7 +15,7 @@ import {useToast} from "../../../hooks/useToast";
 
 const Searchbar: React.FC = () => {
     const [form, handleFormError] = useForm();
-    const [loadBrands, {error},] = useLazyQuery(SEARCH_BRANDS);
+    const [loadBrands, {error}] = useLazyQuery(SEARCH_BRANDS);
     const {setError} = useToast();
     const {t} = useTranslation();
     const onSubmit = () => {
@@ -23,7 +23,9 @@ const Searchbar: React.FC = () => {
     };
 
     useEffect(() => {
-        setError('Si e` verificato un problema nel caricamento dei brand');
+        if ( error ) {
+            setError('Si e` verificato un problema nel caricamento dei brand');
+        }
     }, [error]);
 
     const getOptions: AutocompleteQueryHandler = async (query: string): Promise<AutocompleteOption[] | null> => {

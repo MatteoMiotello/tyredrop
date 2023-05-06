@@ -3,8 +3,11 @@ import Field from "../components-library/Input";
 import MainLogo from "./Logo";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faSearch, faUser} from "@fortawesome/free-solid-svg-icons";
+import {useAuth} from "../../modules/auth/hooks/useAuth";
 
 const Navbar: React.FC = () => {
+    const auth = useAuth();
+
     return <div className="navbar bg-base-100">
         <MainLogo width={60}/>
         <div className="input-group">
@@ -28,6 +31,11 @@ const Navbar: React.FC = () => {
                 </label>
                 <ul tabIndex={0}
                     className="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-52">
+                    {
+                        auth && <li>
+                        { auth.user?.getCompleteName() }
+                    </li>
+                    }
                     <li>
                         <a className="justify-between">
                             Profile
