@@ -18,6 +18,7 @@ type Query {
     user(ID: ID!): User
     users: [User]
     taxRates: [Tax]
+    searchBrands( name: String! ): [Brand]
     legalEntityTypes: [LegalEntityType]
     productsItemsByCode( code: String! ): ProductItem
     productItems( input: [ProductSpecificationInput]! ): [ProductItem]

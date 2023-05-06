@@ -2,6 +2,7 @@ package brand
 
 import (
 	"context"
+	"fmt"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"pillowww/titw/internal/db"
@@ -55,4 +56,12 @@ func (d *Dao) FindOneByCode(ctx context.Context, code string) (*models.Brand, er
 			models.BrandWhere.BrandCode.EQ(code),
 		)...,
 	).One(ctx, d.Db)
+}
+
+func (d *Dao) FindByName(ctx context.Context, name string) (models.BrandSlice, error) {
+	return models.Brands(
+		d.GetMods(
+			qm.Where(models.BrandColumns.Name+" ILIKE ?", fmt.Sprintf("%%%s%%", name)),
+		)...,
+	).All(ctx, d.Db)
 }

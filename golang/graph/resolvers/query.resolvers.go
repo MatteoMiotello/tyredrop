@@ -34,6 +34,27 @@ func (r *queryResolver) TaxRates(ctx context.Context) ([]*model.Tax, error) {
 	panic(fmt.Errorf("not implemented: TaxRates - taxRates"))
 }
 
+// SearchBrands is the resolver for the searchBrands field.
+func (r *queryResolver) SearchBrands(ctx context.Context, name string) ([]*model.Brand, error) {
+	var graphModels []*model.Brand
+
+	if len(name) < 2 {
+		return graphModels, nil
+	}
+
+	models, err := r.BrandDao.FindByName(ctx, name)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, model := range models {
+		graphModels = append(graphModels, converters.BrandToGraphQL(model))
+	}
+
+	return graphModels, nil
+}
+
 // LegalEntityTypes is the resolver for the legalEntityTypes field.
 func (r *queryResolver) LegalEntityTypes(ctx context.Context) ([]*model.LegalEntityType, error) {
 	types, err := r.LegalEntityDao.GetAllTypes(ctx)
