@@ -1,4 +1,4 @@
-import React, {ChangeEventHandler, useState} from "react";
+import React, {ChangeEventHandler, ReactNode, useState} from "react";
 import {PropsWithValidators, ValidationHandler} from "../validation/validators";
 
 interface InputProps extends PropsWithValidators{
@@ -12,6 +12,7 @@ interface InputProps extends PropsWithValidators{
     bottomRightLabelText?: string
     className?: string
     error?: string
+    addon?: ReactNode
 }
 
 
@@ -45,8 +46,7 @@ const Input: React.FC<InputProps> = (props) => {
         classes = ' input-error ';
     }
 
-    return <div
-        className={"form-control " + (props.className ?? '')}>
+    return <div className={"form-control " + (props.className ?? '')}>
         {
             props.labelText || props.topRightLabelText ?
                 <label className="label">
@@ -58,7 +58,7 @@ const Input: React.FC<InputProps> = (props) => {
         <input type={props.type}
                name={props.name}
                placeholder={props.placeholder}
-               className={"input input-bordered" + classes}
+               className={"w-full input input-bordered " + classes}
                required={props.required}
                onChange={onChange}
                onFocus={onChange}

@@ -6,6 +6,7 @@ import {ThunkDispatch} from "redux-thunk";
 import CustomFooter from "./common/components/CustomFooter";
 import Spinner from "./common/components/Spinner";
 import {useAuth} from "./modules/auth/hooks/useAuth";
+import Navbar from "./common/components/Navbar";
 
 function App() {
     const auth = useAuth();
@@ -31,6 +32,7 @@ function App() {
     return (
         <>
             {auth.isPending() && <Spinner/>}
+            <Navbar></Navbar>
             <main className="min-h-screen lg:p-24 p-4 h-full w-full flex flex-col">
                 <Outlet/>
             </main>
