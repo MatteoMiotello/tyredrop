@@ -146,6 +146,7 @@ type ComplexityRoot struct {
 		Currencies          func(childComplexity int) int
 		Currency            func(childComplexity int, id int64) int
 		LegalEntityTypes    func(childComplexity int) int
+		ProductCategories   func(childComplexity int) int
 		ProductItems        func(childComplexity int, input []*model.ProductSpecificationInput) int
 		Products            func(childComplexity int, pagination *model.PaginationInput) int
 		ProductsItemsByCode func(childComplexity int, code string) int
@@ -240,6 +241,7 @@ type QueryResolver interface {
 	Users(ctx context.Context) ([]*model.User, error)
 	TaxRates(ctx context.Context) ([]*model.Tax, error)
 	SearchBrands(ctx context.Context, name string) ([]*model.Brand, error)
+	ProductCategories(ctx context.Context) ([]*model.ProductCategory, error)
 	LegalEntityTypes(ctx context.Context) ([]*model.LegalEntityType, error)
 	ProductsItemsByCode(ctx context.Context, code string) (*model.ProductItem, error)
 	ProductItems(ctx context.Context, input []*model.ProductSpecificationInput) ([]*model.ProductItem, error)
@@ -672,6 +674,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.LegalEntityTypes(childComplexity), true
+
+	case "Query.productCategories":
+		if e.complexity.Query.ProductCategories == nil {
+			break
+		}
+
+		return e.complexity.Query.ProductCategories(childComplexity), true
 
 	case "Query.productItems":
 		if e.complexity.Query.ProductItems == nil {
@@ -3986,6 +3995,57 @@ func (ec *executionContext) fieldContext_Query_searchBrands(ctx context.Context,
 	if fc.Args, err = ec.field_Query_searchBrands_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_productCategories(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_productCategories(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().ProductCategories(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.ProductCategory)
+	fc.Result = res
+	return ec.marshalOProductCategory2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductCategory(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_productCategories(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ProductCategory_id(ctx, field)
+			case "code":
+				return ec.fieldContext_ProductCategory_code(ctx, field)
+			case "name":
+				return ec.fieldContext_ProductCategory_name(ctx, field)
+			case "specifications":
+				return ec.fieldContext_ProductCategory_specifications(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ProductCategory", field.Name)
+		},
 	}
 	return fc, nil
 }
@@ -8992,6 +9052,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "productCategories":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_productCategories(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "legalEntityTypes":
 			field := field
 
@@ -10775,6 +10855,47 @@ func (ec *executionContext) marshalOProduct2ᚖpillowwwᚋtitwᚋgraphᚋmodel�
 		return graphql.Null
 	}
 	return ec._Product(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOProductCategory2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductCategory(ctx context.Context, sel ast.SelectionSet, v []*model.ProductCategory) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOProductCategory2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductCategory(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
 }
 
 func (ec *executionContext) marshalOProductCategory2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductCategory(ctx context.Context, sel ast.SelectionSet, v *model.ProductCategory) graphql.Marshaler {

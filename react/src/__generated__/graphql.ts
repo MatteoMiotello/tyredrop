@@ -161,6 +161,7 @@ export type Query = {
   currencies?: Maybe<Array<Maybe<Currency>>>;
   currency?: Maybe<Currency>;
   legalEntityTypes?: Maybe<Array<Maybe<LegalEntityType>>>;
+  productCategories?: Maybe<Array<Maybe<ProductCategory>>>;
   productItems?: Maybe<Array<Maybe<ProductItem>>>;
   products?: Maybe<ProductPaginate>;
   productsItemsByCode?: Maybe<ProductItem>;

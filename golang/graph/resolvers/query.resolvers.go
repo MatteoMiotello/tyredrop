@@ -55,6 +55,23 @@ func (r *queryResolver) SearchBrands(ctx context.Context, name string) ([]*model
 	return graphModels, nil
 }
 
+// ProductCategories is the resolver for the productCategories field.
+func (r *queryResolver) ProductCategories(ctx context.Context) ([]*model.ProductCategory, error) {
+	dbModels, err := r.ProductCategoryDao.FindAll(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var graphModels []*model.ProductCategory
+
+	for _, dbModel := range dbModels {
+		graphModels = append(graphModels, converters.ProductCategoryToGraphQL(dbModel))
+	}
+
+	return graphModels, nil
+}
+
 // LegalEntityTypes is the resolver for the legalEntityTypes field.
 func (r *queryResolver) LegalEntityTypes(ctx context.Context) ([]*model.LegalEntityType, error) {
 	types, err := r.LegalEntityDao.GetAllTypes(ctx)

@@ -19,6 +19,7 @@ type Query {
     users: [User]
     taxRates: [Tax]
     searchBrands( name: String! ): [Brand]
+    productCategories: [ProductCategory]
     legalEntityTypes: [LegalEntityType]
     productsItemsByCode( code: String! ): ProductItem
     productItems( input: [ProductSpecificationInput]! ): [ProductItem]

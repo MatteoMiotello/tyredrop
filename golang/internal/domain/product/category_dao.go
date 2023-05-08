@@ -48,3 +48,9 @@ func (d *CategoryDao) FindCategoryById(ctx context.Context, id int64) (*models.P
 		)...,
 	).One(ctx, d.Db)
 }
+
+func (d *CategoryDao) FindAll(ctx context.Context) (models.ProductCategorySlice, error) {
+	return models.ProductCategories(
+		d.GetMods()...,
+	).All(ctx, d.Db)
+}
