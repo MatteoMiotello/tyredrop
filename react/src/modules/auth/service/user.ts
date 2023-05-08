@@ -59,6 +59,14 @@ export class User {
         return moment( this._userState.exp ).toDate();
     }
 
+    public getCompleteName(): string | null {
+        if ( !this.user?.name ) {
+            return this.user?.username || '';
+        }
+
+        return this.user?.name + ' ' + this._userState?.surname;
+    }
+
     get user(): UserState | null{
         return this._userState;
     }
