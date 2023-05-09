@@ -16,6 +16,7 @@ const documents = {
     "\n    mutation CreateUserBilling( $input: CreateUserBilling! ) {\n        createUserBilling( billingInput: $input ) {\n            id\n            name\n            surname\n        }\n    }\n": types.CreateUserBillingDocument,
     "\n     query SearchBrands( $name: String! ) {\n        searchBrands(  name: $name ) {\n            id\n            name\n        }\n     }  \n": types.SearchBrandsDocument,
     "\n    query GetLegalEntityTypes {\n        legalEntityTypes {\n            id\n            name\n            isPerson\n        }\n    }\n": types.GetLegalEntityTypesDocument,
+    "\n    query getAllCategories {\n        productCategories {\n            id\n            name\n            code\n            specifications {\n                id\n                code\n                name\n                type\n                mandatory\n                searchable\n            }\n        }\n    }\n": types.GetAllCategoriesDocument,
 };
 
 /**
@@ -44,6 +45,10 @@ export function gql(source: "\n     query SearchBrands( $name: String! ) {\n    
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n    query GetLegalEntityTypes {\n        legalEntityTypes {\n            id\n            name\n            isPerson\n        }\n    }\n"): (typeof documents)["\n    query GetLegalEntityTypes {\n        legalEntityTypes {\n            id\n            name\n            isPerson\n        }\n    }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n    query getAllCategories {\n        productCategories {\n            id\n            name\n            code\n            specifications {\n                id\n                code\n                name\n                type\n                mandatory\n                searchable\n            }\n        }\n    }\n"): (typeof documents)["\n    query getAllCategories {\n        productCategories {\n            id\n            name\n            code\n            specifications {\n                id\n                code\n                name\n                type\n                mandatory\n                searchable\n            }\n        }\n    }\n"];
 
 export function gql(source: string) {
   return (documents as any)[source] ?? {};

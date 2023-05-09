@@ -1,7 +1,7 @@
 import {RouteObject} from "react-router-dom";
-import ProductTemplate from "../ProductTemplate";
+import ProductPage from "../ProductPage";
 
 export const productRoute: RouteObject = {
-    Component: ProductTemplate,
+    Component: ProductPage,
     path: ''
 };
