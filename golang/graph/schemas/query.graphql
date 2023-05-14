@@ -14,6 +14,18 @@ type ProductPaginate {
     products: [Product]
 }
 
+type ProductItemPaginate {
+    pagination: Pagination
+    productItems: [ProductItem]
+}
+
+input ProductSearchInput {
+    brand: String
+    name: String
+    code: String
+    specifications: [ProductSpecificationInput]
+}
+
 type Query {
     user(ID: ID!): User
     users: [User]
@@ -22,8 +34,8 @@ type Query {
     productCategories: [ProductCategory]
     legalEntityTypes: [LegalEntityType]
     productsItemsByCode( code: String! ): ProductItem
-    productItems( input: [ProductSpecificationInput]! ): [ProductItem]
-    products( pagination: PaginationInput ): ProductPaginate
+    productItems( pagination: PaginationInput, productSearchInput: ProductSearchInput ): ProductItemPaginate
+    products( pagination: PaginationInput, productSearchInput: ProductSearchInput ): ProductPaginate
     currency( id: ID! ): Currency
     currencies: [Currency]
 }

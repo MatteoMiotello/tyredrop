@@ -16,6 +16,7 @@ type Product {
     code: String!
     brandID: ID!
     brand: Brand!
+    name: String
     productCategoryID: ID!
     category: ProductCategory!
     productSpecificationValues: [ProductSpecificationValue]!

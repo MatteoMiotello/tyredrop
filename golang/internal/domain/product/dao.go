@@ -5,6 +5,7 @@ import (
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
+	"pillowww/titw/graph/model"
 	"pillowww/titw/internal/db"
 	"pillowww/titw/models"
 )
@@ -63,7 +64,9 @@ func (d *Dao) CountAll(ctx context.Context) (int64, error) {
 
 func (d *Dao) FindOneById(ctx context.Context, id int64) (*models.Product, error) {
 	return models.Products(
-		d.GetMods()...,
+		d.GetMods(
+			models.ProductWhere.ID.EQ(id),
+		)...,
 	).One(ctx, d.Db)
 }
 
@@ -107,4 +110,40 @@ func (d Dao) FindNextRemainingEprelProduct(ctx context.Context, categoryCodes ..
 
 func (d Dao) AddProductSpecificationValues(ctx context.Context, product *models.Product, values ...*models.ProductSpecificationValue) error {
 	return product.AddProductSpecificationValues(ctx, d.Db, true, values...)
+}
+
+func (d Dao) Search(ctx context.Context, input *model.ProductSearchInput, currency *models.Currency) (models.ProductSlice, error) {
+	var mods []qm.QueryMod
+
+	if input != nil {
+		if input.Code != nil {
+			mods = append(mods, models.ProductWhere.ProductCode.EQ(null.StringFrom(*input.Name)))
+		}
+
+		if input.Brand != nil {
+			mods = append(mods, models.BrandWhere.BrandCode.EQ(*input.Brand))
+		}
+
+		if input.Name != nil {
+			mods = append(mods, qm.Where("products.name ILIKE ?", "%"+*input.Name+"%"))
+		}
+
+		for _, spec := range input.Specifications {
+			mods = append(mods, qm.Where("product_specifications.specification_code = ? AND product_specification_values.specification_value = ?", spec.Code, spec.Value))
+		}
+	}
+
+	return models.Products(
+		d.GetMods(
+			qm.LeftOuterJoin("product_items on product_items.product_id = products.id"),
+			qm.LeftOuterJoin("product_item_prices on product_item_prices.product_item_id = product_items.id"),
+			qm.LeftOuterJoin("product_specification_values on product_specification_values.product_id = products.id"),
+			qm.LeftOuterJoin("product_specifications on product_specification_values.product_specification_id = product_specifications.id"),
+			qm.LeftOuterJoin("brands on brands.id = products.brand_id"),
+			qm.Expr(mods...),
+			models.ProductItemPriceWhere.CurrencyID.EQ(currency.ID),
+			qm.GroupBy("products.id, product_item_prices.price"),
+			qm.OrderBy("product_item_prices.price ASC"),
+		)...,
+	).All(ctx, d.Db)
 }

@@ -5,6 +5,7 @@ import (
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
+	"pillowww/titw/graph/model"
 	"pillowww/titw/internal/db"
 	"pillowww/titw/models"
 )
@@ -91,5 +92,57 @@ type SpecificationInput struct {
 func (d *ItemDao) FindLessExpensiveBySpecifications(ctx context.Context, inputs ...*SpecificationInput) (models.ProductItemSlice, error) {
 	return models.ProductItems(
 		d.GetMods()...,
+	).All(ctx, d.Db)
+}
+
+func (d *ItemDao) FindProductItems(ctx context.Context, input *model.ProductSearchInput, currency *models.Currency) (models.ProductItemSlice, error) {
+	var mods []qm.QueryMod
+
+	mods = append(mods, qm.LeftOuterJoin("products on products.id = product_items.product_id"))
+	mods = append(mods, qm.LeftOuterJoin(
+		"( "+
+			"SELECT product_items.product_id, MIN( product_item_prices.price ) AS min_price "+
+			"FROM product_items "+
+			"LEFT JOIN product_item_prices on product_items.id = product_item_prices.product_item_id "+
+			"AND product_item_prices.currency_id = ? "+
+			"GROUP BY product_items.product_id "+
+			" ) pi ON pi.product_id = products.id ", currency.ID,
+	))
+	mods = append(mods, qm.LeftOuterJoin("product_item_prices ON product_item_prices.product_item_id = product_items.id AND product_item_prices.price = pi.min_price"))
+	mods = append(mods, qm.LeftOuterJoin("product_specification_values on product_specification_values.product_id = products.id"))
+	mods = append(mods, qm.LeftOuterJoin("product_specifications on product_specification_values.product_specification_id = product_specifications.id"))
+	mods = append(mods, qm.LeftOuterJoin("brands on brands.id = products.brand_id"))
+	mods = append(mods, models.ProductItemPriceWhere.CurrencyID.EQ(currency.ID))
+	mods = append(mods, qm.GroupBy("product_items.id, product_item_prices.id"))
+
+	if input != nil {
+		if input.Code != nil {
+			mods = append(mods, models.ProductWhere.ProductCode.EQ(null.StringFrom(*input.Code)))
+		}
+
+		if input.Brand != nil {
+			mods = append(mods, models.BrandWhere.BrandCode.EQ(*input.Brand))
+		}
+
+		if input.Name != nil {
+			mods = append(mods, qm.Where("products.name LIKE ?", "%"+*input.Name+"%"))
+		}
+
+		if input.Specifications != nil {
+			for _, spec := range input.Specifications {
+				mods = append(mods, qm.Expr(
+					models.ProductSpecificationWhere.SpecificationCode.EQ(spec.Code),
+					qm.And(models.ProductSpecificationValueColumns.SpecificationValue+" = ?", spec.Value),
+				))
+			}
+		}
+	}
+
+	mods = append(mods, qm.OrderBy(models.ProductItemPriceColumns.Price))
+
+	return models.ProductItems(
+		d.GetMods(
+			mods...,
+		)...,
 	).All(ctx, d.Db)
 }

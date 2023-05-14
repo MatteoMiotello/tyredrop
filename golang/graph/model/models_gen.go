@@ -55,6 +55,11 @@ type PaginationInput struct {
 	Offset int `json:"offset"`
 }
 
+type ProductItemPaginate struct {
+	Pagination   *Pagination    `json:"pagination,omitempty"`
+	ProductItems []*ProductItem `json:"productItems,omitempty"`
+}
+
 type ProductPaginate struct {
 	Pagination *Pagination `json:"pagination,omitempty"`
 	Products   []*Product  `json:"products,omitempty"`
@@ -64,6 +69,13 @@ type ProductPrice struct {
 	ID       int64     `json:"id"`
 	Value    float64   `json:"value"`
 	Currency *Currency `json:"currency"`
+}
+
+type ProductSearchInput struct {
+	Brand          *string                      `json:"brand,omitempty"`
+	Name           *string                      `json:"name,omitempty"`
+	Code           *string                      `json:"code,omitempty"`
+	Specifications []*ProductSpecificationInput `json:"specifications,omitempty"`
 }
 
 type ProductSpecificationInput struct {

@@ -108,29 +108,64 @@ func (r *queryResolver) ProductsItemsByCode(ctx context.Context, code string) (*
 }
 
 // ProductItems is the resolver for the productItems field.
-func (r *queryResolver) ProductItems(ctx context.Context, input []*model.ProductSpecificationInput) ([]*model.ProductItem, error) {
-	panic(fmt.Errorf("not implemented: ProductItems - productItems"))
-}
+func (r *queryResolver) ProductItems(ctx context.Context, pagination *model.PaginationInput, productSearchInput *model.ProductSearchInput) (*model.ProductItemPaginate, error) {
+	dao := r.ProductItemDao
 
-// Products is the resolver for the products field.
-func (r *queryResolver) Products(ctx context.Context, pagination *model.PaginationInput) (*model.ProductPaginate, error) {
-	count, err := r.ProductDao.CountAll(ctx)
-	countInt := int(count)
+	if pagination != nil {
+		dao = r.ProductItemDao.Paginate(pagination.Limit, pagination.Offset)
+	}
+
+	currency, err := r.CurrencyDao.FindDefault(ctx)
+
 	if err != nil {
 		return nil, err
 	}
 
+	products, err := dao.FindProductItems(ctx, productSearchInput, currency)
+
+	if err != nil {
+		return nil, err
+	}
+
+	countInt := len(products)
+
+	var graphModels []*model.ProductItem
+
+	for _, product := range products {
+		graphModels = append(graphModels, converters.ProductItemToGraphQL(product))
+	}
+
+	return &model.ProductItemPaginate{
+		ProductItems: graphModels,
+		Pagination: &model.Pagination{
+			Offset: &pagination.Offset,
+			Limit:  &pagination.Limit,
+			Totals: &countInt,
+		},
+	}, nil
+}
+
+// Products is the resolver for the products field.
+func (r *queryResolver) Products(ctx context.Context, pagination *model.PaginationInput, productSearchInput *model.ProductSearchInput) (*model.ProductPaginate, error) {
 	dao := r.ProductDao
 
 	if pagination != nil {
 		dao = r.ProductDao.Paginate(pagination.Limit, pagination.Offset)
 	}
 
-	products, err := dao.FindAll(ctx)
+	currency, err := r.CurrencyDao.FindDefault(ctx)
 
 	if err != nil {
 		return nil, err
 	}
+
+	products, err := dao.Search(ctx, productSearchInput, currency)
+
+	if err != nil {
+		return nil, err
+	}
+
+	countInt := len(products)
 
 	var graphModels []*model.Product
 
