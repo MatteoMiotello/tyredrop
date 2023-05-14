@@ -1,11 +1,12 @@
 import React from "react";
 import {ColumnDef, flexRender, getCoreRowModel, useReactTable} from "@tanstack/react-table";
 
-type ReactTableProps<T extends object> = {
+type ReactTableProps<T extends object = any> = {
     data: T[]
     columns: ColumnDef<T>[]
+    hideHeader?: boolean
 }
-const Table: React.FC<ReactTableProps<T>> = <T extends object>(props: ReactTableProps<T>) => {
+const Table: React.FC<ReactTableProps> = <T extends object>(props: ReactTableProps<T>) => {
     const table = useReactTable({
         data: props.data,
         columns: props.columns,
@@ -18,17 +19,20 @@ const Table: React.FC<ReactTableProps<T>> = <T extends object>(props: ReactTable
                 <div className="inline-block min-w-full py-4 sm:px-6 lg:px-8">
                     <div className="overflow-hidden p-2">
                         <table className="table w-full">
-                            <thead>
-                            {table.getHeaderGroups().map((headerGroup) => (
-                                <tr key={headerGroup.id}>
-                                    {headerGroup.headers.map((header) => (
-                                        <th key={header.id}>
-                                            {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                                        </th>
-                                    ))}
-                                </tr>
-                            ))}
-                            </thead>
+                            {
+                                props.hideHeader ? '' :
+                                <thead>
+                                {table.getHeaderGroups().map((headerGroup) => (
+                                    <tr key={headerGroup.id}>
+                                        {headerGroup.headers.map((header) => (
+                                            <th key={header.id}>
+                                                {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                                            </th>
+                                        ))}
+                                    </tr>
+                                ))}
+                                </thead>
+                            }
                             <tbody>
                             {table.getRowModel().rows.map((row) => (
                                 <tr key={row.id}>
