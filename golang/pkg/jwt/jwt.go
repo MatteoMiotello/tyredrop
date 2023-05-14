@@ -16,8 +16,9 @@ import (
 type UserStatus int
 
 const (
-	USER_COMPLETED   UserStatus = iota
-	USER_REGISTERING UserStatus = iota
+	USER_COMPLETED     UserStatus = iota
+	USER_REGISTERING   UserStatus = iota
+	USER_NOT_CONFIRMED UserStatus = iota
 )
 
 type RoleClaims struct {
@@ -70,6 +71,10 @@ func CreateAccessTokenFromUser(ctx context.Context, userModel models.User) (stri
 
 	if uBilling == nil {
 		status = USER_REGISTERING
+	}
+
+	if !userModel.Confirmed {
+		status = USER_NOT_CONFIRMED
 	}
 
 	userClaims := UserJwtClaims{

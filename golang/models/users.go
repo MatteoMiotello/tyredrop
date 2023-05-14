@@ -35,6 +35,7 @@ type User struct {
 	DeletedAt         null.Time   `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
 	UpdatedAt         time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
 	CreatedAt         time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	Confirmed         bool        `boil:"confirmed" json:"confirmed" toml:"confirmed" yaml:"confirmed"`
 
 	R *userR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L userL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -52,6 +53,7 @@ var UserColumns = struct {
 	DeletedAt         string
 	UpdatedAt         string
 	CreatedAt         string
+	Confirmed         string
 }{
 	ID:                "id",
 	UserRoleID:        "user_role_id",
@@ -64,6 +66,7 @@ var UserColumns = struct {
 	DeletedAt:         "deleted_at",
 	UpdatedAt:         "updated_at",
 	CreatedAt:         "created_at",
+	Confirmed:         "confirmed",
 }
 
 var UserTableColumns = struct {
@@ -78,6 +81,7 @@ var UserTableColumns = struct {
 	DeletedAt         string
 	UpdatedAt         string
 	CreatedAt         string
+	Confirmed         string
 }{
 	ID:                "users.id",
 	UserRoleID:        "users.user_role_id",
@@ -90,6 +94,7 @@ var UserTableColumns = struct {
 	DeletedAt:         "users.deleted_at",
 	UpdatedAt:         "users.updated_at",
 	CreatedAt:         "users.created_at",
+	Confirmed:         "users.confirmed",
 }
 
 // Generated where
@@ -106,6 +111,7 @@ var UserWhere = struct {
 	DeletedAt         whereHelpernull_Time
 	UpdatedAt         whereHelpertime_Time
 	CreatedAt         whereHelpertime_Time
+	Confirmed         whereHelperbool
 }{
 	ID:                whereHelperint64{field: "\"users\".\"id\""},
 	UserRoleID:        whereHelperint64{field: "\"users\".\"user_role_id\""},
@@ -118,6 +124,7 @@ var UserWhere = struct {
 	DeletedAt:         whereHelpernull_Time{field: "\"users\".\"deleted_at\""},
 	UpdatedAt:         whereHelpertime_Time{field: "\"users\".\"updated_at\""},
 	CreatedAt:         whereHelpertime_Time{field: "\"users\".\"created_at\""},
+	Confirmed:         whereHelperbool{field: "\"users\".\"confirmed\""},
 }
 
 // UserRels is where relationship names are stored.
@@ -188,9 +195,9 @@ func (r *userR) GetUserPaymentMethods() UserPaymentMethodSlice {
 type userL struct{}
 
 var (
-	userAllColumns            = []string{"id", "user_role_id", "default_language_id", "email", "username", "password", "name", "surname", "deleted_at", "updated_at", "created_at"}
+	userAllColumns            = []string{"id", "user_role_id", "default_language_id", "email", "username", "password", "name", "surname", "deleted_at", "updated_at", "created_at", "confirmed"}
 	userColumnsWithoutDefault = []string{"user_role_id", "default_language_id", "email", "password", "name", "surname"}
-	userColumnsWithDefault    = []string{"id", "username", "deleted_at", "updated_at", "created_at"}
+	userColumnsWithDefault    = []string{"id", "username", "deleted_at", "updated_at", "created_at", "confirmed"}
 	userPrimaryKeyColumns     = []string{"id"}
 	userGeneratedColumns      = []string{}
 )

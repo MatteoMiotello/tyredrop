@@ -39,6 +39,9 @@ type UserBilling {
 type User {
     id: ID!
     email: String!
+    confirmed: Boolean!
+    name: String
+    surname: String
     username: String
     userRole: UserRole!
     userBilling: UserBilling!

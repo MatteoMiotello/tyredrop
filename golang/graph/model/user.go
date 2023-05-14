@@ -1,9 +1,12 @@
 package model
 
 type User struct {
-	ID       int64   `json:"id"`
-	Email    string  `json:"email"`
-	Username *string `json:"username"`
+	ID        int64   `json:"id"`
+	Email     string  `json:"email"`
+	Username  *string `json:"username"`
+	Confirmed bool    `json:"confirmed"`
+	Name      *string `json:"name"`
+	Surname   *string `json:"surname"`
 }
 
 type UserBilling struct {

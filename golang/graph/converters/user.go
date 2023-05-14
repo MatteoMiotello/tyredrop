@@ -7,9 +7,12 @@ import (
 
 func UserToGraphQL(user *models.User) *model.User {
 	return &model.User{
-		ID:       user.ID,
-		Email:    user.Email,
-		Username: &user.Username.String,
+		ID:        user.ID,
+		Email:     user.Email,
+		Username:  &user.Username.String,
+		Confirmed: user.Confirmed,
+		Name:      &user.Name,
+		Surname:   &user.Surname,
 	}
 }
 
