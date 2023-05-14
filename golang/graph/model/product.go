@@ -27,6 +27,8 @@ type ProductSpecification struct {
 	Code              string `json:"code"`
 	Name              string `json:"name"`
 	Type              string `json:"type"`
+	Mandatory         bool   `json:"mandatory"`
+	Searchable        bool   `json:"searchable"`
 	ProductCategoryID int64  `json:"product_category_id"`
 }
 

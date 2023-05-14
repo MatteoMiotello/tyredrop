@@ -129,9 +129,11 @@ type ComplexityRoot struct {
 	ProductSpecification struct {
 		Code              func(childComplexity int) int
 		ID                func(childComplexity int) int
+		Mandatory         func(childComplexity int) int
 		Name              func(childComplexity int) int
 		ProductCategory   func(childComplexity int) int
 		ProductCategoryID func(childComplexity int) int
+		Searchable        func(childComplexity int) int
 		Type              func(childComplexity int) int
 	}
 
@@ -593,6 +595,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ProductSpecification.ID(childComplexity), true
 
+	case "ProductSpecification.mandatory":
+		if e.complexity.ProductSpecification.Mandatory == nil {
+			break
+		}
+
+		return e.complexity.ProductSpecification.Mandatory(childComplexity), true
+
 	case "ProductSpecification.name":
 		if e.complexity.ProductSpecification.Name == nil {
 			break
@@ -613,6 +622,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ProductSpecification.ProductCategoryID(childComplexity), true
+
+	case "ProductSpecification.searchable":
+		if e.complexity.ProductSpecification.Searchable == nil {
+			break
+		}
+
+		return e.complexity.ProductSpecification.Searchable(childComplexity), true
 
 	case "ProductSpecification.type":
 		if e.complexity.ProductSpecification.Type == nil {
@@ -2663,6 +2679,10 @@ func (ec *executionContext) fieldContext_ProductCategory_specifications(ctx cont
 				return ec.fieldContext_ProductSpecification_productCategoryID(ctx, field)
 			case "productCategory":
 				return ec.fieldContext_ProductSpecification_productCategory(ctx, field)
+			case "mandatory":
+				return ec.fieldContext_ProductSpecification_mandatory(ctx, field)
+			case "searchable":
+				return ec.fieldContext_ProductSpecification_searchable(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ProductSpecification", field.Name)
 		},
@@ -3583,6 +3603,88 @@ func (ec *executionContext) fieldContext_ProductSpecification_productCategory(ct
 	return fc, nil
 }
 
+func (ec *executionContext) _ProductSpecification_mandatory(ctx context.Context, field graphql.CollectedField, obj *model.ProductSpecification) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductSpecification_mandatory(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Mandatory, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalOBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductSpecification_mandatory(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductSpecification",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductSpecification_searchable(ctx context.Context, field graphql.CollectedField, obj *model.ProductSpecification) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductSpecification_searchable(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Searchable, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalOBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductSpecification_searchable(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductSpecification",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ProductSpecificationValue_id(ctx context.Context, field graphql.CollectedField, obj *model.ProductSpecificationValue) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ProductSpecificationValue_id(ctx, field)
 	if err != nil {
@@ -3766,6 +3868,10 @@ func (ec *executionContext) fieldContext_ProductSpecificationValue_specification
 				return ec.fieldContext_ProductSpecification_productCategoryID(ctx, field)
 			case "productCategory":
 				return ec.fieldContext_ProductSpecification_productCategory(ctx, field)
+			case "mandatory":
+				return ec.fieldContext_ProductSpecification_mandatory(ctx, field)
+			case "searchable":
+				return ec.fieldContext_ProductSpecification_searchable(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ProductSpecification", field.Name)
 		},
@@ -7884,34 +7990,38 @@ func (ec *executionContext) unmarshalInputCreateAdminUserInput(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Name = data
 		case "surname":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("surname"))
-			it.Surname, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Surname = data
 		case "email":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-			it.Email, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Email = data
 		case "password":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
-			it.Password, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Password = data
 		}
 	}
 
@@ -7936,10 +8046,11 @@ func (ec *executionContext) unmarshalInputCreateUserBilling(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("legalEntityTypeId"))
-			it.LegalEntityTypeID, err = ec.unmarshalNID2int64(ctx, v)
+			data, err := ec.unmarshalNID2int64(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.LegalEntityTypeID = data
 		case "name":
 			var err error
 
@@ -7966,26 +8077,29 @@ func (ec *executionContext) unmarshalInputCreateUserBilling(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("surname"))
-			it.Surname, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Surname = data
 		case "fiscalCode":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fiscalCode"))
-			it.FiscalCode, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.FiscalCode = data
 		case "vatNumber":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vatNumber"))
-			it.VatNumber, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.VatNumber = data
 		case "addressLine1":
 			var err error
 
@@ -8012,10 +8126,11 @@ func (ec *executionContext) unmarshalInputCreateUserBilling(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("addressLine2"))
-			it.AddressLine2, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.AddressLine2 = data
 		case "city":
 			var err error
 
@@ -8150,18 +8265,20 @@ func (ec *executionContext) unmarshalInputPaginationInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
-			it.Limit, err = ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Limit = data
 		case "offset":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
-			it.Offset, err = ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Offset = data
 		}
 	}
 
@@ -8186,18 +8303,20 @@ func (ec *executionContext) unmarshalInputProductSpecificationInput(ctx context.
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("code"))
-			it.Code, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Code = data
 		case "value":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
-			it.Value, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Value = data
 		}
 	}
 
@@ -8880,6 +8999,14 @@ func (ec *executionContext) _ProductSpecification(ctx context.Context, sel ast.S
 				return innerFunc(ctx)
 
 			})
+		case "mandatory":
+
+			out.Values[i] = ec._ProductSpecification_mandatory(ctx, field, obj)
+
+		case "searchable":
+
+			out.Values[i] = ec._ProductSpecification_searchable(ctx, field, obj)
+
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

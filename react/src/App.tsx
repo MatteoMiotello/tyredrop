@@ -5,10 +5,15 @@ import CustomFooter from "./common/components/CustomFooter";
 import Spinner from "./common/components/Spinner";
 import {useAuth} from "./modules/auth/hooks/useAuth";
 import Navbar from "./common/components/Navbar";
+import {useDispatch} from "react-redux";
+import { getAllProductSpecifications} from "./store/app-slice";
+import {ThunkDispatch} from "redux-thunk";
+import {ProductCategory} from "./__generated__/graphql";
 
 function App() {
     const auth = useAuth();
     const navigate = useNavigate();
+    const dispatch: ThunkDispatch<ProductCategory[], any, any> = useDispatch();
 
     useEffect(() => {
         if (!auth.isAuthenticated() && !auth.isPending()) {
@@ -23,8 +28,13 @@ function App() {
             if (auth.user?.isRegistering()) {
                 navigate('/billing');
             }
+
+            if ( auth.isFullfilled() && auth.user?.isCompleted() ) {
+                dispatch( getAllProductSpecifications() );
+            }
         }
     }, [auth]);
+
 
     return (
         <>

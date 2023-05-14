@@ -3,7 +3,7 @@ module pillowww/titw
 go 1.20
 
 require (
-	github.com/99designs/gqlgen v0.17.28
+	github.com/99designs/gqlgen v0.17.31
 	github.com/MatteoMiotello/go-sqlbuilder v1.0.1-0.20230310213322-8a4d5c78ef63
 	github.com/bojanz/currency v1.1.0
 	github.com/evalphobia/logrus_sentry v0.8.2

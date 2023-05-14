@@ -21,6 +21,8 @@ func ProductSpecificationToGraphQL(spec *models.ProductSpecification) *model.Pro
 		Code:              spec.SpecificationCode,
 		Type:              spec.Type,
 		Name:              lang.Name,
+		Mandatory:         spec.Mandatory,
+		Searchable:        spec.Searchable,
 		ProductCategoryID: spec.ProductCategoryID,
 	}
 }

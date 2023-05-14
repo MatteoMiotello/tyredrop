@@ -10,7 +10,6 @@ const AuthTemplate: React.FC = ( ) => {
 
     useEffect( () => {
         if ( auth.isAuthenticated() ) {
-            console.log( auth );
             navigate( '/' );
         }
 

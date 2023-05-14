@@ -12,6 +12,8 @@ type ProductSpecification {
     type: String!
     productCategoryID: ID!
     productCategory: ProductCategory
+    mandatory: Boolean
+    searchable: Boolean
 }
 
 input ProductSpecificationInput {
