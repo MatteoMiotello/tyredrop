@@ -4,7 +4,8 @@ import moment from "moment";
 
 export enum UserStatus {
     COMPLETED,
-    REGISTERING
+    REGISTERING,
+    NOT_CONFIRMED,
 }
 
 export const getUserStatus = ( user: UserState ): UserStatus => {
@@ -39,6 +40,14 @@ export class User {
         }
 
         return this._userState.status == UserStatus.COMPLETED;
+    }
+
+    public isNotConfirmed(): boolean {
+        if ( !this._userState ) {
+            return true;
+        }
+
+        return this._userState.status == UserStatus.NOT_CONFIRMED;
     }
 
     public isTokenValid(): boolean {

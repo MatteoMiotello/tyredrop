@@ -30,7 +30,7 @@ func registerRoutes(router *gin.Engine) {
 
 	//graphql
 	graphController := new(controllers.GraphqlController)
-	router.POST("/query", graphController.Query)
+	router.POST("/query", middlewares.InjectAuth, middlewares.IsAuthenticated, graphController.Query)
 	router.GET("/playground", middlewares.TestEnv, graphController.Playground)
 
 	//assets

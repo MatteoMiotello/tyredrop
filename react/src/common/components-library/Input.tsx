@@ -121,6 +121,7 @@ const FormInput: React.FC<FormInputProps> = (props) => {
             bottomRightLabelText={props.bottomRightLabelText}
             error={props.error}
             size={props.size}
+            validators={props.validators}
         />
     </FormControl>;
 };

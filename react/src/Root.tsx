@@ -12,16 +12,20 @@ import i18n from "./common/i18n";
 import {I18nextProvider} from "react-i18next";
 import {Provider} from "react-redux";
 import {CustomToast, ToastConfig} from "./common/components/CustomToast";
+import NotConfirmedPage from "./NotConfirmedPage";
 
 const router = createBrowserRouter([
     {
         path: '/',
         element: <App/>,
-
         children: [
             billingRoute,
             productRoute
         ]
+    },
+    {
+        path: '/not_confirmed',
+        element: <NotConfirmedPage/>
     },
     authRoutes
 ]);

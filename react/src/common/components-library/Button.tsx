@@ -8,6 +8,7 @@ interface ButtonProps extends PropsWithChildren {
     htmlType?: 'submit' | 'reset' | 'button' | undefined;
     outline?: boolean;
     className?: string;
+    onClick?: () => void
 }
 
 const getClassType = (type: ButtonType) => {
@@ -59,7 +60,7 @@ const Button: React.FC<ButtonProps> = (props) => {
         classes += ' ' + getSizeClass( props.size );
     }
 
-    return <button className={classes} type={props.htmlType}>
+    return <button className={classes} type={props.htmlType} onClick={props?.onClick}>
         {props.children}
     </button>;
 };

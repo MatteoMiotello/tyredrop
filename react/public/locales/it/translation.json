@@ -65,5 +65,9 @@
     "basic_search_tab_title": "Ricerca semplice",
     "name_field_label": "Nome prodotto",
     "code_field_label": "Codice identificativo"
+  },
+  "not_confirmed": {
+    "title": "Non ancora verificato!",
+    "text": "Stiamo verificando i tuoi dati, se tutto è corretto tra poco sarai in grado di entrare nella piattaforma!"
   }
 }

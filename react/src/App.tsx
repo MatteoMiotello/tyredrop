@@ -25,6 +25,10 @@ function App() {
         }
 
         if (auth.isAuthenticated()) {
+            if ( auth.user?.isNotConfirmed() ) {
+                navigate( '/not_confirmed' );
+            }
+
             if (auth.user?.isRegistering()) {
                 navigate('/billing');
             }
