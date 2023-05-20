@@ -5,6 +5,7 @@ package model
 type Brand struct {
 	ID        int64  `json:"id"`
 	Name      string `json:"name"`
+	Code      string `json:"code"`
 	ImageLogo string `json:"image_logo"`
 }
 

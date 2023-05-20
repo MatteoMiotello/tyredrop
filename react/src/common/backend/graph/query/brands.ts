@@ -5,6 +5,7 @@ export const SEARCH_BRANDS = gql(`
         searchBrands(  name: $name ) {
             id
             name
+            code
         }
      }  
 `);

@@ -10,5 +10,6 @@ func BrandToGraphQL(brandModel *models.Brand) *model.Brand {
 		ID:        brandModel.ID,
 		Name:      brandModel.Name,
 		ImageLogo: brandModel.ImageLogo.String,
+		Code:      brandModel.BrandCode,
 	}
 }

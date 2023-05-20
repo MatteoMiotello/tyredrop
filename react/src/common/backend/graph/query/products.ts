@@ -1,5 +1,6 @@
 import {gql} from "../../../../__generated__";
 
+
 export const ALL_CATEGORIES_WITH_SPECIFICATIONS = gql(`
     query getAllCategories {
         productCategories {
@@ -35,13 +36,16 @@ export const SEARCH_PRODUCTS = gql( `
                     value
                     currency {
                          iso_code
+                         symbol
                     }
                }
                product {
                     id
                     name
+                    code
                     brand {
                          name
+                         code
                     }
                }
           }

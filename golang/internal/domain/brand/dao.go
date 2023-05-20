@@ -65,3 +65,9 @@ func (d *Dao) FindByName(ctx context.Context, name string) (models.BrandSlice, e
 		)...,
 	).All(ctx, d.Db)
 }
+
+func (d *Dao) FindAll(ctx context.Context) (models.BrandSlice, error) {
+	return models.Brands(
+		d.GetMods()...,
+	).All(ctx, d.Db)
+}
