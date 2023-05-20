@@ -1,22 +1,46 @@
 import {ColumnDef} from "@tanstack/react-table";
-import React from "react";
+import React, {useEffect, useState} from "react";
 import Table from "../../../common/components-library/Table";
+import TyreItemRow from "./TyreItemRow";
+import {ProductItem, ProductItemPaginate} from "../../../__generated__/graphql";
 
-const ProductTable: React.FC = () => {
+
+type ProductTableProps = {
+    products: ProductItemPaginate
+}
+
+type ProductRowItemData = {
+    brand: string,
+    name: string,
+    code: string
+}
+
+const ProductTable: React.FC<ProductTableProps> = ( props ) => {
+    const [ data, setData ] = useState<ProductRowItemData[]>( [] );
     const colums: ColumnDef<{ id: number, name: string }>[] = [
         {
-            accessorKey: "id"
-        }, {
-            accessorKey: "name"
+            accessorKey: "content",
+            cell: props => <TyreItemRow data={props}/>
         }
     ];
 
-    const data = [
-        {
-            id: 1,
-            name: "ciao"
+    useEffect( () => {
+        console.log( props.products );
+
+        if ( !props.products ) {
+            return;
         }
-    ];
+
+        const data = props.products.productItems?.map( ( product: ProductItem ) => {
+            return {
+                brand: product.product.brand.name,
+                name: product.product.name,
+                code: product.product.code,
+            };
+        } );
+
+        setData( data );
+    }, props.products );
 
     return <Table
         hideHeader={true}
@@ -24,3 +48,5 @@ const ProductTable: React.FC = () => {
         columns={colums}
     />;
 };
+
+export default ProductTable;
