@@ -7,6 +7,8 @@ import TyreItemRow, {ProductRowItemData} from "./TyreItemRow";
 
 type ProductTableProps = {
     products: SearchQuery
+    handlePaginationChange: ( index: number, size: number ) => void
+    pageCount: number
 }
 
 const ProductTable: React.FC<ProductTableProps> = (props) => {
@@ -51,6 +53,8 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
         hideHeader={true}
         data={data}
         columns={colums}
+        pageCount={props.pageCount}
+        updatePagination={props.handlePaginationChange}
     />;
 };
 

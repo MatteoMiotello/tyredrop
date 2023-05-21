@@ -126,13 +126,13 @@ func (r *queryResolver) ProductsItemsByCode(ctx context.Context, code string) (*
 
 // ProductItems is the resolver for the productItems field.
 func (r *queryResolver) ProductItems(ctx context.Context, pagination *model.PaginationInput, productSearchInput *model.ProductSearchInput) (*model.ProductItemPaginate, error) {
+	currency, err := r.CurrencyDao.FindDefault(ctx)
 	dao := r.ProductItemDao
+	pWithoutPagination, err := dao.FindProductItems(ctx, productSearchInput, currency)
 
 	if pagination != nil {
 		dao = r.ProductItemDao.Paginate(pagination.Limit, pagination.Offset)
 	}
-
-	currency, err := r.CurrencyDao.FindDefault(ctx)
 
 	if err != nil {
 		return nil, err
@@ -144,7 +144,7 @@ func (r *queryResolver) ProductItems(ctx context.Context, pagination *model.Pagi
 		return nil, err
 	}
 
-	countInt := len(products)
+	countInt := len(pWithoutPagination)
 
 	var graphModels []*model.ProductItem
 

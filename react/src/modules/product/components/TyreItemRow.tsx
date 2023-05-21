@@ -1,5 +1,8 @@
+import {faAngleRight, faShoppingCart} from "@fortawesome/free-solid-svg-icons";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Img} from "react-image";
 import tyrePlaceholder from "../../../assets/placeholder-tyre.jpg";
+import Button from "../../../common/components-library/Button";
 import Spinner from "../../../common/components/Spinner";
 
 export type ProductRowItemData = {
@@ -38,8 +41,26 @@ const TyreItemRow: React.FC<TyreItemRowProps | null> = (props: TyreItemRowProps 
                      unloader={<span className="uppercase text-2xl font-bold text-center w-full">{data.brand.name}
                 </span>}/>
         </span>
-        <h2> {data.name} </h2>
+        <div>
+            <h2 className="font-semibold"> {data.brand.name } </h2>
+            <h2> {data.name} </h2>
+        </div>
         <span className="ml-auto"> {data.price.value + " " + data.price.symbol} </span>
+        <Button
+            className="mx-2 aspect-square"
+            type={"primary"}
+        >
+            <FontAwesomeIcon icon={faShoppingCart}/>
+        </Button>
+        <Button
+            className="mx-2 aspect-square"
+            type="ghost"
+            outline={true}
+            >
+            <FontAwesomeIcon
+                icon={faAngleRight}
+            />
+        </Button>
     </div>;
 };
 
