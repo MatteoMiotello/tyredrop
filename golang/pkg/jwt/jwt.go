@@ -30,6 +30,7 @@ type UserJwtClaims struct {
 	Email        string      `json:"email"`
 	UserID       int64       `json:"userID"`
 	Name         null.String `json:"name"`
+	Surname      null.String `json:"surname"`
 	Username     null.String `json:"username"`
 	LanguageCode string      `json:"language_code"`
 	Role         RoleClaims  `json:"role"`
@@ -81,6 +82,8 @@ func CreateAccessTokenFromUser(ctx context.Context, userModel models.User) (stri
 		UserID:       userModel.ID,
 		Email:        userModel.Email,
 		Username:     userModel.Username,
+		Name:         null.StringFrom(userModel.Name),
+		Surname:      null.StringFrom(userModel.Surname),
 		LanguageCode: uLanguage.IsoCode,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: expiration,

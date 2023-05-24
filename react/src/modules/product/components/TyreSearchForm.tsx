@@ -7,17 +7,15 @@ import Form, {useForm} from "../../../common/components-library/Form";
 import {useTranslation} from "react-i18next";
 import BrandField from "../../../common/components/BrandField";
 
-const TyreSpecificSearchForm: React.FC = () => {
+type TypeSpecificSearchFormProps = {
+    onSubmit: ( req ) => void
+}
+
+const TyreSpecificSearchForm: React.FC<TypeSpecificSearchFormProps> = ( props ) => {
     const {t} = useTranslation();
-    const [form, handleFormError] = useForm();
+    const [form] = useForm();
 
-    const onSubmit = ( request ) => {
-
-
-        return;
-    };
-
-    return <Form onSubmit={onSubmit} form={form}>
+    return <Form onSubmit={props.onSubmit} form={form}>
         <Field.FormControl className="col-span-3">
             <Field.Input
                 type="number"

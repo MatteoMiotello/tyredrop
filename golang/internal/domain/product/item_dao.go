@@ -109,11 +109,10 @@ func (d *ItemDao) FindProductItems(ctx context.Context, input *model.ProductSear
 			" ) pi ON pi.product_id = products.id ", currency.ID,
 	))
 	mods = append(mods, qm.LeftOuterJoin("product_item_prices ON product_item_prices.product_item_id = product_items.id AND product_item_prices.price = pi.min_price"))
-	mods = append(mods, qm.LeftOuterJoin("product_specification_values on product_specification_values.product_id = products.id"))
-	mods = append(mods, qm.LeftOuterJoin("product_specifications on product_specification_values.product_specification_id = product_specifications.id"))
 	mods = append(mods, qm.LeftOuterJoin("brands on brands.id = products.brand_id"))
 	mods = append(mods, models.ProductItemPriceWhere.CurrencyID.EQ(currency.ID))
 	mods = append(mods, qm.GroupBy("product_items.id, product_item_prices.id"))
+	mods = append(mods, models.ProductItemWhere.SupplierQuantity.GTE(4))
 
 	if input != nil {
 		if input.Code != nil {
@@ -125,14 +124,17 @@ func (d *ItemDao) FindProductItems(ctx context.Context, input *model.ProductSear
 		}
 
 		if input.Name != nil {
-			mods = append(mods, qm.Where("products.name LIKE ?", "%"+*input.Name+"%"))
+			mods = append(mods, qm.Where("products.name ILIKE ?", "%"+*input.Name+"%"))
 		}
 
 		if input.Specifications != nil {
 			for _, spec := range input.Specifications {
-				mods = append(mods, qm.Expr(
-					models.ProductSpecificationWhere.SpecificationCode.EQ(spec.Code),
-					qm.And(models.ProductSpecificationValueColumns.SpecificationValue+" = ?", spec.Value),
+				mods = append(mods, qm.And(
+					"products.id IN ( SELECT product_specification_values.product_id FROM product_specification_values "+
+						"LEFT JOIN product_specifications ON product_specifications.id = product_specification_values.product_specification_id "+
+						"WHERE product_specifications.specification_code = ? "+
+						"AND product_specification_values.specification_value = ? ) ",
+					spec.Code, spec.Value,
 				))
 			}
 		}

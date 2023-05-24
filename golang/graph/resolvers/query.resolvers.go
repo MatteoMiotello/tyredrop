@@ -130,6 +130,10 @@ func (r *queryResolver) ProductItems(ctx context.Context, pagination *model.Pagi
 	dao := r.ProductItemDao
 	pWithoutPagination, err := dao.FindProductItems(ctx, productSearchInput, currency)
 
+	if err != nil {
+		return nil, err
+	}
+
 	if pagination != nil {
 		dao = r.ProductItemDao.Paginate(pagination.Limit, pagination.Offset)
 	}

@@ -20,13 +20,7 @@ type UpdateTyresSpecificationJob struct {
 }
 
 func (r UpdateTyresSpecificationJob) Run() {
-	if r.MaxChildren == 0 {
-		r.MaxChildren = 1
-	}
-
-	for i := 0; i < r.MaxChildren; i++ {
-		go UpdateTyresSpecifications()
-	}
+	UpdateTyresSpecifications()
 }
 
 func UpdateTyresSpecifications() {
