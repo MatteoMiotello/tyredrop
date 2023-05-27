@@ -22,7 +22,7 @@ export type AutocompleteOption = {
 }
 
 const Autocomplete: React.FC<AutocompleteProps> = (props) => {
-    const [selected, setSelected] = useState(props.initialOptions[0] ?? null);
+    const [selected, setSelected] = useState<AutocompleteOption | null>(props.initialOptions[0] ?? null);
     const [query, setQuery] = useState('');
     const [filteredOptions, setFilteredOptions] = useState(props.initialOptions);
     const [error, setError] = useState<string | null>(null);
@@ -47,6 +47,10 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
 
     const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
         const value = event.target.value;
+
+        if ( !value ) {
+            setSelected(null);
+        }
 
         if (!props.validators) {
             return;

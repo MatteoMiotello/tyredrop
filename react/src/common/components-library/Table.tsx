@@ -21,7 +21,7 @@ const Table: React.FC<ReactTableProps> = <T extends object>(props: ReactTablePro
         manualPagination: true,
         initialState: {
             pagination: {
-                pageIndex: 1
+                pageIndex: 0
             }
         }
     }
@@ -67,9 +67,9 @@ const Table: React.FC<ReactTableProps> = <T extends object>(props: ReactTablePro
                         </table>
                     </div>
                     <div className="w-full flex justify-center btn-group">
-                            <Button onClick={table.previousPage} className={ table.getCanNextPage() ? '' : 'btn-disabled' }><FontAwesomeIcon icon={faAngleLeft}/></Button>
-                            <Button className="btn-disabled"> Pagina { table.getState().pagination.pageIndex } di { table.getPageCount() }</Button>
-                            <Button onClick={table.nextPage} className={ table.getCanNextPage() ? '' : 'btn-disabled' }><FontAwesomeIcon icon={faAngleRight}/></Button>
+                            <Button type="secondary" onClick={table.previousPage} className={ table.getCanPreviousPage() ? '' : 'btn-disabled' }><FontAwesomeIcon icon={faAngleLeft}/></Button>
+                            <span className="flex items-center p-2 uppercase text-sm font-semibold bg-secondary text-white text-center"> Pagina { table.getState().pagination.pageIndex + 1 } di { table.getPageCount() }</span>
+                            <Button type="secondary" onClick={table.nextPage} className={ table.getCanNextPage() ? '' : 'btn-disabled' }><FontAwesomeIcon icon={faAngleRight}/></Button>
                     </div>
                 </div>
             </div>

@@ -35,7 +35,7 @@ const BrandField: React.FC<BrandFieldProps> = (props) => {
         return brands.data?.searchBrands?.map((brand) => {
             return {
                 title: brand?.name,
-                value: brand?.id
+                value: brand?.code
             } as AutocompleteOption;
         });
     };

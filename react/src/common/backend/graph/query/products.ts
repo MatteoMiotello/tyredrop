@@ -47,6 +47,12 @@ export const SEARCH_PRODUCTS = gql( `
                          name
                          code
                     }
+                    productSpecificationValues {
+                        specification {
+                            code
+                        }
+                        value
+                    }
                }
           }
      }

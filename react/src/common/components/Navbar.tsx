@@ -2,8 +2,9 @@ import React from "react";
 import Field from "../components-library/Input";
 import MainLogo from "./Logo";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faSearch, faUser} from "@fortawesome/free-solid-svg-icons";
+import {faCartShopping, faSearch, faUser} from "@fortawesome/free-solid-svg-icons";
 import {useAuth} from "../../modules/auth/hooks/useAuth";
+import Button from "../components-library/Button";
 
 const Navbar: React.FC = () => {
     const auth = useAuth();
@@ -20,6 +21,9 @@ const Navbar: React.FC = () => {
                 </Field.InputGroup>
             </Field.FormControl>
         </div>
+        <Button outline={true} className="mr-3">
+            <FontAwesomeIcon icon={faCartShopping} className="text-primary text-md"/>
+        </Button>
         <div className="flex-none gap-2">
             <div className="dropdown dropdown-end">
                 <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
