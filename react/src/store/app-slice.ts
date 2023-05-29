@@ -1,4 +1,5 @@
 import {Slice, SliceCaseReducers, createAsyncThunk, createSlice} from "@reduxjs/toolkit";
+import {ProductCategory} from "../__generated__/graphql";
 import apolloClientContext from "../common/contexts/apollo-client-context";
 import {ALL_CATEGORIES_WITH_SPECIFICATIONS} from "../common/backend/graph/query/products";
 import {AppState} from "./store";
@@ -30,7 +31,7 @@ const appSlice: Slice<AppState> = createSlice<AppState, SliceCaseReducers<AppSta
                 state.productCategories = [];
             })
             .addCase(getAllProductSpecifications.fulfilled, (state, action) => {
-                state.productCategories = action.payload;
+                state.productCategories = action.payload as ProductCategory[];
             });
     }
 });

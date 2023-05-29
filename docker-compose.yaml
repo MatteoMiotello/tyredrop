@@ -12,12 +12,11 @@ services:
       - DATABASE_HOST=${DB_HOST}
       - DATABASE_PORT=${DB_PORT}
     tty: true
-    build: .
     ports:
-      - 8001:8080
+      - 8080:8080
     restart: always
     volumes:
-      - .:/app
+      - ./golang:/app
       - ./import:/import
     depends_on:
       - postgresdb

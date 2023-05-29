@@ -9,7 +9,7 @@ import {ProductSpecificationInput} from "../../__generated__/graphql";
 
 const ELEMENT_PER_PAGE = 10;
 
-const ProductPage: React.FC = () => {
+const ProductTablePage: React.FC = () => {
     const [pageCount, setPageCount] = useState(0);
     const [search, setSearch] = useState<ProductSearchDataType | null>(null);
     const [offset, setOffset] = useState(0);
@@ -81,4 +81,4 @@ const ProductPage: React.FC = () => {
     </main>;
 };
 
-export default ProductPage;
+export default ProductTablePage;

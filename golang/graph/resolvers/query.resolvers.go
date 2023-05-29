@@ -166,6 +166,17 @@ func (r *queryResolver) ProductItems(ctx context.Context, pagination *model.Pagi
 	}, nil
 }
 
+// ProductItem is the resolver for the productItem field.
+func (r *queryResolver) ProductItem(ctx context.Context, id int64) (*model.ProductItem, error) {
+	dbModel, err := r.ProductItemDao.FindProductItemById(ctx, id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return converters.ProductItemToGraphQL(dbModel), nil
+}
+
 // Products is the resolver for the products field.
 func (r *queryResolver) Products(ctx context.Context, pagination *model.PaginationInput, productSearchInput *model.ProductSearchInput) (*model.ProductPaginate, error) {
 	dao := r.ProductDao

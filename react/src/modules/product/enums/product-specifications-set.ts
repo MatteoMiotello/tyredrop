@@ -32,7 +32,7 @@ enum TyreSpecificationSet {
     EXTERNAL_ROLLING_NOISE_LEVEL = 'EXTERNAL_ROLLING_NOISE_LEVEL',
     LOAD_VERSION = 'LOAD_VERSION',
 }
-export const ProductSpecificationsSet: { [key: string]: { [key: string]: TyreSpecificationSet } } = {
+export const ProductSpecificationsSet: { [key in ProductCategorySet]: { [key: string]: TyreSpecificationSet } } = {
     TYRE: {
         NAME: TyreSpecificationSet.NAME,
         REFERENCE: TyreSpecificationSet.REFERENCE,
@@ -52,7 +52,7 @@ export const ProductSpecificationsSet: { [key: string]: { [key: string]: TyreSpe
     }
 };
 
-const ProductSpecificationIcons: { [k: string]: ProductSpecificationIcons } = {
+const ProductSpecificationIcons: { [k in ProductCategorySet]: ProductSpecificationIcons } = {
     TYRE: {
         FUEL_EFFICIENCY: faGasPump,
         WET_GRIP_CLASS: faCloudRain,

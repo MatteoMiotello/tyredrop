@@ -84,7 +84,6 @@ export class Auth {
 
         if (refreshToken && this.isEmpty()) {
             store.dispatch(authRefreshToken(refreshToken));
-            return;
         }
     }
 }

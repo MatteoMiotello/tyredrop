@@ -58,3 +58,31 @@ export const SEARCH_PRODUCTS = gql( `
      }
 }
 ` );
+
+export const PRODUCT_ITEM = gql(`
+    query productItem( $id: ID! ) {
+    productItem( id: $id ) {
+        id
+        price {
+            currency {
+                iso_code
+            }
+            value
+        }
+        product {
+            code
+            name
+            brand {
+                name
+                code
+            }
+            productSpecificationValues {
+                value
+                specification {
+                    code
+                }
+            }
+        }
+    }
+}
+`);

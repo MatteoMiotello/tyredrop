@@ -17,9 +17,9 @@ const ProductTitleCell: React.FC<TyreItemRowProps | null> = (props: TyreItemRowP
 
     const data = props.data;
 
-    return <Link className="h-36 flex w-full items-center" to={"/products/details/" + data.id}>
+    return <div className="h-36 flex w-full items-center" >
         <div>
-            <div className="break-words font-semibold text-xl"> {data.name} </div>
+            <Link to={"/products/details/" + data.id} className="break-words font-semibold text-xl"> {data.name} </Link>
             <div className="mt-2 flex items-center">
                 <div className="border-2 rounded-full aspect-square max-h-12 flex justify-center">
                     <Img src={(new ProdapiService()).getBrandImageUrl(data.brand.code)}
@@ -34,7 +34,7 @@ const ProductTitleCell: React.FC<TyreItemRowProps | null> = (props: TyreItemRowP
                 </span>
             </div>
         </div>
-    </Link>;
+    </div>;
 };
 
 export default ProductTitleCell;

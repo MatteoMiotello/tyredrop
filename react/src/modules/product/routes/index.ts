@@ -1,7 +1,19 @@
 import {RouteObject} from "react-router-dom";
-import ProductPage from "../ProductPage";
+import ProductDetailsPage from "../ProductDetailsPage";
+import ProductTablePage from "../ProductTablePage";
+import ProductTemplatePage from "../ProductTemplatePage";
 
 export const productRoute: RouteObject = {
-    Component: ProductPage,
-    path: ''
+    Component: ProductTemplatePage,
+    path: '',
+    children: [
+        {
+            path: '',
+            Component: ProductTablePage
+        },
+        {
+            path: '/products/details/:id',
+            Component: ProductDetailsPage,
+        }
+    ]
 };

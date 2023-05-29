@@ -1,21 +1,22 @@
+import {faAngleRight, faShoppingCart} from "@fortawesome/free-solid-svg-icons";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {CellContext, ColumnDef} from "@tanstack/react-table";
 import React, {useEffect, useState} from "react";
-import {SearchQuery} from "../../../__generated__/graphql";
-import Table from "../../../common/components-library/Table";
-import ProductTitleCell from "./ProductTitleRow";
 import {Img} from "react-image";
+import {Link} from "react-router-dom";
+import {SearchQuery} from "../../../__generated__/graphql";
 import tyrePlaceholder from "../../../assets/placeholder-tyre.jpg";
-import Spinner from "../../../common/components/Spinner";
-import {Currency} from "../../../common/utilities/currency";
 import Button from "../../../common/components-library/Button";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faAngleRight, faShoppingCart} from "@fortawesome/free-solid-svg-icons";
-import ProductSpecificationsGroup from "./ProductSpecificationsGroup";
+import Table from "../../../common/components-library/Table";
+import {Currency} from "../../../common/utilities/currency";
 import {
     ProductCategorySet,
     ProductSpecificationDefinition,
     ProductSpecifications
 } from "../enums/product-specifications-set";
+import ProdapiService from "../services/prodapi/prodapi-service";
+import ProductSpecificationsGroup from "./ProductSpecificationsGroup";
+import ProductTitleCell from "./ProductTitleCell";
 
 
 type ProductTableProps = {
@@ -25,6 +26,7 @@ type ProductTableProps = {
 }
 
 export type ProductRowItemData = {
+    id: string
     brand: {
         name: string,
         code: string
@@ -40,29 +42,19 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
     const colums: ColumnDef<ProductRowItemData>[] = [
         {
             accessorKey: "image",
+            enableResizing: true,
+            size: 20,
             cell: (props: CellContext<ProductRowItemData, any>) => {
-                return <div className="h-full w-32">
+                return <div className="w-24">
                     <Img src={[
-                        "http://localhost:8081/resources/tyres/" + props.row.original.code,
+                        (new ProdapiService()).getProductImageUrl(props.row.original.code, ProductCategorySet.TYRE),
                         tyrePlaceholder,
-                    ]} loading="lazy" className="h-full" alt={props.row.original.name}/>
+                    ]}
+                         onErrorCapture={(e) => e.preventDefault()}
+                         loading="lazy"
+                         className="h-24"
+                         alt={props.row.original.name}/>
                 </div>;
-            }
-        },
-        {
-            accessorKey: "brand",
-            cell: (props: CellContext<ProductRowItemData, any>) => {
-                return <span className="my-auto mx-10">
-                <Img src={"http://localhost:8081/resources/brands/" + props.row.original.brand.code}
-                     loading="lazy"
-                     loader={<Spinner/>}
-                     unloader={
-                         <span
-                             className="uppercase text-2xl font-bold text-center w-full">{props.row.original.brand.name}
-                    </span>
-                     }
-                />
-                </span>;
             }
         },
         {
@@ -93,15 +85,15 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
                 >
                     <FontAwesomeIcon icon={faShoppingCart}/>
                 </Button>
-                <Button
+                <Link
                     className="mx-2 aspect-square"
                     type="ghost"
-                    outline={true}
+                    to={"/products/details/" + props.row.original.id}
                 >
                     <FontAwesomeIcon
                         icon={faAngleRight}
                     />
-                </Button>
+                </Link>
             </>
         }
     ];
@@ -118,6 +110,7 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
             }
 
             return {
+                id: product.id,
                 brand: {
                     name: product.product.brand.name,
                     code: product.product.brand.code

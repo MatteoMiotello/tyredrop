@@ -1,5 +1,15 @@
-import {ApolloClient, ApolloLink, HttpLink, InMemoryCache, from, fromPromise} from "@apollo/client";
-import {onError} from "@apollo/client/link/error";
+import {
+    ApolloClient,
+    ApolloLink,
+    FetchResult,
+    HttpLink,
+    InMemoryCache,
+    NextLink,
+    Observable,
+    Operation, from, fromPromise
+} from "@apollo/client";
+import { onError} from "@apollo/client/link/error";
+import {GraphQLError} from "graphql/error";
 import backend from "../../config/backend";
 import moment from "moment/moment";
 import {selectAuthStatus} from "../../modules/auth/store/auth-selector";
@@ -12,11 +22,16 @@ const httpLink = new HttpLink({
 });
 
 
-const refreshTokenLink = new ApolloLink((operation, forward) => {
+const refreshTokenLink = new ApolloLink((operation: Operation, forward: NextLink): Observable<FetchResult> | Observable<{
+    data?: Record<string, any> | null;
+    context?: Record<string, any>;
+    errors?: ReadonlyArray<GraphQLError>;
+    extensions?: Record<string, any>
+}> => {
     const auth = selectAuthStatus(store.getState());
 
     if ( auth.isEmpty() || auth.isPending() ) {
-        return;
+        return forward(operation);
     }
 
     if (auth && !auth.user?.isTokenValid()) {
@@ -45,6 +60,8 @@ const errorLink = onError(
     ({graphQLErrors, networkError, operation, forward}) => {
         const auth = selectAuthStatus(store.getState());
 
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         if (networkError && networkError?.statusCode == 401 && auth?.refreshToken) {
             return fromPromise(store.dispatch(authRefreshToken(auth.refreshToken)))
                 .flatMap(res => {
@@ -56,7 +73,7 @@ const errorLink = onError(
 
 const client = new ApolloClient({
     cache: new InMemoryCache({
-        addTypename: false
+        addTypename: true
     }),
     link: from([errorLink, refreshTokenLink, httpLink])
 });

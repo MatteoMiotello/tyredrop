@@ -6,7 +6,7 @@ import Spinner from "./common/components/Spinner";
 import {useAuth} from "./modules/auth/hooks/useAuth";
 import Navbar from "./common/components/Navbar";
 import {useDispatch} from "react-redux";
-import { getAllProductSpecifications} from "./store/app-slice";
+import {getAllProductSpecifications} from "./store/app-slice";
 import {ThunkDispatch} from "redux-thunk";
 import {ProductCategory} from "./__generated__/graphql";
 
@@ -19,22 +19,22 @@ function App() {
         if (!auth.isAuthenticated() && !auth.isPending()) {
             auth.tryRefreshToken();
 
-            if ( auth.isError() || auth.isEmpty() ) {
+            if (auth.isError() && !auth.isPending()) {
                 navigate('/auth/login');
             }
         }
 
         if (auth.isAuthenticated()) {
-            if ( auth.user?.isNotConfirmed() ) {
-                navigate( '/not_confirmed' );
+            if (auth.user?.isNotConfirmed()) {
+                navigate('/not_confirmed');
             }
 
             if (auth.user?.isRegistering()) {
                 navigate('/billing');
             }
 
-            if ( auth.isFullfilled() && auth.user?.isCompleted() ) {
-                dispatch( getAllProductSpecifications() );
+            if (auth.isFullfilled() && auth.user?.isCompleted()) {
+                dispatch(getAllProductSpecifications());
             }
         }
     }, [auth]);
@@ -44,7 +44,7 @@ function App() {
         <>
             {auth.isPending() && <Spinner/>}
             <Navbar></Navbar>
-            <main className="min-h-screen">
+            <main className="min-h-screen bg-base-100">
                 <Outlet/>
             </main>
             <CustomFooter/>

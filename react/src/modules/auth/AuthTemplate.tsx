@@ -10,10 +10,10 @@ const AuthTemplate: React.FC = ( ) => {
 
     useEffect( () => {
         if ( auth.isAuthenticated() ) {
-            navigate( '/' );
+            navigate( -1 );
         }
 
-        if ( !auth.isPending() ) {
+        if ( !auth.isPending() && auth.isEmpty() ) {
             auth.tryRefreshToken();
         }
     }, [auth] );

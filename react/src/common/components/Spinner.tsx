@@ -1,3 +1,4 @@
+// @ts-ignore
 import {ReactComponent as TyreSpinner} from '../../assets/car-tire-wheel-icon.svg' ;
 
 const Spinner: React.FC = () => {

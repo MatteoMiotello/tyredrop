@@ -76,6 +76,7 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
                 <div
                     className={`select relative w-full cursor-default overflow-hidden p-0 ${error ? 'select-error' : ''}`}>
                     <Combobox.Input<AutocompleteOption>
+                        autoComplete="off"
                         className={"input w-full border-none p-4 font-normal"}
                         displayValue={(option) => option ? option.title : ''}
                         onChange={(event) => {
