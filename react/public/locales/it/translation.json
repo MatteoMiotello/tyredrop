@@ -69,5 +69,8 @@
   "not_confirmed": {
     "title": "Non ancora verificato!",
     "text": "Stiamo verificando i tuoi dati, se tutto è corretto tra poco sarai in grado di entrare nella piattaforma!"
+  },
+  "product_details": {
+    "order_button": "Ordina"
   }
 }

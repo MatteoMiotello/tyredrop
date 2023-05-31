@@ -16,7 +16,7 @@ import {
 } from "../enums/product-specifications-set";
 import ProdapiService from "../services/prodapi/prodapi-service";
 import ProductSpecificationsGroup from "./ProductSpecificationsGroup";
-import ProductTitleCell from "./ProductTitleCell";
+import ProductTitle from "./ProductTitle";
 
 
 type ProductTableProps = {
@@ -59,7 +59,7 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
         },
         {
             accessorKey: "content",
-            cell: (props: CellContext<ProductRowItemData, any>) => <ProductTitleCell data={props.row.original}/>
+            cell: (props: CellContext<ProductRowItemData, any>) => <ProductTitle showBrand={true} data={props.row.original}/>
         },
         {
             accessorKey: "specifications",

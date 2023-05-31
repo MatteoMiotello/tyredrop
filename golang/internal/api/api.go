@@ -17,6 +17,6 @@ func Serve() {
 	err := router.Run(":" + viper.GetString("api.port"))
 
 	if err != nil {
-		panic("error starting api")
+		panic("error starting api" + err.Error())
 	}
 }

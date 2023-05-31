@@ -8,9 +8,6 @@ export default {
     "node_modules/react-daisyui/dist/**/*.js"
   ],
   theme: {
-    fontFamily: {
-      'sans': ['Helvetica', 'Arial', 'sans-serif']
-    }
   },
   plugins: [
       daisyui,

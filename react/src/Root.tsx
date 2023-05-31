@@ -1,6 +1,6 @@
 import {ApolloProvider} from "@apollo/client";
 import React, {useState} from "react";
-import {RouterProvider, createBrowserRouter} from "react-router-dom";
+import { RouterProvider, createBrowserRouter} from "react-router-dom";
 import App from "./App";
 import client from "./common/contexts/apollo-client-context";
 import {authRoutes} from "./modules/auth/routes";

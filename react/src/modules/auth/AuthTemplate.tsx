@@ -10,7 +10,7 @@ const AuthTemplate: React.FC = ( ) => {
 
     useEffect( () => {
         if ( auth.isAuthenticated() ) {
-            navigate( -1 );
+            navigate( '/' );
         }
 
         if ( !auth.isPending() && auth.isEmpty() ) {

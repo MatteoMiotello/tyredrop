@@ -1,6 +1,7 @@
 import './App.css';
 import {useEffect} from "react";
 import {Outlet, useNavigate} from "react-router-dom";
+import Breadcrumbs from "./common/components-library/Breadcrumbs";
 import CustomFooter from "./common/components/CustomFooter";
 import Spinner from "./common/components/Spinner";
 import {useAuth} from "./modules/auth/hooks/useAuth";
@@ -19,7 +20,7 @@ function App() {
         if (!auth.isAuthenticated() && !auth.isPending()) {
             auth.tryRefreshToken();
 
-            if (auth.isError() && !auth.isPending()) {
+            if (auth.isError() ) {
                 navigate('/auth/login');
             }
         }
@@ -44,6 +45,7 @@ function App() {
         <>
             {auth.isPending() && <Spinner/>}
             <Navbar></Navbar>
+            <Breadcrumbs></Breadcrumbs>
             <main className="min-h-screen bg-base-100">
                 <Outlet/>
             </main>

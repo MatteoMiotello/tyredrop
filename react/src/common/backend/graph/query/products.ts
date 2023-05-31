@@ -80,6 +80,7 @@ export const PRODUCT_ITEM = gql(`
                 value
                 specification {
                     code
+                    name
                 }
             }
         }

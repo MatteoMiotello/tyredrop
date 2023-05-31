@@ -10,7 +10,7 @@ const Navbar: React.FC = () => {
     const auth = useAuth();
 
     return <div className="navbar bg-base-100">
-        <MainLogo width={60}/>
+        <MainLogo width={100}/>
         <div className="input-group">
             <Field.FormControl className="m-auto px-4 md:w-1/2 w-full">
                 <Field.InputGroup size="sm">
