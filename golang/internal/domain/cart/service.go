@@ -33,11 +33,15 @@ func (s service) AddOrUpdateCart(ctx context.Context, user *models.User, product
 		cart.Quantity = cart.Quantity + *quantity
 	}
 
-	err := s.Dao.Insert(ctx, cart)
+	err := s.Dao.Upsert(ctx, cart, true, []string{models.CartColumns.ID})
 
 	if err != nil {
 		return nil, err
 	}
 
 	return cart, nil
+}
+
+func (s service) GetUserCarts(ctx context.Context, user *models.User) {
+
 }

@@ -164,7 +164,7 @@ type ComplexityRoot struct {
 
 	Query struct {
 		Brands              func(childComplexity int) int
-		Carts               func(childComplexity int, userID int64) int
+		Carts               func(childComplexity int) int
 		Currencies          func(childComplexity int) int
 		Currency            func(childComplexity int, id int64) int
 		LegalEntityTypes    func(childComplexity int) int
@@ -242,7 +242,7 @@ type CartResolver interface {
 type MutationResolver interface {
 	CreateAdminUser(ctx context.Context, userInput model.CreateAdminUserInput) (*model.User, error)
 	CreateUserBilling(ctx context.Context, billingInput model.CreateUserBilling) (*model.UserBilling, error)
-	AddItemToCart(ctx context.Context, itemID int64, quantity *int) (*model.Cart, error)
+	AddItemToCart(ctx context.Context, itemID int64, quantity *int) ([]*model.Cart, error)
 }
 type ProductResolver interface {
 	Brand(ctx context.Context, obj *model.Product) (*model.Brand, error)
@@ -272,7 +272,7 @@ type QueryResolver interface {
 	Users(ctx context.Context) ([]*model.User, error)
 	TaxRates(ctx context.Context) ([]*model.Tax, error)
 	Brands(ctx context.Context) ([]*model.Brand, error)
-	Carts(ctx context.Context, userID int64) ([]*model.Cart, error)
+	Carts(ctx context.Context) ([]*model.Cart, error)
 	SearchBrands(ctx context.Context, name string) ([]*model.Brand, error)
 	ProductCategories(ctx context.Context) ([]*model.ProductCategory, error)
 	LegalEntityTypes(ctx context.Context) ([]*model.LegalEntityType, error)
@@ -791,12 +791,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_carts_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.Carts(childComplexity, args["userId"].(int64)), true
+		return e.complexity.Query.Carts(childComplexity), true
 
 	case "Query.currencies":
 		if e.complexity.Query.Currencies == nil {
@@ -1342,21 +1337,6 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_carts_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 int64
-	if tmp, ok := rawArgs["userId"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["userId"] = arg0
 	return args, nil
 }
 
@@ -2554,9 +2534,9 @@ func (ec *executionContext) _Mutation_addItemToCart(ctx context.Context, field g
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.Cart)
+	res := resTmp.([]*model.Cart)
 	fc.Result = res
-	return ec.marshalOCart2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐCart(ctx, field.Selections, res)
+	return ec.marshalOCart2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐCart(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_addItemToCart(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4933,7 +4913,7 @@ func (ec *executionContext) _Query_carts(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Carts(rctx, fc.Args["userId"].(int64))
+		return ec.resolvers.Query().Carts(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4970,17 +4950,6 @@ func (ec *executionContext) fieldContext_Query_carts(ctx context.Context, field 
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Cart", field.Name)
 		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_carts_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
 	}
 	return fc, nil
 }
@@ -9122,34 +9091,38 @@ func (ec *executionContext) unmarshalInputCreateAdminUserInput(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Name = data
 		case "surname":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("surname"))
-			it.Surname, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Surname = data
 		case "email":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-			it.Email, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Email = data
 		case "password":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
-			it.Password, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Password = data
 		}
 	}
 
@@ -9174,10 +9147,11 @@ func (ec *executionContext) unmarshalInputCreateUserBilling(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("legalEntityTypeId"))
-			it.LegalEntityTypeID, err = ec.unmarshalNID2int64(ctx, v)
+			data, err := ec.unmarshalNID2int64(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.LegalEntityTypeID = data
 		case "name":
 			var err error
 
@@ -9204,26 +9178,29 @@ func (ec *executionContext) unmarshalInputCreateUserBilling(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("surname"))
-			it.Surname, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Surname = data
 		case "fiscalCode":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fiscalCode"))
-			it.FiscalCode, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.FiscalCode = data
 		case "vatNumber":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vatNumber"))
-			it.VatNumber, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.VatNumber = data
 		case "addressLine1":
 			var err error
 
@@ -9250,10 +9227,11 @@ func (ec *executionContext) unmarshalInputCreateUserBilling(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("addressLine2"))
-			it.AddressLine2, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.AddressLine2 = data
 		case "city":
 			var err error
 
@@ -9388,18 +9366,20 @@ func (ec *executionContext) unmarshalInputPaginationInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
-			it.Limit, err = ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Limit = data
 		case "offset":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
-			it.Offset, err = ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Offset = data
 		}
 	}
 
@@ -9424,34 +9404,38 @@ func (ec *executionContext) unmarshalInputProductSearchInput(ctx context.Context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("brand"))
-			it.Brand, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Brand = data
 		case "name":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Name = data
 		case "code":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("code"))
-			it.Code, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Code = data
 		case "specifications":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("specifications"))
-			it.Specifications, err = ec.unmarshalOProductSpecificationInput2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductSpecificationInput(ctx, v)
+			data, err := ec.unmarshalOProductSpecificationInput2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductSpecificationInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Specifications = data
 		}
 	}
 
@@ -9476,18 +9460,20 @@ func (ec *executionContext) unmarshalInputProductSpecificationInput(ctx context.
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("code"))
-			it.Code, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Code = data
 		case "value":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
-			it.Value, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Value = data
 		}
 	}
 

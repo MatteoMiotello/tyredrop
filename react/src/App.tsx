@@ -10,6 +10,7 @@ import {useDispatch} from "react-redux";
 import {getAllProductSpecifications} from "./store/app-slice";
 import {ThunkDispatch} from "redux-thunk";
 import {ProductCategory} from "./__generated__/graphql";
+import {fetchCartItems} from "./modules/cart/store/cart-slice";
 
 function App() {
     const auth = useAuth();
@@ -36,6 +37,7 @@ function App() {
 
             if (auth.isFullfilled() && auth.user?.isCompleted()) {
                 dispatch(getAllProductSpecifications());
+                dispatch(fetchCartItems());
             }
         }
     }, [auth]);

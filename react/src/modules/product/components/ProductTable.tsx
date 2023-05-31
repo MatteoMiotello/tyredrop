@@ -17,6 +17,9 @@ import {
 import ProdapiService from "../services/prodapi/prodapi-service";
 import ProductSpecificationsGroup from "./ProductSpecificationsGroup";
 import ProductTitle from "./ProductTitle";
+import {useDispatch} from "react-redux";
+import {addCartItem} from "../../cart/store/cart-slice";
+import {ThunkDispatch} from "redux-thunk";
 
 
 type ProductTableProps = {
@@ -39,6 +42,7 @@ export type ProductRowItemData = {
 
 const ProductTable: React.FC<ProductTableProps> = (props) => {
     const [data, setData] = useState<(ProductRowItemData | null)[]>([]);
+    const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
     const colums: ColumnDef<ProductRowItemData>[] = [
         {
             accessorKey: "image",
@@ -82,6 +86,9 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
                 <Button
                     className="mx-2 aspect-square"
                     type={"primary"}
+                    onClick={ () => {
+                        dispatch( addCartItem({itemId: props.row.original.id} ) );
+                    } }
                 >
                     <FontAwesomeIcon icon={faShoppingCart}/>
                 </Button>
