@@ -51,6 +51,22 @@ func (r *queryResolver) Brands(ctx context.Context) ([]*model.Brand, error) {
 	return graphModels, nil
 }
 
+// Carts is the resolver for the carts field.
+func (r *queryResolver) Carts(ctx context.Context, userID int64) ([]*model.Cart, error) {
+	cartModels, err := r.CartDao.FindAllByUserId(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	var graphModels []*model.Cart
+
+	for _, cart := range cartModels {
+		graphModels = append(graphModels, converters.CartToGraphQL(cart))
+	}
+
+	return graphModels, err
+}
+
 // SearchBrands is the resolver for the searchBrands field.
 func (r *queryResolver) SearchBrands(ctx context.Context, name string) ([]*model.Brand, error) {
 	var graphModels []*model.Brand

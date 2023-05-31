@@ -22,6 +22,16 @@ export type Brand = {
   name: Scalars['String'];
 };
 
+export type Cart = {
+  __typename?: 'Cart';
+  id: Scalars['ID'];
+  productItem: ProductItem;
+  productItemId: Scalars['ID'];
+  quantity: Scalars['Int'];
+  user: User;
+  userId: Scalars['ID'];
+};
+
 export type CreateAdminUserInput = {
   email: Scalars['String'];
   name: Scalars['String'];
@@ -62,8 +72,15 @@ export type LegalEntityType = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  addItemToCart?: Maybe<Cart>;
   createAdminUser: User;
   createUserBilling: UserBilling;
+};
+
+
+export type MutationAddItemToCartArgs = {
+  itemId: Scalars['ID'];
+  quantity?: InputMaybe<Scalars['Int']>;
 };
 
 
@@ -176,6 +193,7 @@ export type ProductSpecificationValue = {
 export type Query = {
   __typename?: 'Query';
   brands?: Maybe<Array<Maybe<Brand>>>;
+  carts?: Maybe<Array<Maybe<Cart>>>;
   currencies?: Maybe<Array<Maybe<Currency>>>;
   currency?: Maybe<Currency>;
   legalEntityTypes?: Maybe<Array<Maybe<LegalEntityType>>>;
@@ -188,6 +206,11 @@ export type Query = {
   taxRates?: Maybe<Array<Maybe<Tax>>>;
   user?: Maybe<User>;
   users?: Maybe<Array<Maybe<User>>>;
+};
+
+
+export type QueryCartsArgs = {
+  userId: Scalars['ID'];
 };
 
 

@@ -4,6 +4,7 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"pillowww/titw/internal/currency"
 	"pillowww/titw/internal/domain/brand"
+	"pillowww/titw/internal/domain/cart"
 	"pillowww/titw/internal/domain/legal_entity"
 	"pillowww/titw/internal/domain/product"
 	"pillowww/titw/internal/domain/supplier"
@@ -28,6 +29,7 @@ type Resolver struct {
 	VehicleDao                   *vehicle.Dao
 	UserDao                      *user.Dao
 	LegalEntityDao               *legal_entity.Dao
+	CartDao                      *cart.Dao
 }
 
 func NewResolver(exec boil.ContextExecutor) *Resolver {
@@ -44,5 +46,6 @@ func NewResolver(exec boil.ContextExecutor) *Resolver {
 		VehicleDao:                   vehicle.NewDao(exec),
 		UserDao:                      user.NewDao(exec),
 		LegalEntityDao:               legal_entity.NewDao(exec),
+		CartDao:                      cart.NewDao(exec),
 	}
 }

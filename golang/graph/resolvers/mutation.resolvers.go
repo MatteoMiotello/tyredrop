@@ -12,8 +12,9 @@ import (
 	"pillowww/titw/graph/converters"
 	"pillowww/titw/graph/graphErrors"
 	"pillowww/titw/graph/model"
-	auth2 "pillowww/titw/internal/auth"
+	"pillowww/titw/internal/auth"
 	"pillowww/titw/internal/db"
+	"pillowww/titw/internal/domain/cart"
 	"pillowww/titw/internal/domain/user"
 	"pillowww/titw/models"
 	"pillowww/titw/pkg/constants"
@@ -30,8 +31,8 @@ func (r *mutationResolver) CreateAdminUser(ctx context.Context, userInput model.
 
 // CreateUserBilling is the resolver for the createUserBilling field.
 func (r *mutationResolver) CreateUserBilling(ctx context.Context, billingInput model.CreateUserBilling) (*model.UserBilling, error) {
-	auth := auth2.FromCtx(ctx)
-	currentUser, err := auth.GetUser(ctx)
+	a := auth.FromCtx(ctx)
+	currentUser, err := a.GetUser(ctx)
 
 	if err != nil {
 		return nil, &gqlerror.Error{
@@ -104,6 +105,26 @@ func (r *mutationResolver) CreateUserBilling(ctx context.Context, billingInput m
 	}
 
 	return converters.UserBillingToGraphQL(userBillingModel), nil
+}
+
+// AddItemToCart is the resolver for the addItemToCart field.
+func (r *mutationResolver) AddItemToCart(ctx context.Context, itemID int64, quantity *int) (*model.Cart, error) {
+	a := auth.FromCtx(ctx)
+	u, err := a.GetUser(ctx)
+
+	if err != nil {
+		return nil, gqlerror.Errorf("User not found in context")
+	}
+
+	s := cart.NewCartService(r.CartDao)
+
+	c, err := s.AddOrUpdateCart(ctx, u, itemID, quantity)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return converters.CartToGraphQL(c), err
 }
 
 // Mutation returns graph.MutationResolver implementation.
