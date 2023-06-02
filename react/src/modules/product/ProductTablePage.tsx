@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {SEARCH_PRODUCTS} from "../../common/backend/graph/query/products";
+import {useToast} from "../../hooks/useToast";
 import Searchbar from "./components/Searchbar";
 import ProductTable from "./components/ProductTable";
 import {useQuery} from "@apollo/client";
@@ -13,6 +14,7 @@ const ProductTablePage: React.FC = () => {
     const [pageCount, setPageCount] = useState(0);
     const [search, setSearch] = useState<ProductSearchDataType | null>(null);
     const [offset, setOffset] = useState(0);
+    const {setError} = useToast();
 
     const {data, error, loading, refetch} = useQuery(SEARCH_PRODUCTS, {
         variables: {
@@ -25,7 +27,7 @@ const ProductTablePage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(loading);
 
     const handlePaginationChange = (pageIndex: number, size: number): void => {
-        setOffset( pageIndex * size);
+        setOffset(pageIndex * size);
     };
 
     useEffect(() => {
@@ -65,12 +67,18 @@ const ProductTablePage: React.FC = () => {
         }).finally(() => setIsLoading(false));
     }, [search, offset]);
 
+    useEffect(() => {
+        if (error) {
+            setError("C'e` stato un errore nel caricamento");
+        }
+
+    }, [error]);
+
     return <main className="relative">
         <ProductSearchContext.Provider value={{searchData: search, setSearchData: setSearch}}>
             {isLoading && <Spinner/>}
             <Searchbar/>
             <div className="w-full m-0 lg:px-24 px-4 h-full flex flex-col min-h-screen">
-                {error && <span> {"C'e` stato un errore nel caricamento"}</span>}
                 {data?.productItems?.productItems ? <ProductTable
                     products={data}
                     handlePaginationChange={handlePaginationChange}

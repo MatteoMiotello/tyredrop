@@ -72,5 +72,10 @@
   },
   "product_details": {
     "order_button": "Ordina"
+  },
+  "cart": {
+    "item_added_success": "Elemento aggiunto al carrello",
+    "item_add_error": "C'e` stato un problema nell'aggiunta a carrello",
+    "breadcrumb_title": "Carrello"
   }
 }

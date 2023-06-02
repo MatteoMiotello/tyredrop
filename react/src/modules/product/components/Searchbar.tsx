@@ -25,7 +25,7 @@ const Searchbar: React.FC = () => {
     ];
 
     return <div className="bg-primary w-full min-h-64 ">
-        <div className="h-full flex md:flex-row flex-col lg:px-24 py-5 justify-around">
+        <div className="h-full flex md:flex-row flex-col lg:px-24 px-4 py-5 justify-around">
             <Tabs parts={tabParts}></Tabs>
         </div>
     </div>;

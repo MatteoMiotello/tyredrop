@@ -1,23 +1,11 @@
 import {gql} from "../../../../__generated__";
+import {CART_ITEMS_FRAGMENT} from "../fragments/carts";
 
-export const USER_CARTS = gql(`
-query userCarts {
-   carts {
-        id
-        quantity
-        productItem {
-            id
-            price {
-                value
-                currency {
-                    iso_code
-                }
-            }
-            product {
-                name
-                code
-            }
+export const USER_CARTS = gql( /* GraphQL */ `
+    query userCarts {
+       carts {
+           ...CartItems
         }
     }
-}
+    ${CART_ITEMS_FRAGMENT}
 `);

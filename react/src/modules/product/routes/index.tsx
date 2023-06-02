@@ -1,5 +1,5 @@
 import React from "react";
-import {Link, LoaderFunction, RouteObject} from "react-router-dom";
+import { LoaderFunction, RouteObject} from "react-router-dom";
 import {ProductItemQuery} from "../../../__generated__/graphql";
 import {PRODUCT_ITEM} from "../../../common/backend/graph/query/products";
 import apolloClientContext from "../../../common/contexts/apollo-client-context";
@@ -19,9 +19,6 @@ const productDetailsLoader: LoaderFunction = async ({params}) => {
 export const productRoute: RouteObject = {
     Component: ProductTemplatePage,
     path: '',
-    handle: {
-        crumb: () => <Link className="link" to="/"> Home </Link>
-    },
     children: [
         {
             path: '',

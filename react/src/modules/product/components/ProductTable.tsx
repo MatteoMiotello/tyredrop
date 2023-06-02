@@ -1,4 +1,4 @@
-import {faAngleRight, faShoppingCart} from "@fortawesome/free-solid-svg-icons";
+import {faAngleRight} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {CellContext, ColumnDef} from "@tanstack/react-table";
 import React, {useEffect, useState} from "react";
@@ -6,20 +6,18 @@ import {Img} from "react-image";
 import {Link} from "react-router-dom";
 import {SearchQuery} from "../../../__generated__/graphql";
 import tyrePlaceholder from "../../../assets/placeholder-tyre.jpg";
-import Button from "../../../common/components-library/Button";
 import Table from "../../../common/components-library/Table";
 import {Currency} from "../../../common/utilities/currency";
+import {useToast} from "../../../hooks/useToast";
 import {
     ProductCategorySet,
     ProductSpecificationDefinition,
     ProductSpecifications
 } from "../enums/product-specifications-set";
 import ProdapiService from "../services/prodapi/prodapi-service";
+import AddItemToCartButton from "./AddItemToCartButton";
 import ProductSpecificationsGroup from "./ProductSpecificationsGroup";
 import ProductTitle from "./ProductTitle";
-import {useDispatch} from "react-redux";
-import {addCartItem} from "../../cart/store/cart-slice";
-import {ThunkDispatch} from "redux-thunk";
 
 
 type ProductTableProps = {
@@ -42,7 +40,7 @@ export type ProductRowItemData = {
 
 const ProductTable: React.FC<ProductTableProps> = (props) => {
     const [data, setData] = useState<(ProductRowItemData | null)[]>([]);
-    const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
+    const { setSuccess } = useToast();
     const colums: ColumnDef<ProductRowItemData>[] = [
         {
             accessorKey: "image",
@@ -83,15 +81,7 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
         {
             accessorKey: "button",
             cell: (props: CellContext<ProductRowItemData, any>) => <>
-                <Button
-                    className="mx-2 aspect-square"
-                    type={"primary"}
-                    onClick={ () => {
-                        dispatch( addCartItem({itemId: props.row.original.id} ) );
-                    } }
-                >
-                    <FontAwesomeIcon icon={faShoppingCart}/>
-                </Button>
+                <AddItemToCartButton itemId={props.row.original.id}/>
                 <Link
                     className="mx-2 aspect-square"
                     type="ghost"

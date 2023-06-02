@@ -16,13 +16,17 @@ export const useToast = () => {
 
     useEffect(() => {
         const i = setInterval(() => {
+            if ( toasts.length == 0 ) {
+                return;
+            }
+
             removeLastToast();
-        }, 3000);
+        }, 2000);
 
         return () => {
             clearInterval(i);
         };
-    });
+    }, [toasts]);
 
     const addToast = (newToast: ToastConfig) => {
         setToasts([...toasts, newToast]);
