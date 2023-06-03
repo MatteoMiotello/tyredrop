@@ -1,9 +1,10 @@
 import React from "react";
+import {Link} from "react-router-dom";
 import Field from "../components-library/Input";
 import CartButton from "./CartButton";
 import MainLogo from "./Logo";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import { faSearch, faUser} from "@fortawesome/free-solid-svg-icons";
+import {faLocationDot, faSearch, faUser} from "@fortawesome/free-solid-svg-icons";
 import {useAuth} from "../../modules/auth/hooks/useAuth";
 
 const Navbar: React.FC = () => {
@@ -36,16 +37,20 @@ const Navbar: React.FC = () => {
                     {
                         auth && <li>
                         { auth.user?.getCompleteName() }
-                    </li>
+                        </li>
                     }
                     <li>
-                        <a className="justify-between">
-                            Profile
-                            <span className="badge">New</span>
-                        </a>
+                        <Link to="/user/adress">
+                            <FontAwesomeIcon icon={faLocationDot}/>
+                            I miei indirizzi
+                        </Link>
                     </li>
-                    <li><a>Settings</a></li>
-                    <li><a>Logout</a></li>
+                    <li>
+                        <Link to="/user">
+                            <FontAwesomeIcon icon={faUser}/>
+                            Profilo
+                        </Link>
+                    </li>
                 </ul>
             </div>
         </div>

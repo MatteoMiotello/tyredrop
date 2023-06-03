@@ -76,6 +76,11 @@
   "cart": {
     "item_added_success": "Elemento aggiunto al carrello",
     "item_add_error": "C'e` stato un problema nell'aggiunta a carrello",
-    "breadcrumb_title": "Carrello"
+    "breadcrumb_title": "Carrello",
+    "name_column": "Prodotto",
+    "brand_column": "Brand",
+    "quantity_column": "Quantita`",
+    "empty_cart": "Il carrello e` ancora vuoto",
+    "go_back_to_home": "Torna alla Home"
   }
 }

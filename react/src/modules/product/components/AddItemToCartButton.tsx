@@ -25,6 +25,7 @@ const AddItemToCartButton: React.FC<AddItemToCartButton> = ( props ) => {
         onClick={ () => {
             setLoading(true);
             dispatch( addCartItem({itemId: props.itemId} ) )
+                .unwrap()
                 .then( () => {
                     setSuccess( t( "cart.item_added_success" ) );
                 } )

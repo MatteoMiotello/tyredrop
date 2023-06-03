@@ -1,24 +1,35 @@
-import {gql} from "../../../../__generated__";
+import {gql} from "@apollo/client";
 
-export const CART_ITEMS_FRAGMENT = gql( /* GraphQL */ `
-    fragment CartItems on Cart {
-        id
-        quantity
-        productItem {
-            id
-            price {
-                value
-                currency {
-                    iso_code
-                }
-            }
-            product {
+
+export const CART_ITEMS_FRAGMENT = gql`
+    fragment CartItems on CartResponse {
+        totalPrice {
+            value
+            currency {
+                iso_code
+                symbol
                 name
-                code
-                brand {
+            }
+        }
+        items {
+            id
+            quantity
+            productItem {
+                id
+                price {
+                    value
+                    currency {
+                        iso_code
+                    }
+                }
+                product {
                     name
+                    code
+                    brand {
+                        name
+                    }
                 }
             }
         }
     }
-`);
+`;

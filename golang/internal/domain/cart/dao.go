@@ -57,3 +57,11 @@ func (d Dao) FindOneByUserAndProductItemId(ctx context.Context, userId int64, it
 		)...,
 	).One(ctx, d.Db)
 }
+
+func (d Dao) FindOneById(ctx context.Context, cartId int64) (*models.Cart, error) {
+	return models.Carts(
+		d.GetMods(
+			models.CartWhere.ID.EQ(cartId),
+		)...,
+	).One(ctx, d.Db)
+}

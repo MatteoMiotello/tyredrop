@@ -31,7 +31,7 @@ type Query {
     users: [User]
     taxRates: [Tax]
     brands: [Brand]
-    carts: [Cart]
+    carts: CartResponse
     searchBrands( name: String! ): [Brand]
     productCategories: [ProductCategory]
     legalEntityTypes: [LegalEntityType]

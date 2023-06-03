@@ -6,3 +6,13 @@ type Cart {
     productItem: ProductItem!
     quantity: Int!
 }
+
+type TotalPrice {
+    value: Float!
+    currency: Currency
+}
+
+type CartResponse {
+    items: [Cart]!
+    totalPrice: TotalPrice
+}

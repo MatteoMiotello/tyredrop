@@ -1,34 +1,39 @@
-import {ColumnDef} from "@tanstack/react-table";
+import {CellContext, ColumnDef} from "@tanstack/react-table";
 import React, {useEffect, useState} from "react";
 import {useTranslation} from "react-i18next";
-import {useSelector} from "react-redux";
+import {Cart} from "../../../__generated__/graphql";
 import Table from "../../../common/components-library/Table";
-import cartSelector from "../store/cart-selector";
+import CartQuantityButtons from "./CartQuantityButtons";
 
 type CartDataTable = {
+    id: string
     name: string,
     brand: string,
     quantity: number
 }
 
-const CartTable: React.FC = () => {
-    const cartItems = useSelector( cartSelector.items );
+type CartTableProps = {
+    cartItems: Cart[]
+}
+
+const CartTable: React.FC<CartTableProps> = ( props ) => {
     const [ dataTable, setDataTable ] = useState<CartDataTable[]>( [] );
     const {t} = useTranslation();
 
     useEffect( () => {
-        if ( !cartItems.length ) {
-            return;
+        if ( !props.cartItems.length ) {
+            setDataTable([]);
         }
 
-        const data: CartDataTable[] = cartItems.map( cart  => ({
+        const data: CartDataTable[] = props.cartItems.map( cart  => ({
+            id: cart.id,
             name: cart.productItem.product?.name,
             brand: cart.productItem.product.brand?.name,
             quantity: cart.quantity,
-        }));
+        }) as CartDataTable );
 
         setDataTable( data );
-    }, [ cartItems ] );
+    }, [ props.cartItems ] );
 
     const columns: ColumnDef<CartDataTable>[] = [
         {
@@ -40,12 +45,16 @@ const CartTable: React.FC = () => {
             header: t( "cart.brand_column" ) as string
         },
         {
-            accessorKey: "quantity",
-            header: t("cart.quantity_column") as string
+            accessorKey: "id",
+            header: () => <div className="w-full text-right"> {t("cart.quantity_column") as string} </div>,
+            cell: (props: CellContext<CartDataTable, any>) => {
+                return <div className="w-40 ml-auto"><CartQuantityButtons cartId={props.getValue()}/></div>;
+            },
+            size: 20
         }
     ];
 
-    return <Table data={dataTable} columns={columns}/>;
+    return <Table data={dataTable} columns={columns} hidePagination={true}/>;
 };
 
 export default CartTable;

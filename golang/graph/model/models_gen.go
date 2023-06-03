@@ -9,6 +9,11 @@ type Brand struct {
 	ImageLogo string `json:"image_logo"`
 }
 
+type CartResponse struct {
+	Items      []*Cart     `json:"items"`
+	TotalPrice *TotalPrice `json:"totalPrice,omitempty"`
+}
+
 type CreateAdminUserInput struct {
 	Name     string `json:"name"`
 	Surname  string `json:"surname"`
@@ -94,6 +99,11 @@ type Tax struct {
 	ID               int64   `json:"id"`
 	MarkupPercentage float64 `json:"markupPercentage"`
 	Name             string  `json:"name"`
+}
+
+type TotalPrice struct {
+	Value    float64   `json:"value"`
+	Currency *Currency `json:"currency,omitempty"`
 }
 
 type UserRole struct {
