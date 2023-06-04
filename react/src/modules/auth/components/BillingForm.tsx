@@ -1,5 +1,4 @@
 import {ApolloError, useQuery} from "@apollo/client";
-import axios from "axios";
 import React, {useEffect, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {
@@ -7,29 +6,15 @@ import {
     LegalEntityType
 } from "../../../__generated__/graphql";
 import {GET_LEGAL_ENTITY_TYPES} from "../../../common/backend/graph/query/legal-entities";
-import Autocomplete, {AutocompleteQueryHandler} from "../../../common/components-library/Autocomplete";
 import Button from "../../../common/components-library/Button";
 import Form, {useForm} from "../../../common/components-library/Form";
 import Field from "../../../common/components-library/Input";
 import {SelectComponent, SelectOption} from "../../../common/components-library/SelectComponent";
+import CountryField from "../../../common/components/CountryField";
 import Spinner from "../../../common/components/Spinner";
 import {ValidationHandler, isRequired, maxCharacters, minCharacters} from "../../../common/validation/validators";
 import {useToast} from "../../../hooks/useToast";
 
-const controller = new AbortController();
-const handleQuery: AutocompleteQueryHandler = async (query: string) => {
-
-    const res = await axios.get(`https://restcountries.com/v3.1/name/${query}`, {
-        signal: controller.signal
-    });
-
-    return res.data.map((element: any) => {
-        return {
-            value: element.cca2,
-            title: element.translations.ita.common ?? element.name.common
-        };
-    });
-};
 
 export type BillingInput = {
     entity_type: string
@@ -152,64 +137,60 @@ export const BillingForm: React.FC<BillingFormProps> = (props) => {
             validators={[validateEntityType]}
         />
         <Field.FormInput name="name"
-               type="text"
-               placeholder={t('billing.name_placeholder')}
-               className={isPerson ? "col-span-6" : "col-span-12"}
-               validators={[isRequired(t('billing.name_placeholder'))]}
+                         type="text"
+                         placeholder={t('billing.name_placeholder')}
+                         className={isPerson ? "col-span-6" : "col-span-12"}
+                         validators={[isRequired(t('billing.name_placeholder'))]}
         />
         {isPerson &&
             <Field.FormInput name="surname"
-                   type="text"
-                   placeholder={t('billing.surname_placeholder')}
-                   className="col-span-6"
+                             type="text"
+                             placeholder={t('billing.surname_placeholder')}
+                             className="col-span-6"
             />
         }
         <Field.FormInput type="text"
-               name="fiscal_code"
-               placeholder={t('billing.fiscal_code_placeholder')}
-               className="col-span-12"
-               validators={[minCharacters(16), maxCharacters(16), isRequired(t('billing.fiscal_code_placeholder'))]}
+                         name="fiscal_code"
+                         placeholder={t('billing.fiscal_code_placeholder')}
+                         className="col-span-12"
+                         validators={[minCharacters(16), maxCharacters(16), isRequired(t('billing.fiscal_code_placeholder'))]}
         />
         <Field.FormInput type="text"
-               name="vat_number"
-               placeholder={t('billing.vat_number_placeholder')}
-               className="col-span-12"
+                         name="vat_number"
+                         placeholder={t('billing.vat_number_placeholder')}
+                         className="col-span-12"
         />
         <Field.FormInput type="text"
-               name="address_line_1"
-               placeholder={t('billing.address_line_1_placeholder')}
-               className="col-span-12"
-               validators={[isRequired(t('billing.address_line_1_placeholder'))]}
+                         name="address_line_1"
+                         placeholder={t('billing.address_line_1_placeholder')}
+                         className="col-span-12"
+                         validators={[isRequired(t('billing.address_line_1_placeholder'))]}
         />
         <Field.FormInput type="text"
-               name="address_line_2"
-               placeholder={t('billing.address_line_2_placeholder')}
-               className="col-span-12"
+                         name="address_line_2"
+                         placeholder={t('billing.address_line_2_placeholder')}
+                         className="col-span-12"
         />
-        <Autocomplete name="country"
+        <CountryField name="country"
                       className="col-span-12"
-                      getOptions={handleQuery}
-                      initialOptions={[{value: "IT", title: "Italia"}]}
-                      validators={[isRequired(t('billing.country_placeholder'))]}
-                      placeholder={t('billing.country_placeholder') as string}
         />
         <Field.FormInput type="text"
-               name="city"
-               placeholder={t('billing.city_placeholder')}
-               className="col-span-4"
-               validators={[isRequired(t('billing.city_placeholder'))]}
+                         name="city"
+                         placeholder={t('billing.city_placeholder')}
+                         className="col-span-4"
+                         validators={[isRequired(t('billing.city_placeholder'))]}
         />
         <Field.FormInput type="text"
-               name="province"
-               placeholder={t('billing.province_placeholder')}
-               className="col-span-4"
-               validators={[maxCharacters(2), isRequired(t('billing.province_placeholder')), minCharacters(2)]}
+                         name="province"
+                         placeholder={t('billing.province_placeholder')}
+                         className="col-span-4"
+                         validators={[maxCharacters(2), isRequired(t('billing.province_placeholder')), minCharacters(2)]}
         />
         <Field.FormInput type="text"
-               name="cap"
-               placeholder={t('billing.cap_placeholder')}
-               className="col-span-4"
-               validators={[isRequired(t('billing.cap_placeholder'))]}
+                         name="cap"
+                         placeholder={t('billing.cap_placeholder')}
+                         className="col-span-4"
+                         validators={[isRequired(t('billing.cap_placeholder'))]}
         />
 
         <h4 className="col-span-12 text-center"> Dati di pagamento </h4>
@@ -217,8 +198,8 @@ export const BillingForm: React.FC<BillingFormProps> = (props) => {
             className="col-span-12"
             type="text"
             name="iban"
-            placeholder={t( 'billing.iban_placeholder' )}
-            validators={[ isRequired( t( 'billing.iban_placeholder' ) )  ]}
+            placeholder={t('billing.iban_placeholder')}
+            validators={[isRequired(t('billing.iban_placeholder'))]}
         />
         <Button
             type={"primary"}

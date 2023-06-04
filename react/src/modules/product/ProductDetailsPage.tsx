@@ -36,7 +36,7 @@ const ProductDetailsPage: React.FC = () => {
     }
 
     return <main className="lg:p-24 p-4">
-        <div className="grid md:grid-cols-3 gap-4 w-full flex items-center">
+        <div className="grid md:grid-cols-3 gap-4 w-full items-center">
             <div className="flex justify-center md:justify-normal">
                 <Img src={[
                     (new ProdapiService()).getProductImageUrl(data?.productItem?.product.code as string, ProductCategorySet.TYRE),
@@ -74,7 +74,7 @@ const ProductDetailsPage: React.FC = () => {
                 <span className="text-primary text-5xl font-semibold">
                     { Currency.defaultFormat( data?.productItem?.price[0]?.value as number, data?.productItem?.price[0]?.currency.iso_code as string ) }
                 </span>
-                <div className="flex mt-10 grid grid-cols-3 gap-4">
+                <div className="mt-10 grid grid-cols-3 gap-4">
                     <div className="col-span-2">
                         <Field.Input type="number" name="quantity" placeholder={"4"} labelText="Quantita`"/>
                     </div>

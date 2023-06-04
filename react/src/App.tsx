@@ -7,6 +7,7 @@ import Spinner from "./common/components/Spinner";
 import {useAuth} from "./modules/auth/hooks/useAuth";
 import Navbar from "./common/components/Navbar";
 import {useDispatch} from "react-redux";
+import {fetchUserAddresses} from "./modules/user/store/user-slice";
 import {getAllProductSpecifications} from "./store/app-slice";
 import {ThunkDispatch} from "redux-thunk";
 import {ProductCategory} from "./__generated__/graphql";
@@ -38,10 +39,10 @@ function App() {
             if (auth.isFullfilled() && auth.user?.isCompleted()) {
                 dispatch(getAllProductSpecifications());
                 dispatch(fetchCartItems());
+                dispatch(fetchUserAddresses());
             }
         }
     }, [auth]);
-
 
     return (
         <>

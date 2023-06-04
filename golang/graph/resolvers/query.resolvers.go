@@ -32,6 +32,17 @@ func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
 	panic(fmt.Errorf("not implemented: Users - users"))
 }
 
+// UserAddress is the resolver for the userAddress field.
+func (r *queryResolver) UserAddress(ctx context.Context) ([]*model.UserAddress, error) {
+	u, err := auth.CurrentUser(ctx)
+
+	if err != nil {
+		return nil, graphErrors.NewGraphError(ctx, errors.New("User not found in context"), "4004")
+	}
+
+	return aggregators.NewUserAggregator(r.UserAddressDao).GetAllAddressesByUser(ctx, u.ID)
+}
+
 // TaxRates is the resolver for the taxRates field.
 func (r *queryResolver) TaxRates(ctx context.Context) ([]*model.Tax, error) {
 	panic(fmt.Errorf("not implemented: TaxRates - taxRates"))
@@ -54,18 +65,6 @@ func (r *queryResolver) Brands(ctx context.Context) ([]*model.Brand, error) {
 	return graphModels, nil
 }
 
-// Carts is the resolver for the carts field.
-func (r *queryResolver) Carts(ctx context.Context) (*model.CartResponse, error) {
-	a := auth.FromCtx(ctx)
-	user, err := a.GetUser(ctx)
-
-	if err != nil {
-		return nil, graphErrors.NewGraphError(ctx, errors.New("User not found in context"), "4004")
-	}
-
-	return aggregators.GetAllCartsByUserId(ctx, r.CartDao, user.ID)
-}
-
 // SearchBrands is the resolver for the searchBrands field.
 func (r *queryResolver) SearchBrands(ctx context.Context, name string) ([]*model.Brand, error) {
 	var graphModels []*model.Brand
@@ -82,6 +81,35 @@ func (r *queryResolver) SearchBrands(ctx context.Context, name string) ([]*model
 
 	for _, model := range models {
 		graphModels = append(graphModels, converters.BrandToGraphQL(model))
+	}
+
+	return graphModels, nil
+}
+
+// Carts is the resolver for the carts field.
+func (r *queryResolver) Carts(ctx context.Context) (*model.CartResponse, error) {
+	a := auth.FromCtx(ctx)
+	user, err := a.GetUser(ctx)
+
+	if err != nil {
+		return nil, graphErrors.NewGraphError(ctx, errors.New("User not found in context"), "4004")
+	}
+
+	return aggregators.GetAllCartsByUserId(ctx, r.CartDao, user.ID)
+}
+
+// LegalEntityTypes is the resolver for the legalEntityTypes field.
+func (r *queryResolver) LegalEntityTypes(ctx context.Context) ([]*model.LegalEntityType, error) {
+	types, err := r.LegalEntityDao.GetAllTypes(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var graphModels []*model.LegalEntityType
+
+	for _, t := range types {
+		graphModels = append(graphModels, converters.LegalEntityTypeToGraphQL(*t))
 	}
 
 	return graphModels, nil
@@ -106,23 +134,6 @@ func (r *queryResolver) ProductCategories(ctx context.Context) ([]*model.Product
 
 	for _, dbModel := range dbModels {
 		graphModels = append(graphModels, converters.ProductCategoryToGraphQL(dbModel))
-	}
-
-	return graphModels, nil
-}
-
-// LegalEntityTypes is the resolver for the legalEntityTypes field.
-func (r *queryResolver) LegalEntityTypes(ctx context.Context) ([]*model.LegalEntityType, error) {
-	types, err := r.LegalEntityDao.GetAllTypes(ctx)
-
-	if err != nil {
-		return nil, err
-	}
-
-	var graphModels []*model.LegalEntityType
-
-	for _, t := range types {
-		graphModels = append(graphModels, converters.LegalEntityTypeToGraphQL(*t))
 	}
 
 	return graphModels, nil

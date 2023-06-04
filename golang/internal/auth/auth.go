@@ -59,6 +59,10 @@ func CurrentLanguage(ctx context.Context) *language.Language {
 	return FromCtx(ctx).GetLanguage(ctx)
 }
 
+func CurrentUser(ctx context.Context) (*models.User, error) {
+	return FromCtx(ctx).GetUser(ctx)
+}
+
 func (a *Auth) InsertToCtx(ctx *gin.Context) {
 	ctx.Set(ctxKey, a)
 }

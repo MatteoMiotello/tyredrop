@@ -21,7 +21,6 @@ import (
 	"pillowww/titw/models"
 	"pillowww/titw/pkg/constants"
 
-	"github.com/99designs/gqlgen/graphql"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 	null "github.com/volatiletech/null/v8"
 )
@@ -33,17 +32,10 @@ func (r *mutationResolver) CreateAdminUser(ctx context.Context, userInput model.
 
 // CreateUserBilling is the resolver for the createUserBilling field.
 func (r *mutationResolver) CreateUserBilling(ctx context.Context, billingInput model.CreateUserBilling) (*model.UserBilling, error) {
-	a := auth.FromCtx(ctx)
-	currentUser, err := a.GetUser(ctx)
+	currentUser, err := auth.CurrentUser(ctx)
 
 	if err != nil {
-		return nil, &gqlerror.Error{
-			Path:    graphql.GetPath(ctx),
-			Message: "User not found",
-			Extensions: map[string]interface{}{
-				"code": "4004",
-			},
-		}
+		return nil, graphErrors.NewUserNotFoundError(ctx, err)
 	}
 
 	var userBillingModel *models.UserBilling = new(models.UserBilling)
@@ -157,6 +149,81 @@ func (r *mutationResolver) EditCart(ctx context.Context, cartID int64, quantity 
 	}
 
 	return aggregators.GetAllCartsByUserId(ctx, r.CartDao, c.UserID)
+}
+
+// CreateUserAddress is the resolver for the createUserAddress field.
+func (r *mutationResolver) CreateUserAddress(ctx context.Context, userAddress model.UserAddressInput) ([]*model.UserAddress, error) {
+	u, err := auth.CurrentUser(ctx)
+
+	if err != nil {
+		return nil, graphErrors.NewUserNotFoundError(ctx, err)
+	}
+
+	uAddressModel := &models.UserAddress{}
+	uAddressModel.UserID = u.ID
+
+	converters.GraphQLToUserAddress(userAddress, uAddressModel)
+
+	err = r.UserAddressDao.Insert(ctx, uAddressModel)
+	if err != nil {
+		return nil, err
+	}
+
+	return aggregators.NewUserAggregator(r.UserAddressDao).GetAllAddressesByUser(ctx, u.ID)
+}
+
+// EditUserAddress is the resolver for the editUserAddress field.
+func (r *mutationResolver) EditUserAddress(ctx context.Context, id int64, userAddress model.UserAddressInput) ([]*model.UserAddress, error) {
+	u, err := auth.CurrentUser(ctx)
+
+	if err != nil {
+		return nil, graphErrors.NewUserNotFoundError(ctx, err)
+	}
+
+	uAddressModel, err := r.UserAddressDao.FindOneById(ctx, id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if uAddressModel.UserID != u.ID {
+		return nil, graphErrors.NewNotAuthorizedError(ctx)
+	}
+
+	converters.GraphQLToUserAddress(userAddress, uAddressModel)
+
+	err = r.UserAddressDao.Update(ctx, uAddressModel)
+	if err != nil {
+		return nil, err
+	}
+
+	return aggregators.NewUserAggregator(r.UserAddressDao).GetAllAddressesByUser(ctx, u.ID)
+}
+
+// DeleteUserAddress is the resolver for the deleteUserAddress field.
+func (r *mutationResolver) DeleteUserAddress(ctx context.Context, id int64) ([]*model.UserAddress, error) {
+	u, err := auth.CurrentUser(ctx)
+
+	if err != nil {
+		return nil, graphErrors.NewUserNotFoundError(ctx, err)
+	}
+
+	uAddressModel, err := r.UserAddressDao.FindOneById(ctx, id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if uAddressModel.UserID != u.ID {
+		return nil, graphErrors.NewNotAuthorizedError(ctx)
+	}
+
+	err = r.ProductItemDao.Delete(ctx, uAddressModel)
+	if err != nil {
+		return nil, err
+	}
+
+	return aggregators.NewUserAggregator(r.UserAddressDao).GetAllAddressesByUser(ctx, u.ID)
 }
 
 // Mutation returns graph.MutationResolver implementation.

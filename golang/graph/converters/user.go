@@ -1,6 +1,7 @@
 package converters
 
 import (
+	"github.com/volatiletech/null/v8"
 	"pillowww/titw/graph/model"
 	"pillowww/titw/models"
 )
@@ -31,4 +32,28 @@ func UserBillingToGraphQL(billing *models.UserBilling) *model.UserBilling {
 		Cap:               billing.Cap,
 		Country:           billing.Country,
 	}
+}
+
+func UserAddressToGraphQL(address *models.UserAddress) *model.UserAddress {
+	return &model.UserAddress{
+		ID:           address.ID,
+		UserID:       address.UserID,
+		AddressLine1: address.AddressLine1,
+		AddressLine2: &address.AddressLine2.String,
+		City:         address.City,
+		Province:     address.Province,
+		PostalCode:   address.PostalCode,
+		Country:      address.Country,
+		IsDefault:    address.IsDefault,
+	}
+}
+
+func GraphQLToUserAddress(address model.UserAddressInput, dbModel *models.UserAddress) {
+	dbModel.AddressLine1 = address.AddressLine1
+	dbModel.AddressLine2 = null.StringFrom(*address.AddressLine2)
+	dbModel.City = address.City
+	dbModel.Province = address.Province
+	dbModel.PostalCode = address.PostalCode
+	dbModel.Country = address.Country
+	dbModel.IsDefault = address.IsDefault
 }

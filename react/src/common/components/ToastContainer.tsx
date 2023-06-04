@@ -11,7 +11,7 @@ export type ToastConfig = {
 type CustomToastProps = {
     toasts: ToastConfig[]
 }
-export const CustomToast: React.FC<CustomToastProps> = (props) => {
+export const ToastContainer: React.FC<CustomToastProps> = (props) => {
     return <Toast>
             {
                 props.toasts.map((toast: ToastConfig) => {

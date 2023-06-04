@@ -29,16 +29,23 @@ input ProductSearchInput {
 type Query {
     user(ID: ID!): User
     users: [User]
+    userAddress: [UserAddress]
+
     taxRates: [Tax]
     brands: [Brand]
-    carts: CartResponse
+
     searchBrands( name: String! ): [Brand]
-    productCategories: [ProductCategory]
+
+    carts: CartResponse
+
     legalEntityTypes: [LegalEntityType]
+
+    productCategories: [ProductCategory]
     productsItemsByCode( code: String! ): ProductItem
     productItems( pagination: PaginationInput, productSearchInput: ProductSearchInput ): ProductItemPaginate
     productItem( id: ID! ): ProductItem
     products( pagination: PaginationInput, productSearchInput: ProductSearchInput ): ProductPaginate
+
     currency( id: ID! ): Currency
     currencies: [Currency]
 }

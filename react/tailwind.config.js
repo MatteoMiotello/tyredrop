@@ -15,8 +15,8 @@ export default {
   daisyui: {
     themes: [
       {
-        theme: {
-          ...require("daisyui/src/colors/themes")["[data-theme=corporate]"],
+        corporate: {
+          ...require("daisyui/src/theming/themes")["[data-theme=corporate]"],
           primary: "#F38944",
           secondary: "#476a6f",
           "base-200": "#f2f2f2",

@@ -28,6 +28,7 @@ type Resolver struct {
 	CurrencyDao                  *currency.Dao
 	VehicleDao                   *vehicle.Dao
 	UserDao                      *user.Dao
+	UserAddressDao               *user.AddressDao
 	LegalEntityDao               *legal_entity.Dao
 	CartDao                      *cart.Dao
 }
@@ -47,5 +48,6 @@ func NewResolver(exec boil.ContextExecutor) *Resolver {
 		UserDao:                      user.NewDao(exec),
 		LegalEntityDao:               legal_entity.NewDao(exec),
 		CartDao:                      cart.NewDao(exec),
+		UserAddressDao:               user.NewAddressDao(exec),
 	}
 }

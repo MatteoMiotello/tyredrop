@@ -24,3 +24,15 @@ type UserBilling struct {
 	Cap               string  `json:"cap"`
 	Country           string  `json:"country"`
 }
+
+type UserAddress struct {
+	ID           int64   `json:"ID"`
+	UserID       int64   `json:"userID"`
+	AddressLine1 string  `json:"addressLine1"`
+	AddressLine2 *string `json:"addressLine2,omitempty"`
+	City         string  `json:"city"`
+	Province     string  `json:"province"`
+	PostalCode   string  `json:"postalCode"`
+	Country      string  `json:"country"`
+	IsDefault    bool    `json:"isDefault"`
+}

@@ -33,6 +33,17 @@ func (r *userResolver) UserBilling(ctx context.Context, obj *model.User) (*model
 	return converters.UserBillingToGraphQL(billing), nil
 }
 
+// User is the resolver for the user field.
+func (r *userAddressResolver) User(ctx context.Context, obj *model.UserAddress) (*model.User, error) {
+	uModel, err := r.UserDao.FindOneById(ctx, obj.ID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return converters.UserToGraphQL(uModel), nil
+}
+
 // LegalEntityType is the resolver for the legalEntityType field.
 func (r *userBillingResolver) LegalEntityType(ctx context.Context, obj *model.UserBilling) (*model.LegalEntityType, error) {
 	entityType, err := r.LegalEntityDao.FindOneById(ctx, obj.LegalEntityTypeID)
@@ -56,8 +67,12 @@ func (r *userBillingResolver) User(ctx context.Context, obj *model.UserBilling) 
 // User returns graph.UserResolver implementation.
 func (r *Resolver) User() graph.UserResolver { return &userResolver{r} }
 
+// UserAddress returns graph.UserAddressResolver implementation.
+func (r *Resolver) UserAddress() graph.UserAddressResolver { return &userAddressResolver{r} }
+
 // UserBilling returns graph.UserBillingResolver implementation.
 func (r *Resolver) UserBilling() graph.UserBillingResolver { return &userBillingResolver{r} }
 
 type userResolver struct{ *Resolver }
+type userAddressResolver struct{ *Resolver }
 type userBillingResolver struct{ *Resolver }

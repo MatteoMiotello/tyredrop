@@ -7,7 +7,13 @@ input CreateAdminUserInput {
 
 type Mutation {
     createAdminUser( userInput: CreateAdminUserInput!): User! @isAdmin
+
     createUserBilling( billingInput: CreateUserBilling! ): UserBilling!
+
     addItemToCart( itemId: ID!, quantity: Int ): CartResponse
     editCart( cartId: ID!, quantity: Int! ): CartResponse
+
+    createUserAddress( userAddress: UserAddressInput! ): [UserAddress]!
+    editUserAddress( id: ID!, userAddress: UserAddressInput! ): [UserAddress]!
+    deleteUserAddress( id: ID! ): [UserAddress]!
 }

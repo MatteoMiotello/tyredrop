@@ -106,6 +106,16 @@ type TotalPrice struct {
 	Currency *Currency `json:"currency,omitempty"`
 }
 
+type UserAddressInput struct {
+	AddressLine1 string  `json:"addressLine1"`
+	AddressLine2 *string `json:"addressLine2,omitempty"`
+	City         string  `json:"city"`
+	Province     string  `json:"province"`
+	PostalCode   string  `json:"postalCode"`
+	Country      string  `json:"country"`
+	IsDefault    bool    `json:"IsDefault"`
+}
+
 type UserRole struct {
 	ID       int64  `json:"id"`
 	RoleCode string `json:"roleCode"`

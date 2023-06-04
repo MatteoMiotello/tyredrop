@@ -1,5 +1,5 @@
 import { useContext, useEffect} from "react";
-import {ToastConfig} from "../common/components/CustomToast";
+import {ToastConfig} from "../common/components/ToastContainer";
 import ToastContext from "../common/contexts/toast-context";
 
 const generateUnique = (): number => {

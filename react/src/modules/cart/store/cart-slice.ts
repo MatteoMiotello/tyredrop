@@ -76,8 +76,6 @@ const cartSlice = createSlice<CartState, SliceCaseReducers<CartState>, string>({
             .addCase( fetchCartItems.fulfilled, (  state, action )=> {
                 state.status = 'fullfilled';
 
-                console.log( action.payload );
-
                 if ( action.payload ){
                     state.items = action.payload.items as Cart[];
                     state.amountTotal = action.payload.totalPrice;

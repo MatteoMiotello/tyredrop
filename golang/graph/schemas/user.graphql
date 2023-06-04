@@ -36,6 +36,19 @@ type UserBilling {
     legalEntityTypeID: ID
 }
 
+type UserAddress {
+    ID: ID!
+    userID: ID!
+    user: User!
+    addressLine1: String!
+    addressLine2: String
+    city: String!
+    province: String!
+    postalCode: String!
+    country: String!
+    isDefault: Boolean!
+}
+
 type User {
     id: ID!
     email: String!
@@ -60,4 +73,14 @@ input CreateUserBilling {
     cap: String! @notEmpty
     country: String! @notEmpty
     iban: String! @notEmpty
+}
+
+input UserAddressInput {
+    addressLine1: String! @notEmpty
+    addressLine2: String
+    city: String! @notEmpty
+    province: String! @notEmpty
+    postalCode: String! @notEmpty
+    country: String! @notEmpty
+    IsDefault: Boolean!
 }
