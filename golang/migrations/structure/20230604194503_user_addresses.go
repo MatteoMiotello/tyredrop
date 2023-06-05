@@ -15,6 +15,7 @@ func upUserAddresses(tx *sql.Tx) error {
 	query := sqlbuilder.CreateTable("public.user_address").
 		PKColumn().
 		FKColumn("public.users", "user_id", false).
+		Column("address_name", types.Varchar.Options("255"), false).
 		Column("address_line_1", types.Varchar.Options("255"), false).
 		Column("address_line_2", types.Varchar.Options("255"), true).
 		Column("city", types.Varchar.Options("45"), false).

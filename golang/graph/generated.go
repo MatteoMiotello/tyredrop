@@ -221,6 +221,7 @@ type ComplexityRoot struct {
 	UserAddress struct {
 		AddressLine1 func(childComplexity int) int
 		AddressLine2 func(childComplexity int) int
+		AddressName  func(childComplexity int) int
 		City         func(childComplexity int) int
 		Country      func(childComplexity int) int
 		ID           func(childComplexity int) int
@@ -1143,6 +1144,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.UserAddress.AddressLine2(childComplexity), true
+
+	case "UserAddress.addressName":
+		if e.complexity.UserAddress.AddressName == nil {
+			break
+		}
+
+		return e.complexity.UserAddress.AddressName(childComplexity), true
 
 	case "UserAddress.city":
 		if e.complexity.UserAddress.City == nil {
@@ -3044,6 +3052,8 @@ func (ec *executionContext) fieldContext_Mutation_createUserAddress(ctx context.
 				return ec.fieldContext_UserAddress_ID(ctx, field)
 			case "userID":
 				return ec.fieldContext_UserAddress_userID(ctx, field)
+			case "addressName":
+				return ec.fieldContext_UserAddress_addressName(ctx, field)
 			case "user":
 				return ec.fieldContext_UserAddress_user(ctx, field)
 			case "addressLine1":
@@ -3121,6 +3131,8 @@ func (ec *executionContext) fieldContext_Mutation_editUserAddress(ctx context.Co
 				return ec.fieldContext_UserAddress_ID(ctx, field)
 			case "userID":
 				return ec.fieldContext_UserAddress_userID(ctx, field)
+			case "addressName":
+				return ec.fieldContext_UserAddress_addressName(ctx, field)
 			case "user":
 				return ec.fieldContext_UserAddress_user(ctx, field)
 			case "addressLine1":
@@ -3198,6 +3210,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteUserAddress(ctx context.
 				return ec.fieldContext_UserAddress_ID(ctx, field)
 			case "userID":
 				return ec.fieldContext_UserAddress_userID(ctx, field)
+			case "addressName":
+				return ec.fieldContext_UserAddress_addressName(ctx, field)
 			case "user":
 				return ec.fieldContext_UserAddress_user(ctx, field)
 			case "addressLine1":
@@ -5494,6 +5508,8 @@ func (ec *executionContext) fieldContext_Query_userAddress(ctx context.Context, 
 				return ec.fieldContext_UserAddress_ID(ctx, field)
 			case "userID":
 				return ec.fieldContext_UserAddress_userID(ctx, field)
+			case "addressName":
+				return ec.fieldContext_UserAddress_addressName(ctx, field)
 			case "user":
 				return ec.fieldContext_UserAddress_user(ctx, field)
 			case "addressLine1":
@@ -7159,6 +7175,50 @@ func (ec *executionContext) fieldContext_UserAddress_userID(ctx context.Context,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserAddress_addressName(ctx context.Context, field graphql.CollectedField, obj *model.UserAddress) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserAddress_addressName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AddressName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserAddress_addressName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserAddress",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -10732,13 +10792,35 @@ func (ec *executionContext) unmarshalInputUserAddressInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"addressLine1", "addressLine2", "city", "province", "postalCode", "country", "IsDefault"}
+	fieldsInOrder := [...]string{"addressName", "addressLine1", "addressLine2", "city", "province", "postalCode", "country", "IsDefault"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
+		case "addressName":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("addressName"))
+			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNString2string(ctx, v) }
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				if ec.directives.NotEmpty == nil {
+					return nil, errors.New("directive notEmpty is not implemented")
+				}
+				return ec.directives.NotEmpty(ctx, obj, directive0)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.AddressName = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		case "addressLine1":
 			var err error
 
@@ -12400,6 +12482,13 @@ func (ec *executionContext) _UserAddress(ctx context.Context, sel ast.SelectionS
 		case "userID":
 
 			out.Values[i] = ec._UserAddress_userID(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "addressName":
+
+			out.Values[i] = ec._UserAddress_addressName(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)

@@ -1,16 +1,12 @@
+
 import {gql} from "@apollo/client";
+import {USER_ADDRESS_FRAGMENT} from "../fragments/users";
 
 export const USER_ADDRESSES = gql`
     query fetchUserAddresses {
         userAddress {
-            ID
-            isDefault
-            addressLine1
-            addressLine2
-            country
-            city
-            postalCode
-            province
+            ...UserAddressCollection
         }
     }
+    ${USER_ADDRESS_FRAGMENT}
 `;

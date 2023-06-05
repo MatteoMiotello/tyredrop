@@ -1,11 +1,11 @@
 import {faCheck} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Listbox, Transition} from "@headlessui/react";
-import React, {Fragment, useEffect, useState} from "react";
+import React, {Fragment, ReactNode, useEffect, useState} from "react";
 import {PropsWithValidators} from "../validation/validators";
 
 export type SelectOption = {
-    title: string
+    title: string | ReactNode
     value: any
     disabled?: boolean
 }
@@ -15,6 +15,7 @@ interface SelectProps extends PropsWithValidators<SelectOption | null> {
     options: (SelectOption | null)[]
     placeholder?: string
     name: string
+    onChange?: (value: any) => void
 }
 
 export const SelectComponent: React.FC<SelectProps> = (props: SelectProps) => {
@@ -42,6 +43,12 @@ export const SelectComponent: React.FC<SelectProps> = (props: SelectProps) => {
             return true;
         } );
 
+    }, [selected] );
+
+    useEffect( () => {
+        if ( props.onChange ) {
+            props.onChange(selected);
+        }
     }, [selected] );
 
     return <Listbox value={selected?.value || null} onChange={setSelected} name={props.name}>

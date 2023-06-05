@@ -3,6 +3,7 @@ import React, {useEffect, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {Cart} from "../../../__generated__/graphql";
 import Table from "../../../common/components-library/Table";
+import {Currency} from "../../../common/utilities/currency";
 import CartQuantityButtons from "./CartQuantityButtons";
 
 type CartDataTable = {
@@ -10,6 +11,7 @@ type CartDataTable = {
     name: string,
     brand: string,
     quantity: number
+    price: string
 }
 
 type CartTableProps = {
@@ -30,6 +32,7 @@ const CartTable: React.FC<CartTableProps> = ( props ) => {
             name: cart.productItem.product?.name,
             brand: cart.productItem.product.brand?.name,
             quantity: cart.quantity,
+            price: Currency.defaultFormat( cart.productItem.price[0].value, cart.productItem.price[0].currency.iso_code )
         }) as CartDataTable );
 
         setDataTable( data );
@@ -43,6 +46,10 @@ const CartTable: React.FC<CartTableProps> = ( props ) => {
         {
             accessorKey: "brand",
             header: t( "cart.brand_column" ) as string
+        },
+        {
+            accessorKey: "price",
+            header: t( "cart.price_column" ) as string
         },
         {
             accessorKey: "id",

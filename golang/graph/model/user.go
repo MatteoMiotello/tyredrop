@@ -28,6 +28,7 @@ type UserBilling struct {
 type UserAddress struct {
 	ID           int64   `json:"ID"`
 	UserID       int64   `json:"userID"`
+	AddressName  string  `json:"addressName"`
 	AddressLine1 string  `json:"addressLine1"`
 	AddressLine2 *string `json:"addressLine2,omitempty"`
 	City         string  `json:"city"`

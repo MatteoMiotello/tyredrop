@@ -38,6 +38,7 @@ func UserAddressToGraphQL(address *models.UserAddress) *model.UserAddress {
 	return &model.UserAddress{
 		ID:           address.ID,
 		UserID:       address.UserID,
+		AddressName:  address.AddressName,
 		AddressLine1: address.AddressLine1,
 		AddressLine2: &address.AddressLine2.String,
 		City:         address.City,
@@ -56,4 +57,5 @@ func GraphQLToUserAddress(address model.UserAddressInput, dbModel *models.UserAd
 	dbModel.PostalCode = address.PostalCode
 	dbModel.Country = address.Country
 	dbModel.IsDefault = address.IsDefault
+	dbModel.AddressName = address.AddressName
 }

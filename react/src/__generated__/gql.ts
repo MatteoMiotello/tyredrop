@@ -14,16 +14,18 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  */
 const documents = {
     "\n    fragment CartItems on CartResponse {\n        totalPrice {\n            value\n            currency {\n                iso_code\n                symbol\n                name\n            }\n        }\n        items {\n            id\n            quantity\n            productItem {\n                id\n                price {\n                    value\n                    currency {\n                        iso_code\n                    }\n                }\n                product {\n                    name\n                    code\n                    brand {\n                        name\n                    }\n                }\n            }\n        }\n    }\n": types.CartItemsFragmentDoc,
+    "\n    fragment UserAddressCollection on UserAddress {\n        ID\n        addressName\n        isDefault\n        addressLine1\n        addressLine2\n        city\n        country\n        postalCode\n        province\n    }\n": types.UserAddressCollectionFragmentDoc,
     "\n     \n    mutation addCart( $itemId: ID!, $quantity: Int) {\n        addItemToCart( itemId: $itemId, quantity: $quantity ) {\n           ...CartItems\n        }\n    } \n": types.AddCartDocument,
     "\n    \n    mutation editCart( $cartId: ID!, $quantity: Int! ) {\n        editCart( cartId: $cartId, quantity: $quantity ) {\n            ...CartItems\n        }\n    } \n": types.EditCartDocument,
     "\n    mutation CreateUserBilling( $input: CreateUserBilling! ) {\n        createUserBilling( billingInput: $input ) {\n            id\n            name\n            surname\n        }\n    }\n": types.CreateUserBillingDocument,
+    "\n    \n    mutation addAddress( $input: UserAddressInput! ) {\n        createUserAddress(userAddress: $input) {\n            ...UserAddressCollection\n        }\n    }\n": types.AddAddressDocument,
     "\n     query SearchBrands( $name: String! ) {\n        searchBrands(  name: $name ) {\n            id\n            name\n            code\n        }\n     }  \n": types.SearchBrandsDocument,
     "\n    \n    query userCarts {\n       carts {\n           ...CartItems\n       }\n    }\n": types.UserCartsDocument,
     "\n    query GetLegalEntityTypes {\n        legalEntityTypes {\n            id\n            name\n            isPerson\n        }\n    }\n": types.GetLegalEntityTypesDocument,
     "\n    query getAllCategories {\n        productCategories {\n            id\n            name\n            code\n            specifications {\n                id\n                code\n                name\n                type\n                mandatory\n                searchable\n            }\n        }\n    }\n": types.GetAllCategoriesDocument,
     "\n    query search($limit: Int!, $offset: Int!, $searchInput: ProductSearchInput) {\n     productItems(\n          pagination: { limit: $limit, offset: $offset }\n          productSearchInput: $searchInput\n     ) {\n          pagination {\n               limit\n               totals\n               offset\n          }\n          productItems {\n               id\n               price {\n                    value\n                    currency {\n                         iso_code\n                         symbol\n                    }\n               }\n               product {\n                    id\n                    name\n                    code\n                    brand {\n                         name\n                         code\n                    }\n                    productSpecificationValues {\n                        specification {\n                            code\n                        }\n                        value\n                    }\n               }\n          }\n     }\n}\n": types.SearchDocument,
     "\n    query productItem( $id: ID! ) {\n    productItem( id: $id ) {\n        id\n        price {\n            currency {\n                iso_code\n            }\n            value\n        }\n        product {\n            code\n            name\n            brand {\n                name\n                code\n            }\n            productSpecificationValues {\n                value\n                specification {\n                    code\n                    name\n                }\n            }\n        }\n    }\n}\n": types.ProductItemDocument,
-    "\n    query fetchUserAddresses {\n        userAddress {\n            ID\n            isDefault\n            addressLine1\n            addressLine2\n            country\n            city\n            postalCode\n            province\n        }\n    }\n": types.FetchUserAddressesDocument,
+    "\n    query fetchUserAddresses {\n        userAddress {\n            ...UserAddressCollection\n        }\n    }\n    \n": types.FetchUserAddressesDocument,
 };
 
 /**
@@ -47,6 +49,10 @@ export function gql(source: "\n    fragment CartItems on CartResponse {\n       
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n    fragment UserAddressCollection on UserAddress {\n        ID\n        addressName\n        isDefault\n        addressLine1\n        addressLine2\n        city\n        country\n        postalCode\n        province\n    }\n"): (typeof documents)["\n    fragment UserAddressCollection on UserAddress {\n        ID\n        addressName\n        isDefault\n        addressLine1\n        addressLine2\n        city\n        country\n        postalCode\n        province\n    }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n     \n    mutation addCart( $itemId: ID!, $quantity: Int) {\n        addItemToCart( itemId: $itemId, quantity: $quantity ) {\n           ...CartItems\n        }\n    } \n"): (typeof documents)["\n     \n    mutation addCart( $itemId: ID!, $quantity: Int) {\n        addItemToCart( itemId: $itemId, quantity: $quantity ) {\n           ...CartItems\n        }\n    } \n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -56,6 +62,10 @@ export function gql(source: "\n    \n    mutation editCart( $cartId: ID!, $quant
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n    mutation CreateUserBilling( $input: CreateUserBilling! ) {\n        createUserBilling( billingInput: $input ) {\n            id\n            name\n            surname\n        }\n    }\n"): (typeof documents)["\n    mutation CreateUserBilling( $input: CreateUserBilling! ) {\n        createUserBilling( billingInput: $input ) {\n            id\n            name\n            surname\n        }\n    }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n    \n    mutation addAddress( $input: UserAddressInput! ) {\n        createUserAddress(userAddress: $input) {\n            ...UserAddressCollection\n        }\n    }\n"): (typeof documents)["\n    \n    mutation addAddress( $input: UserAddressInput! ) {\n        createUserAddress(userAddress: $input) {\n            ...UserAddressCollection\n        }\n    }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -83,7 +93,7 @@ export function gql(source: "\n    query productItem( $id: ID! ) {\n    productI
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n    query fetchUserAddresses {\n        userAddress {\n            ID\n            isDefault\n            addressLine1\n            addressLine2\n            country\n            city\n            postalCode\n            province\n        }\n    }\n"): (typeof documents)["\n    query fetchUserAddresses {\n        userAddress {\n            ID\n            isDefault\n            addressLine1\n            addressLine2\n            country\n            city\n            postalCode\n            province\n        }\n    }\n"];
+export function gql(source: "\n    query fetchUserAddresses {\n        userAddress {\n            ...UserAddressCollection\n        }\n    }\n    \n"): (typeof documents)["\n    query fetchUserAddresses {\n        userAddress {\n            ...UserAddressCollection\n        }\n    }\n    \n"];
 
 export function gql(source: string) {
   return (documents as any)[source] ?? {};

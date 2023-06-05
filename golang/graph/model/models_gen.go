@@ -107,6 +107,7 @@ type TotalPrice struct {
 }
 
 type UserAddressInput struct {
+	AddressName  string  `json:"addressName"`
 	AddressLine1 string  `json:"addressLine1"`
 	AddressLine2 *string `json:"addressLine2,omitempty"`
 	City         string  `json:"city"`

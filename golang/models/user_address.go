@@ -26,6 +26,7 @@ import (
 type UserAddress struct {
 	ID           int64       `boil:"id" json:"id" toml:"id" yaml:"id"`
 	UserID       int64       `boil:"user_id" json:"user_id" toml:"user_id" yaml:"user_id"`
+	AddressName  string      `boil:"address_name" json:"address_name" toml:"address_name" yaml:"address_name"`
 	AddressLine1 string      `boil:"address_line_1" json:"address_line_1" toml:"address_line_1" yaml:"address_line_1"`
 	AddressLine2 null.String `boil:"address_line_2" json:"address_line_2,omitempty" toml:"address_line_2" yaml:"address_line_2,omitempty"`
 	City         string      `boil:"city" json:"city" toml:"city" yaml:"city"`
@@ -44,6 +45,7 @@ type UserAddress struct {
 var UserAddressColumns = struct {
 	ID           string
 	UserID       string
+	AddressName  string
 	AddressLine1 string
 	AddressLine2 string
 	City         string
@@ -57,6 +59,7 @@ var UserAddressColumns = struct {
 }{
 	ID:           "id",
 	UserID:       "user_id",
+	AddressName:  "address_name",
 	AddressLine1: "address_line_1",
 	AddressLine2: "address_line_2",
 	City:         "city",
@@ -72,6 +75,7 @@ var UserAddressColumns = struct {
 var UserAddressTableColumns = struct {
 	ID           string
 	UserID       string
+	AddressName  string
 	AddressLine1 string
 	AddressLine2 string
 	City         string
@@ -85,6 +89,7 @@ var UserAddressTableColumns = struct {
 }{
 	ID:           "user_address.id",
 	UserID:       "user_address.user_id",
+	AddressName:  "user_address.address_name",
 	AddressLine1: "user_address.address_line_1",
 	AddressLine2: "user_address.address_line_2",
 	City:         "user_address.city",
@@ -102,6 +107,7 @@ var UserAddressTableColumns = struct {
 var UserAddressWhere = struct {
 	ID           whereHelperint64
 	UserID       whereHelperint64
+	AddressName  whereHelperstring
 	AddressLine1 whereHelperstring
 	AddressLine2 whereHelpernull_String
 	City         whereHelperstring
@@ -115,6 +121,7 @@ var UserAddressWhere = struct {
 }{
 	ID:           whereHelperint64{field: "\"user_address\".\"id\""},
 	UserID:       whereHelperint64{field: "\"user_address\".\"user_id\""},
+	AddressName:  whereHelperstring{field: "\"user_address\".\"address_name\""},
 	AddressLine1: whereHelperstring{field: "\"user_address\".\"address_line_1\""},
 	AddressLine2: whereHelpernull_String{field: "\"user_address\".\"address_line_2\""},
 	City:         whereHelperstring{field: "\"user_address\".\"city\""},
@@ -155,8 +162,8 @@ func (r *userAddressR) GetUser() *User {
 type userAddressL struct{}
 
 var (
-	userAddressAllColumns            = []string{"id", "user_id", "address_line_1", "address_line_2", "city", "province", "postal_code", "country", "is_default", "deleted_at", "updated_at", "created_at"}
-	userAddressColumnsWithoutDefault = []string{"user_id", "address_line_1", "city", "province", "postal_code", "country", "is_default"}
+	userAddressAllColumns            = []string{"id", "user_id", "address_name", "address_line_1", "address_line_2", "city", "province", "postal_code", "country", "is_default", "deleted_at", "updated_at", "created_at"}
+	userAddressColumnsWithoutDefault = []string{"user_id", "address_name", "address_line_1", "city", "province", "postal_code", "country", "is_default"}
 	userAddressColumnsWithDefault    = []string{"id", "address_line_2", "deleted_at", "updated_at", "created_at"}
 	userAddressPrimaryKeyColumns     = []string{"id"}
 	userAddressGeneratedColumns      = []string{}

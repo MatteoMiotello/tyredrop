@@ -1,29 +1,56 @@
 import React, {PropsWithChildren} from "react";
 import {useTranslation} from "react-i18next";
+import {useDispatch} from "react-redux";
+import {ThunkDispatch} from "redux-thunk";
 import Form, {useForm} from "../../../common/components-library/Form";
 import Field from "../../../common/components-library/Input";
 import CountryField from "../../../common/components/CountryField";
 import {isRequired, maxCharacters, minCharacters} from "../../../common/validation/validators";
+import {useToast} from "../../../hooks/useToast";
+import {UserAddressRequest, createUserAddress} from "../store/user-slice";
 
-type UserAddressForm = PropsWithChildren
+type UserAddressFormProps = {
+    onSuccess: () => void
+} & PropsWithChildren
 
-const UserAddressForm: React.FC<UserAddressForm> = (props) => {
+
+const UserAddressForm: React.FC<UserAddressFormProps> = (props) => {
     const {t} = useTranslation();
-    const [form] = useForm();
+    const [form, handleFormError] = useForm();
+    const dispatch  = useDispatch<ThunkDispatch<any, any, any>>();
+    const { setSuccess, setError } = useToast();
+    const onSubmit = (formData: UserAddressRequest) => {
+        dispatch( createUserAddress( formData ) )
+            .unwrap()
+            .then( ( res ) => {
+                setSuccess( t( "user_address.store_success" ) );
+                props.onSuccess();
+            }  )
+            .catch( (err) => {
+                setError( t( "user_address.store_error" ) );
+                handleFormError(  err );
+            } );
+    };
 
     return <Form
-        onSubmit={() => {return;}}
+        onSubmit={onSubmit}
         form={form}
     >
         <Field.FormInput type="text"
-                         name="address_line_1"
-                         placeholder={t('billing.address_line_1_placeholder')}
+                         name="address_name"
+                         placeholder={t('user_address.address_name_placeholder')}
                          className="col-span-12"
-                         validators={[isRequired(t('billing.address_line_1_placeholder'))]}
+                         validators={[isRequired(t('user_address.address_name_placeholder'))]}
+        />
+        <Field.FormInput type="text"
+                         name="address_line_1"
+                         placeholder={t('user_address.address_line_1_placeholder')}
+                         className="col-span-12"
+                         validators={[isRequired(t('user_address.address_line_1_placeholder'))]}
         />
         <Field.FormInput type="text"
                          name="address_line_2"
-                         placeholder={t('billing.address_line_2_placeholder')}
+                         placeholder={t('user_address.address_line_2_placeholder')}
                          className="col-span-12"
         />
         <CountryField name="country"
@@ -31,23 +58,25 @@ const UserAddressForm: React.FC<UserAddressForm> = (props) => {
         />
         <Field.FormInput type="text"
                          name="city"
-                         placeholder={t('billing.city_placeholder')}
+                         placeholder={t('user_address.city_placeholder')}
                          className="col-span-4"
-                         validators={[isRequired(t('billing.city_placeholder'))]}
+                         validators={[isRequired(t('user_address.city_placeholder'))]}
         />
         <Field.FormInput type="text"
                          name="province"
-                         placeholder={t('billing.province_placeholder')}
+                         placeholder={t('user_address.province_placeholder')}
                          className="col-span-4"
-                         validators={[maxCharacters(2), isRequired(t('billing.province_placeholder')), minCharacters(2)]}
+                         validators={[maxCharacters(2), isRequired(t('user_address.province_placeholder')), minCharacters(2)]}
         />
         <Field.FormInput type="text"
                          name="cap"
-                         placeholder={t('billing.cap_placeholder')}
+                         placeholder={t('user_address.cap_placeholder')}
                          className="col-span-4"
-                         validators={[isRequired(t('billing.cap_placeholder'))]}
+                         validators={[isRequired(t('user_address.cap_placeholder'))]}
         />
-        {props.children}
+        <div className="col-span-12">
+            {props.children}
+        </div>
     </Form>;
 };
 

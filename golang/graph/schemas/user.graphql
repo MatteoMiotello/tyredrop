@@ -39,6 +39,7 @@ type UserBilling {
 type UserAddress {
     ID: ID!
     userID: ID!
+    addressName: String!
     user: User!
     addressLine1: String!
     addressLine2: String
@@ -76,6 +77,7 @@ input CreateUserBilling {
 }
 
 input UserAddressInput {
+    addressName: String! @notEmpty
     addressLine1: String! @notEmpty
     addressLine2: String
     city: String! @notEmpty

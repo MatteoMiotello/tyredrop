@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { InputHTMLAttributes} from "react";
+import React, { SelectHTMLAttributes} from "react";
 import {useTranslation} from "react-i18next";
 import Autocomplete, {AutocompleteQueryHandler} from "../components-library/Autocomplete";
 import {isRequired} from "../validation/validators";
@@ -21,7 +21,7 @@ const handleQuery: AutocompleteQueryHandler = async (query: string) => {
 type CountryFieldProps = {
     name: string
     className: string
-} & InputHTMLAttributes
+} & SelectHTMLAttributes<any>
 const CountryField: React.FC<CountryFieldProps> = (props) => {
     const {t} = useTranslation();
     return <Autocomplete
