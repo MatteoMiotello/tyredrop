@@ -1,10 +1,11 @@
 import React from "react";
 import {Link} from "react-router-dom";
 import Field from "../components-library/Input";
+import Menu from "../components-library/Menu";
 import CartButton from "./CartButton";
 import MainLogo from "./Logo";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faLocationDot, faSearch, faUser} from "@fortawesome/free-solid-svg-icons";
+import {faBagShopping, faLocationDot, faSearch, faUser} from "@fortawesome/free-solid-svg-icons";
 import {useAuth} from "../../modules/auth/hooks/useAuth";
 
 const Navbar: React.FC = () => {
@@ -26,32 +27,29 @@ const Navbar: React.FC = () => {
         <div className="flex-none gap-2">
             <div className="dropdown dropdown-end">
                 <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
-                    <div className="avatar placeholder h-full p-1">
-                        <div className="bg-neutral-focus text-neutral-content rounded-full">
-                            <span className="text-xl"> <FontAwesomeIcon icon={faUser}/> </span>
-                        </div>
-                    </div>
+
                 </label>
-                <ul tabIndex={0}
-                    className="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-52">
-                    {
-                        auth && <li>
-                        { auth.user?.getCompleteName() }
-                        </li>
-                    }
-                    <li>
-                        <Link to="/user/adress">
-                            <FontAwesomeIcon icon={faLocationDot}/>
-                            I miei indirizzi
-                        </Link>
-                    </li>
-                    <li>
+                <Menu.Dropdown label={ <div className="avatar placeholder h-full p-1">
+                    <div className="bg-neutral-focus text-neutral-content rounded-full">
+                        <span className="text-xl"> <FontAwesomeIcon icon={faUser}/> </span>
+                    </div>
+                </div> }>
+                    <Menu.Item>
                         <Link to="/user">
-                            <FontAwesomeIcon icon={faUser}/>
-                            Profilo
+                            <FontAwesomeIcon icon={faUser}/> Principale
                         </Link>
-                    </li>
-                </ul>
+                    </Menu.Item>
+                    <Menu.Item>
+                        <Link to="/user/address">
+                            <FontAwesomeIcon icon={faLocationDot}/>I miei indirizzi
+                        </Link>
+                    </Menu.Item>
+                    <Menu.Item>
+                        <Link to="/user/orders">
+                            <FontAwesomeIcon icon={faBagShopping}/>I miei ordini
+                        </Link>
+                    </Menu.Item>
+                </Menu.Dropdown>
             </div>
         </div>
     </div>;

@@ -1,7 +1,8 @@
-import {faBagShopping, faLocationDot, faUser} from "@fortawesome/free-solid-svg-icons";
+import { faUser} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import React from "react";
-import {Link, Outlet} from "react-router-dom";
+import { Outlet} from "react-router-dom";
+import UserMenu from "./components/UserMenu";
 
 const UserTemplatePage: React.FC = () => {
     return <div className="md:p-24 p-4">
@@ -12,23 +13,7 @@ const UserTemplatePage: React.FC = () => {
                         <span className="text-6xl"> <FontAwesomeIcon className="w-36" icon={faUser}/> </span>
                     </div>
                 </div>
-                <ul className="menu menu-md">
-                    <li>
-                        <Link to="/user">
-                            <FontAwesomeIcon icon={faUser}/> Principale
-                        </Link>
-                    </li>
-                    <li>
-                        <Link to="/user/address">
-                            <FontAwesomeIcon icon={faLocationDot}/>I miei indirizzi
-                        </Link>
-                    </li>
-                    <li>
-                        <Link to="/user/address">
-                            <FontAwesomeIcon icon={faBagShopping}/>I miei ordini
-                        </Link>
-                    </li>
-                </ul>
+                <UserMenu/>
             </div>
             <div className="col-span-3 p-4">
                 <Outlet/>
