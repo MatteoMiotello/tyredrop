@@ -10,6 +10,7 @@ import {authRoutes} from "./modules/auth/routes";
 import {billingRoute} from "./modules/billing/routes";
 import {cartRoute} from "./modules/cart/routes";
 import {productRoute} from "./modules/product/routes";
+import userRoutes from "./modules/user/routes";
 import {store} from "./store/store";
 import i18n from "./common/i18n";
 import {I18nextProvider} from "react-i18next";
@@ -27,7 +28,8 @@ const router = createBrowserRouter([
         children: [
             billingRoute,
             productRoute,
-            cartRoute
+            cartRoute,
+            userRoutes
         ]
     },
     {

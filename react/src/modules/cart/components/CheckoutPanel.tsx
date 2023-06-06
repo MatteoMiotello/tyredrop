@@ -17,7 +17,7 @@ const CheckoutPanel: React.FC = () => {
     const userAddresses = useSelector(userSelector.addresses);
     const {t} = useTranslation();
     const [addressOptions, setOptions] = useState<SelectOption[]>([]);
-    const [selectedAddress, setAddress] = useState(null);
+    const [selectedAddress, setAddress] = useState<SelectOption | null>(null);
     const totalPrice = useSelector(cartSelector.amount);
 
     const getPrice = () => {
