@@ -23,13 +23,28 @@ const useModal = (modal: ReactNode) => {
 
     }, [isOpen]);
 
-    const openModal = () => {
+    const openModal = ( newModal: ReactNode | undefined = undefined) => {
+        if (newModal){
+            setModal( {
+                content: <Modal
+                    open={false}
+                    id={id}
+                >
+                    {newModal}
+                </Modal>,
+                id: id
+            } );
+        }
+
         setOpen(true);
     };
 
     const closeModal = () => {
         setOpen(false);
+
+        setModal(null);
     };
+
     return {openModal, closeModal};
 };
 

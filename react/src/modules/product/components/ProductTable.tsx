@@ -40,12 +40,12 @@ export type ProductRowItemData = {
 
 const ProductTable: React.FC<ProductTableProps> = (props) => {
     const [data, setData] = useState<(ProductRowItemData | null)[]>([]);
-    const { setSuccess } = useToast();
+    const {setSuccess} = useToast();
     const colums: ColumnDef<ProductRowItemData>[] = [
         {
             accessorKey: "image",
             enableResizing: true,
-            size: 20,
+            size: 15,
             cell: (props: CellContext<ProductRowItemData, any>) => {
                 return <div className="w-24">
                     <Img src={[
@@ -54,33 +54,40 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
                     ]}
                          onErrorCapture={(e) => e.preventDefault()}
                          loading="lazy"
-                         className="h-24"
+                         className="h-24 mx-auto"
                          alt={props.row.original.name}/>
                 </div>;
             }
         },
         {
             accessorKey: "content",
-            cell: (props: CellContext<ProductRowItemData, any>) => <ProductTitle showBrand={true} data={props.row.original}/>
+            cell: (props: CellContext<ProductRowItemData, any>) => <ProductTitle showBrand={true}
+                                                                                 data={props.row.original}/>
         },
         {
             accessorKey: "specifications",
-            cell: (props: CellContext<ProductRowItemData, any>) => <ProductSpecificationsGroup
-                specifications={props.row.original.specifications}/>
+            cell: (props: CellContext<ProductRowItemData, any>) => <div className="flex justify-center items-center">
+                <ProductSpecificationsGroup
+                    specifications={props.row.original.specifications}/>
+            </div>
         },
         {
             accessorKey: "price",
             cell: (props) => {
-                return <span
-                    className="ml-auto font-semibold text-xl"
+                return <div className="w-full flex justify-center items-center">
+
+                <span
+                    className="font-semibold text-xl"
                 >
                     {props.row.original.price}
-            </span>;
+            </span>
+                </div>;
             }
         },
         {
             accessorKey: "button",
-            cell: (props: CellContext<ProductRowItemData, any>) => <>
+            size: 50,
+            cell: (props: CellContext<ProductRowItemData, any>) => <div className="flex justify-center items-center">
                 <AddItemToCartButton itemId={props.row.original.id}/>
                 <Link
                     className="mx-2 aspect-square"
@@ -91,7 +98,7 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
                         icon={faAngleRight}
                     />
                 </Link>
-            </>
+            </div>
         }
     ];
 

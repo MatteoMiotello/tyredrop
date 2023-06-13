@@ -3,7 +3,7 @@ import {ModalData} from "../components/ModalContainer";
 
 type ModalContextData = {
     modal: ModalData | null
-    setModal: (modals: ModalData ) => void
+    setModal: (modals: ModalData | null ) => void
 }
 
 const ModalContext = createContext<ModalContextData>({

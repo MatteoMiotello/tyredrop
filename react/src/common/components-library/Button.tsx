@@ -1,6 +1,6 @@
 import React, {PropsWithChildren} from "react";
 
-type ButtonType = 'primary' | 'secondary' | 'accent' | 'ghost' | 'link' | undefined;
+type ButtonType = 'primary' | 'secondary' | 'accent' | 'ghost' | 'link' | 'info' | 'success' | 'error' | undefined;
 
 interface ButtonProps extends PropsWithChildren {
     type?: ButtonType;
@@ -8,7 +8,7 @@ interface ButtonProps extends PropsWithChildren {
     htmlType?: 'submit' | 'reset' | 'button' | undefined;
     outline?: boolean;
     className?: string;
-    onClick?: () => void
+    onClick?: () => void;
 }
 
 const getClassType = (type: ButtonType) => {
@@ -23,6 +23,12 @@ const getClassType = (type: ButtonType) => {
             return 'btn-ghost';
         case 'link':
             return 'btn-link';
+        case 'info':
+            return 'btn-info';
+        case 'success':
+            return 'btn-success';
+        case 'error':
+            return 'btn-error';
         default:
             return '';
     }
@@ -57,7 +63,7 @@ const Button: React.FC<ButtonProps> = (props) => {
     }
 
     if (props.size) {
-        classes += ' ' + getSizeClass( props.size );
+        classes += ' ' + getSizeClass(props.size);
     }
 
     return <button className={classes} type={props.htmlType} onClick={props?.onClick}>

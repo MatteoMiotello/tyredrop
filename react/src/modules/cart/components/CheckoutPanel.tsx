@@ -52,21 +52,20 @@ const CheckoutPanel: React.FC = () => {
     }, [userAddresses]);
 
     const {openModal, closeModal} = useModal(<Modal.Content>
-            <Modal.Header>
-                {t("user_address.new_address_modal_title")}
-            </Modal.Header>
-            <UserAddressForm onSuccess={() => closeModal()}>
-                <Modal.Action>
-                    <Button onClick={() => closeModal()} htmlType="button">
-                        {t("user_address.close_modal")}
-                    </Button>
-                    <Button type="primary" htmlType="submit">
-                        {t("user_address.submit_form")}
-                    </Button>
-                </Modal.Action>
-            </UserAddressForm>
-        </Modal.Content>
-    );
+        <Modal.Header>
+            {t("user_address.new_address_modal_title")}
+        </Modal.Header>
+        <UserAddressForm onSuccess={() => closeModal()}>
+            <Modal.Action>
+                <Button onClick={() => closeModal()} htmlType="button">
+                    {t("user_address.close_modal")}
+                </Button>
+                <Button type="primary" htmlType="submit">
+                    {t("user_address.submit_form")}
+                </Button>
+            </Modal.Action>
+        </UserAddressForm>
+    </Modal.Content>);
 
     return <div className="w-full bg-base-200 rounded-box p-4 flex flex-col">
         <div className="mb-4">
@@ -85,7 +84,7 @@ const CheckoutPanel: React.FC = () => {
                     </div> : <span> {t("cart.no_address_found")} </span>
             }
         </div>
-        <a className="link link-secondary" onClick={openModal}>
+        <a className="link link-secondary" onClick={() => openModal()}>
             <FontAwesomeIcon icon={faPlus}/> {t("user_address.add_new_address")}
         </a>
         {selectedAddress &&

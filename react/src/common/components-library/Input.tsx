@@ -15,7 +15,8 @@ interface InputProps extends PropsWithValidators {
     bottomLeftLabelText?: string;
     bottomRightLabelText?: string;
     error?: string;
-    size?:  'lg' | 'md' | 'sm' | 'xs' | undefined;
+    size?: 'lg' | 'md' | 'sm' | 'xs' | undefined;
+    value?: string;
 }
 
 interface FormInputProps extends FormControlProps, InputProps {
@@ -62,8 +63,8 @@ const Input: React.FC<InputProps> = (props) => {
         classes = ' input-error ';
     }
 
-    const getSizeClassName = ( size: string | undefined ): string => {
-        switch ( size ) {
+    const getSizeClassName = (size: string | undefined): string => {
+        switch (size) {
             case 'lg':
                 return 'input-lg';
             case 'md':
@@ -77,7 +78,7 @@ const Input: React.FC<InputProps> = (props) => {
         }
     };
 
-    classes += ' ' + getSizeClassName( props.size );
+    classes += ' ' + getSizeClassName(props.size);
 
     return <>
         {
@@ -95,6 +96,7 @@ const Input: React.FC<InputProps> = (props) => {
                required={props.required}
                onChange={onChange}
                onFocus={onChange}
+               value={props.value}
         />
         {
             bottomLeft || props.bottomRightLabelText ?
@@ -110,19 +112,7 @@ const Input: React.FC<InputProps> = (props) => {
 
 const FormInput: React.FC<FormInputProps> = (props) => {
     return <FormControl className={props.className}>
-        <Input
-            type={props.type}
-            name={props.name}
-            placeholder={props.placeholder}
-            required={props.required}
-            labelText={props.labelText}
-            topRightLabelText={props.topRightLabelText}
-            bottomLeftLabelText={props.bottomLeftLabelText}
-            bottomRightLabelText={props.bottomRightLabelText}
-            error={props.error}
-            size={props.size}
-            validators={props.validators}
-        />
+        <Input{...props}/>
     </FormControl>;
 };
 
@@ -142,7 +132,7 @@ const InputGroup: React.FC<InputGroupProps> = (props) => {
         }
     };
 
-    return <div className={"input-group " + getSizeClass( props.size )}>
+    return <div className={"input-group " + getSizeClass(props.size)}>
         {props.children}
     </div>;
 };

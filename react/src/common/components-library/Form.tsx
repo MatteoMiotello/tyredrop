@@ -1,7 +1,6 @@
 import React, {Children, PropsWithChildren, ReactElement, useEffect, useState} from "react";
 import {ValidationHandler} from "../validation/validators";
 import Alert from "./Alert";
-import {HookHandler} from "vite";
 import {faTriangleExclamation} from "@fortawesome/free-solid-svg-icons";
 
 export class FormErrors {
@@ -31,15 +30,29 @@ interface FormProps<T = any> extends PropsWithChildren {
     className?: string;
     onSubmit: FormSubmitHandler<T>;
     onSuccess?: FormOnSuccessHandler;
-    form: FormProperties;
+    form: FormHandler;
 }
 
-type FormProperties = {
-    formError: FormErrors
+class FormHandler<T = any> {
+    public formError: FormErrors;
+    public formValues?: T | undefined;
+
+
+    constructor(formError: FormErrors) {
+        this.formError = formError;
+    }
+
+    get(key: keyof T): string | null {
+        if (!this.formValues) {
+            return null;
+        }
+
+        return this.formValues[key] as string;
+    }
 }
 
-export const useForm: HookHandler<any> = () => {
-    const [form, setForm] = useState<FormProperties>({formError: new FormErrors()});
+export const useForm = <T = any>() => {
+    const [form, setForm] = useState<FormHandler<T>>(new FormHandler(new FormErrors()));
 
     const handleFormError = (formError: FormErrors | string | null) => {
         if (!formError) {
@@ -53,23 +66,28 @@ export const useForm: HookHandler<any> = () => {
             formError.appendError(sFormError);
         }
 
-
-        setForm({formError: formError});
+        form.formError = formError;
+        setForm(form);
     };
 
-    return [form, handleFormError];
+    const setFormValues = (values: T | undefined) => {
+        form.formValues = values;
+        setForm(form);
+    };
+
+    return {form, handleFormError, setFormValues};
 };
 
 const Form: React.FC<FormProps> = (props: FormProps) => {
     const [form, setForm] = useState(props.form);
 
-    useEffect( () => {
-        if ( form.formError.hasErrors() ) {
+    useEffect(() => {
+        if (form.formError.hasErrors()) {
             return;
         }
 
         setForm(props.form);
-    }, [props.form] );
+    }, [props.form]);
 
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         form.formError.resetErrors();
@@ -108,7 +126,7 @@ const Form: React.FC<FormProps> = (props: FormProps) => {
                 childProps.validators?.forEach((validator: ValidationHandler) => {
                     const value = values[childProps.name];
 
-                    if ( value === undefined ) {
+                    if (value === undefined) {
                         return;
                     }
 
@@ -122,7 +140,8 @@ const Form: React.FC<FormProps> = (props: FormProps) => {
             });
 
             if (formErrors.hasErrors()) {
-                setForm({formError: formErrors});
+                form.formError = formErrors;
+                setForm(form);
             }
         }
 

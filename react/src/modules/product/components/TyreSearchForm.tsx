@@ -48,7 +48,7 @@ export const toSearchDataType = ( req: TyreSearchFormRequest ): ProductSearchDat
 
 const TyreSearchForm: React.FC<TypeSpecificSearchFormProps> = (props ) => {
     const {t} = useTranslation();
-    const [form] = useForm();
+    const {form} = useForm();
 
     return <Form onSubmit={props.onSubmit} form={form}>
         <Field.FormControl className="col-span-6">

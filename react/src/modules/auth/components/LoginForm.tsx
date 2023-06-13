@@ -14,7 +14,7 @@ interface LoginFormProps {
 }
 
 const LoginForm: React.FC<LoginFormProps> = ( props: LoginFormProps ) => {
-    const [form, handleFormError] = useForm();
+    const {form, handleFormError} = useForm();
     const {t} = useTranslation();
     const auth = useAuth();
 
@@ -25,7 +25,7 @@ const LoginForm: React.FC<LoginFormProps> = ( props: LoginFormProps ) => {
                 error = t( 'login.wrong_username_or_password' );
             }
 
-            handleFormError( error );
+            handleFormError( error as string);
         }
 
         if ( auth.isAuthenticated() && props.onSuccess) {

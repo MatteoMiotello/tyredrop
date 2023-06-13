@@ -30,7 +30,7 @@ class ProdapiService {
     }
 
     getBrandImageUrl( brandCode: string ) {
-        brandCode = _.upperCase( _.snakeCase( brandCode ) );
+        brandCode = _.lowerCase( _.snakeCase( brandCode ) );
 
         return this.buildUrl( 'resources', 'brands', brandCode );
     }

@@ -44,7 +44,7 @@ export const BillingForm: React.FC<BillingFormProps> = (props) => {
 
     const {loading, error, data} = useQuery<GetLegalEntityTypesQuery>(GET_LEGAL_ENTITY_TYPES);
 
-    const [form, handleFormError] = useForm();
+    const {form, handleFormError} = useForm();
     const {t} = useTranslation();
     const {setError} = useToast();
 

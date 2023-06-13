@@ -25,10 +25,7 @@ const Navbar: React.FC = () => {
         </div>
         <CartButton/>
         <div className="flex-none gap-2">
-            <div className="dropdown dropdown-end">
-                <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
-
-                </label>
+            <div className="dropdown dropdown-end z-50">
                 <Menu.Dropdown label={ <div className="avatar placeholder h-full p-1">
                     <div className="bg-neutral-focus text-neutral-content rounded-full">
                         <span className="text-xl"> <FontAwesomeIcon icon={faUser}/> </span>

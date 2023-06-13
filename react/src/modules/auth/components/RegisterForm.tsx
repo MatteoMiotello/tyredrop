@@ -24,7 +24,7 @@ type RegisterFormProps = {
 }
 
 const RegisterForm: React.FC<RegisterFormProps> = (props: RegisterFormProps) => {
-    const [form, handleError] = useForm();
+    const {form, handleFormError} = useForm();
     const {t} = useTranslation();
     const [currentPassword, setCurrentPassword] = useState<string | null>(null);
     const authStatus = useSelector(selectAuthStatus);
@@ -36,7 +36,7 @@ const RegisterForm: React.FC<RegisterFormProps> = (props: RegisterFormProps) => 
                 error = t('register.email_already_used');
             }
 
-            handleError(error);
+            handleFormError(error as string);
         }
 
         if (authStatus.status == 'fullfilled' && props.onSuccess) {
@@ -86,7 +86,7 @@ const RegisterForm: React.FC<RegisterFormProps> = (props: RegisterFormProps) => 
         formErrors.appendError(validateRepeatPassword(registerRequest.repeat_password));
 
         if (formErrors.hasErrors()) {
-            handleError(formErrors);
+            handleFormError(formErrors);
             return;
         }
 
