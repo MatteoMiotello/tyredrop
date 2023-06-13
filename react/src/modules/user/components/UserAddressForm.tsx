@@ -47,20 +47,20 @@ const UserAddressForm: React.FC<UserAddressFormProps> = (props) => {
                          placeholder={t('user_address.address_name_placeholder')}
                          className="col-span-12"
                          validators={[isRequired(t('user_address.address_name_placeholder'))]}
-                         value={form.get('addressName') as string}
+                         defaultValue={form.get('addressName') as string}
         />
         <Field.FormInput type="text"
                          name="address_line_1"
                          placeholder={t('user_address.address_line_1_placeholder')}
                          className="col-span-12"
                          validators={[isRequired(t('user_address.address_line_1_placeholder'))]}
-                         value={form.get('addressLine1') as string}
+                         defaultValue={form.get('addressLine1') as string}
         />
         <Field.FormInput type="text"
                          name="address_line_2"
                          placeholder={t('user_address.address_line_2_placeholder')}
                          className="col-span-12"
-                         value={form.get('addressLine2') as string}
+                         defaultValue={form.get('addressLine2') as string}
         />
         <CountryField name="country"
                       className="col-span-12"
@@ -70,21 +70,21 @@ const UserAddressForm: React.FC<UserAddressFormProps> = (props) => {
                          placeholder={t('user_address.city_placeholder')}
                          className="col-span-4"
                          validators={[isRequired(t('user_address.city_placeholder'))]}
-                         value={form.get('city') as string}
+                         defaultValue={form.get('city') as string}
         />
         <Field.FormInput type="text"
                          name="province"
                          placeholder={t('user_address.province_placeholder')}
                          className="col-span-4"
                          validators={[maxCharacters(2), isRequired(t('user_address.province_placeholder')), minCharacters(2)]}
-                         value={form.get('province') as string}
+                         defaultValue={form.get('province') as string}
         />
         <Field.FormInput type="text"
                          name="cap"
                          placeholder={t('user_address.cap_placeholder')}
                          className="col-span-4"
                          validators={[isRequired(t('user_address.cap_placeholder'))]}
-                         value={form.get('postalCode') as string}
+                         defaultValue={form.get('postalCode') as string}
         />
         <div className="col-span-12">
             {props.children}

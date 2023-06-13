@@ -1,4 +1,4 @@
-import React, {ChangeEventHandler, PropsWithChildren, useState} from "react";
+import React, {ChangeEventHandler, PropsWithChildren, useRef, useState} from "react";
 import {PropsWithValidators, ValidationHandler} from "../validation/validators";
 
 interface FormControlProps extends PropsWithChildren {
@@ -16,7 +16,7 @@ interface InputProps extends PropsWithValidators {
     bottomRightLabelText?: string;
     error?: string;
     size?: 'lg' | 'md' | 'sm' | 'xs' | undefined;
-    value?: string;
+    defaultValue?: string;
 }
 
 interface FormInputProps extends FormControlProps, InputProps {
@@ -34,6 +34,7 @@ const FormControl: React.FC<FormControlProps> = (props) => {
 };
 
 const Input: React.FC<InputProps> = (props) => {
+    const ref = useRef( props.defaultValue );
     const [error, setError] = useState<string | null>(props.error as string);
 
     let bottomLeft = null;
@@ -96,7 +97,7 @@ const Input: React.FC<InputProps> = (props) => {
                required={props.required}
                onChange={onChange}
                onFocus={onChange}
-               value={props.value}
+               defaultValue={props.defaultValue}
         />
         {
             bottomLeft || props.bottomRightLabelText ?

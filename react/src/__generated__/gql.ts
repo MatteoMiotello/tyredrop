@@ -19,6 +19,8 @@ const documents = {
     "\n    \n    mutation editCart( $cartId: ID!, $quantity: Int! ) {\n        editCart( cartId: $cartId, quantity: $quantity ) {\n            ...CartItems\n        }\n    } \n": types.EditCartDocument,
     "\n    mutation CreateUserBilling( $input: CreateUserBilling! ) {\n        createUserBilling( billingInput: $input ) {\n            id\n            name\n            surname\n        }\n    }\n": types.CreateUserBillingDocument,
     "\n    \n    mutation addAddress( $input: UserAddressInput! ) {\n        createUserAddress(userAddress: $input) {\n            ...UserAddressCollection\n        }\n    }\n": types.AddAddressDocument,
+    "\n    \n    mutation editAddress( $id: ID!, $input: UserAddressInput! ) {\n        editUserAddress(id: $id, userAddress: $input) {\n            ...UserAddressCollection\n        }\n    }\n": types.EditAddressDocument,
+    "\n    \n    mutation deleteAddress( $id: ID! ) {\n        deleteUserAddress(id: $id) {\n            ...UserAddressCollection\n        }\n    }\n": types.DeleteAddressDocument,
     "\n     query SearchBrands( $name: String! ) {\n        searchBrands(  name: $name ) {\n            id\n            name\n            code\n        }\n     }  \n": types.SearchBrandsDocument,
     "\n    \n    query userCarts {\n       carts {\n           ...CartItems\n       }\n    }\n": types.UserCartsDocument,
     "\n    query GetLegalEntityTypes {\n        legalEntityTypes {\n            id\n            name\n            isPerson\n        }\n    }\n": types.GetLegalEntityTypesDocument,
@@ -66,6 +68,14 @@ export function gql(source: "\n    mutation CreateUserBilling( $input: CreateUse
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n    \n    mutation addAddress( $input: UserAddressInput! ) {\n        createUserAddress(userAddress: $input) {\n            ...UserAddressCollection\n        }\n    }\n"): (typeof documents)["\n    \n    mutation addAddress( $input: UserAddressInput! ) {\n        createUserAddress(userAddress: $input) {\n            ...UserAddressCollection\n        }\n    }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n    \n    mutation editAddress( $id: ID!, $input: UserAddressInput! ) {\n        editUserAddress(id: $id, userAddress: $input) {\n            ...UserAddressCollection\n        }\n    }\n"): (typeof documents)["\n    \n    mutation editAddress( $id: ID!, $input: UserAddressInput! ) {\n        editUserAddress(id: $id, userAddress: $input) {\n            ...UserAddressCollection\n        }\n    }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n    \n    mutation deleteAddress( $id: ID! ) {\n        deleteUserAddress(id: $id) {\n            ...UserAddressCollection\n        }\n    }\n"): (typeof documents)["\n    \n    mutation deleteAddress( $id: ID! ) {\n        deleteUserAddress(id: $id) {\n            ...UserAddressCollection\n        }\n    }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

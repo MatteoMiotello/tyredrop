@@ -8,6 +8,7 @@ import apolloClientContext from "../../../common/contexts/apollo-client-context"
 import UserState from "./state";
 
 export type UserAddressRequest = {
+    address_name: string
     address_line_1: string
     address_line_2: string
     "country[value]": string
