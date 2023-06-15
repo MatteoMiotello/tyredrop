@@ -3,8 +3,9 @@ import {ReactNode, useContext, useEffect, useMemo, useState} from "react";
 import Modal from "../common/components-library/Modal";
 import ModalContext from "../common/contexts/modal-context";
 
-const useModal = (modal: ReactNode) => {
+const useModal = (modal: ReactNode | null = null) => {
     const {setModal} = useContext(ModalContext);
+    const [modalContent, setModalContent] = useState( modal );
     const [isOpen, setOpen] = useState<boolean>(false);
     const id = useMemo(() => _.toString((new Date()).getTime()), []);
 
@@ -15,25 +16,17 @@ const useModal = (modal: ReactNode) => {
                     open={isOpen}
                     id={id}
                 >
-                    {modal}
+                    {modalContent}
                 </Modal>,
                 id: id
             }
         );
 
-    }, [isOpen]);
+    }, [isOpen, modalContent]);
 
     const openModal = ( newModal: ReactNode | undefined = undefined) => {
         if (newModal){
-            setModal( {
-                content: <Modal
-                    open={false}
-                    id={id}
-                >
-                    {newModal}
-                </Modal>,
-                id: id
-            } );
+            setModalContent(newModal);
         }
 
         setOpen(true);
@@ -42,7 +35,7 @@ const useModal = (modal: ReactNode) => {
     const closeModal = () => {
         setOpen(false);
 
-        setModal(null);
+        setModalContent(null);
     };
 
     return {openModal, closeModal};

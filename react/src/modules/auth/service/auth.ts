@@ -83,7 +83,9 @@ export class Auth {
         const refreshToken = window.localStorage.getItem('refresh_token');
 
         if (refreshToken && this.isEmpty()) {
-            store.dispatch(authRefreshToken(refreshToken));
+            return store.dispatch(authRefreshToken(refreshToken)).unwrap();
         }
+
+        return null;
     }
 }

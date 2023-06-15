@@ -1,4 +1,4 @@
-import React, {PropsWithChildren, useEffect} from "react";
+import React, {PropsWithChildren} from "react";
 import {useTranslation} from "react-i18next";
 import {useDispatch} from "react-redux";
 import {ThunkDispatch} from "redux-thunk";
@@ -8,7 +8,7 @@ import Field from "../../../common/components-library/Input";
 import CountryField from "../../../common/components/CountryField";
 import {isRequired, maxCharacters, minCharacters} from "../../../common/validation/validators";
 import {useToast} from "../../../hooks/useToast";
-import {UserAddressRequest, createUserAddress} from "../store/user-slice";
+import {UserAddressRequest, createUserAddress, editUserAddress} from "../store/user-slice";
 
 type UserAddressFormProps = {
     onSuccess: () => void
@@ -18,11 +18,17 @@ type UserAddressFormProps = {
 
 const UserAddressForm: React.FC<UserAddressFormProps> = (props) => {
     const {t} = useTranslation();
-    const {form, handleFormError, setFormValues} = useForm<UserAddress>();
+    const {form, handleFormError} = useForm();
     const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
     const {setSuccess, setError} = useToast();
     const onSubmit = (formData: UserAddressRequest) => {
-        dispatch(createUserAddress(formData))
+        let action: any = createUserAddress(formData);
+
+        if ( props.address ) {
+            action = editUserAddress({id: props.address.ID, input: formData} );
+        }
+
+        dispatch(action)
             .unwrap()
             .then((res) => {
                 setSuccess(t("user_address.store_success"));
@@ -34,10 +40,6 @@ const UserAddressForm: React.FC<UserAddressFormProps> = (props) => {
             });
     };
 
-    useEffect(() => {
-        setFormValues(props.address);
-    });
-
     return <Form
         onSubmit={onSubmit}
         form={form}
@@ -47,20 +49,20 @@ const UserAddressForm: React.FC<UserAddressFormProps> = (props) => {
                          placeholder={t('user_address.address_name_placeholder')}
                          className="col-span-12"
                          validators={[isRequired(t('user_address.address_name_placeholder'))]}
-                         defaultValue={form.get('addressName') as string}
+                         defaultValue={props.address?.addressName}
         />
         <Field.FormInput type="text"
                          name="address_line_1"
                          placeholder={t('user_address.address_line_1_placeholder')}
                          className="col-span-12"
                          validators={[isRequired(t('user_address.address_line_1_placeholder'))]}
-                         defaultValue={form.get('addressLine1') as string}
+                         defaultValue={props.address?.addressLine1}
         />
         <Field.FormInput type="text"
                          name="address_line_2"
                          placeholder={t('user_address.address_line_2_placeholder')}
                          className="col-span-12"
-                         defaultValue={form.get('addressLine2') as string}
+                         defaultValue={props.address?.addressLine2 as string}
         />
         <CountryField name="country"
                       className="col-span-12"
@@ -70,21 +72,21 @@ const UserAddressForm: React.FC<UserAddressFormProps> = (props) => {
                          placeholder={t('user_address.city_placeholder')}
                          className="col-span-4"
                          validators={[isRequired(t('user_address.city_placeholder'))]}
-                         defaultValue={form.get('city') as string}
+                         defaultValue={props.address?.city}
         />
         <Field.FormInput type="text"
                          name="province"
                          placeholder={t('user_address.province_placeholder')}
                          className="col-span-4"
                          validators={[maxCharacters(2), isRequired(t('user_address.province_placeholder')), minCharacters(2)]}
-                         defaultValue={form.get('province') as string}
+                         defaultValue={props.address?.province}
         />
         <Field.FormInput type="text"
                          name="cap"
                          placeholder={t('user_address.cap_placeholder')}
                          className="col-span-4"
                          validators={[isRequired(t('user_address.cap_placeholder'))]}
-                         defaultValue={form.get('postalCode') as string}
+                         defaultValue={props.address?.postalCode}
         />
         <div className="col-span-12">
             {props.children}

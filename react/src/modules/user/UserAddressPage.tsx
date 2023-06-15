@@ -1,23 +1,24 @@
 import {faPencil, faPlus, faTimes} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {CellContext, ColumnDef} from "@tanstack/react-table";
-import React, { useState} from "react";
+import React from "react";
 import {useTranslation} from "react-i18next";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {UserAddress} from "../../__generated__/graphql";
 import Button from "../../common/components-library/Button";
 import Table from "../../common/components-library/Table";
 import useModal from "../../hooks/useModal";
 import UserAddressModal from "./components/UserAddressModal";
 import userSelectors from "./store/user-selector";
+import {deleteUserAddress} from "./store/user-slice";
+import {ThunkDispatch} from "redux-thunk";
 
 type UserAddressRowData = UserAddress
 const UserAddressPage: React.FC = () => {
     const userAddresses = useSelector(userSelectors.addresses);
     const {t} = useTranslation();
-    const [address, setAddress] = useState<UserAddress | undefined>(undefined);
-
-    const {openModal, closeModal} = useModal( <UserAddressModal closeModal={() => closeModal()} address={address}/> );
+    const {openModal, closeModal} = useModal( );
+    const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
 
     const columns: ColumnDef<UserAddressRowData>[] = [
         {
@@ -48,17 +49,17 @@ const UserAddressPage: React.FC = () => {
             accessorKey: 'buttons',
             header: ' ',
             cell: (props: CellContext<UserAddress, any>) => {
-                return <>
-                    <Button className="ml-auto mr-2"
+                return <div className="flex">
+                    <Button className="mx-1"
                             onClick={() => {
                                 openModal( <UserAddressModal closeModal={() => closeModal()} address={props.row.original}/> );
                             }}>
                         <FontAwesomeIcon icon={faPencil}/>
                     </Button>
-                    <Button className="ml-auto" type="error">
+                    <Button className="mx-1" type="error" onClick={() => dispatch( deleteUserAddress( {id:props.row.original.ID} ) ) }>
                         <FontAwesomeIcon icon={faTimes}/>
                     </Button>
-                </>;
+                </div>;
             }
         }
     ];
@@ -67,7 +68,7 @@ const UserAddressPage: React.FC = () => {
         <div className="flex w-full justify-between">
             <h3 className="text-xl">{t('user_address.title_page')}</h3>
             <Button onClick={() => {
-                openModal();
+                openModal(<UserAddressModal closeModal={() => closeModal()}/>);
             }} type="primary"> <FontAwesomeIcon icon={faPlus}/> </Button>
         </div>
         <Table data={userAddresses} columns={columns} hidePagination={true}/>

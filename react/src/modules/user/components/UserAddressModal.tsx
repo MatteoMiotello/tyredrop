@@ -1,4 +1,4 @@
-import React, {useMemo} from "react";
+import React from "react";
 import {useTranslation} from "react-i18next";
 import {UserAddress} from "../../../__generated__/graphql";
 import Button from "../../../common/components-library/Button";
@@ -13,22 +13,20 @@ type UserAddressModalProps = {
 const UserAddressModal: React.FC<UserAddressModalProps> = (props) => {
     const {t} = useTranslation();
 
-    const form = useMemo( () => <UserAddressForm onSuccess={() => props.closeModal()} address={props.address}>
-        <Modal.Action>
-            <Button onClick={() => props.closeModal()} htmlType="button">
-                {t("user_address.close_modal")}
-            </Button>
-            <Button type="primary" htmlType="submit">
-                {t("user_address.submit_form")}
-            </Button>
-        </Modal.Action>
-    </UserAddressForm>,[props.address] );
-
     return <Modal.Content>
         <Modal.Header>
             {t("user_address.new_address_modal_title")}
         </Modal.Header>
-        {form}
+        <UserAddressForm onSuccess={() => props.closeModal()} address={props.address}>
+            <Modal.Action>
+                <Button onClick={() => props.closeModal()} htmlType="button">
+                    {t("user_address.close_modal")}
+                </Button>
+                <Button type="primary" htmlType="submit">
+                    {t("user_address.submit_form")}
+                </Button>
+            </Modal.Action>
+        </UserAddressForm>
     </Modal.Content>;
 };
 

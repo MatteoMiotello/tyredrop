@@ -24,18 +24,13 @@ function App() {
 
     useEffect(() => {
         if (!auth.isAuthenticated() && !auth.isPending()) {
-            auth.tryRefreshToken();
-
-            if ( auth.isError() ) {
-                navigate('/auth/login');
-                setError( t( 'login.error_redirect' ) );
-                return;
-            }
-
-            if (auth.isEmpty()) {
-                navigate('/auth/login');
-                return;
-            }
+            auth.tryRefreshToken()?.then((res) => {
+                if (auth.isError()) {
+                    navigate('/auth/login');
+                    setError(t('login.error_redirect'));
+                    return;
+                }
+            });
         }
 
         if (auth.isAuthenticated()) {

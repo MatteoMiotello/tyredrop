@@ -1,8 +1,9 @@
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import {
+    MutationDeleteUserAddressArgs,
     UserAddress, UserAddressInput
 } from "../../../__generated__/graphql";
-import {ADD_USER_ADDRESS} from "../../../common/backend/graph/mutation/users";
+import {ADD_USER_ADDRESS, DELETE_USER_ADDRESS, EDIT_USER_ADDRESS} from "../../../common/backend/graph/mutation/users";
 import {USER_ADDRESSES} from "../../../common/backend/graph/query/users";
 import apolloClientContext from "../../../common/contexts/apollo-client-context";
 import UserState from "./state";
@@ -46,7 +47,39 @@ export const createUserAddress = createAsyncThunk('USER/CREATE_ADDRESS', async (
         }
 
         return thunkAPI.fulfillWithValue(res.data.createUserAddress);
-    }).catch(err => console.log(err));
+    });
+});
+
+export const editUserAddress = createAsyncThunk( 'USER/EDIT_ADDRESS', async ( arg: { input: UserAddressRequest, id: string }, thunkAPI ) => {
+    return apolloClientContext.mutate({
+        mutation: EDIT_USER_ADDRESS,
+        variables: {
+            id: arg.id,
+            input: {
+                addressName: arg.input.address_name,
+                addressLine1: arg.input.address_line_1,
+                addressLine2: arg.input.address_line_2,
+                city: arg.input.city,
+                country: arg.input["country[value]"],
+                postalCode: arg.input.cap,
+                province: arg.input.province,
+                IsDefault: false
+            }
+        }
+    }).then( (res) => {
+        return thunkAPI.fulfillWithValue( res.data.editUserAddress );
+    } );
+});
+
+export const deleteUserAddress = createAsyncThunk('USER/DELETE_ADDRESS', async (arg: MutationDeleteUserAddressArgs, thunkAPI) => {
+    return apolloClientContext.mutate({
+        mutation: DELETE_USER_ADDRESS,
+        variables: {
+            id: arg.id
+        }
+    }).then(res => {
+        return thunkAPI.fulfillWithValue(res.data.deleteUserAddress);
+    });
 });
 
 const userSlice = createSlice<UserState, any, any>({
@@ -60,6 +93,12 @@ const userSlice = createSlice<UserState, any, any>({
             state.addresses = action.payload as UserAddress[];
         });
         builder.addCase(createUserAddress.fulfilled, (state, action) => {
+            state.addresses = action.payload as UserAddress[];
+        });
+        builder.addCase(deleteUserAddress.fulfilled, (state, action) => {
+            state.addresses = action.payload as UserAddress[];
+        });
+        builder.addCase(editUserAddress.fulfilled, (state, action) => {
             state.addresses = action.payload as UserAddress[];
         });
     }
