@@ -4,11 +4,11 @@ import {useTranslation} from "react-i18next";
 import {Outlet, useNavigate} from "react-router-dom";
 import Breadcrumbs from "./common/components-library/Breadcrumbs";
 import CustomFooter from "./common/components/CustomFooter";
-import Spinner from "./common/components/Spinner";
 import {useToast} from "./hooks/useToast";
 import {useAuth} from "./modules/auth/hooks/useAuth";
 import Navbar from "./common/components/Navbar";
 import {useDispatch} from "react-redux";
+import {authRefreshToken} from "./modules/auth/store/auth-slice";
 import {fetchUserAddresses} from "./modules/user/store/user-slice";
 import {getAllProductSpecifications} from "./store/app-slice";
 import {ThunkDispatch} from "redux-thunk";
@@ -23,36 +23,41 @@ function App() {
     const dispatch: ThunkDispatch<ProductCategory[], any, any> = useDispatch();
 
     useEffect(() => {
-        if (!auth.isAuthenticated() && !auth.isPending()) {
-            auth.tryRefreshToken()?.then((res) => {
-                if (auth.isError()) {
-                    navigate('/auth/login');
-                    setError(t('login.error_redirect'));
-                    return;
-                }
-            });
+        if (auth.unknownStatus()) {
+            const refreshToken = window.localStorage.getItem('refresh_token');
+
+            if (refreshToken) {
+                dispatch(authRefreshToken(refreshToken));
+            }
+
+            return;
         }
 
-        if (auth.isAuthenticated()) {
+        if (auth.isNotLoggedIn()) {
+            console.log( auth );
+            // navigate('/auth/login');
+            return;
+        }
+
+        if (auth.isLoggedIn()) {
             if (auth.user?.isNotConfirmed()) {
                 navigate('/not_confirmed');
+                return;
             }
 
             if (auth.user?.isRegistering()) {
                 navigate('/billing');
+                return;
             }
 
-            if (auth.isFullfilled() && auth.user?.isCompleted()) {
-                dispatch(getAllProductSpecifications());
-                dispatch(fetchCartItems());
-                dispatch(fetchUserAddresses());
-            }
+            dispatch(getAllProductSpecifications());
+            dispatch(fetchCartItems());
+            dispatch(fetchUserAddresses());
         }
     }, [auth]);
 
     return (
         <>
-            {auth.isPending() && <Spinner/>}
             <Navbar></Navbar>
             <Breadcrumbs></Breadcrumbs>
             <main className="min-h-screen bg-base-100">

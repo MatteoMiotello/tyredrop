@@ -1,10 +1,11 @@
 
-export type AuthStatusType = 'pending' | 'fullfilled' | 'error' | 'registering' | null
+export type AuthStatusType = 'registering' | null
 
 export type AuthState = {
     user: UserState | null
     refreshToken: string | null
     status: AuthStatusType
+    loggedIn: boolean | null
     error: string | null
 }
 

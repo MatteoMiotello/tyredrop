@@ -1,4 +1,5 @@
 import React, { useEffect} from "react";
+import {Simulate} from "react-dom/test-utils";
 import {LoginRequest} from "../../../common/backend/requests/login-request";
 import Field from "../../../common/components-library/Input";
 import Button from "../../../common/components-library/Button";
@@ -6,6 +7,7 @@ import Form, {FormErrors, FormSubmitHandler, useForm} from "../../../common/comp
 import {useTranslation} from "react-i18next";
 import {ValidationHandler} from "../../../common/validation/validators";
 import {useAuth} from "../hooks/useAuth";
+import error = Simulate.error;
 
 interface LoginFormProps {
     login: ( request: LoginRequest ) => void
@@ -19,16 +21,16 @@ const LoginForm: React.FC<LoginFormProps> = ( props: LoginFormProps ) => {
     const auth = useAuth();
 
     useEffect( () => {
-        if ( auth.isError() ) {
+        if ( auth.error !== null ) {
             let error = auth.error;
             if ( auth.error && ( typeof auth.error == 'number' && auth.error >= 4000 ) ) {
-                error = t( 'login.wrong_username_or_password' );
+                error = t( 'login.wrong_username_or_password' ) as string;
             }
 
             handleFormError( error as string);
         }
 
-        if ( auth.isAuthenticated() && props.onSuccess) {
+        if ( auth.isLoggedIn() && props.onSuccess ) {
             props.onSuccess();
         }
     }, [ auth ] );

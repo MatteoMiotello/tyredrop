@@ -24,8 +24,8 @@ export const authLogin: AsyncThunk<LoginResponse, any, any> = createAsyncThunk('
             return thunkAPI.fulfillWithValue(res.data);
         })
         .catch((err: AxiosError) => {
-            if ( !err.response ) {
-                return thunkAPI.rejectWithValue( err.message );
+            if (!err.response) {
+                return thunkAPI.rejectWithValue(err.message);
             }
 
             return thunkAPI.rejectWithValue(err.response?.data);
@@ -39,40 +39,40 @@ export const authRefreshToken: AsyncThunk<RefreshTokenResponse, any, any> = crea
             return thunkAPI.fulfillWithValue(res.data);
         })
         .catch((err: AxiosError) => {
-            if ( !err.response ) {
-                return thunkAPI.rejectWithValue( err.message );
+            console.log( err );
+            if (!err.response) {
+                return thunkAPI.rejectWithValue(err.message);
             }
 
             return thunkAPI.rejectWithValue(err.response.data);
         });
 });
 
-export const authRegister: AsyncThunk<LoginResponse, any, any> = createAsyncThunk( 'AUTH/REGISTER', async ( request: RegisterRequest, thunkAPI ) => {
+export const authRegister: AsyncThunk<LoginResponse, any, any> = createAsyncThunk('AUTH/REGISTER', async (request: RegisterRequest, thunkAPI) => {
     return createBackendClient()
-        .signup( request )
-        .then( ( res: AxiosResponse<LoginResponse> ) => {
-            return thunkAPI.fulfillWithValue( res.data );
-        } )
-        .catch( ( err: AxiosError ) => {
-            if ( !err.response ) {
-                return thunkAPI.rejectWithValue( err.message );
+        .signup(request)
+        .then((res: AxiosResponse<LoginResponse>) => {
+            return thunkAPI.fulfillWithValue(res.data);
+        })
+        .catch((err: AxiosError) => {
+            if (!err.response) {
+                return thunkAPI.rejectWithValue(err.message);
             }
 
             return thunkAPI.rejectWithValue(err.response.data);
-        } );
+        });
 });
 
 
-export const setUserCompleted = createAction( 'AUTH/COMPLETE_USER');
+export const setUserCompleted = createAction('AUTH/COMPLETE_USER');
 
-const setupAuth = ( state: AuthState, accessToken: string, refreshToken: string ) => {
+const setupAuth = (state: AuthState, accessToken: string, refreshToken: string) => {
     let user = null;
 
     try {
-        user = extractFromJwt( accessToken );
+        user = extractFromJwt(accessToken);
     } catch (error: any) {
-        state.status = 'error';
-        state.error = error.message;
+        state.loggedIn = false;
         state.user = null;
         return;
     }
@@ -83,7 +83,7 @@ const setupAuth = ( state: AuthState, accessToken: string, refreshToken: string 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     state.user = user;
-    state.status = 'fullfilled';
+    state.loggedIn = true;
     state.error = null;
 };
 
@@ -93,18 +93,15 @@ const authSlice: Slice<AuthState> = createSlice<AuthState, SliceCaseReducers<Aut
         user: null,
         refreshToken: null,
         status: null,
+        loggedIn: null,
         error: null
     },
     reducers: {},
     extraReducers: builder => {
         builder
-            .addCase(authLogin.pending, (state, action: PayloadAction<any> ) => {
-                state.status = 'pending';
-                state.user = null;
-            })
-            .addCase(authLogin.rejected, (state, action: PayloadAction<any> ) => {
-                state.status = 'error';
-                if ( action.payload && action.payload.status_code ) {
+            .addCase(authLogin.rejected, (state, action: PayloadAction<any>) => {
+                state.loggedIn = false;
+                if (action.payload && action.payload.status_code) {
                     state.error = action.payload.status_code as string;
 
                     return;
@@ -112,46 +109,44 @@ const authSlice: Slice<AuthState> = createSlice<AuthState, SliceCaseReducers<Aut
 
                 state.error = action.payload;
             })
+            .addCase(authLogin.pending, (state) => {
+                state.error = null;
+            })
             .addCase(authLogin.fulfilled, (state, action: PayloadAction<LoginResponse>) => {
                 const accessToken = action.payload.access_token;
                 const refreshToken = action.payload.refresh_token;
 
-                setupAuth( state, accessToken, refreshToken );
-            })
-            .addCase(authRefreshToken.pending, (state, action) => {
-                state.status = 'pending';
-                state.user = null;
+                setupAuth(state, accessToken, refreshToken);
             })
             .addCase(authRefreshToken.rejected, (state, action: PayloadAction<any>) => {
-                state.status = 'error';
+                state.loggedIn = false;
                 state.error = action.payload.status_code as string;
             })
             .addCase(authRefreshToken.fulfilled, (state, action) => {
                 const accessToken = action.payload.access_token;
                 const refreshToken = action.payload.refresh_token;
-                setupAuth( state, accessToken, refreshToken);
-            })
-            .addCase(authRegister.pending, (state, action) => {
-                state.status = 'pending';
-                state.user = null;
+                setupAuth(state, accessToken, refreshToken);
             })
             .addCase(authRegister.rejected, (state, action: PayloadAction<any>) => {
-                state.status = 'error';
+                state.loggedIn = false;
                 state.error = action.payload.status_code as string;
+            })
+            .addCase(authRegister.pending, (state) => {
+                state.error = null;
             })
             .addCase(authRegister.fulfilled, (state, action: PayloadAction<LoginResponse>) => {
                 const accessToken = action.payload.access_token;
                 const refreshToken = action.payload.refresh_token;
 
-                setupAuth( state, accessToken, refreshToken );
+                setupAuth(state, accessToken, refreshToken);
             })
-            .addCase( setUserCompleted, ( state ) => {
-                if ( !state.user ) {
+            .addCase(setUserCompleted, (state) => {
+                if (!state.user) {
                     return;
                 }
 
                 state.user.status = UserStatus.COMPLETED;
-            } );
+            });
     }
 });
 

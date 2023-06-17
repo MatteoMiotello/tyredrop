@@ -8,27 +8,12 @@ export class Auth {
 
     constructor(
         private _status: AuthStatusType,
+        private _loggedIn: boolean | null,
         private _error: string | null | undefined,
         private _refreshToken: string | null,
-        _user: UserState | null
+        _user: UserState | null,
     ) {
-        this._user = new User( _user );
-    }
-
-    isError(): boolean {
-        return this._status === 'error';
-    }
-
-    isEmpty(): boolean {
-        return this._status === null;
-    }
-
-    isFullfilled(): boolean {
-        return this._status === 'fullfilled';
-    }
-
-    isPending(): boolean {
-        return this._status === 'pending';
+        this._user = new User(_user);
     }
 
     get status(): AuthStatusType {
@@ -47,32 +32,20 @@ export class Auth {
         return this._refreshToken;
     }
 
-    isAuthenticated(): boolean {
-        if ( this.isEmpty() ) {
-            return false;
-        }
+    unknownStatus(): boolean {
+        return this._loggedIn === null;
+    }
 
-        if ( this.isError() ) {
-            return false;
-        }
+    isLoggedIn(): boolean {
+        return this._loggedIn === true;
+    }
 
-        if ( this.isFullfilled() && this._user === null ) {
-            return false;
-        }
-
-        if ( !this.user?.isTokenValid() ) {
-            return false;
-        }
-
-        if ( this.isFullfilled() && !this.isEmpty() ) {
-            return true;
-        }
-
-        return false;
+    isNotLoggedIn(): boolean {
+        return this._loggedIn === false;
     }
 
     isUserCompleted(): boolean {
-        if ( this.isFullfilled() && this.user?.isCompleted()) {
+        if (this.user?.isCompleted()) {
             return true;
         }
 
@@ -82,8 +55,8 @@ export class Auth {
     tryRefreshToken() {
         const refreshToken = window.localStorage.getItem('refresh_token');
 
-        if (refreshToken && this.isEmpty()) {
-            return store.dispatch(authRefreshToken(refreshToken)).unwrap();
+        if (refreshToken) {
+            return store.dispatch(authRefreshToken(refreshToken));
         }
 
         return null;

@@ -12,5 +12,5 @@ export const selectUser = createSelector( [ selectAuth ], ( a: AuthState ) => {
 } );
 
 export const selectAuthStatus = createSelector( [ selectAuth, selectU ], (a, u ): Auth => {
-    return new Auth( a.status, a.error, a.refreshToken, u );
+    return new Auth( a.status, a.loggedIn, a.error, a.refreshToken, u );
 } );

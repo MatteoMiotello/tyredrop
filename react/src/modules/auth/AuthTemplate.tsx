@@ -9,11 +9,11 @@ const AuthTemplate: React.FC = ( ) => {
     const navigate = useNavigate();
 
     useEffect( () => {
-        if ( auth.isAuthenticated() ) {
+        if ( auth.isLoggedIn() ) {
             navigate( -1 );
         }
 
-        if ( !auth.isPending() && auth.isEmpty() ) {
+        if ( auth.unknownStatus() ) {
             auth.tryRefreshToken();
         }
     }, [auth] );

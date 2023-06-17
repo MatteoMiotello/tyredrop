@@ -30,7 +30,7 @@ const refreshTokenLink = new ApolloLink((operation: Operation, forward: NextLink
 }> => {
     const auth = selectAuthStatus(store.getState());
 
-    if ( auth.isEmpty() || auth.isPending() ) {
+    if ( auth.isNotLoggedIn() || auth.unknownStatus() ) {
         return forward(operation);
     }
 
