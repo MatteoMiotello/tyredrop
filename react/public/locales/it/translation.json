@@ -108,6 +108,7 @@
     "user_address_city_column": "Città",
     "user_address_postal_code_column":  "CAP",
     "user_address_province_column": "Provincia",
-    "title_page": "Tutti gli indirizzi"
+    "title_page": "Tutti gli indirizzi",
+    "delete_success": "Elemento eliminato con successo"
   }
 }

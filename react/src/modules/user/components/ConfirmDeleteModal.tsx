@@ -12,8 +12,11 @@ const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ( props ) => {
             Confermi di voler eliminare l'elemento selezionato?
         </Modal.Header>
         <Modal.Action>
-            <Button>
-
+            <Button onClick={props.closeModal}>
+                Annulla
+            </Button>
+            <Button type="primary" onClick={props.onConfirm}>
+                Conferma
             </Button>
         </Modal.Action>
     </Modal.Content>;

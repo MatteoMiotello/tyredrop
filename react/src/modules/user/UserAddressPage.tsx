@@ -8,6 +8,8 @@ import {UserAddress} from "../../__generated__/graphql";
 import Button from "../../common/components-library/Button";
 import Table from "../../common/components-library/Table";
 import useModal from "../../hooks/useModal";
+import {useToast} from "../../hooks/useToast";
+import ConfirmDeleteModal from "./components/ConfirmDeleteModal";
 import UserAddressModal from "./components/UserAddressModal";
 import userSelectors from "./store/user-selector";
 import {deleteUserAddress} from "./store/user-slice";
@@ -17,7 +19,8 @@ type UserAddressRowData = UserAddress
 const UserAddressPage: React.FC = () => {
     const userAddresses = useSelector(userSelectors.addresses);
     const {t} = useTranslation();
-    const {openModal, closeModal} = useModal( );
+    const {setSuccess, setError} = useToast();
+    const {openModal, closeModal} = useModal();
     const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
 
     const columns: ColumnDef<UserAddressRowData>[] = [
@@ -52,11 +55,26 @@ const UserAddressPage: React.FC = () => {
                 return <div className="flex">
                     <Button className="mx-1"
                             onClick={() => {
-                                openModal( <UserAddressModal closeModal={() => closeModal()} address={props.row.original}/> );
+                                openModal(<UserAddressModal closeModal={() => closeModal()}
+                                                            address={props.row.original}/>);
                             }}>
                         <FontAwesomeIcon icon={faPencil}/>
                     </Button>
-                    <Button className="mx-1" type="error" onClick={() => dispatch( deleteUserAddress( {id:props.row.original.ID} ) ) }>
+                    <Button className="mx-1" type="error" onClick={() => {
+                        openModal(<ConfirmDeleteModal
+                            closeModal={closeModal}
+                            onConfirm={
+                                () => {
+                                    dispatch(deleteUserAddress({id: props.row.original.ID}))
+                                        .unwrap()
+                                        .then( () => setSuccess( t( 'user_address.delete_success' ) ) )
+                                        .catch( () => setError( t( 'user_address.delete_error' ) ) );
+                                    closeModal();
+                                }
+
+                        }/>
+                        );
+                    }}>
                         <FontAwesomeIcon icon={faTimes}/>
                     </Button>
                 </div>;
