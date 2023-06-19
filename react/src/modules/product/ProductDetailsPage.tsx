@@ -19,6 +19,7 @@ const loadingPlaceholder = <main>
 
 const ProductDetailsPage: React.FC = () => {
     const [data, setData] = useState<ProductItemQuery | null>(null);
+    const [quantity, setQuantity] = useState<number>(4);
     const [loading, setLoading] = useState(true);
     const res = useLoaderData() as { data: ProductItemQuery, loading: boolean };
     const {t} = useTranslation();
@@ -70,15 +71,20 @@ const ProductDetailsPage: React.FC = () => {
                     specifications={data?.productItem?.product.productSpecificationValues as ProductSpecificationValue[]}
                 />
             </div>
-            <div className="justify-center bg-base-200 rounded-box p-10 pt-14 md:mt-0 mt-4 h-full">
+            <div className="justify-center bg-base-200 rounded-box p-10 pt-14 md:mt-0 mt-4">
+                <div>
+                    Totale
+                </div>
                 <span className="text-primary text-5xl font-semibold">
                     { Currency.defaultFormat( data?.productItem?.price[0]?.value as number, data?.productItem?.price[0]?.currency.iso_code as string ) }
                 </span>
                 <div className="mt-10 grid grid-cols-3 gap-4">
                     <div className="col-span-2">
-                        <Field.Input type="number" name="quantity" placeholder={"4"} labelText="Quantita`"/>
+                        <Field.FormControl className="">
+                            <Field.Input type="number" name="quantity" placeholder={"4"} onChange={setQuantity} value={quantity}/>
+                        </Field.FormControl>
                     </div>
-                    <Button type="primary" className="mt-9">
+                    <Button type="primary">
                         { t( 'product_details.order_button' ) }
                     </Button>
                 </div>

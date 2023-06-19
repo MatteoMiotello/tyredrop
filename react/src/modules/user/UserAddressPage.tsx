@@ -49,6 +49,10 @@ const UserAddressPage: React.FC = () => {
             header: t('user_address.user_address_province_column') as string
         },
         {
+            accessorKey: 'country',
+            header: t('user_address.user_address_country_column') as string
+        },
+        {
             accessorKey: 'buttons',
             header: ' ',
             cell: (props: CellContext<UserAddress, any>) => {

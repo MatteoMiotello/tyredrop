@@ -17,6 +17,8 @@ interface InputProps extends PropsWithValidators {
     error?: string;
     size?: 'lg' | 'md' | 'sm' | 'xs' | undefined;
     defaultValue?: string;
+    value?: any;
+    onChange?: ( value: any ) => void
 }
 
 interface FormInputProps extends FormControlProps, InputProps {
@@ -41,6 +43,9 @@ const Input: React.FC<InputProps> = (props) => {
     let classes = null;
     const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
         const value = event.target.value;
+        if ( props.onChange ) {
+            props.onChange(value);
+        }
 
         if (!props.validators) {
             return;
@@ -93,6 +98,7 @@ const Input: React.FC<InputProps> = (props) => {
         <input type={props.type}
                name={props.name}
                placeholder={props.placeholder}
+               value={props.value}
                className={"w-full input input-bordered " + classes}
                required={props.required}
                onChange={onChange}

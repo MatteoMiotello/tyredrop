@@ -9,6 +9,7 @@ import CountryField from "../../../common/components/CountryField";
 import {isRequired, maxCharacters, minCharacters} from "../../../common/validation/validators";
 import {useToast} from "../../../hooks/useToast";
 import {UserAddressRequest, createUserAddress, editUserAddress} from "../store/user-slice";
+import {AxiosError} from "axios";
 
 type UserAddressFormProps = {
     onSuccess: () => void
@@ -30,13 +31,13 @@ const UserAddressForm: React.FC<UserAddressFormProps> = (props) => {
 
         dispatch(action)
             .unwrap()
-            .then((res) => {
+            .then(() => {
                 setSuccess(t("user_address.store_success"));
                 props.onSuccess();
             })
-            .catch((err) => {
+            .catch((err: AxiosError) => {
                 setError(t("user_address.store_error"));
-                handleFormError(err);
+                handleFormError(err.response.data.messages);
             });
     };
 

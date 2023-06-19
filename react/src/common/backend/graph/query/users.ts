@@ -10,3 +10,22 @@ export const USER_ADDRESSES = gql`
     }
     ${USER_ADDRESS_FRAGMENT}
 `;
+
+export const USER_BILLING = gql`
+    query fetchUserQuery {
+        userBilling {
+            id
+            name
+            surname
+            addressLine1
+            addressLine2
+            city
+            country
+            province
+            cap
+            legalEntityType {
+                name
+            }s
+        }
+    }
+`;

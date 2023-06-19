@@ -30,6 +30,7 @@ type Query {
     user(ID: ID!): User
     users: [User]
     userAddress: [UserAddress]
+    userBilling: UserBilling
 
     taxRates: [Tax]
     brands: [Brand]

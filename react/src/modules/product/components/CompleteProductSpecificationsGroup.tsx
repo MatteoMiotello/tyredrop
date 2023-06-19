@@ -9,8 +9,8 @@ const CompleteProductSpecificationsGroup: React.FC<CompleteProductSpecifications
     return <div className="flex flex-wrap w-full">
         {
             props.specifications.map( ( spec, key ) => {
-                return ( <div key={key} className="flex flex-col m-1 border-2 px-4 py-2 rounded-box">
-                    <span className="text-secondary font-semibold flex-1"> { spec.specification.name } </span>
+                return ( <div key={key} className="flex flex-col m-1 border-2 p-2 rounded-box">
+                    <span className="text-sm text-secondary font-semibold flex-1"> { spec.specification.name } </span>
                     <span className="font-semibold"> { spec.value } </span>
                 </div> );
             } )

@@ -238,6 +238,7 @@ export type Query = {
   taxRates?: Maybe<Array<Maybe<Tax>>>;
   user?: Maybe<User>;
   userAddress?: Maybe<Array<Maybe<UserAddress>>>;
+  userBilling?: Maybe<UserBilling>;
   users?: Maybe<Array<Maybe<User>>>;
 };
 

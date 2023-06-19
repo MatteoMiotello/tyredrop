@@ -187,6 +187,7 @@ type ComplexityRoot struct {
 		TaxRates            func(childComplexity int) int
 		User                func(childComplexity int, id int64) int
 		UserAddress         func(childComplexity int) int
+		UserBilling         func(childComplexity int) int
 		Users               func(childComplexity int) int
 	}
 
@@ -305,6 +306,7 @@ type QueryResolver interface {
 	User(ctx context.Context, id int64) (*model.User, error)
 	Users(ctx context.Context) ([]*model.User, error)
 	UserAddress(ctx context.Context) ([]*model.UserAddress, error)
+	UserBilling(ctx context.Context) (*model.UserBilling, error)
 	TaxRates(ctx context.Context) ([]*model.Tax, error)
 	Brands(ctx context.Context) ([]*model.Brand, error)
 	SearchBrands(ctx context.Context, name string) ([]*model.Brand, error)
@@ -1011,6 +1013,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.UserAddress(childComplexity), true
+
+	case "Query.userBilling":
+		if e.complexity.Query.UserBilling == nil {
+			break
+		}
+
+		return e.complexity.Query.UserBilling(childComplexity), true
 
 	case "Query.users":
 		if e.complexity.Query.Users == nil {
@@ -5528,6 +5537,81 @@ func (ec *executionContext) fieldContext_Query_userAddress(ctx context.Context, 
 				return ec.fieldContext_UserAddress_isDefault(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UserAddress", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_userBilling(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_userBilling(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().UserBilling(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.UserBilling)
+	fc.Result = res
+	return ec.marshalOUserBilling2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐUserBilling(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_userBilling(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_UserBilling_id(ctx, field)
+			case "legalEntityType":
+				return ec.fieldContext_UserBilling_legalEntityType(ctx, field)
+			case "taxRate":
+				return ec.fieldContext_UserBilling_taxRate(ctx, field)
+			case "name":
+				return ec.fieldContext_UserBilling_name(ctx, field)
+			case "surname":
+				return ec.fieldContext_UserBilling_surname(ctx, field)
+			case "fiscalCode":
+				return ec.fieldContext_UserBilling_fiscalCode(ctx, field)
+			case "vatNumber":
+				return ec.fieldContext_UserBilling_vatNumber(ctx, field)
+			case "addressLine1":
+				return ec.fieldContext_UserBilling_addressLine1(ctx, field)
+			case "addressLine2":
+				return ec.fieldContext_UserBilling_addressLine2(ctx, field)
+			case "city":
+				return ec.fieldContext_UserBilling_city(ctx, field)
+			case "province":
+				return ec.fieldContext_UserBilling_province(ctx, field)
+			case "cap":
+				return ec.fieldContext_UserBilling_cap(ctx, field)
+			case "country":
+				return ec.fieldContext_UserBilling_country(ctx, field)
+			case "user":
+				return ec.fieldContext_UserBilling_user(ctx, field)
+			case "userID":
+				return ec.fieldContext_UserBilling_userID(ctx, field)
+			case "legalEntityTypeID":
+				return ec.fieldContext_UserBilling_legalEntityTypeID(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UserBilling", field.Name)
 		},
 	}
 	return fc, nil
@@ -10413,34 +10497,38 @@ func (ec *executionContext) unmarshalInputCreateAdminUserInput(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Name = data
 		case "surname":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("surname"))
-			it.Surname, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Surname = data
 		case "email":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-			it.Email, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Email = data
 		case "password":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
-			it.Password, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Password = data
 		}
 	}
 
@@ -10465,10 +10553,11 @@ func (ec *executionContext) unmarshalInputCreateUserBilling(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("legalEntityTypeId"))
-			it.LegalEntityTypeID, err = ec.unmarshalNID2int64(ctx, v)
+			data, err := ec.unmarshalNID2int64(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.LegalEntityTypeID = data
 		case "name":
 			var err error
 
@@ -10495,26 +10584,29 @@ func (ec *executionContext) unmarshalInputCreateUserBilling(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("surname"))
-			it.Surname, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Surname = data
 		case "fiscalCode":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fiscalCode"))
-			it.FiscalCode, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.FiscalCode = data
 		case "vatNumber":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vatNumber"))
-			it.VatNumber, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.VatNumber = data
 		case "addressLine1":
 			var err error
 
@@ -10541,10 +10633,11 @@ func (ec *executionContext) unmarshalInputCreateUserBilling(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("addressLine2"))
-			it.AddressLine2, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.AddressLine2 = data
 		case "city":
 			var err error
 
@@ -10679,18 +10772,20 @@ func (ec *executionContext) unmarshalInputPaginationInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
-			it.Limit, err = ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Limit = data
 		case "offset":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
-			it.Offset, err = ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Offset = data
 		}
 	}
 
@@ -10715,34 +10810,38 @@ func (ec *executionContext) unmarshalInputProductSearchInput(ctx context.Context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("brand"))
-			it.Brand, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Brand = data
 		case "name":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Name = data
 		case "code":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("code"))
-			it.Code, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Code = data
 		case "specifications":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("specifications"))
-			it.Specifications, err = ec.unmarshalOProductSpecificationInput2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductSpecificationInput(ctx, v)
+			data, err := ec.unmarshalOProductSpecificationInput2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductSpecificationInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Specifications = data
 		}
 	}
 
@@ -10767,18 +10866,20 @@ func (ec *executionContext) unmarshalInputProductSpecificationInput(ctx context.
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("code"))
-			it.Code, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Code = data
 		case "value":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
-			it.Value, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Value = data
 		}
 	}
 
@@ -10847,10 +10948,11 @@ func (ec *executionContext) unmarshalInputUserAddressInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("addressLine2"))
-			it.AddressLine2, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.AddressLine2 = data
 		case "city":
 			var err error
 
@@ -10943,10 +11045,11 @@ func (ec *executionContext) unmarshalInputUserAddressInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("IsDefault"))
-			it.IsDefault, err = ec.unmarshalNBoolean2bool(ctx, v)
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.IsDefault = data
 		}
 	}
 
@@ -11979,6 +12082,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_userAddress(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "userBilling":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_userBilling(ctx, field)
 				return res
 			}
 
@@ -14483,6 +14606,13 @@ func (ec *executionContext) marshalOUserAddress2ᚖpillowwwᚋtitwᚋgraphᚋmod
 		return graphql.Null
 	}
 	return ec._UserAddress(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOUserBilling2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐUserBilling(ctx context.Context, sel ast.SelectionSet, v *model.UserBilling) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._UserBilling(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {
