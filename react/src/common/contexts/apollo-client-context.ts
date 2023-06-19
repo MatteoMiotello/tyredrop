@@ -35,6 +35,7 @@ const refreshTokenLink = new ApolloLink((operation: Operation, forward: NextLink
     }
 
     if (auth && !auth.user?.isTokenValid()) {
+        console.log( 'is invalid' );
         return fromPromise(store.dispatch(authRefreshToken(auth.refreshToken)))
             .flatMap(res => {
                 return forward(operation);
@@ -45,6 +46,7 @@ const refreshTokenLink = new ApolloLink((operation: Operation, forward: NextLink
 
     if (user && user.getExpiration() !== null) {
         if (user.getExpiration() as Date >= moment().subtract(1, 'minutes').toDate()) {
+            console.log( 'exp' );
             return fromPromise(store.dispatch(authRefreshToken(auth.refreshToken)))
                 .flatMap(res => {
                     return forward(operation);
@@ -63,6 +65,7 @@ const errorLink = onError(
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         if (networkError && networkError?.statusCode == 401 && auth?.refreshToken) {
+            console.log( '403' );
             return fromPromise(store.dispatch(authRefreshToken(auth.refreshToken)))
                 .flatMap(res => {
                     return forward(operation);

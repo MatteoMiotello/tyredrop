@@ -33,6 +33,7 @@ export const authLogin: AsyncThunk<LoginResponse, any, any> = createAsyncThunk('
 });
 
 export const authRefreshToken: AsyncThunk<RefreshTokenResponse, any, any> = createAsyncThunk('AUTH/REFRESH-TOKEN', async (refreshToken: string, thunkAPI) => {
+    console.log( 'refresh' );
     return createBackendClient()
         .refreshToken(refreshToken)
         .then((res: AxiosResponse<RefreshTokenResponse>) => {
@@ -62,6 +63,8 @@ export const authRegister: AsyncThunk<LoginResponse, any, any> = createAsyncThun
             return thunkAPI.rejectWithValue(err.response.data);
         });
 });
+
+export const logout = createAction( 'AUTH/LOGOUT' );
 
 
 export const setUserCompleted = createAction('AUTH/COMPLETE_USER');
@@ -110,7 +113,9 @@ const authSlice: Slice<AuthState> = createSlice<AuthState, SliceCaseReducers<Aut
                 state.error = action.payload;
             })
             .addCase(authLogin.pending, (state) => {
-                state.error = null;
+                if ( state.error ) {
+                    state.error = null;
+                }
             })
             .addCase(authLogin.fulfilled, (state, action: PayloadAction<LoginResponse>) => {
                 const accessToken = action.payload.access_token;
@@ -132,7 +137,9 @@ const authSlice: Slice<AuthState> = createSlice<AuthState, SliceCaseReducers<Aut
                 state.error = action.payload.status_code as string;
             })
             .addCase(authRegister.pending, (state) => {
-                state.error = null;
+                if ( state.error ) {
+                    state.error = null;
+                }
             })
             .addCase(authRegister.fulfilled, (state, action: PayloadAction<LoginResponse>) => {
                 const accessToken = action.payload.access_token;
@@ -146,7 +153,11 @@ const authSlice: Slice<AuthState> = createSlice<AuthState, SliceCaseReducers<Aut
                 }
 
                 state.user.status = UserStatus.COMPLETED;
-            });
+            })
+            .addCase( logout, ( state ) => {
+                window.localStorage.removeItem('refresh_token');
+                state.loggedIn = false;
+            } );
     }
 });
 

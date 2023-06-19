@@ -10,12 +10,15 @@ const AuthTemplate: React.FC = ( ) => {
 
     useEffect( () => {
         if ( auth.isLoggedIn() ) {
-            navigate( -1 );
+            navigate( '/' );
+            return;
         }
 
         if ( auth.unknownStatus() ) {
             auth.tryRefreshToken();
+            return;
         }
+
     }, [auth] );
 
     return <>

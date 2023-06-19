@@ -1,15 +1,18 @@
 import React from "react";
+import {useDispatch} from "react-redux";
 import {Link} from "react-router-dom";
+import {logout} from "../../modules/auth/store/auth-slice";
 import Field from "../components-library/Input";
 import Menu from "../components-library/Menu";
 import CartButton from "./CartButton";
 import MainLogo from "./Logo";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faBagShopping, faLocationDot, faSearch, faUser} from "@fortawesome/free-solid-svg-icons";
+import {faBagShopping, faLocationDot, faRightFromBracket, faSearch, faUser} from "@fortawesome/free-solid-svg-icons";
 import {useAuth} from "../../modules/auth/hooks/useAuth";
 
 const Navbar: React.FC = () => {
     const auth = useAuth();
+    const dispatch = useDispatch();
 
     return <div className="navbar bg-base-100">
         <MainLogo width={100}/>
@@ -45,6 +48,11 @@ const Navbar: React.FC = () => {
                         <Link to="/user/orders">
                             <FontAwesomeIcon icon={faBagShopping}/>I miei ordini
                         </Link>
+                    </Menu.Item>
+                    <Menu.Item>
+                        <a onClick={() => dispatch( logout() )}>
+                            <FontAwesomeIcon icon={faRightFromBracket}/> Esci
+                        </a>
                     </Menu.Item>
                 </Menu.Dropdown>
             </div>

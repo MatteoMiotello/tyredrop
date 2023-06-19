@@ -70,9 +70,6 @@ const cartSlice = createSlice<CartState, SliceCaseReducers<CartState>, string>({
                     state.amountTotal = action.payload.totalPrice;
                 }
             } )
-            .addCase( fetchCartItems.pending, ( state, action) => {
-                state.status = 'pending';
-            } )
             .addCase( fetchCartItems.fulfilled, (  state, action )=> {
                 state.status = 'fullfilled';
 

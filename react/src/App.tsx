@@ -28,14 +28,15 @@ function App() {
 
             if (refreshToken) {
                 dispatch(authRefreshToken(refreshToken));
+                return;
             }
 
+            navigate('/auth/login');
             return;
         }
 
         if (auth.isNotLoggedIn()) {
-            console.log( auth );
-            // navigate('/auth/login');
+            navigate('/auth/login');
             return;
         }
 
