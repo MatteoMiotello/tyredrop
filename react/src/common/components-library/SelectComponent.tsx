@@ -16,10 +16,11 @@ interface SelectProps extends PropsWithValidators<SelectOption | null> {
     placeholder?: string
     name: string
     onChange?: (value: any) => void
+    defaultValue?: SelectOption
 }
 
 export const SelectComponent: React.FC<SelectProps> = (props: SelectProps) => {
-    const [selected, setSelected] = useState(props.options[0] ?? null);
+    const [selected, setSelected] = useState(props.defaultValue ?? props.options[0] ?? null);
     const [ error, setError ] = useState<string | null>( null );
 
     useEffect( () => {

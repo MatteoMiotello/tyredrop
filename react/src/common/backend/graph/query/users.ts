@@ -23,9 +23,11 @@ export const USER_BILLING = gql`
             country
             province
             cap
+            fiscalCode
+            vatNumber
             legalEntityType {
                 name
-            }s
+            }
         }
     }
 `;

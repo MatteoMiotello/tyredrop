@@ -45,6 +45,7 @@ func (d Dao) FindAllByUserId(ctx context.Context, userId int64) (models.CartSlic
 	return models.Carts(
 		d.GetMods(
 			models.CartWhere.UserID.EQ(userId),
+			qm.OrderBy(models.CartColumns.ID),
 		)...,
 	).All(ctx, d.Db)
 }

@@ -14,6 +14,7 @@ interface AutocompleteProps extends PropsWithValidators {
     name: string;
     placeholder?: string | undefined;
     labelText?: string | undefined | null;
+    defaultValue?: AutocompleteOption
 }
 
 export type AutocompleteOption = {
@@ -22,13 +23,23 @@ export type AutocompleteOption = {
 }
 
 const Autocomplete: React.FC<AutocompleteProps> = (props) => {
-    const [selected, setSelected] = useState<AutocompleteOption | null>(props.initialOptions[0] ?? null);
+    const [selected, setSelected] = useState<AutocompleteOption | null>(props.defaultValue ?? props.initialOptions[0] ?? null);
     const [query, setQuery] = useState('');
     const [filteredOptions, setFilteredOptions] = useState(props.initialOptions);
     const [error, setError] = useState<string | null>(null);
     const {t} = useTranslation();
 
+    useEffect( () => {
+        if ( props.defaultValue ) {
+            setSelected( props.defaultValue );
+        }
+    }, [props.defaultValue] );
+
     useEffect(() => {
+        if ( query.length < 2 ) {
+            return;
+        }
+
         const options = props.getOptions(query);
 
         if (!options) {

@@ -69,7 +69,7 @@ func (u Dao) GetUserBilling(ctx context.Context, user *models.User) (*models.Use
 	return models.UserBillings(
 		u.GetMods(
 			models.UserBillingWhere.UserID.EQ(user.ID),
-			qm.OrderBy(models.UserBillingColumns.CreatedAt+"DESC"),
+			qm.OrderBy(models.UserBillingColumns.CreatedAt+" DESC"),
 		)...,
 	).One(ctx, u.Db)
 }

@@ -48,6 +48,7 @@ func (d AddressDao) FindAllByUserId(ctx context.Context, userId int64) (models.U
 	return models.UserAddresses(
 		d.GetMods(
 			models.UserAddressWhere.UserID.EQ(userId),
+			qm.OrderBy(models.UserAddressColumns.AddressName+" ASC"),
 		)...,
 	).All(ctx, d.Db)
 }

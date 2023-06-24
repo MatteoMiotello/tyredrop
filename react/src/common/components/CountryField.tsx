@@ -1,7 +1,7 @@
 import axios from "axios";
-import React, { SelectHTMLAttributes} from "react";
+import React, {SelectHTMLAttributes, useEffect, useState} from "react";
 import {useTranslation} from "react-i18next";
-import Autocomplete, {AutocompleteQueryHandler} from "../components-library/Autocomplete";
+import Autocomplete, {AutocompleteOption, AutocompleteQueryHandler} from "../components-library/Autocomplete";
 import {isRequired} from "../validation/validators";
 
 const controller = new AbortController();
@@ -21,13 +21,29 @@ const handleQuery: AutocompleteQueryHandler = async (query: string) => {
 type CountryFieldProps = {
     name: string
     className: string
+    defaultValue?: string
 } & SelectHTMLAttributes<any>
 const CountryField: React.FC<CountryFieldProps> = (props) => {
+    const [value, setValue] = useState<AutocompleteOption | undefined>(undefined);
     const {t} = useTranslation();
+    useEffect(() => {
+        axios.get(`https://restcountries.com/v3.1/alpha/${props.defaultValue}`)
+            .then(res => {
+                return res.data.map((element: any) => {
+                    if (res.data.length)
+                        setValue({
+                            value: element.cca2,
+                            title: element.translations.ita.common ?? element.name.common
+                        });
+                });
+            });
+    }, [props.defaultValue]);
+
     return <Autocomplete
         {...props}
         getOptions={handleQuery}
-        initialOptions={[{value: "IT", title: "Italia"}]}
+        defaultValue={value}
+        initialOptions={[]}
         validators={[isRequired(t('billing.country_placeholder'))]}
         placeholder={t('billing.country_placeholder') as string}
     />;

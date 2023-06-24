@@ -12,6 +12,9 @@ import CompleteProductSpecificationsGroup from "./components/CompleteProductSpec
 import ProductTitle from "./components/ProductTitle";
 import {ProductCategorySet} from "./enums/product-specifications-set";
 import ProdapiService from "./services/prodapi/prodapi-service";
+import {useDispatch} from "react-redux";
+import {addCartItem} from "../cart/store/cart-slice";
+import {ThunkDispatch} from "redux-thunk";
 
 const loadingPlaceholder = <main>
     <Spinner/>
@@ -23,6 +26,7 @@ const ProductDetailsPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const res = useLoaderData() as { data: ProductItemQuery, loading: boolean };
     const {t} = useTranslation();
+    const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
 
     useEffect(() => {
         if (res.data) {
@@ -84,7 +88,11 @@ const ProductDetailsPage: React.FC = () => {
                             <Field.Input type="number" name="quantity" placeholder={"4"} onChange={setQuantity} value={quantity}/>
                         </Field.FormControl>
                     </div>
-                    <Button type="primary">
+                    <Button type="primary" onClick={ () => {
+                        if ( data?.productItem ) {
+                            dispatch(addCartItem({itemId: data.productItem.id, quantity: quantity}));
+                        }
+                    } }>
                         { t( 'product_details.order_button' ) }
                     </Button>
                 </div>
