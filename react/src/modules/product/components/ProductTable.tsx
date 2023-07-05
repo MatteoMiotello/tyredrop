@@ -8,7 +8,6 @@ import {SearchQuery} from "../../../__generated__/graphql";
 import tyrePlaceholder from "../../../assets/placeholder-tyre.jpg";
 import Table from "../../../common/components-library/Table";
 import {Currency} from "../../../common/utilities/currency";
-import {useToast} from "../../../hooks/useToast";
 import {
     ProductCategorySet,
     ProductSpecificationDefinition,
@@ -40,7 +39,7 @@ export type ProductRowItemData = {
 
 const ProductTable: React.FC<ProductTableProps> = (props) => {
     const [data, setData] = useState<(ProductRowItemData | null)[]>([]);
-    const {setSuccess} = useToast();
+
     const colums: ColumnDef<ProductRowItemData>[] = [
         {
             accessorKey: "image",

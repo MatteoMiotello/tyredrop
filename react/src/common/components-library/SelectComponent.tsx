@@ -54,7 +54,7 @@ export const SelectComponent: React.FC<SelectProps> = (props: SelectProps) => {
 
     return <Listbox value={selected?.value || null} onChange={setSelected} name={props.name}>
         <div className={"relative " + props.className}>
-            <Listbox.Button className="select relative w-full cursor-default flex items-center">
+            <Listbox.Button className="select select-bordered relative w-full cursor-default flex items-center">
                 <span className="truncate">{ selected ? selected.title : ( props.placeholder ?? '' ) }</span>
             </Listbox.Button>
             { error ? <span className="label-text-alt text-error">{error}</span> : ''}

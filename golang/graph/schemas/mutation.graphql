@@ -16,4 +16,6 @@ type Mutation {
     createUserAddress( userAddress: UserAddressInput! ): [UserAddress]!
     editUserAddress( id: ID!, userAddress: UserAddressInput! ): [UserAddress]!
     deleteUserAddress( id: ID! ): [UserAddress]!
+
+    newOrder(userId: ID!, userAddressId: ID!): Order!
 }

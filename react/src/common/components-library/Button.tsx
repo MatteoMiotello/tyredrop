@@ -9,6 +9,8 @@ interface ButtonProps extends PropsWithChildren {
     outline?: boolean;
     className?: string;
     onClick?: () => void;
+    loading?: boolean;
+    disabled?: boolean;
 }
 
 const getClassType = (type: ButtonType) => {
@@ -66,7 +68,8 @@ const Button: React.FC<ButtonProps> = (props) => {
         classes += ' ' + getSizeClass(props.size);
     }
 
-    return <button className={classes} type={props.htmlType} onClick={props?.onClick}>
+    return <button className={classes} type={props.htmlType} onClick={props?.onClick} disabled={props.disabled}>
+        {props.loading &&  <span className="loading loading-spinner"></span> }
         {props.children}
     </button>;
 };

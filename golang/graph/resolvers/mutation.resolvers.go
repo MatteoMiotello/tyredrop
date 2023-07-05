@@ -17,6 +17,7 @@ import (
 	"pillowww/titw/internal/auth"
 	"pillowww/titw/internal/db"
 	"pillowww/titw/internal/domain/cart"
+	"pillowww/titw/internal/domain/order"
 	"pillowww/titw/internal/domain/user"
 	"pillowww/titw/models"
 	"pillowww/titw/pkg/constants"
@@ -224,6 +225,43 @@ func (r *mutationResolver) DeleteUserAddress(ctx context.Context, id int64) ([]*
 	}
 
 	return aggregators.NewUserAggregator(r.UserAddressDao).GetAllAddressesByUser(ctx, u.ID)
+}
+
+// NewOrder is the resolver for the newOrder field.
+func (r *mutationResolver) NewOrder(ctx context.Context, userID int64, userAddressID int64) (*model.Order, error) {
+	uModel, err := r.UserDao.FindOneById(ctx, userID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	uBilling, err := r.UserDao.GetUserBilling(ctx, uModel)
+
+	if err != nil {
+		return nil, err
+	}
+
+	carts, err := r.CartDao.FindAllByUserId(ctx, userID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	uAddressModel, err := r.UserAddressDao.FindOneById(ctx, userAddressID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	oService := order.NewService(r.OrderDao, r.CurrencyDao, r.ProductItemDao)
+
+	newOrder, err := oService.CreateNewOrder(ctx, uBilling, uAddressModel, carts)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return converters.OrderToGraphQL(newOrder), nil
 }
 
 // Mutation returns graph.MutationResolver implementation.

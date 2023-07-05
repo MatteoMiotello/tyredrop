@@ -7,6 +7,7 @@ import {useQuery} from "@apollo/client";
 import Spinner from "../../common/components/Spinner";
 import ProductSearchContext, {ProductSearchDataType} from "./context/product-search-context";
 import {ProductSpecificationInput} from "../../__generated__/graphql";
+import {useNavigate} from "react-router-dom";
 
 const ELEMENT_PER_PAGE = 10;
 
@@ -14,6 +15,7 @@ const ProductTablePage: React.FC = () => {
     const [pageCount, setPageCount] = useState(0);
     const [search, setSearch] = useState<ProductSearchDataType | null>(null);
     const [offset, setOffset] = useState(0);
+    const navigate = useNavigate();
     const {setError} = useToast();
 
     const {data, error, loading, refetch} = useQuery(SEARCH_PRODUCTS, {
@@ -23,6 +25,11 @@ const ProductTablePage: React.FC = () => {
             searchInput: {}
         }
     });
+
+    if ( data?.productItems?.productItems?.length == 1 ) {
+        navigate( `/products/details/${data?.productItems?.productItems[0]?.id}` );
+        return;
+    }
 
     const [isLoading, setIsLoading] = useState(loading);
 

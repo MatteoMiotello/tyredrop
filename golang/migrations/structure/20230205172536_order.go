@@ -19,11 +19,11 @@ func upOrder(tx *sql.Tx) error {
 		FKColumn("public.user_billings", "user_billing_id", false).
 		Column("status", types.Varchar.Options("45"), false).
 		Column("address_line_1", types.Varchar.Options("255"), false).
-		Column("address_line_2", types.Varchar.Options("255"), false).
+		Column("address_line_2", types.Varchar.Options("255"), true).
 		Column("city", types.Varchar.Options("45"), false).
 		Column("province", types.Varchar.Options("45"), false).
 		Column("country", types.Varchar.Options("45"), false).
-		Column("cap", types.Varchar.Options("5"), false).
+		Column("postal_code", types.Varchar.Options("5"), false).
 		UpdatedColumn().
 		CreatedColumn().
 		String()
@@ -31,12 +31,11 @@ func upOrder(tx *sql.Tx) error {
 	orderRowQuery := sqlbuilder.CreateTable("public.order_rows").
 		PKColumn().
 		FKColumn("public.orders", "order_id", false).
-		FKColumn("public.products", "product_id", false).
-		FKColumn("public.suppliers", "supplier_id", false).
+		FKColumn("public.product_items", "product_item_id", false).
 		Column("amount", types.Int, false).
+		Column("quantity", types.Int, false).
 		Column("tracking_number", types.Varchar.Options("255"), true).
-		Column("carrier", types.Varchar.Options("45"), true).
-		Column("sent_at", types.Timestamptz, true).
+		Column("delivered_at", types.Timestamptz, true).
 		UpdatedColumn().
 		CreatedColumn().
 		String()

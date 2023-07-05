@@ -22,13 +22,25 @@ type Dao struct {
 
 func NewDao(executor boil.ContextExecutor) *Dao {
 	return &Dao{
-		Dao: db.DaoFromExecutor(executor),
+		db.DaoFromExecutor(executor),
 	}
 }
 
-func (d Dao) Clone() *Dao {
-	return &Dao{
-		d.Dao.Clone(),
+func (u Dao) Load(relationship string, mods ...qm.QueryMod) *Dao {
+	return db.Load(u, relationship, mods...)
+}
+
+func (u Dao) Paginate(limit int, offset int) *Dao {
+	return db.Paginate(u, limit, offset)
+}
+
+func (u Dao) ForUpdate() *Dao {
+	return db.ForUpdate(u)
+}
+
+func (u Dao) Clone() db.DaoMod {
+	return Dao{
+		u.Dao.Clone(),
 	}
 }
 

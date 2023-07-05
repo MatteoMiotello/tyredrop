@@ -294,6 +294,51 @@ func (r *queryResolver) Currencies(ctx context.Context) ([]*model.Currency, erro
 	return cAll, nil
 }
 
+// Order is the resolver for the order field.
+func (r *queryResolver) Order(ctx context.Context, id int64) (*model.Order, error) {
+	orderModel, err := r.OrderDao.FindOneById(ctx, id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return converters.OrderToGraphQL(orderModel), nil
+}
+
+// Orders is the resolver for the orders field.
+func (r *queryResolver) Orders(ctx context.Context, pagination *model.PaginationInput) ([]*model.Order, error) {
+	panic(fmt.Errorf("not implemented: Orders - orders"))
+}
+
+// UserOrders is the resolver for the userOrders field.
+func (r *queryResolver) UserOrders(ctx context.Context, userID int64, pagination *model.PaginationInput) ([]*model.Order, error) {
+	user, err := r.UserDao.FindOneById(ctx, userID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	billing, err := r.UserDao.GetUserBilling(ctx, user)
+
+	if err != nil {
+		return nil, err
+	}
+
+	orderDao := r.OrderDao
+
+	if pagination != nil {
+		orderDao = r.OrderDao.Paginate(pagination.Limit, pagination.Offset)
+	}
+
+	orders, err := orderDao.FindAllByBillingId(ctx, billing.ID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return aggregators.AggregateOrderModels(orders), nil
+}
+
 // Query returns graph.QueryResolver implementation.
 func (r *Resolver) Query() graph.QueryResolver { return &queryResolver{r} }
 

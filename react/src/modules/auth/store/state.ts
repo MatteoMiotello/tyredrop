@@ -10,6 +10,7 @@ export type AuthState = {
 }
 
 export type UserState = {
+    userID: string
     username: string
     email: string
     name?: string

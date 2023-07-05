@@ -66,7 +66,6 @@ export const authRegister: AsyncThunk<LoginResponse, any, any> = createAsyncThun
 
 export const logout = createAction( 'AUTH/LOGOUT' );
 
-
 export const setUserCompleted = createAction('AUTH/COMPLETE_USER');
 
 const setupAuth = (state: AuthState, accessToken: string, refreshToken: string) => {

@@ -5,10 +5,13 @@ import {useAuth} from "./modules/auth/hooks/useAuth";
 import {useNavigate} from "react-router-dom";
 import {useEffect} from "react";
 import Button from "./common/components-library/Button";
+import {useDispatch} from "react-redux";
+import {logout} from "./modules/auth/store/auth-slice";
 
 const NotConfirmedPage: React.FC = () => {
     const {t} = useTranslation();
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const auth = useAuth();
 
 
@@ -16,6 +19,11 @@ const NotConfirmedPage: React.FC = () => {
         if (auth.isUserCompleted()) {
             navigate('/');
 
+            return;
+        }
+
+        if ( auth.isNotLoggedIn() ) {
+            navigate( '/' );
             return;
         }
     }, [auth]);
@@ -27,6 +35,7 @@ const NotConfirmedPage: React.FC = () => {
                 <h1 className="my-10 text-2xl font-medium"> {t('not_confirmed.title')} </h1>
                 <p> {t('not_confirmed.text')} </p>
                 <Button className="mt-10" type="primary" onClick={() => navigate( '/' )}> Home </Button>
+                <Button className="mt-2" type="error" onClick={() => dispatch( logout() )}> Esci </Button>
             </div>
         </main>
         <CustomFooter/>

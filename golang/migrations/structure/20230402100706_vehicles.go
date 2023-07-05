@@ -64,12 +64,7 @@ func downVehicles(tx *sql.Tx) error {
 		return err
 	}
 
-	_, err = tx.Exec("DROP TABLE public.vehicle_types")
-	if err != nil {
-		return err
-	}
-
-	_, err = tx.Exec("DROP INDEX idx_products_vehicle_types;")
+	_, err = tx.Exec("ALTER TABLE public.products DROP COLUMN vehicle_type_id;")
 	if err != nil {
 		return err
 	}
@@ -79,7 +74,7 @@ func downVehicles(tx *sql.Tx) error {
 		return err
 	}
 
-	_, err = tx.Exec("ALTER TABLE public.products DROP COLUMN vehicle_id;")
+	_, err = tx.Exec("DROP TABLE public.vehicle_types")
 	if err != nil {
 		return err
 	}

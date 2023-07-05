@@ -54,6 +54,14 @@ func (d *ItemDao) ProductItemPrices(ctx context.Context, productItem *models.Pro
 	).All(ctx, d.Db)
 }
 
+func (d *ItemDao) ProductItemPrice(ctx context.Context, item *models.ProductItem, currency *models.Currency) (*models.ProductItemPrice, error) {
+	return item.ProductItemPrices(
+		d.GetMods(
+			models.ProductItemPriceWhere.CurrencyID.EQ(currency.ID),
+		)...,
+	).One(ctx, d.Db)
+}
+
 func (d *ItemDao) FindByProductAndSupplier(ctx context.Context, product *models.Product, supplier *models.Supplier) (models.ProductItemSlice, error) {
 	return models.ProductItems(
 		d.GetMods(

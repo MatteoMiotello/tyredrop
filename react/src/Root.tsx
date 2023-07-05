@@ -17,6 +17,7 @@ import {I18nextProvider} from "react-i18next";
 import {Provider} from "react-redux";
 import {ToastConfig, ToastContainer} from "./common/components/ToastContainer";
 import NotConfirmedPage from "./NotConfirmedPage";
+import {orderRoutes} from "./modules/order/routes";
 
 const router = createBrowserRouter([
     {
@@ -29,7 +30,8 @@ const router = createBrowserRouter([
             billingRoute,
             productRoute,
             cartRoute,
-            userRoutes
+            userRoutes,
+            orderRoutes,
         ]
     },
     {

@@ -2,6 +2,12 @@
 
 package model
 
+import (
+	"fmt"
+	"io"
+	"strconv"
+)
+
 type Brand struct {
 	ID        int64  `json:"id"`
 	Name      string `json:"name"`
@@ -128,4 +134,53 @@ type VehicleType struct {
 	ID   int64  `json:"ID"`
 	Code string `json:"code"`
 	Name string `json:"name"`
+}
+
+type OrderStatus string
+
+const (
+	OrderStatusNew       OrderStatus = "NEW"
+	OrderStatusConfirmed OrderStatus = "CONFIRMED"
+	OrderStatusCanceled  OrderStatus = "CANCELED"
+	OrderStatusRejected  OrderStatus = "REJECTED"
+	OrderStatusDelivered OrderStatus = "DELIVERED"
+	OrderStatusReturned  OrderStatus = "RETURNED"
+)
+
+var AllOrderStatus = []OrderStatus{
+	OrderStatusNew,
+	OrderStatusConfirmed,
+	OrderStatusCanceled,
+	OrderStatusRejected,
+	OrderStatusDelivered,
+	OrderStatusReturned,
+}
+
+func (e OrderStatus) IsValid() bool {
+	switch e {
+	case OrderStatusNew, OrderStatusConfirmed, OrderStatusCanceled, OrderStatusRejected, OrderStatusDelivered, OrderStatusReturned:
+		return true
+	}
+	return false
+}
+
+func (e OrderStatus) String() string {
+	return string(e)
+}
+
+func (e *OrderStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = OrderStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid OrderStatus", str)
+	}
+	return nil
+}
+
+func (e OrderStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

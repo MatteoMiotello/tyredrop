@@ -12,13 +12,24 @@ import UserAddressForm from "../../user/components/UserAddressForm";
 import userSelector from "../../user/store/user-selector";
 import cartSelector from "../store/cart-selector";
 import UserAddressDescriptionList from "./UserAddressDescriptionList";
+import {useMutation} from "@apollo/client";
+import {NEW_ORDER} from "../../../common/backend/graph/mutation/order";
+import {useAuth} from "../../auth/hooks/useAuth";
+import {useToast} from "../../../hooks/useToast";
+import {Simulate} from "react-dom/test-utils";
+import load = Simulate.load;
+import {useNavigate} from "react-router-dom";
 
 const CheckoutPanel: React.FC = () => {
     const userAddresses = useSelector(userSelector.addresses);
+    const auth = useAuth();
+    const [mutate, {loading, error, data}] = useMutation(NEW_ORDER);
     const {t} = useTranslation();
     const [addressOptions, setOptions] = useState<SelectOption[]>([]);
     const [selectedAddress, setAddress] = useState<SelectOption | null>(null);
     const totalPrice = useSelector(cartSelector.amount);
+    const {setSuccess, setError} = useToast();
+    const navigate = useNavigate();
 
     const getPrice = () => {
         if (!totalPrice || !totalPrice.currency) {
@@ -27,6 +38,29 @@ const CheckoutPanel: React.FC = () => {
 
         return Currency.defaultFormat(totalPrice.value, totalPrice.currency?.iso_code as string);
     };
+
+    const confirmOrder = () => {
+        mutate({
+            variables: {
+                userId: auth.user?.user?.userID as string,
+                userAddressId: selectedAddress?.value.ID
+            }
+        });
+    };
+
+    useEffect(() => {
+        if (error) {
+            setError('Si è verificato un errore' + error.message);
+        }
+    }, [error]);
+
+    useEffect(() => {
+        if (data) {
+            setSuccess('Ordine confermato con successo');
+            navigate('/order/details/' + data.newOrder.id);
+            return;
+        }
+    }, [data]);
 
     useEffect(() => {
         if (!userAddresses || !userAddresses.length) {
@@ -42,7 +76,8 @@ const CheckoutPanel: React.FC = () => {
 
         const options = userAddresses.map((address) => {
             return {
-                title: <span> {address.addressName} <span className="text-sm text-accent-content/60 "> {address.addressLine1} </span> </span>,
+                title: <span> {address.addressName} <span
+                    className="text-sm text-accent-content/60 "> {address.addressLine1} </span> </span>,
                 value: address,
             };
         });
@@ -99,7 +134,13 @@ const CheckoutPanel: React.FC = () => {
                 {getPrice()}
             </span>
         </div>
-        <Button className="ml-auto mt-4" type="secondary" onClick={() => openModal()}>
+        <Button
+            className="ml-auto mt-4"
+            type="secondary"
+            onClick={confirmOrder}
+            loading={loading}
+            disabled={!selectedAddress}
+        >
             {t("cart.checkout_button")}
         </Button>
     </div>;

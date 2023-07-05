@@ -49,4 +49,8 @@ type Query {
 
     currency( id: ID! ): Currency
     currencies: [Currency]
+
+    order( id: ID! ): Order!
+    orders( pagination: PaginationInput ): [Order]
+    userOrders( userId: ID!, pagination: PaginationInput ): [Order]
 }

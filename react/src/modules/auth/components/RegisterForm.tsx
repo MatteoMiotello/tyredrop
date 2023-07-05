@@ -30,7 +30,9 @@ const RegisterForm: React.FC<RegisterFormProps> = (props: RegisterFormProps) => 
     const authStatus = useSelector(selectAuthStatus);
 
     useEffect(() => {
-        if (authStatus.status == 'error') {
+        console.log( authStatus );
+
+        if (authStatus.error) {
             let error = authStatus.error;
             if (authStatus.error && (typeof authStatus.error == 'number' && authStatus.error >= 5000)) {
                 error = t('register.email_already_used');
@@ -39,7 +41,7 @@ const RegisterForm: React.FC<RegisterFormProps> = (props: RegisterFormProps) => 
             handleFormError(error as string);
         }
 
-        if (authStatus.status == 'fullfilled' && props.onSuccess) {
+        if (authStatus.isLoggedIn() && props.onSuccess) {
             props.onSuccess();
         }
     }, [authStatus]);

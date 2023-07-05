@@ -16,15 +16,15 @@ func init() {
 }
 
 func addJobs(c *cron.Cron) {
-	//_, err := c.AddFunc("@every 15s", jobs.ImportProductsFromFile)
-	//if err != nil {
-	//	panic(err.Error())
-	//}
-	//_, err = c.AddFunc("@every 5m", jobs.CopySupplierFiles)
-	//if err != nil {
-	//	panic(err.Error())
-	//}
-	_, err := c.AddJob("@every 1s", jobs.UpdateTyresSpecificationJob{MaxChildren: 20})
+	_, err := c.AddFunc("@every 15s", jobs.ImportProductsFromFile)
+	if err != nil {
+		panic(err.Error())
+	}
+	_, err = c.AddFunc("@every 5m", jobs.CopySupplierFiles)
+	if err != nil {
+		panic(err.Error())
+	}
+	_, err = c.AddJob("@every 1s", jobs.UpdateTyresSpecificationJob{MaxChildren: 20})
 	if err != nil {
 		panic(err.Error())
 	}
