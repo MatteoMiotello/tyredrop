@@ -94,7 +94,7 @@ services:
     volumes:
       - ./certs:/etc/letsencrypt
       - ./react:/app
-    command: certonly --webroot --webroot-path=/etc/letsencrypt --email info@pillowww.it --agree-tos --no-eff-email -d oflow.dev
+    command: certonly --webroot --webroot-path=/etc/letsencrypt --email info@pillowww.it --agree-tos --no-eff-email -d titw-app.oflow.dev --cert-name titw-api.oflow.dev -d titw-api.oflow.dev
     
 volumes:
   pg_data:
