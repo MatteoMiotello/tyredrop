@@ -129,6 +129,7 @@ export const BillingForm: React.FC<BillingFormProps> = (props) => {
 
 
     return <Form onSubmit={onSubmit} form={form} className="lg:w-1/2 relative">
+        <h4 className="col-span-12 divider"> Dati di fatturazione </h4>
         {loading && <Spinner/>}
         <SelectComponent
             options={options}
@@ -193,7 +194,7 @@ export const BillingForm: React.FC<BillingFormProps> = (props) => {
                          validators={[isRequired(t('billing.cap_placeholder'))]}
         />
 
-        <h4 className="col-span-12 text-center"> Dati di pagamento </h4>
+        <h4 className="col-span-12 divider"> Dati di pagamento </h4>
         <Field.FormInput
             className="col-span-12"
             type="text"

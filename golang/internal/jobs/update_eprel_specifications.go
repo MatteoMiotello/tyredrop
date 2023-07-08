@@ -45,12 +45,12 @@ func UpdateTyresSpecifications() {
 			return err
 		}
 
-		value, _ := vDao.FindByProductAndCode(ctx, p, string(constants.TYRE_SPEC_EPREL_ID))
-		if value == nil {
+		value := p.EprelProductCode.String
+		if len(value) == 0 {
 			return nil
 		}
 
-		eprelSpec, err := eprel.GetEprelSpecifications(value.SpecificationValue)
+		eprelSpec, err := eprel.GetEprelSpecifications(value)
 		if err != nil {
 			fmt.Println(err)
 			return nil

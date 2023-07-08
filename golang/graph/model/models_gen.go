@@ -13,6 +13,7 @@ type Brand struct {
 	Name      string `json:"name"`
 	Code      string `json:"code"`
 	ImageLogo string `json:"image_logo"`
+	Quality   *int   `json:"quality,omitempty"`
 }
 
 type CartResponse struct {

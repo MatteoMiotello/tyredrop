@@ -7,6 +7,7 @@ type Product struct {
 	BrandID           int64  `json:"brand_id"`
 	VehicleTypeID     int64  `json:"vehicle_type_id"`
 	Name              string `json:"name"`
+	EprelProductCode  string `json:"eprel_product_code"`
 }
 
 type ProductCategory struct {

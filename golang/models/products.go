@@ -36,6 +36,7 @@ type Product struct {
 	CreatedAt         time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 	VehicleTypeID     int64       `boil:"vehicle_type_id" json:"vehicle_type_id" toml:"vehicle_type_id" yaml:"vehicle_type_id"`
 	Name              null.String `boil:"name" json:"name,omitempty" toml:"name" yaml:"name,omitempty"`
+	EprelProductCode  null.String `boil:"eprel_product_code" json:"eprel_product_code,omitempty" toml:"eprel_product_code" yaml:"eprel_product_code,omitempty"`
 
 	R *productR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L productL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -54,6 +55,7 @@ var ProductColumns = struct {
 	CreatedAt         string
 	VehicleTypeID     string
 	Name              string
+	EprelProductCode  string
 }{
 	ID:                "id",
 	ProductCategoryID: "product_category_id",
@@ -67,6 +69,7 @@ var ProductColumns = struct {
 	CreatedAt:         "created_at",
 	VehicleTypeID:     "vehicle_type_id",
 	Name:              "name",
+	EprelProductCode:  "eprel_product_code",
 }
 
 var ProductTableColumns = struct {
@@ -82,6 +85,7 @@ var ProductTableColumns = struct {
 	CreatedAt         string
 	VehicleTypeID     string
 	Name              string
+	EprelProductCode  string
 }{
 	ID:                "products.id",
 	ProductCategoryID: "products.product_category_id",
@@ -95,6 +99,7 @@ var ProductTableColumns = struct {
 	CreatedAt:         "products.created_at",
 	VehicleTypeID:     "products.vehicle_type_id",
 	Name:              "products.name",
+	EprelProductCode:  "products.eprel_product_code",
 }
 
 // Generated where
@@ -112,6 +117,7 @@ var ProductWhere = struct {
 	CreatedAt         whereHelpertime_Time
 	VehicleTypeID     whereHelperint64
 	Name              whereHelpernull_String
+	EprelProductCode  whereHelpernull_String
 }{
 	ID:                whereHelperint64{field: "\"products\".\"id\""},
 	ProductCategoryID: whereHelperint64{field: "\"products\".\"product_category_id\""},
@@ -125,6 +131,7 @@ var ProductWhere = struct {
 	CreatedAt:         whereHelpertime_Time{field: "\"products\".\"created_at\""},
 	VehicleTypeID:     whereHelperint64{field: "\"products\".\"vehicle_type_id\""},
 	Name:              whereHelpernull_String{field: "\"products\".\"name\""},
+	EprelProductCode:  whereHelpernull_String{field: "\"products\".\"eprel_product_code\""},
 }
 
 // ProductRels is where relationship names are stored.
@@ -215,9 +222,9 @@ func (r *productR) GetProductSpecificationValues() ProductSpecificationValueSlic
 type productL struct{}
 
 var (
-	productAllColumns            = []string{"id", "product_category_id", "brand_id", "product_code", "manufacturer_code", "eprel_updated_at", "completed", "deleted_at", "updated_at", "created_at", "vehicle_type_id", "name"}
+	productAllColumns            = []string{"id", "product_category_id", "brand_id", "product_code", "manufacturer_code", "eprel_updated_at", "completed", "deleted_at", "updated_at", "created_at", "vehicle_type_id", "name", "eprel_product_code"}
 	productColumnsWithoutDefault = []string{"product_category_id", "brand_id", "completed", "vehicle_type_id"}
-	productColumnsWithDefault    = []string{"id", "product_code", "manufacturer_code", "eprel_updated_at", "deleted_at", "updated_at", "created_at", "name"}
+	productColumnsWithDefault    = []string{"id", "product_code", "manufacturer_code", "eprel_updated_at", "deleted_at", "updated_at", "created_at", "name", "eprel_product_code"}
 	productPrimaryKeyColumns     = []string{"id"}
 	productGeneratedColumns      = []string{}
 )

@@ -87,6 +87,15 @@ func (r *queryResolver) SearchBrands(ctx context.Context, name string) ([]*model
 	var graphModels []*model.Brand
 
 	if len(name) < 2 {
+		all, err := r.BrandDao.Paginate(0, 10).FindAll(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, model := range all {
+			graphModels = append(graphModels, converters.BrandToGraphQL(model))
+		}
+
 		return graphModels, nil
 	}
 

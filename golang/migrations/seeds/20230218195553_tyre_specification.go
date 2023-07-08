@@ -36,7 +36,6 @@ func upTyreSpecification(tx *sql.Tx) error {
 		Values(catId, "LOAD", constants.SPEC_TYPE_INT, true).
 		Values(catId, "SPEED", constants.SPEC_TYPE_STRING, true).
 		Values(catId, "SEASON", constants.SPEC_TYPE_STRING, true).
-		Values(catId, "EPREL_ID", constants.SPEC_TYPE_INT, false).
 		Values(catId, "FUEL_EFFICIENCY", constants.SPEC_TYPE_STRING, false).
 		Values(catId, "WET_GRIP_CLASS", constants.SPEC_TYPE_STRING, false).
 		Values(catId, "EXTERNAL_ROLLING_NOISE_CLASS", constants.SPEC_TYPE_STRING, false).
@@ -74,12 +73,11 @@ func upTyreSpecification(tx *sql.Tx) error {
 		Values(1, ids[6], "Carico").
 		Values(1, ids[7], "Velocità").
 		Values(1, ids[8], "Stagione").
-		Values(1, ids[9], "Id Eprel").
-		Values(1, ids[10], "Categoria di consumo carburante").
-		Values(1, ids[11], "Categoria di aderenza sul bagnato").
-		Values(1, ids[12], "Categoria di rumore esterno di rotolamento").
-		Values(1, ids[13], "Livello di rumore esterno di rotolamento").
-		Values(1, ids[14], "Versione rispetto al carico").
+		Values(1, ids[9], "Categoria di consumo carburante").
+		Values(1, ids[10], "Categoria di aderenza sul bagnato").
+		Values(1, ids[11], "Categoria di rumore esterno di rotolamento").
+		Values(1, ids[12], "Livello di rumore esterno di rotolamento").
+		Values(1, ids[13], "Versione rispetto al carico").
 		BuildWithFlavor(sqlbuilder.PostgreSQL)
 
 	_, err = tx.Exec(query, values...)
@@ -91,6 +89,9 @@ func upTyreSpecification(tx *sql.Tx) error {
 }
 
 func downTyreSpecification(tx *sql.Tx) error {
-	// This code is executed when the migration is rolled back.
+	_, err := tx.Exec("TRUNCATE TABLE public.product_specification_languages")
+	if err != nil {
+		return err
+	}
 	return nil
 }

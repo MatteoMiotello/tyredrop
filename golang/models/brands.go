@@ -31,6 +31,7 @@ type Brand struct {
 	DeletedAt null.Time   `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
 	UpdatedAt time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
 	CreatedAt time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	Quality   null.Int    `boil:"quality" json:"quality,omitempty" toml:"quality" yaml:"quality,omitempty"`
 
 	R *brandR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L brandL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -44,6 +45,7 @@ var BrandColumns = struct {
 	DeletedAt string
 	UpdatedAt string
 	CreatedAt string
+	Quality   string
 }{
 	ID:        "id",
 	BrandCode: "brand_code",
@@ -52,6 +54,7 @@ var BrandColumns = struct {
 	DeletedAt: "deleted_at",
 	UpdatedAt: "updated_at",
 	CreatedAt: "created_at",
+	Quality:   "quality",
 }
 
 var BrandTableColumns = struct {
@@ -62,6 +65,7 @@ var BrandTableColumns = struct {
 	DeletedAt string
 	UpdatedAt string
 	CreatedAt string
+	Quality   string
 }{
 	ID:        "brands.id",
 	BrandCode: "brands.brand_code",
@@ -70,6 +74,7 @@ var BrandTableColumns = struct {
 	DeletedAt: "brands.deleted_at",
 	UpdatedAt: "brands.updated_at",
 	CreatedAt: "brands.created_at",
+	Quality:   "brands.quality",
 }
 
 // Generated where
@@ -203,6 +208,44 @@ func (w whereHelpertime_Time) GTE(x time.Time) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.GTE, x)
 }
 
+type whereHelpernull_Int struct{ field string }
+
+func (w whereHelpernull_Int) EQ(x null.Int) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, false, x)
+}
+func (w whereHelpernull_Int) NEQ(x null.Int) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, true, x)
+}
+func (w whereHelpernull_Int) LT(x null.Int) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelpernull_Int) LTE(x null.Int) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelpernull_Int) GT(x null.Int) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelpernull_Int) GTE(x null.Int) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
+}
+func (w whereHelpernull_Int) IN(slice []int) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
+}
+func (w whereHelpernull_Int) NIN(slice []int) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
+}
+
+func (w whereHelpernull_Int) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
+func (w whereHelpernull_Int) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
+
 var BrandWhere = struct {
 	ID        whereHelperint64
 	BrandCode whereHelperstring
@@ -211,6 +254,7 @@ var BrandWhere = struct {
 	DeletedAt whereHelpernull_Time
 	UpdatedAt whereHelpertime_Time
 	CreatedAt whereHelpertime_Time
+	Quality   whereHelpernull_Int
 }{
 	ID:        whereHelperint64{field: "\"brands\".\"id\""},
 	BrandCode: whereHelperstring{field: "\"brands\".\"brand_code\""},
@@ -219,6 +263,7 @@ var BrandWhere = struct {
 	DeletedAt: whereHelpernull_Time{field: "\"brands\".\"deleted_at\""},
 	UpdatedAt: whereHelpertime_Time{field: "\"brands\".\"updated_at\""},
 	CreatedAt: whereHelpertime_Time{field: "\"brands\".\"created_at\""},
+	Quality:   whereHelpernull_Int{field: "\"brands\".\"quality\""},
 }
 
 // BrandRels is where relationship names are stored.
@@ -259,9 +304,9 @@ func (r *brandR) GetProducts() ProductSlice {
 type brandL struct{}
 
 var (
-	brandAllColumns            = []string{"id", "brand_code", "name", "image_logo", "deleted_at", "updated_at", "created_at"}
+	brandAllColumns            = []string{"id", "brand_code", "name", "image_logo", "deleted_at", "updated_at", "created_at", "quality"}
 	brandColumnsWithoutDefault = []string{"brand_code", "name"}
-	brandColumnsWithDefault    = []string{"id", "image_logo", "deleted_at", "updated_at", "created_at"}
+	brandColumnsWithDefault    = []string{"id", "image_logo", "deleted_at", "updated_at", "created_at", "quality"}
 	brandPrimaryKeyColumns     = []string{"id"}
 	brandGeneratedColumns      = []string{}
 )

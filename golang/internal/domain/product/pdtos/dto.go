@@ -14,4 +14,5 @@ type ProductDto interface {
 	GetSupplierProductQuantity() int
 	GetVehicleType() constants.VehicleType
 	GetProductName() string
+	GetEprelProductCode() *string
 }

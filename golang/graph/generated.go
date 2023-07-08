@@ -65,6 +65,7 @@ type ComplexityRoot struct {
 		ID        func(childComplexity int) int
 		ImageLogo func(childComplexity int) int
 		Name      func(childComplexity int) int
+		Quality   func(childComplexity int) int
 	}
 
 	Cart struct {
@@ -147,6 +148,7 @@ type ComplexityRoot struct {
 		BrandID                    func(childComplexity int) int
 		Category                   func(childComplexity int) int
 		Code                       func(childComplexity int) int
+		EprelProductCode           func(childComplexity int) int
 		ID                         func(childComplexity int) int
 		Name                       func(childComplexity int) int
 		ProductCategoryID          func(childComplexity int) int
@@ -430,6 +432,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Brand.Name(childComplexity), true
+
+	case "Brand.quality":
+		if e.complexity.Brand.Quality == nil {
+			break
+		}
+
+		return e.complexity.Brand.Quality(childComplexity), true
 
 	case "Cart.id":
 		if e.complexity.Cart.ID == nil {
@@ -855,6 +864,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Product.Code(childComplexity), true
+
+	case "Product.eprelProductCode":
+		if e.complexity.Product.EprelProductCode == nil {
+			break
+		}
+
+		return e.complexity.Product.EprelProductCode(childComplexity), true
 
 	case "Product.id":
 		if e.complexity.Product.ID == nil {
@@ -2308,6 +2324,47 @@ func (ec *executionContext) fieldContext_Brand_image_logo(ctx context.Context, f
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Brand_quality(ctx context.Context, field graphql.CollectedField, obj *model.Brand) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Brand_quality(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Quality, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Brand_quality(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Brand",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -5165,6 +5222,8 @@ func (ec *executionContext) fieldContext_Product_brand(ctx context.Context, fiel
 				return ec.fieldContext_Brand_code(ctx, field)
 			case "image_logo":
 				return ec.fieldContext_Brand_image_logo(ctx, field)
+			case "quality":
+				return ec.fieldContext_Brand_quality(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Brand", field.Name)
 		},
@@ -5201,6 +5260,47 @@ func (ec *executionContext) _Product_name(ctx context.Context, field graphql.Col
 }
 
 func (ec *executionContext) fieldContext_Product_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Product",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Product_eprelProductCode(ctx context.Context, field graphql.CollectedField, obj *model.Product) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Product_eprelProductCode(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EprelProductCode, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Product_eprelProductCode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Product",
 		Field:      field,
@@ -5792,6 +5892,8 @@ func (ec *executionContext) fieldContext_ProductItem_product(ctx context.Context
 				return ec.fieldContext_Product_brand(ctx, field)
 			case "name":
 				return ec.fieldContext_Product_name(ctx, field)
+			case "eprelProductCode":
+				return ec.fieldContext_Product_eprelProductCode(ctx, field)
 			case "productCategoryID":
 				return ec.fieldContext_Product_productCategoryID(ctx, field)
 			case "category":
@@ -6248,6 +6350,8 @@ func (ec *executionContext) fieldContext_ProductPaginate_products(ctx context.Co
 				return ec.fieldContext_Product_brand(ctx, field)
 			case "name":
 				return ec.fieldContext_Product_name(ctx, field)
+			case "eprelProductCode":
+				return ec.fieldContext_Product_eprelProductCode(ctx, field)
 			case "productCategoryID":
 				return ec.fieldContext_Product_productCategoryID(ctx, field)
 			case "category":
@@ -7318,6 +7422,8 @@ func (ec *executionContext) fieldContext_Query_brands(ctx context.Context, field
 				return ec.fieldContext_Brand_code(ctx, field)
 			case "image_logo":
 				return ec.fieldContext_Brand_image_logo(ctx, field)
+			case "quality":
+				return ec.fieldContext_Brand_quality(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Brand", field.Name)
 		},
@@ -7369,6 +7475,8 @@ func (ec *executionContext) fieldContext_Query_searchBrands(ctx context.Context,
 				return ec.fieldContext_Brand_code(ctx, field)
 			case "image_logo":
 				return ec.fieldContext_Brand_image_logo(ctx, field)
+			case "quality":
+				return ec.fieldContext_Brand_quality(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Brand", field.Name)
 		},
@@ -12965,6 +13073,10 @@ func (ec *executionContext) _Brand(ctx context.Context, sel ast.SelectionSet, ob
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "quality":
+
+			out.Values[i] = ec._Brand_quality(ctx, field, obj)
+
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -13644,6 +13756,10 @@ func (ec *executionContext) _Product(ctx context.Context, sel ast.SelectionSet, 
 		case "name":
 
 			out.Values[i] = ec._Product_name(ctx, field, obj)
+
+		case "eprelProductCode":
+
+			out.Values[i] = ec._Product_eprelProductCode(ctx, field, obj)
 
 		case "productCategoryID":
 

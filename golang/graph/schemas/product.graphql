@@ -10,6 +10,7 @@ type Brand {
     name: String!
     code: String!
     image_logo: String!
+    quality: Int
 }
 
 type Product {
@@ -18,6 +19,7 @@ type Product {
     brandID: ID!
     brand: Brand!
     name: String
+    eprelProductCode: String
     productCategoryID: ID!
     category: ProductCategory!
     productSpecificationValues: [ProductSpecificationValue]!

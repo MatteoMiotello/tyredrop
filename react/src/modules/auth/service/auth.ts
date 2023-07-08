@@ -52,6 +52,10 @@ export class Auth {
         return false;
     }
 
+    isUserRegistering(): boolean {
+        return this.user?.isRegistering() as boolean;
+    }
+
     tryRefreshToken() {
         const refreshToken = window.localStorage.getItem('refresh_token');
 

@@ -8,7 +8,6 @@ import (
 	"pillowww/titw/graph/model"
 	"pillowww/titw/internal/db"
 	"pillowww/titw/models"
-	"pillowww/titw/pkg/constants"
 )
 
 type Dao struct {
@@ -102,11 +101,7 @@ func (d Dao) FindNextRemainingEprelProduct(ctx context.Context, categoryCodes ..
 	return models.Products(
 		d.GetMods(
 			qm.LeftOuterJoin("product_categories on products.product_category_id = product_categories.id"),
-			qm.AndIn("products.id IN ( SELECT product_specification_values.product_id FROM product_specification_values "+
-				"LEFT JOIN product_specifications ON product_specifications.id = product_specification_values.product_specification_id "+
-				"WHERE product_specifications.specification_code = ? )",
-				constants.TYRE_SPEC_EPREL_ID,
-			),
+			models.ProductWhere.EprelProductCode.IsNotNull(),
 			models.ProductCategoryWhere.CategoryCode.IN(categoryCodes),
 			models.ProductWhere.EprelUpdatedAt.IsNull(),
 			qm.Limit(1),

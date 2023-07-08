@@ -2,6 +2,7 @@ package brand
 
 import (
 	"context"
+	"github.com/volatiletech/null/v8"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"pillowww/titw/models"
@@ -25,6 +26,7 @@ func (s Service) FindOrCreateBrand(ctx context.Context, name string) (*models.Br
 		b = &models.Brand{
 			Name:      name,
 			BrandCode: code,
+			Quality:   null.IntFrom(3),
 		}
 
 		err := s.Dao.Insert(ctx, b)

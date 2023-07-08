@@ -15,6 +15,7 @@ import ProdapiService from "./services/prodapi/prodapi-service";
 import {useDispatch} from "react-redux";
 import {addCartItem} from "../cart/store/cart-slice";
 import {ThunkDispatch} from "redux-thunk";
+import {useToast} from "../../hooks/useToast";
 
 const loadingPlaceholder = <main>
     <Spinner/>
@@ -27,6 +28,7 @@ const ProductDetailsPage: React.FC = () => {
     const res = useLoaderData() as { data: ProductItemQuery, loading: boolean };
     const {t} = useTranslation();
     const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
+    const {setSuccess} = useToast();
 
     useEffect(() => {
         if (res.data) {
@@ -41,7 +43,7 @@ const ProductDetailsPage: React.FC = () => {
     }
 
     return <main className="lg:p-24 p-4">
-        <div className="grid md:grid-cols-3 gap-4 w-full items-center">
+        <div className="grid md:grid-cols-4 gap-4 w-full items-center">
             <div className="flex justify-center md:justify-normal">
                 <Img src={[
                     (new ProdapiService()).getProductImageUrl(data?.productItem?.product.code as string, ProductCategorySet.TYRE),
@@ -52,7 +54,7 @@ const ProductDetailsPage: React.FC = () => {
                      className="h-96 min-w-fit"
                 />
             </div>
-            <div>
+            <div className="col-span-2">
                 <div className="flex justify-between mt-3 items-center">
                     <h2 className="text-2xl font-semibold uppercase"> {data?.productItem?.product.brand.name} </h2>
                     <Img src={(new ProdapiService()).getBrandImageUrl(data?.productItem?.product.brand.code as string)}
@@ -90,7 +92,7 @@ const ProductDetailsPage: React.FC = () => {
                     </div>
                     <Button type="primary" onClick={ () => {
                         if ( data?.productItem ) {
-                            dispatch(addCartItem({itemId: data.productItem.id, quantity: quantity}));
+                            dispatch(addCartItem({itemId: data.productItem.id, quantity: quantity})).then( () => setSuccess( 'Elemento aggiunto a carrello' ) );
                         }
                     } }>
                         { t( 'product_details.order_button' ) }

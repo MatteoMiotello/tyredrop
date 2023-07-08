@@ -91,6 +91,7 @@ func (s Service) FindOrCreateProduct(ctx context.Context, dto pdtos.ProductDto) 
 		ProductCategoryID: category.ID,
 		VehicleTypeID:     vehicleType.ID,
 		Name:              null.StringFrom(name),
+		EprelProductCode:  null.StringFromPtr(dto.GetEprelProductCode()),
 	}
 
 	err = s.ProductDao.Insert(ctx, p)

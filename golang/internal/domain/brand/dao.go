@@ -68,6 +68,8 @@ func (d *Dao) FindByName(ctx context.Context, name string) (models.BrandSlice, e
 
 func (d *Dao) FindAll(ctx context.Context) (models.BrandSlice, error) {
 	return models.Brands(
-		d.GetMods()...,
+		d.GetMods(
+			qm.OrderBy(models.BrandColumns.Quality+" DESC"),
+		)...,
 	).All(ctx, d.Db)
 }

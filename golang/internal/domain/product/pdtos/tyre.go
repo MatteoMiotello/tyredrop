@@ -99,3 +99,11 @@ func (t *Tyre) GetSupplierProductQuantity() int {
 func (t *Tyre) BuildName() string {
 	return fmt.Sprintf("%d/%d %s %d %d %s", t.Width, t.AspectRatio, t.Construction, t.Rim, t.Load, t.Speed)
 }
+
+func (t *Tyre) GetEprelProductCode() *string {
+	if len(t.EprelID) == 0 {
+		return nil
+	}
+
+	return &t.EprelID
+}
