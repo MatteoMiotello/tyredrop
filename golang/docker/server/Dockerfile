@@ -12,7 +12,7 @@ RUN go mod verify
 # Copy the Go application source code
 COPY . .
 
-RUN go run ./cmd/migrations/migrations.go
+RUN go build -o /goose ./cmd/migrations/migrations.go
 
 # Build the Go application
 RUN go build -o /server ./cmd/server/server.go
@@ -21,4 +21,4 @@ RUN go build -o /server ./cmd/server/server.go
 EXPOSE 8080
 
 # Set the entry point for the container
-CMD ["/server"]
+CMD /bin/sh -c '/goose up && /server'
