@@ -11,6 +11,6 @@ func registerGlobalMiddlewares(router *gin.Engine) {
 	config := cors.DefaultConfig()
 	config.AllowCredentials = true
 	config.AllowAllOrigins = false
-	config.AllowOrigins = []string{"https://titw-app.oflow.dev"}
+	config.AllowOrigins = []string{"https://titw-app.oflow.dev", "http://localhost"}
 	router.Use(cors.New(config))
 }

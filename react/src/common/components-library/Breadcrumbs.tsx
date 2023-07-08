@@ -16,7 +16,7 @@ const Breadcrumbs: React.FC = (props) => {
         .filter((match) => {
             const handle = match.handle as { crumb: () => ReactNode };
 
-            return Boolean(handle.crumb);
+            return Boolean(handle?.crumb);
         })
         .map((match: any) => {
             return match.handle.crumb(match.data);
