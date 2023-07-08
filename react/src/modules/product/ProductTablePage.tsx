@@ -28,7 +28,7 @@ const ProductTablePage: React.FC = () => {
 
     if ( data?.productItems?.productItems?.length == 1 ) {
         navigate( `/products/details/${data?.productItems?.productItems[0]?.id}` );
-        return;
+        return null;
     }
 
     const [isLoading, setIsLoading] = useState(loading);

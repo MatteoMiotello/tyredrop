@@ -1,5 +1,6 @@
 import React from "react";
 import {useQuery} from "@apollo/client";
+import {Order} from "../../__generated__/graphql";
 import {FETCH_USER_ORDERS} from "../../common/backend/graph/query/order";
 import {useAuth} from "../auth/hooks/useAuth";
 import Spinner from "../../common/components/Spinner";
@@ -22,11 +23,11 @@ const UserOrdersPage: React.FC = () => {
 
     if (error) {
         setError('C\'è stato un errore nel caricamento');
-        return;
+        return null;
     }
 
     return <main className="p-4">
-        <OrderTable orders={data?.userOrders}></OrderTable>
+        <OrderTable orders={data?.userOrders as Order[]}></OrderTable>
     </main>;
 };
 

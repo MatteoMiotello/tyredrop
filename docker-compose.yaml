@@ -1,6 +1,6 @@
 version: '3.9'
 services:
-  app:
+  server:
     container_name: titw_go_server
     build:
       context: ./golang
@@ -16,7 +16,7 @@ services:
       - 8080:8080
     restart: always
     volumes:
-      - ./golang:/app
+      - ./golang:/api
     depends_on:
       - postgresdb
     networks:
@@ -36,12 +36,27 @@ services:
     tty: true
     restart: always
     volumes:
-      - ./golang:/app
+      - ./golang:/cron
       - ./import:/import
     depends_on:
       - postgresdb
     networks:
       - titw
+
+  app:
+    build:
+      context: ./react
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - 80:80
+      - 443:443
+    restart: always
+    volumes:
+      - ./react:/app
+      - ./react/dist:/app/dist
+      - ./react/docker/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - server
 
   postgresdb:
     image: postgres:latest
@@ -59,8 +74,32 @@ services:
     networks:
       - titw
 
+  nginx:
+    image: nginx:alpine
+    container_name: titw_nginx_proxy
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./react/dist:/usr/share/nginx/html
+      - ./certs:/certs
+    depends_on:
+      - app
+      - certbot
+    restart: always
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./certs:/etc/letsencrypt
+      - ./react:/app
+    command: certonly --webroot --webroot-path=/etc/letsencrypt --email info@pillowww.it --agree-tos --no-eff-email -d oflow.dev
+    
 volumes:
   pg_data:
+  react:
+  certs:
 
 # Networks to be created to facilitate communication between containers
 networks:

@@ -1,6 +1,6 @@
 import React from "react";
 import {useLoaderData} from "react-router-dom";
-import {FetchOrderQuery} from "../../__generated__/graphql";
+import {FetchOrderQuery, Order} from "../../__generated__/graphql";
 import Panel from "../../common/components-library/Panel";
 import OrderRowsTable from "./components/OrderRowsTable";
 import {calculateTotal} from "./utils";
@@ -18,7 +18,7 @@ const OrderDetailsPage: React.FC = () => {
         </Panel>
         <Panel className="col-span-4 flex flex-col">
             <h3 className="font-semibold">Totale Ordine</h3>
-            <div className="w-full my-auto text-center text-6xl font-bold text-primary">{calculateTotal(order.order)}</div>
+            <div className="w-full my-auto text-center text-6xl font-bold text-primary">{calculateTotal(order.order as Order)}</div>
         </Panel>
         <Panel className="col-span-4 flex flex-col">
             <h3 className="font-semibold">Stato dell'ordine</h3>
