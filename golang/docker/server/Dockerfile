@@ -1,0 +1,22 @@
+# Stage 1: Build the Go application
+FROM golang:1.20-alpine
+
+WORKDIR /app
+
+# Copy and download Go module dependencies
+COPY go.mod go.sum ./
+
+RUN go mod download
+RUN go mod verify
+
+# Copy the Go application source code
+COPY . .
+
+# Build the Go application
+RUN go build -o /server ./cmd/server/server.go
+
+# Expose the necessary port(s)
+EXPOSE 8080
+
+# Set the entry point for the container
+CMD ["/server"]

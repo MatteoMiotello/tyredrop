@@ -4,7 +4,7 @@ services:
     container_name: titw_go_server
     build:
       context: ./golang
-      dockerfile: Dockerfile
+      dockerfile: ./docker/server/Dockerfile
     environment:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
@@ -14,6 +14,26 @@ services:
     tty: true
     ports:
       - 8080:8080
+    restart: always
+    volumes:
+      - ./golang:/app
+    depends_on:
+      - postgresdb
+    networks:
+      - titw
+  
+  cron:
+    container_name: titw_go_cron
+    build:
+      context: ./golang
+      dockerfile: ./docker/cron/Dockerfile
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - DATABASE_HOST=${DB_HOST}
+      - DATABASE_PORT=${DB_PORT}
+    tty: true
     restart: always
     volumes:
       - ./golang:/app

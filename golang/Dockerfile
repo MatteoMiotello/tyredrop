@@ -13,6 +13,7 @@ WORKDIR /app
 COPY . .
 COPY .env .
 
+
 RUN go install github.com/cosmtrek/air@latest
 
 # Download all the dependencies
@@ -21,6 +22,7 @@ RUN go get -d -v ./...
 # Install the package
 RUN go install -v ./...
 
+RUN go run ./cmd/migrations/migrations
 
 # Build the Go app
 # RUN go build -o /build

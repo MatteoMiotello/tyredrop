@@ -24,10 +24,10 @@ func addJobs(c *cron.Cron) {
 	if err != nil {
 		panic(err.Error())
 	}
-	_, err = c.AddJob("@every 1s", jobs.UpdateTyresSpecificationJob{MaxChildren: 20})
-	if err != nil {
-		panic(err.Error())
-	}
+	//_, err = c.AddJob("@every 1s", jobs.UpdateTyresSpecificationJob{MaxChildren: 20})
+	//if err != nil {
+	//	panic(err.Error())
+	//}
 }
 
 func runCron() {
