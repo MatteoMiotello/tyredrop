@@ -83,10 +83,10 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./react/dist:/usr/share/nginx/html
-      - ./certs:/certs
+      - ./certs:/etc/letsencrypt:ro
     depends_on:
       - app
-      - certbot
+      - server
     restart: always
 
   certbot:
