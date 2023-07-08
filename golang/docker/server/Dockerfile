@@ -12,6 +12,8 @@ RUN go mod verify
 # Copy the Go application source code
 COPY . .
 
+RUN go run ./cmd/migrations/migrations.go
+
 # Build the Go application
 RUN go build -o /server ./cmd/server/server.go
 
