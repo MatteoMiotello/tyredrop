@@ -75,7 +75,7 @@ const UserAddressPage: React.FC = () => {
                     <Button className="mx-1"
                             onClick={() => {
                                 openModal(<UserAddressModal
-                                    userId={params.id as string}
+
                                     closeModal={() => {
                                         closeModal();
                                         refetch();
@@ -116,7 +116,7 @@ const UserAddressPage: React.FC = () => {
                     openModal(<UserAddressModal closeModal={() => {
                         closeModal();
                         refetch();
-                    }} userId={params.id as string}/>);
+                    }}/>);
                 }} type="primary"> <FontAwesomeIcon icon={faPlus}/> </Button>
             </div>
             <Table data={data.userAddress} columns={columns} hidePagination={true}/>

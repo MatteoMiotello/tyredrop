@@ -14,7 +14,6 @@ import {ApolloError} from "@apollo/client";
 type UserAddressFormProps = {
     onSuccess: () => void
     address?: UserAddress | undefined
-    userId: string
 } & PropsWithChildren
 
 

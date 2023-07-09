@@ -8,7 +8,6 @@ import UserAddressForm from "./UserAddressForm";
 type UserAddressModalProps = {
     closeModal: () => void
     address?: UserAddress | undefined
-    userId: string
 }
 
 const UserAddressModal: React.FC<UserAddressModalProps> = (props) => {
@@ -18,7 +17,7 @@ const UserAddressModal: React.FC<UserAddressModalProps> = (props) => {
         <Modal.Header>
             {t("user_address.new_address_modal_title")}
         </Modal.Header>
-        <UserAddressForm onSuccess={() => props.closeModal()} address={props.address} userId={props.userId}>
+        <UserAddressForm onSuccess={() => props.closeModal()} address={props.address}>
             <Modal.Action>
                 <Button onClick={() => props.closeModal()} htmlType="button">
                     {t("user_address.close_modal")}
