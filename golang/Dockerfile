@@ -11,6 +11,8 @@ WORKDIR /app
 COPY . .
 COPY .env .
 
+RUN apk add --no-cache tzdata
+ENV TZ=Europe/Rome
 
 RUN go install github.com/cosmtrek/air@latest
 
