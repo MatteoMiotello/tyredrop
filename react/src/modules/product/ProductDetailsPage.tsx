@@ -43,21 +43,21 @@ const ProductDetailsPage: React.FC = () => {
         return loadingPlaceholder;
     }
 
-    console.log( data?.productItem?.product );
+    console.log(data?.productItem?.product);
 
-    return <main className="lg:p-24 p-4">
+    return <main className="lg:px-24 p-4">
         <div className="grid md:grid-cols-4 gap-4 w-full">
-            <Panel className="flex justify-center items-center">
+            <Panel className="flex flex-col justify-center items-center">
                 <Img src={[
                     (new ProdapiService()).getProductImageUrl(data?.productItem?.product.code as string, ProductCategorySet.TYRE),
                     tyrePlaceholder,
                 ]}
                      onErrorCapture={(e) => e.preventDefault()}
                      loading="lazy"
-                     className="h-96 min-w-fit"
+                     className="w-fit"
                 />
             </Panel>
-            <Panel className="col-span-2">
+            <Panel className="col-span-2 row-span-2">
                 <div>
                     <div className="flex justify-between mt-3 items-center">
                         <h2 className="text-2xl font-semibold uppercase"> {data?.productItem?.product.brand.name} </h2>
@@ -84,36 +84,45 @@ const ProductDetailsPage: React.FC = () => {
                 </div>
             </Panel>
             <Panel>
-                <div className="justify-center bg-base-200 rounded-box p-10 pt-14 md:mt-0 mt-4">
-                    <div>
-                        Totale
-                    </div>
-                    <span className="text-primary text-5xl font-semibold">
-                    {Currency.defaultFormat(data?.productItem?.price[0]?.value as number, data?.productItem?.price[0]?.currency.iso_code as string)}
-                </span>
-                    <div className="mt-10 grid grid-cols-3 gap-4">
-                        <div className="col-span-2">
-                            <Field.FormControl className="">
-                                <Field.Input type="number" name="quantity" placeholder={"4"} onChange={setQuantity}
-                                             value={quantity}/>
-                            </Field.FormControl>
+                <div className="rounded-box pt-14 md:mt-0 mt-4">
+                    <div className="m-5">
+                        <div>
+                            Totale
                         </div>
-                        <Button type="primary" onClick={() => {
-                            if (data?.productItem) {
-                                dispatch(addCartItem({
-                                    itemId: data.productItem.id,
-                                    quantity: quantity
-                                })).then(() => setSuccess('Elemento aggiunto a carrello'));
-                            }
-                        }}>
-                            {t('product_details.order_button')}
-                        </Button>
+                        <span className="text-primary text-5xl font-semibold">
+                        {Currency.defaultFormat(data?.productItem?.price[0]?.value as number, data?.productItem?.price[0]?.currency.iso_code as string)}</span>
+                        <div className="mt-10 flex flex-col">
+                            <div className="">
+                                <Field.FormControl className="">
+                                    <Field.Input type="number" name="quantity" placeholder={"4"} onChange={setQuantity}
+                                                 labelText="Quantità"
+                                                 value={quantity}/>
+                                </Field.FormControl>
+                            </div>
+                            <Button className="ml-auto mt-4" type="secondary" onClick={() => {
+                                if (data?.productItem) {
+                                    dispatch(addCartItem({
+                                        itemId: data.productItem.id,
+                                        quantity: quantity
+                                    })).then(() => setSuccess('Elemento aggiunto a carrello'));
+                                }
+                            }}>
+                                {t('product_details.order_button')}
+                            </Button>
+                        </div>
                     </div>
                 </div>
-                {
-                    data?.productItem?.product?.eprelProductCode && <Img src={`https://eprel.ec.europa.eu/api/products/tyres/${data?.productItem?.product?.eprelProductCode}/labels?format=SVG`}></Img>
-                }
             </Panel>
+            {
+                data?.productItem?.product?.eprelProductCode &&
+                <Panel className="flex justify-center">
+                    <Img
+                        width={200}
+                        className="shadow"
+                        src={`https://eprel.ec.europa.eu/api/products/tyres/${data?.productItem?.product?.eprelProductCode}/labels?format=SVG`}
+                        alt="eprel label"></Img>
+                </Panel>
+            }
         </div>
     </main>;
 };

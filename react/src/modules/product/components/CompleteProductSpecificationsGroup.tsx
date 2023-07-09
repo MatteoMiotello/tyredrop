@@ -20,7 +20,7 @@ const CompleteProductSpecificationsGroup: React.FC<CompleteProductSpecifications
         }
     ];
     
-    return <Table data={props.specifications} columns={columns} hidePagination={true} hideHeader={true}/>;
+    return <Table data={props.specifications} columns={columns} hidePagination={true} hideHeader={false}/>;
 };
 
 export default CompleteProductSpecificationsGroup;
