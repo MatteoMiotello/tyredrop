@@ -1,4 +1,4 @@
 export default {
-    endpoint: 'http://localhost:8080',
-    graphEndpoint: 'http://localhost:8080/query'
+    endpoint: 'https://titw-api.oflow.dev:8080',
+    graphEndpoint: 'https://titw-api.oflow.dev:8080/query'
 };
