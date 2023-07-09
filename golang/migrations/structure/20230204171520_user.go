@@ -35,7 +35,7 @@ func upUser(tx *sql.Tx) error {
 		Column("username", types.Varchar.Options("100"), true).
 		Column("password", types.Varchar.Options("255"), false).
 		Column("name", types.Varchar.Options("100"), false).
-		Column("surname", types.Varchar.Options("100"), false).
+		Column("surname", types.Varchar.Options("100"), true).
 		DeletedColumn().
 		UpdatedColumn().
 		CreatedColumn().

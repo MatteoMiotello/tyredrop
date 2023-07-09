@@ -50,7 +50,7 @@ type DropdownProps = {
 } & PropsWithChildren
 const Dropdown: React.FC<DropdownProps> = ({label, children}) => {
     return <details className="dropdown">
-        <summary tabIndex={0} className="btn">{label}</summary>
+        <summary tabIndex={0} className="btn btn-ghost btn-circle rounded-full">{label}</summary>
         <Menu tabIndex={0} className="dropdown-content p-2 shadow rounded-box w-52 bg-base-100">
             {children}
         </Menu>

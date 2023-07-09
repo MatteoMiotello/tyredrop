@@ -13,7 +13,7 @@ const Navbar: React.FC = () => {
     const auth = useAuth();
     const dispatch = useDispatch();
 
-    return <div className="navbar bg-base-100">
+    return <div className="navbar rounded-box bg-base-100">
         <MainLogo width={100}/>
 
         <div className="ml-auto">
@@ -26,17 +26,17 @@ const Navbar: React.FC = () => {
                         </div>
                     </div>}>
                         <Menu.Item>
-                            <Link to="/user">
+                            <Link to={`/user/${auth.user?.user?.userID}`}>
                                 <FontAwesomeIcon icon={faUser}/> Principale
                             </Link>
                         </Menu.Item>
                         <Menu.Item>
-                            <Link to="/user/address">
+                            <Link to={`/user/${auth.user?.user?.userID}/address`}>
                                 <FontAwesomeIcon icon={faLocationDot}/>I miei indirizzi
                             </Link>
                         </Menu.Item>
                         <Menu.Item>
-                            <Link to="/user/orders">
+                            <Link to={`/user/${auth.user?.user?.userID}/orders`}>
                                 <FontAwesomeIcon icon={faBagShopping}/>I miei ordini
                             </Link>
                         </Menu.Item>

@@ -1,4 +1,5 @@
-import {LoaderFunction, RouteObject} from "react-router-dom";
+import {Link, LoaderFunction, RouteObject} from "react-router-dom";
+import { Order} from "../../../__generated__/graphql";
 import OrderTemplatePage from "../OrderTemplatePage";
 import OrderDetailsPage from "../OrderDetailsPage";
 import apolloClientContext from "../../../common/contexts/apollo-client-context";
@@ -21,7 +22,10 @@ export const orderRoutes: RouteObject = {
         {
             path: 'details/:id',
             loader: orderLoader,
-            Component: OrderDetailsPage
+            Component: OrderDetailsPage,
+            handle: {
+                crumb: ( {order}: {order: Order} ) => <Link to={`/order/details/${order.id}`}> Ordine: #{ order.id } </Link>
+            }
         }
     ]
 };

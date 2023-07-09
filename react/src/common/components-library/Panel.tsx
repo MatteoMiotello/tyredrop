@@ -5,9 +5,18 @@ interface PanelProps extends PropsWithChildren {
 }
 
 const Panel : React.FC<PanelProps> = ( props: PanelProps ) => {
-    return <div className={"rounded-sm shadow bg-base-200 p-4 relative " + props.className}>
+    return <div className={"rounded-box shadow bg-base-100 p-4 relative " + props.className}>
         { props.children }
     </div>;
 };
 
-export default Panel;
+type TitleProps = PropsWithChildren
+const Title: React.FC<TitleProps> = ({children} ) => {
+    return <h3 className="text-xl">
+        {children}
+    </h3>;
+};
+
+export default Object.assign( Panel, {
+    Title
+} );

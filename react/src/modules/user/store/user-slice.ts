@@ -6,6 +6,8 @@ import {
 import {ADD_USER_ADDRESS, DELETE_USER_ADDRESS, EDIT_USER_ADDRESS} from "../../../common/backend/graph/mutation/users";
 import {USER_ADDRESSES} from "../../../common/backend/graph/query/users";
 import apolloClientContext from "../../../common/contexts/apollo-client-context";
+import {store} from "../../../store/store";
+import {selectUser} from "../../auth/store/auth-selector";
 import UserState from "./state";
 
 export type UserAddressRequest = {
@@ -19,8 +21,17 @@ export type UserAddressRequest = {
 }
 
 export const fetchUserAddresses = createAsyncThunk('USER/FETCH_ADDRESSES', async (arg, thunkAPI) => {
+    const userId = selectUser( store.getState() )?.userID;
+
+    if (!userId) {
+        return; 
+    }
+
     return apolloClientContext.query({
-        query: USER_ADDRESSES
+        query: USER_ADDRESSES,
+        variables: {
+            userId: userId
+        }
     }).then(res => {
         return thunkAPI.fulfillWithValue(res.data.userAddress);
     });

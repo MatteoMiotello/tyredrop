@@ -1,21 +1,26 @@
+import {ColumnDef} from "@tanstack/react-table";
 import React from "react";
 import {ProductSpecificationValue} from "../../../__generated__/graphql";
+import Table from "../../../common/components-library/Table";
 
 type CompleteProductSpecificationsGroupProps = {
     specifications: ProductSpecificationValue[]
 }
 
 const CompleteProductSpecificationsGroup: React.FC<CompleteProductSpecificationsGroupProps> = ( props ) => {
-    return <div className="flex flex-wrap w-full">
+    const columns: ColumnDef<ProductSpecificationValue>[] = [
         {
-            props.specifications.map( ( spec, key ) => {
-                return ( <div key={key} className="flex flex-col m-1 border-2 p-2 rounded-box flex-1">
-                    <span className="text-sm text-secondary font-semibold flex-1"> { spec.specification.name } </span>
-                    <span className="font-semibold"> { spec.value } </span>
-                </div> );
-            } )
+            accessorKey: "specification",
+            header: "Specifica",
+            cell: ( props ) => <span className="text-sm text-secondary font-semibold flex-1"> { props.row.original.specification.name } </span>
+        },
+        {
+            accessorKey: "value",
+            header: "Valore"
         }
-    </div>;
+    ];
+    
+    return <Table data={props.specifications} columns={columns} hidePagination={true} hideHeader={true}/>;
 };
 
 export default CompleteProductSpecificationsGroup;

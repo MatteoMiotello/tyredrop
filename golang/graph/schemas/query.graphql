@@ -28,9 +28,9 @@ input ProductSearchInput {
 
 type Query {
     user(ID: ID!): User
-    users: [User]
-    userAddress: [UserAddress]
-    userBilling: UserBilling
+    users: [User] @isAdmin
+    userAddress( userId: ID! ): [UserAddress]
+    userBilling( userId: ID! ): UserBilling
 
     taxRates: [Tax]
     brands: [Brand]

@@ -53,7 +53,11 @@ export class Auth {
     }
 
     isUserRegistering(): boolean {
-        return this.user?.isRegistering() as boolean;
+        return Boolean( this.user?.isRegistering() );
+    }
+
+    isAdmin(): boolean {
+        return Boolean( this.user?.isAdmin() );
     }
 
     tryRefreshToken() {

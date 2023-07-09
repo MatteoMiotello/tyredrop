@@ -53,7 +53,11 @@ func (u Dao) FindOneByEmail(ctx context.Context, email string) (*models.User, er
 }
 
 func (u Dao) FindOneById(ctx context.Context, id int64) (*models.User, error) {
-	return models.FindUser(ctx, u.Db, id)
+	return models.Users(
+		u.GetMods(
+			models.UserWhere.ID.EQ(id),
+		)...,
+	).One(ctx, u.Db)
 }
 
 func (u Dao) GetUserRole(ctx context.Context, user *models.User) (*models.UserRole, error) {

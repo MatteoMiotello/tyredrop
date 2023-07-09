@@ -25,6 +25,7 @@ export const CART_ITEMS_FRAGMENT = gql`
                 product {
                     name
                     code
+                    eprelProductCode
                     brand {
                         name
                     }

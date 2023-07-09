@@ -4,6 +4,7 @@ import React from "react";
 import {useTranslation} from "react-i18next";
 import {useSelector} from "react-redux";
 import {Link} from "react-router-dom";
+import Panel from "../../common/components-library/Panel";
 import CartTable from "./components/CartTable";
 import CheckoutPanel from "./components/CheckoutPanel";
 import cartSelector from "./store/cart-selector";
@@ -12,9 +13,10 @@ const CartPage: React.FC = () => {
     const cartItems = useSelector(cartSelector.items);
     const {t} = useTranslation();
 
-    return <main className="w-full m-0 px-4 h-full flex flex-col min-h-screen">
-        <div className="lg:grid lg:grid-cols-3">
-            <div className="lg:col-span-2 px-4">
+    return <main className="w-full m-0 p-1 h-full flex flex-col min-h-screen">
+        <div className="lg:grid lg:grid-cols-3 gap-4">
+            <Panel className="lg:col-span-2 px-4">
+                <Panel.Title> Il mio carrello </Panel.Title>
                 {cartItems.length ? <CartTable cartItems={cartItems}/> :
                     <div className="w-full flex justify-center items-center flex-col mt-24 text-base-300">
                         <FontAwesomeIcon icon={faShoppingCart} fontSize="70"/>
@@ -24,10 +26,10 @@ const CartPage: React.FC = () => {
                         </Link>
                     </div>
                 }
-            </div>
-            <div className="p-4 relative">
+            </Panel>
+            <Panel className="p-4 ">
                 <CheckoutPanel/>
-            </div>
+            </Panel>
         </div>
     </main>;
 };

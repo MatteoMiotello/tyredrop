@@ -1,39 +1,54 @@
-import React from "react";
-import {useAuth} from "../auth/hooks/useAuth";
-import {useQuery} from "@apollo/client";
-import {USER_BILLING} from "../../common/backend/graph/query/users";
+import React, {useEffect, useState} from "react";
+import {useLoaderData} from "react-router-dom";
+import {FetchUserQuery, User} from "../../__generated__/graphql";
+import Panel from "../../common/components-library/Panel";
 import Spinner from "../../common/components/Spinner";
 
 const UserPage: React.FC = () => {
-    const auth = useAuth();
-    const {data, loading, error} = useQuery(USER_BILLING);
+    const res = useLoaderData() as { data: FetchUserQuery, loading: boolean };
+    const [user, setUser] = useState<User | null>(null);
+    const [isLoading, setLoading] = useState<boolean>(false);
 
-    if (loading) {
-        return <Spinner></Spinner>;
+    useEffect(() => {
+        if (res?.data) {
+            setUser(res.data.user as User);
+        }
+
+        setLoading(res.loading);
+    }, [res]);
+
+    if (isLoading || !user) {
+        return <main className="relative">
+            <Spinner/>
+        </main>;
     }
 
-    console.log(data);
-    return <main className="p-4">
-        <h3 className="text-xl font-semibold divider"> Dati dell'utente </h3>
-        <ul>
-            <li><strong>Nome: </strong> {auth.user?.user?.name}</li>
-            <li><strong>Cognome: </strong> {auth.user?.user?.surname}</li>
-            <li><strong>Email: </strong> {auth.user?.user?.email}</li>
-        </ul>
-        <h3 className="text-xl font-semibold divider">Dati di fatturazione</h3>
-        <ul>
-            <li><strong>Nome:</strong> {data.userBilling.name}</li>
-            <li><strong>Cognome:</strong> {data.userBilling.surname}</li>
-            <li><strong>Indirizzo 1:</strong> {data.userBilling.addressLine1}</li>
-            {data.userBilling.addressLine2 && <li><strong>Indirizzo 2:</strong> {data.userBilling.addressLine2}</li>}
-            <li><strong>Città:</strong> {data.userBilling.city}</li>
-            <li><strong>Paese:</strong> {data.userBilling.country}</li>
-            <li><strong>Provincia:</strong> {data.userBilling.province}</li>
-            <li><strong>CAP:</strong> {data.userBilling.cap}</li>
-            <li><strong>Codice fiscale:</strong> {data.userBilling.fiscalCode}</li>
-            <li><strong>Partita IVA:</strong> {data.userBilling.vatNumber}</li>
-            <li><strong>Tipo entità legale:</strong> {data.userBilling.legalEntityType.name}</li>
-        </ul>
+    return <main className="grid grid-flow-col gap-4">
+        <Panel>
+            <h3 className="text-xl font-semibold divider"> Dati dell'utente </h3>
+            <ul>
+                <li><strong>Nome: </strong> {user.name}</li>
+                <li><strong>Cognome: </strong> {user.surname}</li>
+                <li><strong>Email: </strong> {user.email}</li>
+            </ul>
+        </Panel>
+        <Panel>
+            <h3 className="text-xl font-semibold divider">Dati di fatturazione</h3>
+            <ul>
+                <li><strong>Nome:</strong> {user.userBilling.name}</li>
+                <li><strong>Cognome:</strong> {user.userBilling.surname}</li>
+                <li><strong>Indirizzo 1:</strong> {user.userBilling.addressLine1}</li>
+                {user.userBilling.addressLine2 &&
+                    <li><strong>Indirizzo 2:</strong> {user.userBilling.addressLine2}</li>}
+                <li><strong>Città:</strong> {user.userBilling.city}</li>
+                <li><strong>Paese:</strong> {user.userBilling.country}</li>
+                <li><strong>Provincia:</strong> {user.userBilling.province}</li>
+                <li><strong>CAP:</strong> {user.userBilling.cap}</li>
+                <li><strong>Codice fiscale:</strong> {user.userBilling.fiscalCode}</li>
+                <li><strong>Partita IVA:</strong> {user.userBilling.vatNumber}</li>
+                <li><strong>Tipo entità legale:</strong> {user.userBilling.legalEntityType.name}</li>
+            </ul>
+        </Panel>
     </main>;
 };
 

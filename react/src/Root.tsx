@@ -1,6 +1,7 @@
 import {ApolloProvider} from "@apollo/client";
 import React, {useState} from "react";
 import {Link, RouterProvider, createBrowserRouter} from "react-router-dom";
+import Admin from "./Admin";
 import App from "./App";
 import ModalContainer, {ModalData} from "./common/components/ModalContainer";
 import client from "./common/contexts/apollo-client-context";
@@ -32,6 +33,16 @@ const router = createBrowserRouter([
             cartRoute,
             userRoutes,
             orderRoutes,
+        ]
+    },
+    {
+        path: '/admin',
+        element: <Admin/>,
+        handle: {
+            crumb: () => <Link className="link" to="/admin"> Area privata </Link>
+        },
+        children: [
+
         ]
     },
     {

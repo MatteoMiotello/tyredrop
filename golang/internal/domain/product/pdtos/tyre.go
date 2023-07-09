@@ -101,9 +101,12 @@ func (t *Tyre) BuildName() string {
 }
 
 func (t *Tyre) GetEprelProductCode() *string {
+	fmt.Println(t.EprelID)
+
 	if len(t.EprelID) == 0 {
 		return nil
 	}
 
-	return &t.EprelID
+	i := t.EprelID
+	return &i
 }

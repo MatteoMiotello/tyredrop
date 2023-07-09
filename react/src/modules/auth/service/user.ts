@@ -8,6 +8,11 @@ export enum UserStatus {
     NOT_CONFIRMED,
 }
 
+export enum UserRole {
+    ADMIN = "ADMIN",
+    USER = "USER"
+}
+
 export const getUserStatus = ( user: UserState ): UserStatus => {
     return user.status as UserStatus;
 };
@@ -74,6 +79,14 @@ export class User {
         }
 
         return this.user?.name + ' ' + this._userState?.surname;
+    }
+
+    public isAdmin(): boolean {
+        if ( !this.user?.role ) {
+            return false;
+        }
+
+        return this.user.role.code == UserRole.ADMIN;
     }
 
     get user(): UserState | null{

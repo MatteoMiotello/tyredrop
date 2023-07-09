@@ -19,7 +19,8 @@ export default {
           ...require("daisyui/src/theming/themes")["[data-theme=corporate]"],
           primary: "#F38944",
           secondary: "#476a6f",
-          "base-200": "#f2f2f2",
+          "base-100": "#ffff",
+          "base-200": "#eff3f6",
           "--rounded-box": "0.3rem", // border radius rounded-box utility class, used in card and other large boxes
           "--rounded-btn": "0.3rem", // border radius rounded-btn utility class, used in buttons and similar element
           "--rounded-badge": "1rem", // border radius rounded-badge utility class, used in badges and similar

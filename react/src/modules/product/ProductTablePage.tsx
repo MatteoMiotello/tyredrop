@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {SEARCH_PRODUCTS} from "../../common/backend/graph/query/products";
+import Panel from "../../common/components-library/Panel";
 import {useToast} from "../../hooks/useToast";
 import Searchbar from "./components/Searchbar";
 import ProductTable from "./components/ProductTable";
@@ -26,8 +27,8 @@ const ProductTablePage: React.FC = () => {
         }
     });
 
-    if ( data?.productItems?.productItems?.length == 1 ) {
-        navigate( `/products/details/${data?.productItems?.productItems[0]?.id}` );
+    if (data?.productItems?.productItems?.length == 1) {
+        navigate(`/products/details/${data?.productItems?.productItems[0]?.id}`);
         return null;
     }
 
@@ -84,14 +85,18 @@ const ProductTablePage: React.FC = () => {
     return <main className="relative">
         <ProductSearchContext.Provider value={{searchData: search, setSearchData: setSearch}}>
             {isLoading && <Spinner/>}
-            <Searchbar/>
-            <div className="w-full m-0 lg:px-24 px-4 h-full flex flex-col min-h-screen">
-                {data?.productItems?.productItems ? <ProductTable
-                    products={data}
-                    handlePaginationChange={handlePaginationChange}
-                    pageCount={pageCount}
-                /> : <p className="text-center m-10"> Nessun risultato </p>}
+            <div className="p-1">
+                <Searchbar/>
             </div>
+            <Panel className="m-1">
+                <div className="w-full m-0 lg:px-24 px-4 h-full flex flex-col min-h-screen">
+                    {data?.productItems?.productItems ? <ProductTable
+                        products={data}
+                        handlePaginationChange={handlePaginationChange}
+                        pageCount={pageCount}
+                    /> : <p className="text-center m-10"> Nessun risultato </p>}
+                </div>
+            </Panel>
         </ProductSearchContext.Provider>
     </main>;
 };

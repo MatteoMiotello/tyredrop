@@ -65,3 +65,7 @@ func (d Dao) FindDefaultTax(ctx context.Context) (*models.Taxis, error) {
 		d.GetMods()...,
 	).One(ctx, d.Db)
 }
+
+func (d Dao) GetUserBilling(ctx context.Context, order *models.Order) (*models.UserBilling, error) {
+	return order.UserBilling(d.GetMods()...).One(ctx, d.Db)
+}

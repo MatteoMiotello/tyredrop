@@ -22,7 +22,7 @@ const Breadcrumbs: React.FC = (props) => {
             return match.handle.crumb(match.data);
         });
 
-    return <div className="text-sm breadcrumbs pl-4 bg-base-200">
+    return <div className="text-sm breadcrumbs pl-4 bg-base-100 rounded-box m-1">
         <ul>
             {
                 crumbs.map((link, key) => {

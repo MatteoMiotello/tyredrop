@@ -40,6 +40,11 @@ function App() {
         }
 
         if (auth.isLoggedIn()) {
+            if ( auth.isAdmin() ) {
+                navigate( '/admin' );
+                return;
+            }
+
             if (auth.user?.isNotConfirmed()) {
                 navigate('/not_confirmed');
                 return;
@@ -58,11 +63,13 @@ function App() {
 
     return (
         <>
-            <Navbar></Navbar>
+            <div className="p-1">
+                <Navbar></Navbar>
+            </div>
             <Breadcrumbs></Breadcrumbs>
-            <main className="min-h-screen bg-base-100">
+            <div className="min-h-screen">
                 <Outlet/>
-            </main>
+            </div>
             <CustomFooter/>
         </>
     );

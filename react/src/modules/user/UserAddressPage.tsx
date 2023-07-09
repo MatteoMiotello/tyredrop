@@ -1,27 +1,42 @@
+import {useQuery} from "@apollo/client";
 import {faPencil, faPlus, faTimes} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {CellContext, ColumnDef} from "@tanstack/react-table";
 import React from "react";
+import {Simulate} from "react-dom/test-utils";
 import {useTranslation} from "react-i18next";
-import {useDispatch, useSelector} from "react-redux";
+import {useDispatch} from "react-redux";
+import {useParams} from "react-router-dom";
 import {UserAddress} from "../../__generated__/graphql";
+import {USER_ADDRESSES} from "../../common/backend/graph/query/users";
 import Button from "../../common/components-library/Button";
+import Panel from "../../common/components-library/Panel";
 import Table from "../../common/components-library/Table";
+import Spinner from "../../common/components/Spinner";
 import useModal from "../../hooks/useModal";
 import {useToast} from "../../hooks/useToast";
 import ConfirmDeleteModal from "./components/ConfirmDeleteModal";
 import UserAddressModal from "./components/UserAddressModal";
-import userSelectors from "./store/user-selector";
 import {deleteUserAddress} from "./store/user-slice";
 import {ThunkDispatch} from "redux-thunk";
+import load = Simulate.load;
 
 type UserAddressRowData = UserAddress
 const UserAddressPage: React.FC = () => {
-    const userAddresses = useSelector(userSelectors.addresses);
+    const params = useParams<{ id: string }>();
+    const {data, loading, error, refetch} = useQuery(USER_ADDRESSES, {
+        variables: {
+            userId: params.id
+        }
+    });
     const {t} = useTranslation();
     const {setSuccess, setError} = useToast();
     const {openModal, closeModal} = useModal();
     const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
+
+    if (loading) {
+        return <Spinner/>;
+    }
 
     const columns: ColumnDef<UserAddressRowData>[] = [
         {
@@ -59,8 +74,13 @@ const UserAddressPage: React.FC = () => {
                 return <div className="flex">
                     <Button className="mx-1"
                             onClick={() => {
-                                openModal(<UserAddressModal closeModal={() => closeModal()}
-                                                            address={props.row.original}/>);
+                                openModal(<UserAddressModal
+                                    userId={params.id as string}
+                                    closeModal={() => {
+                                        closeModal();
+                                        refetch();
+                                    }}
+                                    address={props.row.original}/>);
                             }}>
                         <FontAwesomeIcon icon={faPencil}/>
                     </Button>
@@ -71,12 +91,14 @@ const UserAddressPage: React.FC = () => {
                                 () => {
                                     dispatch(deleteUserAddress({id: props.row.original.ID}))
                                         .unwrap()
-                                        .then( () => setSuccess( t( 'user_address.delete_success' ) ) )
-                                        .catch( () => setError( t( 'user_address.delete_error' ) ) );
+                                        .then(() => {
+                                            setSuccess(t('user_address.delete_success'));
+                                            refetch();
+                                        })
+                                        .catch(() => setError(t('user_address.delete_error')));
                                     closeModal();
                                 }
-
-                        }/>
+                            }/>
                         );
                     }}>
                         <FontAwesomeIcon icon={faTimes}/>
@@ -86,14 +108,19 @@ const UserAddressPage: React.FC = () => {
         }
     ];
 
-    return <main className="p-4">
-        <div className="flex w-full justify-between">
-            <h3 className="text-xl">{t('user_address.title_page')}</h3>
-            <Button onClick={() => {
-                openModal(<UserAddressModal closeModal={() => closeModal()}/>);
-            }} type="primary"> <FontAwesomeIcon icon={faPlus}/> </Button>
-        </div>
-        <Table data={userAddresses} columns={columns} hidePagination={true}/>
+    return <main className="h-full">
+        <Panel>
+            <div className="flex w-full justify-between">
+                <h3 className="text-xl">{t('user_address.title_page')}</h3>
+                <Button onClick={() => {
+                    openModal(<UserAddressModal closeModal={() => {
+                        closeModal();
+                        refetch();
+                    }} userId={params.id as string}/>);
+                }} type="primary"> <FontAwesomeIcon icon={faPlus}/> </Button>
+            </div>
+            <Table data={data.userAddress} columns={columns} hidePagination={true}/>
+        </Panel>
     </main>;
 };
 

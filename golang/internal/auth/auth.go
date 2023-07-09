@@ -73,7 +73,7 @@ func (a *Auth) GetUser(ctx context.Context) (*models.User, error) {
 	}
 
 	uRepo := user.NewDao(db.DB)
-	uModel, err := uRepo.FindOneById(ctx, a.UserID)
+	uModel, err := uRepo.Load(models.UserRels.UserRole).FindOneById(ctx, a.UserID)
 
 	if err != nil {
 		return nil, err
