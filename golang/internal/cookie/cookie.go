@@ -11,9 +11,9 @@ func StoreAccessToken(ctx *gin.Context, accessToken string) {
 		accessToken,
 		viper.GetInt("security.jwt.expiration"),
 		"/",
-		viper.GetString("APPLICATION_DOMAIN"),
+		"."+viper.GetString("APPLICATION_DOMAIN"),
 		true,
-		false,
+		true,
 	)
 }
 
