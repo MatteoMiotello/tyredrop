@@ -41,7 +41,8 @@ func main() {
 	defer db.Close()
 
 	log.Info("Cron started")
-
+	fmt.Println("Cron started")
 	runCron()
-	fmt.Scanln()
+
+	select {}
 }

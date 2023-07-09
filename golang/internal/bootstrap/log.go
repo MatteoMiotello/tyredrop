@@ -17,8 +17,6 @@ func InitLog(applicationName string) {
 
 	writer, err := rotatelogs.New(
 		fmt.Sprintf("%s/%s", viper.GetString("log.dir"), "%Y-%m-%d.%H:%M:%S"),
-		rotatelogs.WithLinkName(viper.GetString("log.dir")),
-		rotatelogs.WithMaxAge(time.Hour*24*time.Duration(viper.GetInt("log.max-days-file-age"))),
 		rotatelogs.WithRotationTime(time.Hour*24*time.Duration(viper.GetInt("log.rotation-time-in-days"))),
 	)
 

@@ -19,6 +19,32 @@ services:
       - ./golang:/app
       - ./import:/import
     depends_on:
+      - goose
+      - postgresdb
+    networks:
+      - titw
+  
+  goose:
+    container_name: titw_go_goose
+    build:
+      context: ./golang
+      dockerfile: Dockerfile.goose
+    volumes:
+      - ./import:/import
+    depends_on:
+      - postgresdb
+    networks:
+      - titw
+
+  cron:
+    container_name: titw_go_cron
+    build:
+      context: ./golang
+      dockerfile: Dockerfile.cron
+    volumes:
+      - ./import:/import
+    depends_on:
+      - goose
       - postgresdb
     networks:
       - titw
