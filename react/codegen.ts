@@ -1,8 +1,7 @@
 import {CodegenConfig} from "@graphql-codegen/cli";
-import backend from "./src/config/backend";
 
 const config: CodegenConfig = {
-    schema: backend.graphEndpoint,
+    schema: 'http://localhost:8080/query',
     documents: [
         'src/**/*.tsx',
         "src/**/*.ts"

@@ -12,7 +12,13 @@ import Field from "../../../common/components-library/Input";
 import {SelectComponent, SelectOption} from "../../../common/components-library/SelectComponent";
 import CountryField from "../../../common/components/CountryField";
 import Spinner from "../../../common/components/Spinner";
-import {ValidationHandler, isRequired, maxCharacters, minCharacters} from "../../../common/validation/validators";
+import {
+    ValidationHandler,
+    email,
+    isRequired,
+    maxCharacters,
+    minCharacters
+} from "../../../common/validation/validators";
 import {useToast} from "../../../hooks/useToast";
 
 
@@ -31,6 +37,8 @@ export type BillingInput = {
     postal_code: string
     cap: string
     iban: string
+    sdi_code: string
+    sdi_pec: string
 }
 
 
@@ -207,7 +215,7 @@ export const BillingForm: React.FC<BillingFormProps> = (props) => {
             type="text"
             name="sdi_pec"
             placeholder={t('billing.sdi_pec')}
-            validators={[isRequired(t('billing.sdi_pec'))]}
+            validators={[email]}
         />
 
         <h4 className="col-span-12 divider"> Dati di pagamento </h4>
@@ -216,7 +224,6 @@ export const BillingForm: React.FC<BillingFormProps> = (props) => {
             type="text"
             name="iban"
             placeholder={t('billing.iban_placeholder')}
-            validators={[isRequired(t('billing.iban_placeholder'))]}
         />
         <Button
             type={"primary"}

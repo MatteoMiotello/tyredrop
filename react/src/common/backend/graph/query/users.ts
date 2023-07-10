@@ -31,6 +31,8 @@ export const USER_BILLING = gql`
             cap
             fiscalCode
             vatNumber
+            sdiCode
+            sdiPec
             legalEntityType {
                 name
             }
@@ -63,6 +65,8 @@ export const USER = gql`
                 cap
                 fiscalCode
                 vatNumber
+                sdiCode
+                sdiPec
                 legalEntityType {
                     name
                 }

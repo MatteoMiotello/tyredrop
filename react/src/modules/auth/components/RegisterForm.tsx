@@ -63,7 +63,6 @@ const RegisterForm: React.FC<RegisterFormProps> = (props: RegisterFormProps) => 
 
 
         return zodParser(passwordSchema, value);
-
     };
 
     const validateRepeatPassword: ValidationHandler = (value: string | null): string | null => {

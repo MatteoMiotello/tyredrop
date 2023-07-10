@@ -23,8 +23,8 @@ const UserPage: React.FC = () => {
         </main>;
     }
 
-    return <main className="grid grid-flow-col gap-4">
-        <Panel>
+    return <main className="flex flex-wrap gap-4 w-full">
+        <Panel className="flex-auto w-1/2">
             <h3 className="text-xl font-semibold divider"> Dati dell'utente </h3>
             <ul>
                 <li><strong>Nome: </strong> {user.name}</li>
@@ -32,7 +32,7 @@ const UserPage: React.FC = () => {
                 <li><strong>Email: </strong> {user.email}</li>
             </ul>
         </Panel>
-        <Panel>
+        <Panel className="flex-auto w-1/2">
             <h3 className="text-xl font-semibold divider">Dati di fatturazione</h3>
             <ul>
                 <li><strong>Nome:</strong> {user.userBilling.name}</li>
@@ -47,6 +47,13 @@ const UserPage: React.FC = () => {
                 <li><strong>Codice fiscale:</strong> {user.userBilling.fiscalCode}</li>
                 <li><strong>Partita IVA:</strong> {user.userBilling.vatNumber}</li>
                 <li><strong>Tipo entità legale:</strong> {user.userBilling.legalEntityType.name}</li>
+            </ul>
+        </Panel>
+        <Panel className="flex-auto">
+            <h3 className="text-xl font-semibold divider"> Fatturazione elettronica </h3>
+            <ul>
+                <li><strong>Codice destinatario: </strong> {user.userBilling?.sdiCode}</li>
+                <li><strong>PEC: </strong> {user.userBilling.sdiPec}</li>
             </ul>
         </Panel>
     </main>;

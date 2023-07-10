@@ -34,6 +34,8 @@ type UserBilling {
     user: User!
     userID: ID
     legalEntityTypeID: ID
+    sdiCode: String
+    sdiPec: String
 }
 
 type UserAddress {
@@ -74,6 +76,8 @@ input CreateUserBilling {
     cap: String! @notEmpty
     country: String! @notEmpty
     iban: String! @notEmpty
+    sdiCode: String
+    sdiPec: String
 }
 
 input UserAddressInput {

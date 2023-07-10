@@ -17,6 +17,7 @@ import ProdapiService from "../services/prodapi/prodapi-service";
 import AddItemToCartButton from "./AddItemToCartButton";
 import ProductSpecificationsGroup from "./ProductSpecificationsGroup";
 import ProductTitle from "./ProductTitle";
+import ProductQualityBadge from "./ProductQualityBadge";
 
 
 type ProductTableProps = {
@@ -29,7 +30,8 @@ export type ProductRowItemData = {
     id: string
     brand: {
         name: string,
-        code: string
+        code: string,
+        quality: number
     },
     name: string,
     code: string,
@@ -60,12 +62,12 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
         },
         {
             accessorKey: "content",
-            cell: (props: CellContext<ProductRowItemData, any>) => <ProductTitle showBrand={true}
-                                                                                 data={props.row.original}/>
+            cell: (props: CellContext<ProductRowItemData, any>) => <ProductTitle showBrand={true} data={props.row.original}/>
         },
         {
             accessorKey: "specifications",
             cell: (props: CellContext<ProductRowItemData, any>) => <div className="flex justify-center items-center">
+                <ProductQualityBadge quality={props.row.original.brand.quality}/>
                 <ProductSpecificationsGroup
                     specifications={props.row.original.specifications}/>
             </div>
@@ -116,7 +118,8 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
                 id: product.id,
                 brand: {
                     name: product.product.brand.name,
-                    code: product.product.brand.code
+                    code: product.product.brand.code,
+                    quality: product.product.brand.quality as number
                 },
                 name: product.product.name as string,
                 code: product.product.code,

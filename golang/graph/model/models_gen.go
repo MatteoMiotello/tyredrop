@@ -41,6 +41,8 @@ type CreateUserBilling struct {
 	Cap               string  `json:"cap"`
 	Country           string  `json:"country"`
 	Iban              string  `json:"iban"`
+	SdiCode           *string `json:"sdiCode,omitempty"`
+	SdiPec            *string `json:"sdiPec,omitempty"`
 }
 
 type Currency struct {

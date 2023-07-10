@@ -285,6 +285,8 @@ type ComplexityRoot struct {
 		LegalEntityTypeID func(childComplexity int) int
 		Name              func(childComplexity int) int
 		Province          func(childComplexity int) int
+		SdiCode           func(childComplexity int) int
+		SdiPec            func(childComplexity int) int
 		Surname           func(childComplexity int) int
 		TaxRate           func(childComplexity int) int
 		User              func(childComplexity int) int
@@ -1589,6 +1591,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.UserBilling.Province(childComplexity), true
+
+	case "UserBilling.sdiCode":
+		if e.complexity.UserBilling.SdiCode == nil {
+			break
+		}
+
+		return e.complexity.UserBilling.SdiCode(childComplexity), true
+
+	case "UserBilling.sdiPec":
+		if e.complexity.UserBilling.SdiPec == nil {
+			break
+		}
+
+		return e.complexity.UserBilling.SdiPec(childComplexity), true
 
 	case "UserBilling.surname":
 		if e.complexity.UserBilling.Surname == nil {
@@ -3331,6 +3347,10 @@ func (ec *executionContext) fieldContext_Mutation_createUserBilling(ctx context.
 				return ec.fieldContext_UserBilling_userID(ctx, field)
 			case "legalEntityTypeID":
 				return ec.fieldContext_UserBilling_legalEntityTypeID(ctx, field)
+			case "sdiCode":
+				return ec.fieldContext_UserBilling_sdiCode(ctx, field)
+			case "sdiPec":
+				return ec.fieldContext_UserBilling_sdiPec(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UserBilling", field.Name)
 		},
@@ -4100,6 +4120,10 @@ func (ec *executionContext) fieldContext_Order_userBilling(ctx context.Context, 
 				return ec.fieldContext_UserBilling_userID(ctx, field)
 			case "legalEntityTypeID":
 				return ec.fieldContext_UserBilling_legalEntityTypeID(ctx, field)
+			case "sdiCode":
+				return ec.fieldContext_UserBilling_sdiCode(ctx, field)
+			case "sdiPec":
+				return ec.fieldContext_UserBilling_sdiPec(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UserBilling", field.Name)
 		},
@@ -7393,6 +7417,10 @@ func (ec *executionContext) fieldContext_Query_userBilling(ctx context.Context, 
 				return ec.fieldContext_UserBilling_userID(ctx, field)
 			case "legalEntityTypeID":
 				return ec.fieldContext_UserBilling_legalEntityTypeID(ctx, field)
+			case "sdiCode":
+				return ec.fieldContext_UserBilling_sdiCode(ctx, field)
+			case "sdiPec":
+				return ec.fieldContext_UserBilling_sdiPec(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UserBilling", field.Name)
 		},
@@ -9222,6 +9250,10 @@ func (ec *executionContext) fieldContext_User_userBilling(ctx context.Context, f
 				return ec.fieldContext_UserBilling_userID(ctx, field)
 			case "legalEntityTypeID":
 				return ec.fieldContext_UserBilling_legalEntityTypeID(ctx, field)
+			case "sdiCode":
+				return ec.fieldContext_UserBilling_sdiCode(ctx, field)
+			case "sdiPec":
+				return ec.fieldContext_UserBilling_sdiPec(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UserBilling", field.Name)
 		},
@@ -10449,6 +10481,88 @@ func (ec *executionContext) fieldContext_UserBilling_legalEntityTypeID(ctx conte
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserBilling_sdiCode(ctx context.Context, field graphql.CollectedField, obj *model.UserBilling) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserBilling_sdiCode(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SdiCode, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserBilling_sdiCode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserBilling",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserBilling_sdiPec(ctx context.Context, field graphql.CollectedField, obj *model.UserBilling) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserBilling_sdiPec(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SdiPec, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserBilling_sdiPec(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserBilling",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -12550,34 +12664,38 @@ func (ec *executionContext) unmarshalInputCreateAdminUserInput(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Name = data
 		case "surname":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("surname"))
-			it.Surname, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Surname = data
 		case "email":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-			it.Email, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Email = data
 		case "password":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
-			it.Password, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Password = data
 		}
 	}
 
@@ -12591,7 +12709,7 @@ func (ec *executionContext) unmarshalInputCreateUserBilling(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"legalEntityTypeId", "name", "surname", "fiscalCode", "vatNumber", "addressLine1", "addressLine2", "city", "province", "cap", "country", "iban"}
+	fieldsInOrder := [...]string{"legalEntityTypeId", "name", "surname", "fiscalCode", "vatNumber", "addressLine1", "addressLine2", "city", "province", "cap", "country", "iban", "sdiCode", "sdiPec"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -12602,10 +12720,11 @@ func (ec *executionContext) unmarshalInputCreateUserBilling(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("legalEntityTypeId"))
-			it.LegalEntityTypeID, err = ec.unmarshalNID2int64(ctx, v)
+			data, err := ec.unmarshalNID2int64(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.LegalEntityTypeID = data
 		case "name":
 			var err error
 
@@ -12632,26 +12751,29 @@ func (ec *executionContext) unmarshalInputCreateUserBilling(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("surname"))
-			it.Surname, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Surname = data
 		case "fiscalCode":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fiscalCode"))
-			it.FiscalCode, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.FiscalCode = data
 		case "vatNumber":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vatNumber"))
-			it.VatNumber, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.VatNumber = data
 		case "addressLine1":
 			var err error
 
@@ -12678,10 +12800,11 @@ func (ec *executionContext) unmarshalInputCreateUserBilling(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("addressLine2"))
-			it.AddressLine2, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.AddressLine2 = data
 		case "city":
 			var err error
 
@@ -12792,6 +12915,24 @@ func (ec *executionContext) unmarshalInputCreateUserBilling(ctx context.Context,
 				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
 				return it, graphql.ErrorOnPath(ctx, err)
 			}
+		case "sdiCode":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sdiCode"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.SdiCode = data
+		case "sdiPec":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sdiPec"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.SdiPec = data
 		}
 	}
 
@@ -12816,18 +12957,20 @@ func (ec *executionContext) unmarshalInputPaginationInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
-			it.Limit, err = ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Limit = data
 		case "offset":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
-			it.Offset, err = ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Offset = data
 		}
 	}
 
@@ -12852,34 +12995,38 @@ func (ec *executionContext) unmarshalInputProductSearchInput(ctx context.Context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("brand"))
-			it.Brand, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Brand = data
 		case "name":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Name = data
 		case "code":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("code"))
-			it.Code, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Code = data
 		case "specifications":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("specifications"))
-			it.Specifications, err = ec.unmarshalOProductSpecificationInput2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductSpecificationInput(ctx, v)
+			data, err := ec.unmarshalOProductSpecificationInput2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductSpecificationInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Specifications = data
 		}
 	}
 
@@ -12904,18 +13051,20 @@ func (ec *executionContext) unmarshalInputProductSpecificationInput(ctx context.
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("code"))
-			it.Code, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Code = data
 		case "value":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
-			it.Value, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Value = data
 		}
 	}
 
@@ -12984,10 +13133,11 @@ func (ec *executionContext) unmarshalInputUserAddressInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("addressLine2"))
-			it.AddressLine2, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.AddressLine2 = data
 		case "city":
 			var err error
 
@@ -13080,10 +13230,11 @@ func (ec *executionContext) unmarshalInputUserAddressInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("IsDefault"))
-			it.IsDefault, err = ec.unmarshalNBoolean2bool(ctx, v)
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.IsDefault = data
 		}
 	}
 
@@ -15221,6 +15372,14 @@ func (ec *executionContext) _UserBilling(ctx context.Context, sel ast.SelectionS
 		case "legalEntityTypeID":
 
 			out.Values[i] = ec._UserBilling_legalEntityTypeID(ctx, field, obj)
+
+		case "sdiCode":
+
+			out.Values[i] = ec._UserBilling_sdiCode(ctx, field, obj)
+
+		case "sdiPec":
+
+			out.Values[i] = ec._UserBilling_sdiPec(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))

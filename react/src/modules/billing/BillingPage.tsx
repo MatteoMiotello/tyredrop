@@ -32,10 +32,8 @@ const BillingPage: React.FC = () => {
     }, [data, error]);
 
     useEffect(() => {
-
-
         if (auth.isUserCompleted()) {
-            navigate('/');
+            auth.tryRefreshToken();
         }
     }, [auth]);
 
@@ -55,6 +53,8 @@ const BillingPage: React.FC = () => {
                     province: input.province,
                     surname: input.surname as string,
                     vatNumber: input.vat_number as string,
+                    sdiCode: input.sdi_code,
+                    sdiPec: input.sdi_pec
                 }
             }
         });

@@ -42,7 +42,9 @@
     "user_not_found": "Utente non trovato, ti preghiamo di ricaricare la pagina.",
     "error_storing": "Ops, c'è stato un errore nel salvataggio. Riprova più tardi",
     "store_success": "Salvataggio avvenuto con successo!",
-    "iban_placeholder": "IBAN"
+    "iban_placeholder": "IBAN",
+    "sdi_code": "Codice destinatario",
+    "sdi_pec": "PEC"
   },
   "footer": {
     "who": "Chi siamo",

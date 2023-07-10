@@ -31,6 +31,8 @@ func UserBillingToGraphQL(billing *models.UserBilling) *model.UserBilling {
 		Province:          billing.Province,
 		Cap:               billing.Cap,
 		Country:           billing.Country,
+		SdiCode:           billing.SdiCode.Ptr(),
+		SdiPec:            billing.SdiPec.Ptr(),
 	}
 }
 

@@ -1,7 +1,6 @@
 import React from "react";
 import {Img} from "react-image";
 import {Link} from "react-router-dom";
-import Spinner from "../../../common/components/Spinner";
 import ProdapiService from "../services/prodapi/prodapi-service";
 
 
@@ -38,7 +37,6 @@ const ProductTitle: React.FC<TyreItemRowProps | null> = (props: TyreItemRowProps
                         <Img src={(new ProdapiService()).getBrandImageUrl(data.brand.code)}
                              loading="lazy"
                              className="my-auto"
-                             loader={<Spinner/>}
                              onErrorCapture={(e) => e.preventDefault()}
                         />
                     </div>

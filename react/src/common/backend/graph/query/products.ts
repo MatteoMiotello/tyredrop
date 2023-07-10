@@ -46,6 +46,7 @@ export const SEARCH_PRODUCTS = gql( `
                     brand {
                          name
                          code
+                         quality
                     }
                     productSpecificationValues {
                         specification {
@@ -76,6 +77,7 @@ export const PRODUCT_ITEM = gql(`
             brand {
                 name
                 code
+                quality
             }
             productSpecificationValues {
                 value

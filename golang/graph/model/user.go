@@ -23,6 +23,8 @@ type UserBilling struct {
 	Province          string  `json:"province"`
 	Cap               string  `json:"cap"`
 	Country           string  `json:"country"`
+	SdiCode           *string `json:"sdiCode"`
+	SdiPec            *string `json:"sdiEmail"`
 }
 
 type UserAddress struct {

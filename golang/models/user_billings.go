@@ -40,6 +40,8 @@ type UserBilling struct {
 	DeletedAt         null.Time   `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
 	UpdatedAt         time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
 	CreatedAt         time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	SdiCode           null.String `boil:"sdi_code" json:"sdi_code,omitempty" toml:"sdi_code" yaml:"sdi_code,omitempty"`
+	SdiPec            null.String `boil:"sdi_pec" json:"sdi_pec,omitempty" toml:"sdi_pec" yaml:"sdi_pec,omitempty"`
 
 	R *userBillingR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L userBillingL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -62,6 +64,8 @@ var UserBillingColumns = struct {
 	DeletedAt         string
 	UpdatedAt         string
 	CreatedAt         string
+	SdiCode           string
+	SdiPec            string
 }{
 	ID:                "id",
 	UserID:            "user_id",
@@ -79,6 +83,8 @@ var UserBillingColumns = struct {
 	DeletedAt:         "deleted_at",
 	UpdatedAt:         "updated_at",
 	CreatedAt:         "created_at",
+	SdiCode:           "sdi_code",
+	SdiPec:            "sdi_pec",
 }
 
 var UserBillingTableColumns = struct {
@@ -98,6 +104,8 @@ var UserBillingTableColumns = struct {
 	DeletedAt         string
 	UpdatedAt         string
 	CreatedAt         string
+	SdiCode           string
+	SdiPec            string
 }{
 	ID:                "user_billings.id",
 	UserID:            "user_billings.user_id",
@@ -115,6 +123,8 @@ var UserBillingTableColumns = struct {
 	DeletedAt:         "user_billings.deleted_at",
 	UpdatedAt:         "user_billings.updated_at",
 	CreatedAt:         "user_billings.created_at",
+	SdiCode:           "user_billings.sdi_code",
+	SdiPec:            "user_billings.sdi_pec",
 }
 
 // Generated where
@@ -136,6 +146,8 @@ var UserBillingWhere = struct {
 	DeletedAt         whereHelpernull_Time
 	UpdatedAt         whereHelpertime_Time
 	CreatedAt         whereHelpertime_Time
+	SdiCode           whereHelpernull_String
+	SdiPec            whereHelpernull_String
 }{
 	ID:                whereHelperint64{field: "\"user_billings\".\"id\""},
 	UserID:            whereHelperint64{field: "\"user_billings\".\"user_id\""},
@@ -153,6 +165,8 @@ var UserBillingWhere = struct {
 	DeletedAt:         whereHelpernull_Time{field: "\"user_billings\".\"deleted_at\""},
 	UpdatedAt:         whereHelpertime_Time{field: "\"user_billings\".\"updated_at\""},
 	CreatedAt:         whereHelpertime_Time{field: "\"user_billings\".\"created_at\""},
+	SdiCode:           whereHelpernull_String{field: "\"user_billings\".\"sdi_code\""},
+	SdiPec:            whereHelpernull_String{field: "\"user_billings\".\"sdi_pec\""},
 }
 
 // UserBillingRels is where relationship names are stored.
@@ -203,9 +217,9 @@ func (r *userBillingR) GetOrders() OrderSlice {
 type userBillingL struct{}
 
 var (
-	userBillingAllColumns            = []string{"id", "user_id", "legal_entity_type_id", "name", "surname", "fiscal_code", "vat_number", "address_line_1", "address_line_2", "city", "province", "cap", "country", "deleted_at", "updated_at", "created_at"}
+	userBillingAllColumns            = []string{"id", "user_id", "legal_entity_type_id", "name", "surname", "fiscal_code", "vat_number", "address_line_1", "address_line_2", "city", "province", "cap", "country", "deleted_at", "updated_at", "created_at", "sdi_code", "sdi_pec"}
 	userBillingColumnsWithoutDefault = []string{"user_id", "legal_entity_type_id", "name", "fiscal_code", "vat_number", "address_line_1", "city", "province", "cap", "country"}
-	userBillingColumnsWithDefault    = []string{"id", "surname", "address_line_2", "deleted_at", "updated_at", "created_at"}
+	userBillingColumnsWithDefault    = []string{"id", "surname", "address_line_2", "deleted_at", "updated_at", "created_at", "sdi_code", "sdi_pec"}
 	userBillingPrimaryKeyColumns     = []string{"id"}
 	userBillingGeneratedColumns      = []string{}
 )
