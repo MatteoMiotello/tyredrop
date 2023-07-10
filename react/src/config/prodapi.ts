@@ -1,3 +1,3 @@
 export default {
-    endpoint: import.meta.env.VITE_BACKEND_ENDPOINT
+    endpoint: import.meta.env.VITE_PRODAPI_ENDPOINT
 };
