@@ -70,12 +70,12 @@ func CreateAccessTokenFromUser(ctx context.Context, userModel models.User) (stri
 
 	uBilling, err := uRepo.GetUserBilling(ctx, &userModel)
 
-	if uBilling == nil {
-		status = USER_REGISTERING
-	}
-
 	if !userModel.Confirmed {
 		status = USER_NOT_CONFIRMED
+	}
+
+	if uBilling == nil {
+		status = USER_REGISTERING
 	}
 
 	userClaims := UserJwtClaims{

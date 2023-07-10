@@ -1,4 +1,4 @@
 export default {
-    endpoint: 'https://titw-api.oflow.dev',
-    graphEndpoint: 'https://titw-api.oflow.dev/query'
+    endpoint: import.meta.env.VITE_BACKEND_ENDPOINT,
+    graphEndpoint: import.meta.env.VITE_GRAPHQL_ENDPOINT
 };

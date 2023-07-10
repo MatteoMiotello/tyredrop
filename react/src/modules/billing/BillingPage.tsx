@@ -32,6 +32,8 @@ const BillingPage: React.FC = () => {
     }, [data, error]);
 
     useEffect(() => {
+
+
         if (auth.isUserCompleted()) {
             navigate('/');
         }

@@ -194,6 +194,22 @@ export const BillingForm: React.FC<BillingFormProps> = (props) => {
                          validators={[isRequired(t('billing.cap_placeholder'))]}
         />
 
+        <h4 className="col-span-12 divider"> Dati di fatturazione elettronica </h4>
+        <Field.FormInput
+            className="col-span-6"
+            type="text"
+            name="sdi_code"
+            placeholder={t('billing.sdi_code')}
+            validators={[isRequired(t('billing.sdi_code'))]}
+        />
+        <Field.FormInput
+            className="col-span-6"
+            type="text"
+            name="sdi_pec"
+            placeholder={t('billing.sdi_pec')}
+            validators={[isRequired(t('billing.sdi_pec'))]}
+        />
+
         <h4 className="col-span-12 divider"> Dati di pagamento </h4>
         <Field.FormInput
             className="col-span-12"

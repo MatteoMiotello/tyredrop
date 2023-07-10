@@ -62,7 +62,7 @@ const errorLink = onError(
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        if (networkError && networkError?.statusCode == 401 && auth?.refreshToken) {
+        if (networkError && networkError?.statusCode == 401 && auth?.refreshToken && auth.isLoggedIn() ) {
             return fromPromise(store.dispatch(authRefreshToken(auth.refreshToken)))
                 .flatMap(res => {
                     return forward(operation);
@@ -75,7 +75,7 @@ const client = new ApolloClient({
     cache: new InMemoryCache({
         addTypename: false
     }),
-    link: from([refreshTokenLink, httpLink])
+    link: from([refreshTokenLink, errorLink, httpLink])
 });
 
 export default client;

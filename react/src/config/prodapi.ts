@@ -1,3 +1,3 @@
 export default {
-    endpoint: "http://localhost:8081"
+    endpoint: import.meta.env.VITE_BACKEND_ENDPOINT
 };
