@@ -162,7 +162,7 @@ export const BillingForm: React.FC<BillingFormProps> = (props) => {
                          name="fiscal_code"
                          placeholder={t('billing.fiscal_code_placeholder')}
                          className="col-span-12"
-                         validators={[minCharacters(16), maxCharacters(16), isRequired(t('billing.fiscal_code_placeholder'))]}
+                         validators={[minCharacters(10), maxCharacters(16), isRequired(t('billing.fiscal_code_placeholder'))]}
         />
         <Field.FormInput type="text"
                          name="vat_number"
@@ -208,7 +208,6 @@ export const BillingForm: React.FC<BillingFormProps> = (props) => {
             type="text"
             name="sdi_code"
             placeholder={t('billing.sdi_code')}
-            validators={[isRequired(t('billing.sdi_code'))]}
         />
         <Field.FormInput
             className="col-span-6"
@@ -224,6 +223,7 @@ export const BillingForm: React.FC<BillingFormProps> = (props) => {
             type="text"
             name="iban"
             placeholder={t('billing.iban_placeholder')}
+            validators={[isRequired(t('billing.iban_placeholder'))]}
         />
         <Button
             type={"primary"}
