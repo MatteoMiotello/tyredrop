@@ -18,6 +18,7 @@ type Order struct {
 	Province      string      `json:"province,omitempty"`
 	PostalCode    string      `json:"cap"`
 	Country       string      `json:"country"`
+	CreatedAt     time.Time   `json:"createdAt"`
 }
 
 type OrderRow struct {

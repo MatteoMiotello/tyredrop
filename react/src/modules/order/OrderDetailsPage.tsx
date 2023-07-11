@@ -3,6 +3,7 @@ import {useLoaderData} from "react-router-dom";
 import {FetchOrderQuery, Order} from "../../__generated__/graphql";
 import Panel from "../../common/components-library/Panel";
 import OrderRowsTable from "./components/OrderRowsTable";
+import OrderStatusBadge from "./components/OrderStatusBadge";
 import {calculateTotal} from "./utils";
 
 const OrderDetailsPage: React.FC = () => {
@@ -22,7 +23,7 @@ const OrderDetailsPage: React.FC = () => {
         </Panel>
         <Panel className="col-span-4 flex flex-col">
             <h3 className="font-semibold">Stato dell'ordine</h3>
-            <span className="font-bold text-secondary mx-auto text-4xl">{order.order.status}</span>
+            <span className="font-bold text-secondary mx-auto text-4xl"><OrderStatusBadge className="badge-lg" status={order.order.status}/></span>
         </Panel>
         <Panel className="col-span-6">
             <h3 className="font-semibold">Dati di fatturazione</h3>

@@ -18,7 +18,7 @@ import {useAuth} from "../../auth/hooks/useAuth";
 import {useToast} from "../../../hooks/useToast";
 import {Simulate} from "react-dom/test-utils";
 import load = Simulate.load;
-import {useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 
 const CheckoutPanel: React.FC = () => {
     const userAddresses = useSelector(userSelector.addresses);
@@ -134,8 +134,14 @@ const CheckoutPanel: React.FC = () => {
                 {getPrice()}
             </span>
         </div>
+        <div className="gap-4 ml-auto mt-4">
+        <Link
+            to="/"
+            className="btn btn-outline btn-primary mr-2"
+        >
+            Continua l'acquisto
+        </Link>
         <Button
-            className="ml-auto mt-4"
             type="secondary"
             onClick={confirmOrder}
             loading={loading}
@@ -143,6 +149,7 @@ const CheckoutPanel: React.FC = () => {
         >
             {t("cart.checkout_button")}
         </Button>
+        </div>
     </div>;
 
 };

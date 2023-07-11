@@ -12,6 +12,7 @@ type CartDataTable = {
     brand: string,
     quantity: number
     price: string
+    priceTotal: string
 }
 
 type CartTableProps = {
@@ -32,6 +33,7 @@ const CartTable: React.FC<CartTableProps> = ( props ) => {
             name: cart.productItem.product?.name,
             brand: cart.productItem.product.brand?.name,
             quantity: cart.quantity,
+            priceTotal: cart.productItem.price[0] ? Currency.defaultFormat( cart.productItem.price[0].value * cart.quantity, cart.productItem.price[0].currency.iso_code ) : 0,
             price:  cart.productItem.price[0] ? Currency.defaultFormat( cart.productItem.price[0].value, cart.productItem.price[0].currency.iso_code ) : 0
         }) as CartDataTable );
 
@@ -50,6 +52,11 @@ const CartTable: React.FC<CartTableProps> = ( props ) => {
         {
             accessorKey: "price",
             header: t( "cart.price_column" ) as string
+        },
+        {
+            accessorKey: "priceTotal",
+            header: t("cart.price_total_column") as string,
+            cell: props => props.getValue()
         },
         {
             accessorKey: "id",

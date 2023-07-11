@@ -35,4 +35,5 @@ type Order {
     postalCode: String!
     country: String!
     orderRows: [OrderRow]!
+    createdAt: Timestamp!
 }

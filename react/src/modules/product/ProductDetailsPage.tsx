@@ -66,7 +66,6 @@ const ProductDetailsPage: React.FC = () => {
                             width={100}
                             loading="lazy"
                             className="my-auto"
-                            loader={<Spinner/>}
                             onErrorCapture={(e) => e.preventDefault()}
                         />
                     </div>
@@ -94,7 +93,7 @@ const ProductDetailsPage: React.FC = () => {
                         <div className="mt-10 flex flex-col">
                             <div className="">
                                 <Field.FormControl className="">
-                                    <Field.Input type="number" name="quantity" placeholder={"4"} onChange={setQuantity}
+                                    <Field.Input type="number" name="quantity" placeholder={"4"} onValueChange={setQuantity}
                                                  labelText="Quantità"
                                                  value={quantity}/>
                                 </Field.FormControl>

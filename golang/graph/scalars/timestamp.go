@@ -16,7 +16,10 @@ func MarshalTimestamp(t time.Time) graphql.Marshaler {
 	}
 
 	return graphql.WriterFunc(func(w io.Writer) {
-		io.WriteString(w, strconv.Quote(t.Format(time.RFC3339Nano)))
+		_, err := io.WriteString(w, strconv.Quote(t.Format(time.RFC3339Nano)))
+		if err != nil {
+			return
+		}
 	})
 }
 

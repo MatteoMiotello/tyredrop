@@ -32,6 +32,13 @@ func Paginate[T DaoMod](d T, limit int, offset int) *T {
 	)
 }
 
+func WithDeletes[T DaoMod](d T) *T {
+	return newInstanceWithMods(
+		d,
+		qm.WithDeleted(),
+	)
+}
+
 func ForUpdate[T DaoMod](d T) *T {
 	return newInstanceWithMods(
 		d,

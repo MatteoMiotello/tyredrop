@@ -1,5 +1,6 @@
 import {gql} from "../../../../__generated__";
 
+
 export const FETCH_ORDER = gql(`
     query fetchOrder( $orderId: ID! ) {
         order(id: $orderId) {
@@ -15,6 +16,7 @@ export const FETCH_ORDER = gql(`
             province
             postalCode
             status
+            createdAt
             userBilling {
                 id
                 name
@@ -31,6 +33,13 @@ export const FETCH_ORDER = gql(`
                 quantity
                 productItem {
                     id
+                    price {
+                        value
+                        currency {
+                            iso_code
+                            symbol
+                        }
+                    }
                     product {
                         id
                         name
@@ -55,6 +64,7 @@ export const FETCH_USER_ORDERS = gql(`
             province
             postalCode
             country
+            createdAt
             orderRows {
                amount
             }

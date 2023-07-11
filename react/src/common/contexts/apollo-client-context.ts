@@ -58,12 +58,11 @@ const refreshTokenLink = new ApolloLink((operation: Operation, forward: NextLink
 
 const errorLink = onError(
     ({graphQLErrors, networkError, operation, forward}) => {
-        const auth = selectAuthStatus(store.getState());
-
+        const refreshToken = window.localStorage.getItem('refresh_token');
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        if (networkError && networkError?.statusCode == 401 && auth?.refreshToken && auth.isLoggedIn() ) {
-            return fromPromise(store.dispatch(authRefreshToken(auth.refreshToken)))
+        if (networkError && networkError?.statusCode >= 400 && networkError?.statusCode < 500 && refreshToken ) {
+            return fromPromise(store.dispatch(authRefreshToken(refreshToken)))
                 .flatMap(res => {
                     return forward(operation);
                 });

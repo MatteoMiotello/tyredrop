@@ -43,7 +43,7 @@ func GetAllCartsByUserId(ctx context.Context, cartDao *cart.Dao, userId int64) (
 
 	var graphModels []*model.Cart
 	for _, c := range cartModels {
-		price := c.R.ProductItem.R.ProductItemPrices[0] //todo
+		price := c.R.ProductItem.R.ProductItemPrices[0]
 
 		amount, err := currency.ToFloat(price.Price, defaultCur.IsoCode)
 

@@ -34,6 +34,10 @@ func (d ItemDao) Paginate(first int, offset int) *ItemDao {
 	return db.Paginate(d, first, offset)
 }
 
+func (d ItemDao) WithDeletes() *ItemDao {
+	return db.WithDeletes(d)
+}
+
 func (d *ItemDao) Product(ctx context.Context, productItem *models.ProductItem) (*models.Product, error) {
 	return productItem.Product(
 		d.GetMods()...,

@@ -19,6 +19,7 @@ func OrderToGraphQL(order *models.Order) *model.Order {
 		City:          order.City,
 		Province:      order.Province,
 		Status:        model.OrderStatus(order.Status),
+		CreatedAt:     order.CreatedAt,
 	}
 }
 

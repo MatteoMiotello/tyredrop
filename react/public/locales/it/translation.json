@@ -89,7 +89,8 @@
     "checkout_button": "Conferma ordine",
     "total_price": "Prezzo totale",
     "no_address_found": "Nessun indirizzo trovato",
-    "price_column": "Prezzo unitario"
+    "price_column": "Prezzo unitario",
+    "price_total_column": "Prezzo totale"
   },
   "user_address": {
     "add_new_address": "Aggiungi un nuovo indirizzo",

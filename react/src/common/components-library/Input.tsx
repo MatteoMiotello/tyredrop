@@ -1,11 +1,11 @@
-import React, {ChangeEventHandler, PropsWithChildren, useRef, useState} from "react";
+import React, {ChangeEventHandler, InputHTMLAttributes, PropsWithChildren, useRef, useState} from "react";
 import {PropsWithValidators, ValidationHandler} from "../validation/validators";
 
 interface FormControlProps extends PropsWithChildren {
     className?: string;
 }
 
-interface InputProps extends PropsWithValidators {
+type InputProps = {
     type: string;
     name: string;
     placeholder: string;
@@ -18,8 +18,8 @@ interface InputProps extends PropsWithValidators {
     size?: 'lg' | 'md' | 'sm' | 'xs' | undefined;
     defaultValue?: string;
     value?: any;
-    onChange?: ( value: any ) => void
-}
+    onValueChange?: (value: any ) => void
+} & PropsWithValidators & InputHTMLAttributes<HTMLInputElement>
 
 interface FormInputProps extends FormControlProps, InputProps {
 
@@ -43,8 +43,8 @@ const Input: React.FC<InputProps> = (props) => {
     let classes = null;
     const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
         const value = event.target.value;
-        if ( props.onChange ) {
-            props.onChange(value);
+        if ( props.onValueChange ) {
+            props.onValueChange(value);
         }
 
         if (!props.validators) {
@@ -85,6 +85,8 @@ const Input: React.FC<InputProps> = (props) => {
     };
 
     classes += ' ' + getSizeClassName(props.size);
+
+    classes += ' ' + props.className;
 
     return <>
         {

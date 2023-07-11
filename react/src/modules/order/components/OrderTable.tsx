@@ -1,3 +1,4 @@
+import moment from "moment";
 import React from "react";
 import Table from "../../../common/components-library/Table";
 import {Order} from "../../../__generated__/graphql";
@@ -6,6 +7,10 @@ import {calculateTotal} from "../utils";
 import {Link} from "react-router-dom";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faMagnifyingGlass} from "@fortawesome/free-solid-svg-icons";
+import OrderStatusBadge from "./OrderStatusBadge";
+import 'moment/locale/it.js';  // without this line it didn't work
+moment.locale('it');
+
 
 type OrderTableProps = {
     orders: Partial<Order>[]
@@ -18,8 +23,15 @@ const OrderTable: React.FC<OrderTableProps> = (props) => {
             cell: (props: CellContext<Order, any>) => <span>#{props.getValue()}</span>
         },
         {
+            accessorKey: "createdAt",
+            header: "Data",
+            cell: props => {
+                return <span>{moment(props.row.original.createdAt).calendar()}</span>;
+            }
+        },
+        {
             header: "Indirizzo",
-            cell: ( props: CellContext<Order, any> ) => {
+            cell: (props: CellContext<Order, any>) => {
                 const order = props.row.original;
 
                 return <ul>
@@ -30,8 +42,9 @@ const OrderTable: React.FC<OrderTableProps> = (props) => {
             }
         },
         {
-          accessorKey: "status",
-          header: "Stato"
+            accessorKey: "status",
+            header: "Stato",
+            cell: ( props: CellContext<Order, any> ) => <OrderStatusBadge status={props.row.original.status}/>
         },
         {
             accessorKey: "orderRows",
@@ -42,7 +55,9 @@ const OrderTable: React.FC<OrderTableProps> = (props) => {
             accessorKey: "id",
             header: "",
             size: 5,
-            cell: ( props: CellContext<Order, any> ) => <Link to={'/order/details/'+props.getValue()} className="btn btn-secondary"> <FontAwesomeIcon icon={faMagnifyingGlass}/> </Link>
+            cell: (props: CellContext<Order, any>) => <Link to={'/order/details/' + props.getValue()}
+                                                            className="btn btn-secondary"> <FontAwesomeIcon
+                icon={faMagnifyingGlass}/> </Link>
         }
     ];
 
