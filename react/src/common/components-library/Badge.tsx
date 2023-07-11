@@ -2,7 +2,7 @@ import React, {PropsWithChildren} from "react";
 
 type BadgeType = 'primary' | 'secondary' | 'accent' | 'ghost' | undefined
 interface BadgeProps extends PropsWithChildren {
-    outline: boolean
+    outline?: boolean
     type?: BadgeType
     className?: string
     color?: string

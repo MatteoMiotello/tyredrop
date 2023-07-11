@@ -19,6 +19,9 @@ const userLoader: LoaderFunction = async ({params}) => {
 const userRoutes: RouteObject = {
     path: 'user',
     Component: UserTemplatePage,
+    handle: {
+      crumb: () => <span> Utente </span>
+    },
     children: [
         {
             path: ':id',

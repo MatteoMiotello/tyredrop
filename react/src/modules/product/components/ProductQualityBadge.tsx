@@ -10,12 +10,12 @@ const getQualityConfig = ( quality: number | undefined | null ): QualityDef => {
         case 3:
             return {
                 title: "Budget",
-                color: '#ebcc34',
+                color: '#ffd138',
             };
         case 4:
             return {
                 title: "Quality",
-                color: '#ebcc34',
+                color: '#66c4ff',
             };
         case 5:
             return {
@@ -25,7 +25,7 @@ const getQualityConfig = ( quality: number | undefined | null ): QualityDef => {
         default:
             return {
                 title: "Budget",
-                color: '#ffaa00',
+                color: '#ffd138',
             };
     }
 };
@@ -41,7 +41,7 @@ const ProductQualityBadge: React.FC<ProductQualityBadgeProps> = ( {quality} ) =>
 
     }, [quality] );
 
-    return <Badge outline={true} className="badge-lg" color={config?.color}>
+    return <Badge className="badge-lg" color={config?.color}>
         {config?.title}
     </Badge>;
 };

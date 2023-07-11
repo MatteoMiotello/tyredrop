@@ -33,8 +33,10 @@ const NotConfirmedPage: React.FC = () => {
                 <Logo width={150}/>
                 <h1 className="my-10 text-2xl font-medium"> {t('not_confirmed.title')} </h1>
                 <p> {t('not_confirmed.text')} </p>
-                <Button className="mt-10" type="primary" onClick={() => auth.tryRefreshToken() }> Home </Button>
-                <Button className="mt-2" type="error" onClick={() => dispatch( logout() )}> Esci </Button>
+                <div className="flex justify-center gap-4 mt-10">
+                <Button className="" type="primary" onClick={() => auth.tryRefreshToken() }> Home </Button>
+                <Button className="" outline={true} onClick={() => dispatch( logout() )}> Esci </Button>
+                </div>
             </div>
         </main>
         <CustomFooter/>

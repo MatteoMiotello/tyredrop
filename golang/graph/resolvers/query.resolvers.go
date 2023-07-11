@@ -87,7 +87,9 @@ func (r *queryResolver) TaxRates(ctx context.Context) ([]*model.Tax, error) {
 
 // Brands is the resolver for the brands field.
 func (r *queryResolver) Brands(ctx context.Context) ([]*model.Brand, error) {
-	brandModels, err := r.BrandDao.FindAll(ctx)
+	brandModels, err := r.BrandDao.
+		Paginate(0, 10).
+		FindAll(ctx)
 
 	if err != nil {
 		return nil, err
