@@ -20,6 +20,16 @@ import {ToastConfig, ToastContainer} from "./common/components/ToastContainer";
 import NotConfirmedPage from "./NotConfirmedPage";
 import {orderRoutes} from "./modules/order/routes";
 
+import moment from 'moment-timezone';
+import Moment from "react-moment";
+import 'moment/locale/it';
+
+Moment.globalMoment = moment;
+Moment.globalLocale = 'it';
+Moment.globalTimezone = 'Europe/Rome';
+Moment.globalFormat = 'DD/MM/YYYY HH:mm';
+Moment.globalLocal = true;
+
 const router = createBrowserRouter([
     {
         path: '/',

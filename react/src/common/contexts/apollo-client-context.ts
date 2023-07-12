@@ -59,6 +59,7 @@ const refreshTokenLink = new ApolloLink((operation: Operation, forward: NextLink
 const errorLink = onError(
     ({graphQLErrors, networkError, operation, forward}) => {
         const refreshToken = window.localStorage.getItem('refresh_token');
+
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         if (networkError && networkError?.statusCode >= 400 && networkError?.statusCode < 500 && refreshToken ) {

@@ -1,4 +1,3 @@
-import moment from "moment";
 import React from "react";
 import Table from "../../../common/components-library/Table";
 import {Order} from "../../../__generated__/graphql";
@@ -8,9 +7,7 @@ import {Link} from "react-router-dom";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faMagnifyingGlass} from "@fortawesome/free-solid-svg-icons";
 import OrderStatusBadge from "./OrderStatusBadge";
-import 'moment/locale/it.js';  // without this line it didn't work
-moment.locale('it');
-
+import Moment from "react-moment";
 
 type OrderTableProps = {
     orders: Partial<Order>[]
@@ -26,7 +23,7 @@ const OrderTable: React.FC<OrderTableProps> = (props) => {
             accessorKey: "createdAt",
             header: "Data",
             cell: props => {
-                return <span>{moment(props.row.original.createdAt).calendar()}</span>;
+                return <Moment date={props.row.original.createdAt}> </Moment>;
             }
         },
         {

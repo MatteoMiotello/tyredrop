@@ -5,25 +5,31 @@ import Panel from "../../common/components-library/Panel";
 import OrderRowsTable from "./components/OrderRowsTable";
 import OrderStatusBadge from "./components/OrderStatusBadge";
 import {calculateTotal} from "./utils";
+import Moment from "react-moment";
 
 const OrderDetailsPage: React.FC = () => {
     const order = useLoaderData() as FetchOrderQuery;
 
     return <main className="p-4 grid grid-flow-row md:grid-cols-12 gap-4">
-        <h1 className="col-span-12 text-center text-3xl my-10">
-            Ordine n. #{order.order.id}
-        </h1>
+        <div className="col-span-12 text-center my-10">
+            <h1 className=" text-3xl ">
+                Ordine n. #{order.order.id}
+            </h1>
+            <Moment className="text-neutral">{order.order.createdAt}</Moment>
+        </div>
         <Panel className="col-span-8 row-span-2">
             <h3 className="font-semibold">Prodotti acquistati</h3>
             <OrderRowsTable order={order}></OrderRowsTable>
         </Panel>
         <Panel className="col-span-4 flex flex-col">
             <h3 className="font-semibold">Totale Ordine</h3>
-            <div className="w-full my-auto text-center text-6xl font-bold text-primary">{calculateTotal(order.order as Order)}</div>
+            <div
+                className="w-full my-auto text-center text-6xl font-bold text-primary">{calculateTotal(order.order as Order)}</div>
         </Panel>
         <Panel className="col-span-4 flex flex-col">
             <h3 className="font-semibold">Stato dell'ordine</h3>
-            <span className="font-bold text-secondary mx-auto text-4xl"><OrderStatusBadge className="badge-lg" status={order.order.status}/></span>
+            <span className="font-bold text-secondary mx-auto text-4xl"><OrderStatusBadge className="badge-lg"
+                                                                                          status={order.order.status}/></span>
         </Panel>
         <Panel className="col-span-6">
             <h3 className="font-semibold">Dati di fatturazione</h3>
@@ -46,7 +52,8 @@ const OrderDetailsPage: React.FC = () => {
                 <li><strong>CAP:</strong> {order.order.postalCode}</li>
             </ul>
         </Panel>
-    </main>;
+    </main>
+        ;
 };
 
 export default OrderDetailsPage;
