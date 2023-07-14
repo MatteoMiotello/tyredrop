@@ -20,7 +20,7 @@ func addJobs(c *cron.Cron) {
 	if err != nil {
 		panic(err.Error())
 	}
-	_, err = c.AddFunc("@every 5m", jobs.CopySupplierFiles)
+	_, err = c.AddFunc("@every 1m", jobs.CopySupplierFiles)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -31,7 +31,9 @@ func addJobs(c *cron.Cron) {
 }
 
 func runCron() {
-	c := cron.New()
+	c := cron.New(
+		cron.WithChain(cron.Recover(cron.DefaultLogger)),
+		cron.WithLogger(cron.VerbosePrintfLogger(log.Log)))
 	addJobs(c)
 
 	c.Start()

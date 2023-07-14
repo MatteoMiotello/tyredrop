@@ -6,6 +6,7 @@ export const SEARCH_BRANDS = gql(`
             id
             name
             code
+            quality
         }
      }  
 `);

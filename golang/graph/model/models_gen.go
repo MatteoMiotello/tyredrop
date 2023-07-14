@@ -90,6 +90,7 @@ type ProductSearchInput struct {
 	Brand          *string                      `json:"brand,omitempty"`
 	Name           *string                      `json:"name,omitempty"`
 	Code           *string                      `json:"code,omitempty"`
+	VehicleCode    *string                      `json:"vehicleCode,omitempty"`
 	Specifications []*ProductSpecificationInput `json:"specifications,omitempty"`
 }
 

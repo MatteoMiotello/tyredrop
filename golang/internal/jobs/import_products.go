@@ -32,6 +32,12 @@ func check(err error) {
 func ImportProductsFromFile() {
 	ctx := context.Background()
 
+	_, err := product.NewPriceMarkupDao(db.DB).FindPriceMarkupDefault(ctx)
+	if err != nil {
+		log.Error("Default Price markup not found")
+		return
+	}
+
 	sDao := supplier.NewDao(db.DB)
 	jobExists, _ := sDao.ExistRunningJob(ctx)
 

@@ -38,7 +38,7 @@ func upAdminUser(tx *sql.Tx) error {
 		Username:          null.StringFrom("administrator"),
 		Password:          string(hashed),
 		Name:              "Admin",
-		Surname:           "",
+		Surname:           null.String{},
 		Confirmed:         true,
 	}
 

@@ -12,6 +12,7 @@ import (
 	"pillowww/titw/internal/domain/vehicle"
 	"pillowww/titw/models"
 	"pillowww/titw/pkg/constants"
+	"pillowww/titw/pkg/log"
 	"strings"
 )
 
@@ -56,6 +57,33 @@ func (s Service) deleteOldItems(ctx context.Context, product *models.Product, su
 	}
 
 	return nil
+}
+
+func (s Service) findOrCreateSpecificationValue(ctx context.Context, specification *models.ProductSpecification, value string) (*models.ProductSpecificationValue, error) {
+	specificationValue, err := s.SpecificationValueDao.FindBySpecificationAndValue(ctx, specification, value)
+
+	if specificationValue == nil {
+		if value == "R" {
+			fmt.Println(value, err)
+		}
+	}
+
+	if specificationValue != nil {
+		return specificationValue, nil
+	}
+
+	specificationValue = &models.ProductSpecificationValue{
+		ProductSpecificationID: specification.ID,
+		SpecificationValue:     value,
+	}
+
+	err = s.SpecificationValueDao.Insert(ctx, specificationValue)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return specificationValue, nil
 }
 
 func (s Service) FindOrCreateProduct(ctx context.Context, dto pdtos.ProductDto) (*models.Product, error) {
@@ -133,16 +161,22 @@ func (s Service) UpdateSpecifications(ctx context.Context, product *models.Produ
 			continue
 		}
 
-		pValue = &models.ProductSpecificationValue{
-			ProductID:              product.ID,
-			ProductSpecificationID: spec.ID,
-			SpecificationValue:     strings.ToValidUTF8(value, ""),
-		}
-
-		err = s.ProductDao.Insert(ctx, pValue)
+		pValue, err = s.findOrCreateSpecificationValue(ctx, spec, strings.TrimSpace(strings.ToValidUTF8(value, "")))
 
 		if err != nil {
 			fmt.Println(err)
+			return err
+		}
+
+		relation := &models.ProductProductSpecificationValue{
+			ProductSpecificationValueID: pValue.ID,
+			ProductID:                   product.ID,
+		}
+
+		err := s.SpecificationValueDao.Insert(ctx, relation)
+
+		if err != nil {
+			log.Error("Error inserting ProductProductSpecificationValue", err)
 			return err
 		}
 

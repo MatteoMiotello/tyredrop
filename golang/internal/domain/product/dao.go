@@ -39,8 +39,11 @@ func (d Dao) Clone() db.DaoMod {
 }
 
 func (d *Dao) ProductSpecificationValues(ctx context.Context, product *models.Product) (models.ProductSpecificationValueSlice, error) {
-	return product.ProductSpecificationValues(
-		d.GetMods()...,
+	return models.ProductSpecificationValues(
+		d.GetMods(
+			qm.LeftOuterJoin("product_product_specification_values", "product_product_specification_values.product_id = products.id"),
+			models.ProductProductSpecificationValueWhere.ProductID.EQ(product.ID),
+		)...,
 	).All(ctx, d.Db)
 }
 
@@ -107,10 +110,6 @@ func (d Dao) FindNextRemainingEprelProduct(ctx context.Context, categoryCodes ..
 			qm.Limit(1),
 		)...,
 	).One(ctx, d.Db)
-}
-
-func (d Dao) AddProductSpecificationValues(ctx context.Context, product *models.Product, values ...*models.ProductSpecificationValue) error {
-	return product.AddProductSpecificationValues(ctx, d.Db, true, values...)
 }
 
 func (d Dao) Search(ctx context.Context, input *model.ProductSearchInput, currency *models.Currency) (models.ProductSlice, error) {

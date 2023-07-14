@@ -117,6 +117,7 @@ func (d *ItemDao) FindProductItems(ctx context.Context, input *model.ProductSear
 			"FROM product_items "+
 			"LEFT JOIN product_item_prices on product_items.id = product_item_prices.product_item_id "+
 			"AND product_item_prices.currency_id = ? "+
+			"AND product_item_prices.deleted_at IS NULL "+
 			"GROUP BY product_items.product_id "+
 			" ) pi ON pi.product_id = products.id ", currency.ID,
 	))
@@ -139,11 +140,16 @@ func (d *ItemDao) FindProductItems(ctx context.Context, input *model.ProductSear
 			mods = append(mods, qm.Where("products.name ILIKE ?", "%"+*input.Name+"%"))
 		}
 
+		if input.VehicleCode != nil {
+			mods = append(mods, qm.LeftOuterJoin("vehicle_types", "vehicle_types.id = products.vehicle_type_id"))
+			mods = append(mods, models.VehicleTypeWhere.Code.EQ(*input.VehicleCode))
+		}
+
 		if input.Specifications != nil {
 			for _, spec := range input.Specifications {
 				mods = append(mods, qm.And(
 					"products.id IN ( SELECT product_specification_values.product_id FROM product_specification_values "+
-						"LEFT JOIN product_specifications ON product_specifications.id = product_specification_values.product_specification_id "+
+						"LEFT JOIN product_specifications ON product_specifications.id = product_specification_values.product_specification_id AND product_specifications.deleted_ad IS NULL "+
 						"WHERE product_specifications.specification_code = ? "+
 						"AND product_specification_values.specification_value = ? ) ",
 					spec.Code, spec.Value,

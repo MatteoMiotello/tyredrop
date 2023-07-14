@@ -13,7 +13,7 @@ func UserToGraphQL(user *models.User) *model.User {
 		Username:  &user.Username.String,
 		Confirmed: user.Confirmed,
 		Name:      &user.Name,
-		Surname:   &user.Surname,
+		Surname:   user.Surname.Ptr(),
 	}
 }
 

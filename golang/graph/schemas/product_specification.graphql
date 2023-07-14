@@ -14,6 +14,7 @@ type ProductSpecification {
     productCategory: ProductCategory
     mandatory: Boolean
     searchable: Boolean
+    values: [ProductSpecificationValue]!
 }
 
 input ProductSpecificationInput {

@@ -1,4 +1,5 @@
 import React, {useEffect} from "react";
+import ProductQualityBadge from "../../modules/product/components/ProductQualityBadge";
 import Autocomplete, {AutocompleteOption, AutocompleteQueryHandler} from "../components-library/Autocomplete";
 import {useLazyQuery} from "@apollo/client";
 import {SEARCH_BRANDS} from "../backend/graph/query/brands";
@@ -34,7 +35,7 @@ const BrandField: React.FC<BrandFieldProps> = (props) => {
 
         return brands.data?.searchBrands?.map((brand) => {
             return {
-                title: brand?.name,
+                title: <span><ProductQualityBadge small quality={brand?.quality}/> {brand?.name} </span>,
                 value: brand?.code
             } as AutocompleteOption;
         });

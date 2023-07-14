@@ -1,7 +1,7 @@
 import {faCheck, faChevronDown} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Combobox, Transition} from "@headlessui/react";
-import React, {ChangeEventHandler, Fragment, useEffect, useState} from "react";
+import React, {ChangeEventHandler, Fragment, ReactNode, useEffect, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {PropsWithValidators, ValidationHandler} from "../validation/validators";
 
@@ -18,7 +18,7 @@ interface AutocompleteProps extends PropsWithValidators {
 }
 
 export type AutocompleteOption = {
-    title: string,
+    title: ReactNode,
     value: any
 }
 
@@ -35,11 +35,7 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
         }
     }, [props.defaultValue] );
 
-    useEffect(() => {
-        if ( query.length < 2 ) {
-            return;
-        }
-
+    const performQuery = () => {
         const options = props.getOptions(query);
 
         if (!options) {
@@ -54,6 +50,10 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
             .catch((err) => {
                 return null;
             });
+    };
+
+    useEffect(() => {
+        performQuery();
     }, [query]);
 
     const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
@@ -97,7 +97,7 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
                         onFocus={onChange}
                         placeholder={props.placeholder}
                     />
-                    <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2 border-none">
+                    <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2 border-none" onClick={performQuery}>
                         <FontAwesomeIcon icon={faChevronDown}
                                          className="h-5 w-5 text-primary label-text"
                                          aria-hidden="true"

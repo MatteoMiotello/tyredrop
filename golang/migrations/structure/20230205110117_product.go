@@ -86,11 +86,17 @@ func upProduct(tx *sql.Tx) error {
 
 	productSpecificationValueQuery := sqlbuilder.CreateTable("public.product_specification_values").
 		PKColumn().
-		FKColumn("public.products", "product_id", false).
 		FKColumn("public.product_specifications", "product_specification_id", false).
 		Column("specification_value", types.Varchar.Options("500"), false).
 		DeletedColumn().
 		UpdatedColumn().
+		CreatedColumn().
+		String()
+
+	productProductSpecificationValueQuery := sqlbuilder.CreateTable("public.product_product_specification_values").
+		PKColumn().
+		FKColumn("public.products", "product_id", false).
+		FKColumn("public.product_specification_values", "product_specification_value_id", false).
 		CreatedColumn().
 		String()
 
@@ -147,6 +153,10 @@ func upProduct(tx *sql.Tx) error {
 	if err != nil {
 		return err
 	}
+	_, err = tx.Exec(productProductSpecificationValueQuery)
+	if err != nil {
+		return err
+	}
 	_, err = tx.Exec(productItemQuery)
 	if err != nil {
 		return err
@@ -169,6 +179,10 @@ func downProduct(tx *sql.Tx) error {
 		return err
 	}
 	_, err = tx.Exec("DROP TABLE public.product_items")
+	if err != nil {
+		return err
+	}
+	_, err = tx.Exec("DROP TABLE public.product_product_specification_values")
 	if err != nil {
 		return err
 	}

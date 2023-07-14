@@ -109,7 +109,7 @@ func (r *queryResolver) SearchBrands(ctx context.Context, name string) ([]*model
 	var graphModels []*model.Brand
 
 	if len(name) < 2 {
-		all, err := r.BrandDao.Paginate(0, 10).FindAll(ctx)
+		all, err := r.BrandDao.Paginate(10, 0).FindAll(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -287,6 +287,11 @@ func (r *queryResolver) Products(ctx context.Context, pagination *model.Paginati
 			Totals: &countInt,
 		},
 	}, nil
+}
+
+// Specifications is the resolver for the specifications field.
+func (r *queryResolver) Specifications(ctx context.Context) ([]*model.ProductSpecification, error) {
+	panic(fmt.Errorf("not implemented: Specifications - specifications"))
 }
 
 // Currency is the resolver for the currency field.

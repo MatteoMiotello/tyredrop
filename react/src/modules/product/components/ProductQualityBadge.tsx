@@ -32,8 +32,9 @@ const getQualityConfig = ( quality: number | undefined | null ): QualityDef => {
 
 type ProductQualityBadgeProps = {
     quality: number | null | undefined
+    small?: boolean
 }
-const ProductQualityBadge: React.FC<ProductQualityBadgeProps> = ( {quality} ) => {
+const ProductQualityBadge: React.FC<ProductQualityBadgeProps> = ( {quality, small} ) => {
     const [config, setConfig] = useState<QualityDef>();
 
     useEffect( () => {
@@ -41,7 +42,7 @@ const ProductQualityBadge: React.FC<ProductQualityBadgeProps> = ( {quality} ) =>
 
     }, [quality] );
 
-    return <Badge className="badge-lg" color={config?.color}>
+    return <Badge className={small ? "badge-sm" : "badge-lg"} color={config?.color}>
         {config?.title}
     </Badge>;
 };

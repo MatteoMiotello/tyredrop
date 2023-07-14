@@ -99,15 +99,30 @@ func createSpecificationValues(ctx context.Context, psDao *product.Specification
 			continue
 		}
 
-		v = &models.ProductSpecificationValue{
-			SpecificationValue:     value,
-			ProductID:              product.ID,
-			ProductSpecificationID: specification.ID,
+		specificationValue, _ := vDao.FindBySpecificationAndValue(ctx, specification, value)
+
+		if specificationValue == nil {
+			specificationValue = &models.ProductSpecificationValue{
+				ProductSpecificationID: specification.ID,
+				SpecificationValue:     value,
+			}
+
+			err := vDao.Insert(ctx, specificationValue)
+
+			if err != nil {
+				return err
+			}
 		}
 
-		err = vDao.Insert(ctx, v)
+		relation := &models.ProductProductSpecificationValue{
+			ProductSpecificationValueID: specificationValue.ID,
+			ProductID:                   product.ID,
+		}
+
+		err = vDao.Insert(ctx, relation)
 
 		if err != nil {
+			log.Error("Error inserting ProductProductSpecificationValue", err)
 			return err
 		}
 	}

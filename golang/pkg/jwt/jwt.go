@@ -83,7 +83,7 @@ func CreateAccessTokenFromUser(ctx context.Context, userModel models.User) (stri
 		Email:        userModel.Email,
 		Username:     userModel.Username,
 		Name:         null.StringFrom(userModel.Name),
-		Surname:      null.StringFrom(userModel.Surname),
+		Surname:      userModel.Surname,
 		LanguageCode: uLanguage.IsoCode,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: expiration,

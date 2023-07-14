@@ -25,6 +25,22 @@ func (r *productSpecificationResolver) ProductCategory(ctx context.Context, obj 
 	return converters.ProductCategoryToGraphQL(c), err
 }
 
+// Values is the resolver for the values field.
+func (r *productSpecificationResolver) Values(ctx context.Context, obj *model.ProductSpecification) ([]*model.ProductSpecificationValue, error) {
+	values, err := r.ProductSpecificationValueDao.FindBySpecificationId(ctx, obj.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	var graphValues []*model.ProductSpecificationValue
+
+	for _, value := range values {
+		graphValues = append(graphValues, converters.ProductSpecificationValueToGraphQL(value))
+	}
+
+	return graphValues, nil
+}
+
 // Specification is the resolver for the specification field.
 func (r *productSpecificationValueResolver) Specification(ctx context.Context, obj *model.ProductSpecificationValue) (*model.ProductSpecification, error) {
 	spec, err := r.ProductSpecificationDao.

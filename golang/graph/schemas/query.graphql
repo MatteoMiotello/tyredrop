@@ -23,6 +23,7 @@ input ProductSearchInput {
     brand: String
     name: String
     code: String
+    vehicleCode: String
     specifications: [ProductSpecificationInput]
 }
 
@@ -46,6 +47,8 @@ type Query {
     productItems( pagination: PaginationInput, productSearchInput: ProductSearchInput ): ProductItemPaginate
     productItem( id: ID! ): ProductItem
     products( pagination: PaginationInput, productSearchInput: ProductSearchInput ): ProductPaginate
+
+    specifications: [ProductSpecification]
 
     currency( id: ID! ): Currency
     currencies: [Currency]

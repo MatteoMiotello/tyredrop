@@ -52,7 +52,7 @@ func (s Service) CreateUserFromPayload(ctx context.Context, payload CreateUserPa
 		Username:          null.StringFrom(payload.Username),
 		Password:          string(password),
 		Name:              payload.Name,
-		Surname:           payload.Surname,
+		Surname:           null.StringFrom(payload.Surname),
 		UserRoleID:        adminRole.ID,
 		DefaultLanguageID: lModel.ID,
 	}

@@ -201,6 +201,7 @@ type ComplexityRoot struct {
 		ProductCategoryID func(childComplexity int) int
 		Searchable        func(childComplexity int) int
 		Type              func(childComplexity int) int
+		Values            func(childComplexity int) int
 	}
 
 	ProductSpecificationValue struct {
@@ -224,6 +225,7 @@ type ComplexityRoot struct {
 		Products            func(childComplexity int, pagination *model.PaginationInput, productSearchInput *model.ProductSearchInput) int
 		ProductsItemsByCode func(childComplexity int, code string) int
 		SearchBrands        func(childComplexity int, name string) int
+		Specifications      func(childComplexity int) int
 		TaxRates            func(childComplexity int) int
 		User                func(childComplexity int, id int64) int
 		UserAddress         func(childComplexity int, userID int64) int
@@ -354,6 +356,8 @@ type ProductItemResolver interface {
 }
 type ProductSpecificationResolver interface {
 	ProductCategory(ctx context.Context, obj *model.ProductSpecification) (*model.ProductCategory, error)
+
+	Values(ctx context.Context, obj *model.ProductSpecification) ([]*model.ProductSpecificationValue, error)
 }
 type ProductSpecificationValueResolver interface {
 	Specification(ctx context.Context, obj *model.ProductSpecificationValue) (*model.ProductSpecification, error)
@@ -373,6 +377,7 @@ type QueryResolver interface {
 	ProductItems(ctx context.Context, pagination *model.PaginationInput, productSearchInput *model.ProductSearchInput) (*model.ProductItemPaginate, error)
 	ProductItem(ctx context.Context, id int64) (*model.ProductItem, error)
 	Products(ctx context.Context, pagination *model.PaginationInput, productSearchInput *model.ProductSearchInput) (*model.ProductPaginate, error)
+	Specifications(ctx context.Context) ([]*model.ProductSpecification, error)
 	Currency(ctx context.Context, id int64) (*model.Currency, error)
 	Currencies(ctx context.Context) ([]*model.Currency, error)
 	Order(ctx context.Context, id int64) (*model.Order, error)
@@ -1113,6 +1118,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ProductSpecification.Type(childComplexity), true
 
+	case "ProductSpecification.values":
+		if e.complexity.ProductSpecification.Values == nil {
+			break
+		}
+
+		return e.complexity.ProductSpecification.Values(childComplexity), true
+
 	case "ProductSpecificationValue.id":
 		if e.complexity.ProductSpecificationValue.ID == nil {
 			break
@@ -1271,6 +1283,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.SearchBrands(childComplexity, args["name"].(string)), true
+
+	case "Query.specifications":
+		if e.complexity.Query.Specifications == nil {
+			break
+		}
+
+		return e.complexity.Query.Specifications(childComplexity), true
 
 	case "Query.taxRates":
 		if e.complexity.Query.TaxRates == nil {
@@ -5868,6 +5887,8 @@ func (ec *executionContext) fieldContext_ProductCategory_specifications(ctx cont
 				return ec.fieldContext_ProductSpecification_mandatory(ctx, field)
 			case "searchable":
 				return ec.fieldContext_ProductSpecification_searchable(ctx, field)
+			case "values":
+				return ec.fieldContext_ProductSpecification_values(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ProductSpecification", field.Name)
 		},
@@ -6986,6 +7007,60 @@ func (ec *executionContext) fieldContext_ProductSpecification_searchable(ctx con
 	return fc, nil
 }
 
+func (ec *executionContext) _ProductSpecification_values(ctx context.Context, field graphql.CollectedField, obj *model.ProductSpecification) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductSpecification_values(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ProductSpecification().Values(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.ProductSpecificationValue)
+	fc.Result = res
+	return ec.marshalNProductSpecificationValue2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductSpecificationValue(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductSpecification_values(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductSpecification",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ProductSpecificationValue_id(ctx, field)
+			case "value":
+				return ec.fieldContext_ProductSpecificationValue_value(ctx, field)
+			case "specificationId":
+				return ec.fieldContext_ProductSpecificationValue_specificationId(ctx, field)
+			case "specification":
+				return ec.fieldContext_ProductSpecificationValue_specification(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ProductSpecificationValue", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ProductSpecificationValue_id(ctx context.Context, field graphql.CollectedField, obj *model.ProductSpecificationValue) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ProductSpecificationValue_id(ctx, field)
 	if err != nil {
@@ -7173,6 +7248,8 @@ func (ec *executionContext) fieldContext_ProductSpecificationValue_specification
 				return ec.fieldContext_ProductSpecification_mandatory(ctx, field)
 			case "searchable":
 				return ec.fieldContext_ProductSpecification_searchable(ctx, field)
+			case "values":
+				return ec.fieldContext_ProductSpecification_values(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ProductSpecification", field.Name)
 		},
@@ -8060,6 +8137,67 @@ func (ec *executionContext) fieldContext_Query_products(ctx context.Context, fie
 	if fc.Args, err = ec.field_Query_products_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_specifications(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_specifications(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Specifications(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.ProductSpecification)
+	fc.Result = res
+	return ec.marshalOProductSpecification2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductSpecification(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_specifications(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ProductSpecification_id(ctx, field)
+			case "code":
+				return ec.fieldContext_ProductSpecification_code(ctx, field)
+			case "name":
+				return ec.fieldContext_ProductSpecification_name(ctx, field)
+			case "type":
+				return ec.fieldContext_ProductSpecification_type(ctx, field)
+			case "productCategoryID":
+				return ec.fieldContext_ProductSpecification_productCategoryID(ctx, field)
+			case "productCategory":
+				return ec.fieldContext_ProductSpecification_productCategory(ctx, field)
+			case "mandatory":
+				return ec.fieldContext_ProductSpecification_mandatory(ctx, field)
+			case "searchable":
+				return ec.fieldContext_ProductSpecification_searchable(ctx, field)
+			case "values":
+				return ec.fieldContext_ProductSpecification_values(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ProductSpecification", field.Name)
+		},
 	}
 	return fc, nil
 }
@@ -13033,7 +13171,7 @@ func (ec *executionContext) unmarshalInputProductSearchInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"brand", "name", "code", "specifications"}
+	fieldsInOrder := [...]string{"brand", "name", "code", "vehicleCode", "specifications"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -13061,6 +13199,14 @@ func (ec *executionContext) unmarshalInputProductSearchInput(ctx context.Context
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("code"))
 			it.Code, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "vehicleCode":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vehicleCode"))
+			it.VehicleCode, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -14456,6 +14602,26 @@ func (ec *executionContext) _ProductSpecification(ctx context.Context, sel ast.S
 
 			out.Values[i] = ec._ProductSpecification_searchable(ctx, field, obj)
 
+		case "values":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ProductSpecification_values(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -14818,6 +14984,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_products(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "specifications":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_specifications(ctx, field)
 				return res
 			}
 
@@ -17110,6 +17296,47 @@ func (ec *executionContext) unmarshalOProductSearchInput2ᚖpillowwwᚋtitwᚋgr
 	}
 	res, err := ec.unmarshalInputProductSearchInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOProductSpecification2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductSpecification(ctx context.Context, sel ast.SelectionSet, v []*model.ProductSpecification) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOProductSpecification2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductSpecification(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
 }
 
 func (ec *executionContext) marshalOProductSpecification2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductSpecification(ctx context.Context, sel ast.SelectionSet, v *model.ProductSpecification) graphql.Marshaler {
