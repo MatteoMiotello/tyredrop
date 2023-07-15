@@ -14,7 +14,7 @@ export type UserAddressRequest = {
     address_name: string
     address_line_1: string
     address_line_2: string
-    "country[value]": string
+    country: string
     city: string
     province: string
     cap: string
@@ -46,7 +46,7 @@ export const createUserAddress = createAsyncThunk('USER/CREATE_ADDRESS', async (
                 addressLine1: arg.address_line_1,
                 addressLine2: arg.address_line_2,
                 city: arg.city,
-                country: arg["country[value]"],
+                country: arg.country,
                 postalCode: arg.cap,
                 province: arg.province,
                 IsDefault: false
@@ -71,7 +71,7 @@ export const editUserAddress = createAsyncThunk( 'USER/EDIT_ADDRESS', async ( ar
                 addressLine1: arg.input.address_line_1,
                 addressLine2: arg.input.address_line_2,
                 city: arg.input.city,
-                country: arg.input["country[value]"],
+                country: arg.input.country,
                 postalCode: arg.input.cap,
                 province: arg.input.province,
                 IsDefault: false

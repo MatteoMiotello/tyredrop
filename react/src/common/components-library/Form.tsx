@@ -75,14 +75,37 @@ const Form: React.FC<FormProps> = (props: FormProps) => {
         form.formError.resetErrors();
         e.preventDefault();
 
-        const formData = new FormData(e.currentTarget);
-        const values: any = {};
+        const formData = new FormData( e.currentTarget );
+        const data: { [key: string]: any } = {};
 
-        formData.forEach((value, key) => {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            values[key] = value;
-        });
+        for (const pair of formData.entries()) {
+            const key = pair[0];
+            const value = pair[1];
+
+            if (key.includes('[') && key.includes(']')) {
+                const fieldName = key.substring(0, key.indexOf('['));
+                const matches = key.match(/\[(.*?)\]/);
+                const index = matches ? matches[1] : 0;
+
+                if (!Object.prototype.hasOwnProperty.call(data, fieldName)) {
+                    data[fieldName] = [];
+                }
+
+                data[fieldName][index] = value;
+            } else if (key.includes('{') && key.includes('}')) {
+                const objFieldName = key.substring(0, key.indexOf('{'));
+                const matches = key.match(/\[(.*?)\]/);
+                const objKey = matches ? matches[1] : 0;
+
+                if (!Object.prototype.hasOwnProperty.call(data, objFieldName)) {
+                    data[objFieldName] = {};
+                }
+
+                data[objFieldName][objKey] = value;
+            } else {
+                data[key] = value;
+            }
+        }
 
         if (props.children) {
             const arrayChildren = Children.toArray(props.children);
@@ -106,7 +129,7 @@ const Form: React.FC<FormProps> = (props: FormProps) => {
                 }
 
                 childProps.validators?.forEach((validator: ValidationHandler) => {
-                    const value = values[childProps.name];
+                    const value = data[childProps.name];
 
                     if ( value === undefined ) {
                         return;
@@ -130,7 +153,7 @@ const Form: React.FC<FormProps> = (props: FormProps) => {
             return;
         }
 
-        props.onSubmit(values);
+        props.onSubmit(data);
 
         if (props.onSuccess) {
             props.onSuccess();

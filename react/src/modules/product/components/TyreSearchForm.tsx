@@ -8,6 +8,7 @@ import {useTranslation} from "react-i18next";
 import BrandField from "../../../common/components/BrandField";
 import {ProductSearchDataType} from "../context/product-search-context";
 import {ProductSpecificationsSet} from "../enums/product-specifications-set";
+import SpecificationField from "./SpecificationField";
 
 type TypeSpecificSearchFormProps = {
     onSubmit: ( req: TyreSearchFormRequest ) => void
@@ -23,12 +24,14 @@ export type TyreSearchFormRequest = {
 }
 
 export const toSearchDataType = ( req: TyreSearchFormRequest ): ProductSearchDataType => {
+    console.log( req );
+
     return {
         code: req.tyre_code?.length ? req.tyre_code :  null,
         name: req.tyre_name?.length ? req.tyre_name : null,
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        brand: req["brand[value]"]?.length ? req["brand[value]"] : null,
+        brand: req.brand?.length ? req.brand : null,
         specifications: [
             {
                 code: ProductSpecificationsSet.TYRE.WIDTH,
@@ -68,27 +71,33 @@ const TyreSearchForm: React.FC<TypeSpecificSearchFormProps> = (props ) => {
             />
         </Field.FormControl>
         <Field.FormControl className="col-span-3">
-            <Field.Input
-                type="number"
+            <Field.Label>
+                {t('searchbar.width_field_label')}
+            </Field.Label>
+            <SpecificationField
                 name="width"
-                placeholder={t('searchbar.width_field_label')}
-                labelText={t('searchbar.width_field_label')}
+                specificationCode={ProductSpecificationsSet.TYRE.WIDTH}
+                placeholder={t('searchbar.width_field_label') as string}
             />
         </Field.FormControl>
         <Field.FormControl className="col-span-3">
-            <Field.Input
-                type="number"
+            <Field.Label>
+                {t('searchbar.height_field_label')}
+            </Field.Label>
+            <SpecificationField
                 name="aspect_ratio"
-                placeholder={t('searchbar.height_field_label')}
-                labelText={t('searchbar.height_field_label')}
+                specificationCode={ProductSpecificationsSet.TYRE.ASPECT_RATIO}
+                placeholder={t('searchbar.height_field_label') as string}
             />
         </Field.FormControl>
         <Field.FormControl className="col-span-3">
-            <Field.Input
-                type="number"
+            <Field.Label>
+                {t('searchbar.rim_field_label')}
+            </Field.Label>
+            <SpecificationField
                 name="rim"
-                placeholder={t('searchbar.rim_field_label')}
-                labelText={t('searchbar.rim_field_label')}
+                specificationCode={ProductSpecificationsSet.TYRE.RIM}
+                placeholder={t('searchbar.rim_field_label') as string}
             />
         </Field.FormControl>
         <BrandField

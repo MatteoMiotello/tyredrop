@@ -73,3 +73,23 @@ func (d *SpecificationValueDao) FindBySpecificationAndValue(ctx context.Context,
 		)...,
 	).One(ctx, d.Db)
 }
+
+func (d *SpecificationValueDao) SearchBySpecificationAndValue(ctx context.Context, code string, value *string) (models.ProductSpecificationValueSlice, error) {
+	var mods []qm.QueryMod
+
+	mods = append(mods, qm.LeftOuterJoin("product_specifications on product_specifications.id = product_specification_values.product_specification_id"))
+	mods = append(mods, qm.LeftOuterJoin("product_product_specification_values on product_specification_values.id = product_product_specification_values.product_specification_value_id"))
+	mods = append(mods, models.ProductSpecificationWhere.SpecificationCode.EQ(code))
+	mods = append(mods, qm.OrderBy(" count( product_product_specification_values.id ) DESC"))
+	mods = append(mods, qm.GroupBy("product_specification_values.id"))
+
+	if value != nil || len(*value) < 2 {
+		mods = append(mods, qm.Where(models.ProductSpecificationValueColumns.SpecificationValue+" LIKE ?", `%`+*value+`%`))
+	}
+
+	return models.ProductSpecificationValues(
+		d.GetMods(
+			mods...,
+		)...,
+	).All(ctx, d.Db)
+}

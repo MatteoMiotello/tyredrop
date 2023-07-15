@@ -2,7 +2,6 @@ import {useMutation} from "@apollo/client";
 import React, {useEffect} from "react";
 import {useTranslation} from "react-i18next";
 import {useDispatch} from "react-redux";
-import {useNavigate} from "react-router-dom";
 import {CreateUserBillingMutation, CreateUserBillingMutationVariables} from "../../__generated__/graphql";
 import {CREATE_BILLING} from "../../common/backend/graph/mutation/create-billing";
 import Spinner from "../../common/components/Spinner";
@@ -13,7 +12,6 @@ import { setUserCompleted} from "../auth/store/auth-slice";
 
 const BillingPage: React.FC = () => {
     const {t} = useTranslation();
-    const navigate = useNavigate();
     const auth = useAuth();
     const dispatch = useDispatch();
     const {setSuccess} = useToast();
@@ -45,7 +43,7 @@ const BillingPage: React.FC = () => {
                     addressLine2: input.address_line_2,
                     cap: input.cap,
                     city: input.city,
-                    country: input["country[value]"],
+                    country: input.country,
                     fiscalCode: input.fiscal_code,
                     iban: input.iban,
                     legalEntityTypeId: input.entity_type,

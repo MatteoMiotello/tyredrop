@@ -7,23 +7,24 @@ import {PropsWithValidators, ValidationHandler} from "../validation/validators";
 
 export type AutocompleteQueryHandler = (query: string) => Promise<AutocompleteOption[] | null>
 
-interface AutocompleteProps extends PropsWithValidators {
+interface AutocompleteProps<T = any> extends PropsWithValidators {
     getOptions: AutocompleteQueryHandler;
-    initialOptions: AutocompleteOption[];
+    initialOptions: AutocompleteOption<T>[];
     className?: string;
     name: string;
     placeholder?: string | undefined;
     labelText?: string | undefined | null;
-    defaultValue?: AutocompleteOption
+    defaultValue?: T
 }
 
-export type AutocompleteOption = {
-    title: ReactNode,
-    value: any
+export type AutocompleteOption<T = any> = {
+    title: string,
+    content?: ReactNode
+    value: T
 }
 
 const Autocomplete: React.FC<AutocompleteProps> = (props) => {
-    const [selected, setSelected] = useState<AutocompleteOption | null>(props.defaultValue ?? props.initialOptions[0] ?? null);
+    const [selectedValue, setSelectedValue] = useState<any>( props.defaultValue || "" );
     const [query, setQuery] = useState('');
     const [filteredOptions, setFilteredOptions] = useState(props.initialOptions);
     const [error, setError] = useState<string | null>(null);
@@ -31,9 +32,10 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
 
     useEffect( () => {
         if ( props.defaultValue ) {
-            setSelected( props.defaultValue );
+            setSelectedValue( props.defaultValue );
         }
     }, [props.defaultValue] );
+
 
     const performQuery = () => {
         const options = props.getOptions(query);
@@ -44,7 +46,19 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
 
         options.then(res => {
             if (res) {
-                setFilteredOptions(res);
+                let options = res;
+
+                if ( query.length ){
+                    options = [
+                        {
+                            title: query,
+                            value: query
+                        },
+                        ...options
+                    ];
+                }
+
+                setFilteredOptions(options);
             }
         })
             .catch((err) => {
@@ -56,11 +70,23 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
         performQuery();
     }, [query]);
 
+    const findOption = ( value: any ) => {
+        if ( !filteredOptions.length ) {
+            return null;
+        }
+
+        if ( !value ) {
+            return null;
+        }
+
+        return filteredOptions.find( opt => opt.value == value );
+    };
+
     const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
         const value = event.target.value;
 
         if ( !value ) {
-            setSelected(null);
+            setSelectedValue(null);
         }
 
         if (!props.validators) {
@@ -75,7 +101,7 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
         });
     };
 
-    return <Combobox value={selected} onChange={setSelected} name={props.name}>
+    return <Combobox value={selectedValue} onChange={setSelectedValue} name={props.name}>
         <div className={"relative " + props.className}>
                 {props.labelText &&
                     <label className="label">
@@ -86,10 +112,13 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
                 }
                 <div
                     className={`select select-bordered relative w-full cursor-default overflow-hidden p-0 ${error ? 'select-error' : ''}`}>
-                    <Combobox.Input<AutocompleteOption>
+                    <Combobox.Input
                         autoComplete="off"
                         className={"input w-full border-none p-4 font-normal"}
-                        displayValue={(option) => option ? option.title : ''}
+                        displayValue={(value: any) => {
+                            const option = findOption( value );
+                            return option ? option.title : value;
+                        }}
                         onChange={(event) => {
                             setQuery(event.target.value);
                             onChange(event);
@@ -113,12 +142,8 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
                 afterLeave={() => setQuery('')}
             >
                 <Combobox.Options
-                    className="absolute z-30 mt-1 pl-0 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                    {filteredOptions.length === 0 ? (
-                        <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
-                            {query.length > 0 ? t('fields.empty_query') : t('fields.no_results')}
-                        </div>
-                    ) : (
+                    className="absolute z-30 mt-1 pl-0 max-h-96 w-full overflow-auto rounded-md bg-base-100 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                    {
                         filteredOptions.map((option, key) => (
                             <Combobox.Option
                                 key={key}
@@ -127,7 +152,7 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
                                         active ? 'bg-base-200 text-secondary' : 'text-gray-900'
                                     }`
                                 }
-                                value={option}
+                                value={option.value}
                             >
                                 {({selected, active}) => (
                                     <>
@@ -136,7 +161,7 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
                                 selected ? 'font-medium' : 'font-normal'
                             }`}
                         >
-                          {option.title}
+                          {option.content ? option.content : option.title}
                         </span>
                                         {selected ? (
                                             <span
@@ -151,7 +176,7 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
                                 )}
                             </Combobox.Option>
                         ))
-                    )}
+                    }
                 </Combobox.Options>
             </Transition>
         </div>

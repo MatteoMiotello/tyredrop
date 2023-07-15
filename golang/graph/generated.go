@@ -212,26 +212,27 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Brands              func(childComplexity int) int
-		Carts               func(childComplexity int) int
-		Currencies          func(childComplexity int) int
-		Currency            func(childComplexity int, id int64) int
-		LegalEntityTypes    func(childComplexity int) int
-		Order               func(childComplexity int, id int64) int
-		Orders              func(childComplexity int, pagination *model.PaginationInput) int
-		ProductCategories   func(childComplexity int) int
-		ProductItem         func(childComplexity int, id int64) int
-		ProductItems        func(childComplexity int, pagination *model.PaginationInput, productSearchInput *model.ProductSearchInput) int
-		Products            func(childComplexity int, pagination *model.PaginationInput, productSearchInput *model.ProductSearchInput) int
-		ProductsItemsByCode func(childComplexity int, code string) int
-		SearchBrands        func(childComplexity int, name string) int
-		Specifications      func(childComplexity int) int
-		TaxRates            func(childComplexity int) int
-		User                func(childComplexity int, id int64) int
-		UserAddress         func(childComplexity int, userID int64) int
-		UserBilling         func(childComplexity int, userID int64) int
-		UserOrders          func(childComplexity int, userID int64, pagination *model.PaginationInput) int
-		Users               func(childComplexity int) int
+		Brands                   func(childComplexity int) int
+		Carts                    func(childComplexity int) int
+		Currencies               func(childComplexity int) int
+		Currency                 func(childComplexity int, id int64) int
+		LegalEntityTypes         func(childComplexity int) int
+		Order                    func(childComplexity int, id int64) int
+		Orders                   func(childComplexity int, pagination *model.PaginationInput) int
+		ProductCategories        func(childComplexity int) int
+		ProductItem              func(childComplexity int, id int64) int
+		ProductItems             func(childComplexity int, pagination *model.PaginationInput, productSearchInput *model.ProductSearchInput) int
+		Products                 func(childComplexity int, pagination *model.PaginationInput, productSearchInput *model.ProductSearchInput) int
+		ProductsItemsByCode      func(childComplexity int, code string) int
+		SearchBrands             func(childComplexity int, name string) int
+		SearchSpecificationValue func(childComplexity int, code string, value *string) int
+		Specifications           func(childComplexity int) int
+		TaxRates                 func(childComplexity int) int
+		User                     func(childComplexity int, id int64) int
+		UserAddress              func(childComplexity int, userID int64) int
+		UserBilling              func(childComplexity int, userID int64) int
+		UserOrders               func(childComplexity int, userID int64, pagination *model.PaginationInput) int
+		Users                    func(childComplexity int) int
 	}
 
 	Supplier struct {
@@ -378,6 +379,7 @@ type QueryResolver interface {
 	ProductItem(ctx context.Context, id int64) (*model.ProductItem, error)
 	Products(ctx context.Context, pagination *model.PaginationInput, productSearchInput *model.ProductSearchInput) (*model.ProductPaginate, error)
 	Specifications(ctx context.Context) ([]*model.ProductSpecification, error)
+	SearchSpecificationValue(ctx context.Context, code string, value *string) ([]*model.ProductSpecificationValue, error)
 	Currency(ctx context.Context, id int64) (*model.Currency, error)
 	Currencies(ctx context.Context) ([]*model.Currency, error)
 	Order(ctx context.Context, id int64) (*model.Order, error)
@@ -1284,6 +1286,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.SearchBrands(childComplexity, args["name"].(string)), true
 
+	case "Query.searchSpecificationValue":
+		if e.complexity.Query.SearchSpecificationValue == nil {
+			break
+		}
+
+		args, err := ec.field_Query_searchSpecificationValue_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.SearchSpecificationValue(childComplexity, args["code"].(string), args["value"].(*string)), true
+
 	case "Query.specifications":
 		if e.complexity.Query.Specifications == nil {
 			break
@@ -2126,6 +2140,30 @@ func (ec *executionContext) field_Query_searchBrands_args(ctx context.Context, r
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_searchSpecificationValue_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["code"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("code"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["code"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["value"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["value"] = arg1
 	return args, nil
 }
 
@@ -8198,6 +8236,68 @@ func (ec *executionContext) fieldContext_Query_specifications(ctx context.Contex
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ProductSpecification", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_searchSpecificationValue(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_searchSpecificationValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().SearchSpecificationValue(rctx, fc.Args["code"].(string), fc.Args["value"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.ProductSpecificationValue)
+	fc.Result = res
+	return ec.marshalOProductSpecificationValue2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductSpecificationValue(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_searchSpecificationValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ProductSpecificationValue_id(ctx, field)
+			case "value":
+				return ec.fieldContext_ProductSpecificationValue_value(ctx, field)
+			case "specificationId":
+				return ec.fieldContext_ProductSpecificationValue_specificationId(ctx, field)
+			case "specification":
+				return ec.fieldContext_ProductSpecificationValue_specification(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ProductSpecificationValue", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_searchSpecificationValue_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
@@ -15014,6 +15114,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "searchSpecificationValue":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_searchSpecificationValue(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "currency":
 			field := field
 
@@ -17372,6 +17492,47 @@ func (ec *executionContext) unmarshalOProductSpecificationInput2ᚖpillowwwᚋti
 	}
 	res, err := ec.unmarshalInputProductSpecificationInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOProductSpecificationValue2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductSpecificationValue(ctx context.Context, sel ast.SelectionSet, v []*model.ProductSpecificationValue) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOProductSpecificationValue2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductSpecificationValue(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
 }
 
 func (ec *executionContext) marshalOProductSpecificationValue2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductSpecificationValue(ctx context.Context, sel ast.SelectionSet, v *model.ProductSpecificationValue) graphql.Marshaler {

@@ -35,7 +35,8 @@ const BrandField: React.FC<BrandFieldProps> = (props) => {
 
         return brands.data?.searchBrands?.map((brand) => {
             return {
-                title: <span><ProductQualityBadge small quality={brand?.quality}/> {brand?.name} </span>,
+                title: brand?.name,
+                content: <span><ProductQualityBadge small quality={brand?.quality}/> {brand?.name} </span>,
                 value: brand?.code
             } as AutocompleteOption;
         });

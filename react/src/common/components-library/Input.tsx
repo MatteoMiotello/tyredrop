@@ -119,6 +119,16 @@ const Input: React.FC<InputProps> = (props) => {
     </>;
 };
 
+type LabelProps = PropsWithChildren
+
+const Label: React.FC<LabelProps> = ({children}) => {
+    return <label className="label">
+        <div className="label-text">
+            {children}
+        </div>
+    </label>;
+};
+
 const FormInput: React.FC<FormInputProps> = (props) => {
     return <FormControl className={props.className}>
         <Input{...props}/>
@@ -150,7 +160,8 @@ const Field = {
     FormControl,
     Input,
     FormInput,
-    InputGroup
+    InputGroup,
+    Label
 };
 
 export default Field;

@@ -148,8 +148,9 @@ func (d *ItemDao) FindProductItems(ctx context.Context, input *model.ProductSear
 		if input.Specifications != nil {
 			for _, spec := range input.Specifications {
 				mods = append(mods, qm.And(
-					"products.id IN ( SELECT product_specification_values.product_id FROM product_specification_values "+
-						"LEFT JOIN product_specifications ON product_specifications.id = product_specification_values.product_specification_id AND product_specifications.deleted_ad IS NULL "+
+					"products.id IN ( SELECT product_product_specification_values.product_id FROM product_product_specification_values "+
+						"LEFT JOIN product_specification_values ON product_product_specification_values.product_specification_value_id = product_specification_values.id "+
+						"LEFT JOIN product_specifications ON product_specifications.id = product_specification_values.product_specification_id AND product_specifications.deleted_at IS NULL "+
 						"WHERE product_specifications.specification_code = ? "+
 						"AND product_specification_values.specification_value = ? ) ",
 					spec.Code, spec.Value,

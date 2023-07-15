@@ -49,6 +49,7 @@ type Query {
     products( pagination: PaginationInput, productSearchInput: ProductSearchInput ): ProductPaginate
 
     specifications: [ProductSpecification]
+    searchSpecificationValue( code: String!, value: String ): [ProductSpecificationValue]
 
     currency( id: ID! ): Currency
     currencies: [Currency]

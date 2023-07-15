@@ -90,3 +90,12 @@ export const PRODUCT_ITEM = gql(`
     }
 }
 `);
+
+export const SEARCH_PRODUCT_SPECIFICATION_VALUES = gql`
+    query searchValues( $code: String!, $value: String) {
+        searchSpecificationValue( code: $code, value: $value ) {
+            id
+            value
+        }
+    }
+`;

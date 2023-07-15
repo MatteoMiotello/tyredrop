@@ -31,10 +31,7 @@ const CountryField: React.FC<CountryFieldProps> = (props) => {
             .then(res => {
                 return res.data.map((element: any) => {
                     if (res.data.length)
-                        setValue({
-                            value: element.cca2,
-                            title: element.translations.ita.common ?? element.name.common
-                        });
+                        setValue(element.cca2);
                 });
             });
     }, [props.defaultValue]);
