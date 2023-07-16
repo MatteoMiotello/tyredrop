@@ -32,6 +32,9 @@ func upPriceMarkup(tx *sql.Tx) error {
 }
 
 func downPriceMarkup(tx *sql.Tx) error {
-	tx.Exec("DROP TABLE public.product.price_markup")
+	_, err := tx.Exec("DROP TABLE public.product_price_markup")
+	if err != nil {
+		return err
+	}
 	return nil
 }

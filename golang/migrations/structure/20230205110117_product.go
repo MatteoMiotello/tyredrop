@@ -174,47 +174,47 @@ func upProduct(tx *sql.Tx) error {
 }
 
 func downProduct(tx *sql.Tx) error {
-	_, err := tx.Exec("DROP TABLE public.product_item_prices")
+	_, err := tx.Exec("DROP TABLE IF EXISTS public.product_item_prices")
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("DROP TABLE public.product_items")
+	_, err = tx.Exec("DROP TABLE IF EXISTS public.product_items")
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("DROP TABLE public.product_product_specification_values")
+	_, err = tx.Exec("DROP TABLE IF EXISTS public.product_product_specification_values")
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("DROP TABLE public.product_specification_values")
+	_, err = tx.Exec("DROP TABLE IF EXISTS public.product_specification_values")
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("DROP TABLE public.product_specification_languages")
+	_, err = tx.Exec("DROP TABLE IF EXISTS public.product_specification_languages")
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("DROP TABLE public.product_specifications")
+	_, err = tx.Exec("DROP TABLE IF EXISTS public.product_specifications")
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("DROP TABLE public.product_languages")
+	_, err = tx.Exec("DROP TABLE IF EXISTS public.product_languages")
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("DROP TABLE public.products")
+	_, err = tx.Exec("DROP TABLE IF EXISTS public.products")
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("DROP TABLE public.product_category_languages")
+	_, err = tx.Exec("DROP TABLE IF EXISTS public.product_category_languages")
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("DROP TABLE public.product_categories")
+	_, err = tx.Exec("DROP TABLE IF EXISTS public.product_categories")
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec("DROP TABLE public.brands")
+	_, err = tx.Exec("DROP TABLE IF EXISTS public.brands")
 	if err != nil {
 		return err
 	}

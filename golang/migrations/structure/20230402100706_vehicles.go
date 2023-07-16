@@ -69,11 +69,6 @@ func downVehicles(tx *sql.Tx) error {
 		return err
 	}
 
-	_, err = tx.Exec("ALTER TABLE public.products DROP CONSTRAINT vehicle_types_fk;")
-	if err != nil {
-		return err
-	}
-
 	_, err = tx.Exec("DROP TABLE public.vehicle_types")
 	if err != nil {
 		return err
