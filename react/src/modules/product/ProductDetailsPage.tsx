@@ -77,6 +77,7 @@ const ProductDetailsPage: React.FC = () => {
                             brand: data?.productItem?.product.brand as { code: string, name: string },
                         }
                     }/>
+                    <span>{data?.productItem?.product.vehicleType.name}</span>
                     <CompleteProductSpecificationsGroup
                         specifications={data?.productItem?.product.productSpecificationValues as ProductSpecificationValue[]}
                     />

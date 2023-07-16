@@ -32,7 +32,7 @@ func getSeasonFromGerman(slice string) string {
 	case "GANZJAHR":
 		return constants.TYPE_ALL_SEASON
 	}
-	return ""
+	return constants.TYPE_SUMMER
 }
 
 func extractEprelIDFromLink(slice string) string {

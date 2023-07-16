@@ -40,15 +40,11 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
     const performQuery = () => {
         const options = props.getOptions(query);
 
-        if (!options) {
-            return;
-        }
-
         options.then(res => {
             if (res) {
                 let options = res;
 
-                if ( query.length ){
+                if ( query.length  ){
                     options = [
                         {
                             title: query,

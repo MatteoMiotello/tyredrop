@@ -33,11 +33,12 @@ const ProductTitle: React.FC<TyreItemRowProps | null> = (props: TyreItemRowProps
             {
                 props.showBrand &&
                 <div className="mt-2 flex items-center">
-                    <div className="border-2 rounded-full aspect-square max-h-12 flex justify-center">
+                    <div className="max-h-12 flex justify-center">
                         <Img src={(new ProdapiService()).getBrandImageUrl(data.brand.code)}
                              loading="lazy"
-                             className="my-auto"
+                             className="my-auto h-8"
                              onErrorCapture={(e) => e.preventDefault()}
+
                         />
                     </div>
                     <span className="ml-2 font-semibold text-slate-400">

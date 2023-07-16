@@ -4,6 +4,7 @@ export type ProductSearchDataType = {
     name?: string | null
     brand?: string | null
     code?: string | null
+    vehicleCode?: string | null
     specifications: ProductSpecificationSearch[]
 }
 

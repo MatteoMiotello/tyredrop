@@ -81,7 +81,7 @@ func (d *SpecificationValueDao) SearchBySpecificationAndValue(ctx context.Contex
 	mods = append(mods, qm.LeftOuterJoin("product_product_specification_values on product_specification_values.id = product_product_specification_values.product_specification_value_id"))
 	mods = append(mods, models.ProductSpecificationWhere.SpecificationCode.EQ(code))
 	mods = append(mods, qm.OrderBy(" count( product_product_specification_values.id ) DESC"))
-	mods = append(mods, qm.GroupBy("product_specification_values.id"))
+	mods = append(mods, qm.GroupBy("product_specification_values.specification_value, product_specification_values.id"))
 
 	if value != nil || len(*value) < 2 {
 		mods = append(mods, qm.Where(models.ProductSpecificationValueColumns.SpecificationValue+" LIKE ?", `%`+*value+`%`))

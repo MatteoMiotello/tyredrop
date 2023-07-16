@@ -141,7 +141,7 @@ func (d *ItemDao) FindProductItems(ctx context.Context, input *model.ProductSear
 		}
 
 		if input.VehicleCode != nil {
-			mods = append(mods, qm.LeftOuterJoin("vehicle_types", "vehicle_types.id = products.vehicle_type_id"))
+			mods = append(mods, qm.LeftOuterJoin("vehicle_types on vehicle_types.id = products.vehicle_type_id"))
 			mods = append(mods, models.VehicleTypeWhere.Code.EQ(*input.VehicleCode))
 		}
 

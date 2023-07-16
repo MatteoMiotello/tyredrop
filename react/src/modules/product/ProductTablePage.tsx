@@ -23,7 +23,9 @@ const ProductTablePage: React.FC = () => {
         variables: {
             limit: ELEMENT_PER_PAGE,
             offset: 0,
-            searchInput: {}
+            searchInput: {
+                vehicleCode: "CAR"
+            }
         }
     });
 
@@ -70,6 +72,7 @@ const ProductTablePage: React.FC = () => {
                 name: search?.name,
                 brand: search?.brand,
                 code: search?.code,
+                vehicleCode: search?.vehicleCode,
                 specifications: specifications
             }
         }).finally(() => setIsLoading(false));

@@ -4,7 +4,7 @@ import {CellContext, ColumnDef} from "@tanstack/react-table";
 import React, {useEffect, useState} from "react";
 import {Img} from "react-image";
 import {Link} from "react-router-dom";
-import {SearchQuery} from "../../../__generated__/graphql";
+import { SearchQuery} from "../../../__generated__/graphql";
 import tyrePlaceholder from "../../../assets/placeholder-tyre.jpg";
 import Table from "../../../common/components-library/Table";
 import {Currency} from "../../../common/utilities/currency";
