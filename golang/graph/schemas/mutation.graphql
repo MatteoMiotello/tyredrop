@@ -12,6 +12,7 @@ type Mutation {
 
     addItemToCart( itemId: ID!, quantity: Int ): CartResponse
     editCart( cartId: ID!, quantity: Int! ): CartResponse
+    emptyCart: CartResponse
 
     createUserAddress( userAddress: UserAddressInput! ): [UserAddress]!
     editUserAddress( id: ID!, userAddress: UserAddressInput! ): [UserAddress]!

@@ -74,7 +74,7 @@ func (d *SpecificationValueDao) FindBySpecificationAndValue(ctx context.Context,
 	).One(ctx, d.Db)
 }
 
-func (d *SpecificationValueDao) SearchBySpecificationAndValue(ctx context.Context, code string, value *string) (models.ProductSpecificationValueSlice, error) {
+func (d *SpecificationValueDao) SearchBySpecificationAndValue(ctx context.Context, code string, value *string, vehicleCode *string) (models.ProductSpecificationValueSlice, error) {
 	var mods []qm.QueryMod
 
 	mods = append(mods, qm.LeftOuterJoin("product_specifications on product_specifications.id = product_specification_values.product_specification_id"))
@@ -83,8 +83,14 @@ func (d *SpecificationValueDao) SearchBySpecificationAndValue(ctx context.Contex
 	mods = append(mods, qm.OrderBy(" count( product_product_specification_values.id ) DESC"))
 	mods = append(mods, qm.GroupBy("product_specification_values.specification_value, product_specification_values.id"))
 
-	if value != nil || len(*value) < 2 {
-		mods = append(mods, qm.Where(models.ProductSpecificationValueColumns.SpecificationValue+" LIKE ?", `%`+*value+`%`))
+	if value != nil {
+		mods = append(mods, qm.Where(models.ProductSpecificationValueColumns.SpecificationValue+" ILIKE ?", `%`+*value+`%`))
+	}
+
+	if vehicleCode != nil || len(*vehicleCode) > 0 {
+		mods = append(mods, qm.LeftOuterJoin("products on product_product_specification_values.product_id = products.id"))
+		mods = append(mods, qm.LeftOuterJoin("vehicle_types on products.vehicle_type_id = vehicle_types.id"))
+		mods = append(mods, models.VehicleTypeWhere.Code.EQ(*vehicleCode))
 	}
 
 	return models.ProductSpecificationValues(

@@ -12,7 +12,7 @@ const Panel : React.FC<PanelProps> = ( props: PanelProps ) => {
 
 type TitleProps = PropsWithChildren
 const Title: React.FC<TitleProps> = ({children} ) => {
-    return <h3 className="text-xl">
+    return <h3 className="text-xl flex justify-between">
         {children}
     </h3>;
 };

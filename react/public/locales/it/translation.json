@@ -67,7 +67,8 @@
     "tyre_tab_title": "Pneumatici",
     "basic_search_tab_title": "Ricerca semplice",
     "name_field_label": "Nome prodotto",
-    "code_field_label": "Codice identificativo"
+    "code_field_label": "Codice identificativo",
+    "season_field_label": "Stagione"
   },
   "not_confirmed": {
     "title": "Non ancora verificato!",

@@ -4,6 +4,7 @@ import {Combobox, Transition} from "@headlessui/react";
 import React, {ChangeEventHandler, Fragment, ReactNode, useEffect, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {PropsWithValidators, ValidationHandler} from "../validation/validators";
+import _ from "lodash";
 
 export type AutocompleteQueryHandler = (query: string) => Promise<AutocompleteOption[] | null>
 
@@ -24,38 +25,38 @@ export type AutocompleteOption<T = any> = {
 }
 
 const Autocomplete: React.FC<AutocompleteProps> = (props) => {
-    const [selectedValue, setSelectedValue] = useState<any>( props.defaultValue || "" );
+    const [selectedValue, setSelectedValue] = useState<any>(props.defaultValue || "");
     const [query, setQuery] = useState('');
     const [filteredOptions, setFilteredOptions] = useState(props.initialOptions);
     const [error, setError] = useState<string | null>(null);
     const {t} = useTranslation();
 
-    useEffect( () => {
-        if ( props.defaultValue ) {
-            setSelectedValue( props.defaultValue );
+    useEffect(() => {
+        if (props.defaultValue) {
+            setSelectedValue(props.defaultValue);
         }
-    }, [props.defaultValue] );
+    }, [props.defaultValue]);
 
 
     const performQuery = () => {
         const options = props.getOptions(query);
 
         options.then(res => {
+            let options: AutocompleteOption[] = [];
             if (res) {
-                let options = res;
-
-                if ( query.length  ){
-                    options = [
-                        {
-                            title: query,
-                            value: query
-                        },
-                        ...options
-                    ];
-                }
-
-                setFilteredOptions(options);
+                options = res;
             }
+
+            if (query.length && !options.length) {
+                options = [
+                    {
+                        title: query,
+                        value: query
+                    },
+                    ...options
+                ];
+            }
+            setFilteredOptions(_.uniqWith(options, _.isEqual));
         })
             .catch((err) => {
                 return null;
@@ -66,22 +67,22 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
         performQuery();
     }, [query]);
 
-    const findOption = ( value: any ) => {
-        if ( !filteredOptions.length ) {
+    const findOption = (value: any) => {
+        if (!filteredOptions.length) {
             return null;
         }
 
-        if ( !value ) {
+        if (!value) {
             return null;
         }
 
-        return filteredOptions.find( opt => opt.value == value );
+        return filteredOptions.find(opt => opt.value == value);
     };
 
     const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
         const value = event.target.value;
 
-        if ( !value ) {
+        if (!value) {
             setSelectedValue(null);
         }
 
@@ -99,36 +100,37 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
 
     return <Combobox value={selectedValue} onChange={setSelectedValue} name={props.name}>
         <div className={"relative " + props.className}>
-                {props.labelText &&
-                    <label className="label">
+            {props.labelText &&
+                <label className="label">
                         <span className="label-text">
                             {props.labelText}
                         </span>
-                    </label>
-                }
-                <div
-                    className={`select select-bordered relative w-full cursor-default overflow-hidden p-0 ${error ? 'select-error' : ''}`}>
-                    <Combobox.Input
-                        autoComplete="off"
-                        className={"input w-full border-none p-4 font-normal"}
-                        displayValue={(value: any) => {
-                            const option = findOption( value );
-                            return option ? option.title : value;
-                        }}
-                        onChange={(event) => {
-                            setQuery(event.target.value);
-                            onChange(event);
-                        }}
-                        onFocus={onChange}
-                        placeholder={props.placeholder}
+                </label>
+            }
+            <div
+                className={`select select-bordered relative w-full cursor-default overflow-hidden p-0 ${error ? 'select-error' : ''}`}>
+                <Combobox.Input
+                    autoComplete="off"
+                    className={"input w-full border-none p-4 font-normal"}
+                    displayValue={(value: any) => {
+                        const option = findOption(value);
+                        return option ? option.title : value;
+                    }}
+                    onChange={(event) => {
+                        setQuery(event.target.value);
+                        onChange(event);
+                    }}
+                    onFocus={onChange}
+                    placeholder={props.placeholder}
+                />
+                <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2 border-none"
+                                 onClick={performQuery}>
+                    <FontAwesomeIcon icon={faChevronDown}
+                                     className="h-5 w-5 text-primary label-text"
+                                     aria-hidden="true"
                     />
-                    <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2 border-none" onClick={performQuery}>
-                        <FontAwesomeIcon icon={faChevronDown}
-                                         className="h-5 w-5 text-primary label-text"
-                                         aria-hidden="true"
-                        />
-                    </Combobox.Button>
-                </div>
+                </Combobox.Button>
+            </div>
             {error ? <span className="label-text-alt text-error">{error}</span> : ''}
             <Transition
                 as={Fragment}

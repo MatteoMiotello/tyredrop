@@ -1,6 +1,6 @@
-import {gql} from "@apollo/client";
+import {gql} from "../../../../__generated__";
 
-export const ALL_CATEGORIES_WITH_SPECIFICATIONS = gql`
+export const ALL_CATEGORIES_WITH_SPECIFICATIONS = gql(`
     query getAllCategories {
         productCategories {
             id
@@ -16,9 +16,9 @@ export const ALL_CATEGORIES_WITH_SPECIFICATIONS = gql`
             }
         }
     }
-`;
+`);
 
-export const SEARCH_PRODUCTS = gql `
+export const SEARCH_PRODUCTS = gql(`
     query search($limit: Int!, $offset: Int!, $searchInput: ProductSearchInput) {
      productItems(
           pagination: { limit: $limit, offset: $offset }
@@ -61,9 +61,9 @@ export const SEARCH_PRODUCTS = gql `
           }
      }
 }
-`;
+`);
 
-export const PRODUCT_ITEM = gql`
+export const PRODUCT_ITEM = gql(`
     query productItem( $id: ID! ) {
     productItem( id: $id ) {
         id
@@ -95,13 +95,12 @@ export const PRODUCT_ITEM = gql`
         }
     }
 }
-`;
+`);
 
-export const SEARCH_PRODUCT_SPECIFICATION_VALUES = gql`
-    query searchValues( $code: String!, $value: String) {
-        searchSpecificationValue( code: $code, value: $value ) {
-            id
+export const SEARCH_PRODUCT_SPECIFICATION_VALUES = gql(`
+    query searchValues( $code: String!, $value: String, $vehicleCode: String) {
+        searchSpecificationValue( code: $code, value: $value, vehicleCode: $vehicleCode ) {
             value
         }
     }
-`;
+`);

@@ -1,4 +1,4 @@
-import React, {Children, PropsWithChildren, ReactElement, useEffect, useState} from "react";
+import React, {Children, PropsWithChildren, ReactElement, forwardRef, useEffect, useState} from "react";
 import {ValidationHandler} from "../validation/validators";
 import Alert from "./Alert";
 import {HookHandler} from "vite";
@@ -60,7 +60,7 @@ export const useForm: HookHandler<any> = () => {
     return {form, handleFormError};
 };
 
-const Form: React.FC<FormProps> = (props: FormProps) => {
+const Form = forwardRef<HTMLFormElement, FormProps>( (props, ref) => {
     const [form, setForm] = useState(props.form);
 
     useEffect( () => {
@@ -161,6 +161,7 @@ const Form: React.FC<FormProps> = (props: FormProps) => {
     };
 
     return <form
+        ref={ref}
         className={"w-full inline-grid grid-cols-12 gap-4 " + (props.className ?? '')}
         onSubmit={(e) => onSubmit(e)}
     >
@@ -178,6 +179,8 @@ const Form: React.FC<FormProps> = (props: FormProps) => {
         }
         {props.children}
     </form>;
-};
+} );
+
+Form.displayName = 'Form';
 
 export default Form;

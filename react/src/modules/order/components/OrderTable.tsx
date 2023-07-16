@@ -16,6 +16,7 @@ const OrderTable: React.FC<OrderTableProps> = (props) => {
     const columns: ColumnDef<Order>[] = [
         {
             accessorKey: "id",
+            size: 10,
             header: "ID",
             cell: (props: CellContext<Order, any>) => <span>#{props.getValue()}</span>
         },
@@ -58,7 +59,7 @@ const OrderTable: React.FC<OrderTableProps> = (props) => {
         }
     ];
 
-    return <Table data={props.orders} columns={columns}></Table>;
+    return <Table data={props.orders} columns={columns} hidePagination={true}></Table>;
 };
 
 export default OrderTable;

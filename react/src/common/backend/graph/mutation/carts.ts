@@ -18,3 +18,12 @@ export const EDIT_CART = gql`
         }
     } 
 `;
+
+export const EMPTY_CART = gql`
+    ${CART_ITEMS_FRAGMENT}
+    mutation empty {
+        emptyCart {
+            ...CartItems
+        }
+    }
+`;

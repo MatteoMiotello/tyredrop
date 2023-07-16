@@ -4,7 +4,7 @@ import {CellContext, ColumnDef} from "@tanstack/react-table";
 import React, {useEffect, useState} from "react";
 import {Img} from "react-image";
 import {Link} from "react-router-dom";
-import { SearchQuery} from "../../../__generated__/graphql";
+import {SearchQuery} from "../../../__generated__/graphql";
 import tyrePlaceholder from "../../../assets/placeholder-tyre.jpg";
 import Table from "../../../common/components-library/Table";
 import {Currency} from "../../../common/utilities/currency";
@@ -61,8 +61,20 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
             }
         },
         {
+            accessorKey: "brand",
+            size: 70,
+            cell: (props) => <div className="w-24">
+                <Img src={(new ProdapiService()).getBrandImageUrl(props.row.original.brand.code)}
+                     loading="lazy"
+                     className="my-auto"
+                     unloader={ <span className="text-xl uppercase text-neutral font-semibold">{props.row.original.brand.name}</span> }
+                     onErrorCapture={(e) => e.preventDefault()}
+                /></div>
+        },
+        {
             accessorKey: "content",
-            cell: (props: CellContext<ProductRowItemData, any>) => <ProductTitle showBrand={true} data={props.row.original}/>
+            cell: (props: CellContext<ProductRowItemData, any>) => <ProductTitle showBrand={true}
+                                                                                 data={props.row.original}/>
         },
         {
             accessorKey: "specifications",
@@ -74,6 +86,7 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
         },
         {
             accessorKey: "price",
+            size: 10,
             cell: (props) => {
                 return <div className="w-full flex justify-center items-center">
 
@@ -87,7 +100,7 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
         },
         {
             accessorKey: "button",
-            size: 50,
+            size: 10,
             cell: (props: CellContext<ProductRowItemData, any>) => <div className="flex justify-center items-center">
                 <AddItemToCartButton itemId={props.row.original.id}/>
                 <Link

@@ -3,6 +3,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Listbox, Transition} from "@headlessui/react";
 import React, {Fragment, ReactNode, useEffect, useState} from "react";
 import {PropsWithValidators} from "../validation/validators";
+import _ from "lodash";
 
 export type SelectOption = {
     title: string | ReactNode
@@ -20,11 +21,11 @@ interface SelectProps extends PropsWithValidators<SelectOption | null> {
 }
 
 export const SelectComponent: React.FC<SelectProps> = (props: SelectProps) => {
-    const [selected, setSelected] = useState(props.defaultValue ?? props.options[0] ?? null);
+    const [selected, setSelected] = useState(props.options[0] ?? props.defaultValue  ?? null);
     const [ error, setError ] = useState<string | null>( null );
 
     useEffect( () => {
-        if ( props.options ) {
+        if ( !selected && !props.defaultValue ) {
             setSelected( props.options[0] );
         }
     }, [props.options] );
@@ -52,7 +53,8 @@ export const SelectComponent: React.FC<SelectProps> = (props: SelectProps) => {
         }
     }, [selected] );
 
-    return <Listbox value={selected?.value || null} onChange={setSelected} name={props.name}>
+
+    return <Listbox value={selected || null} onChange={setSelected} name={props.name}>
         <div className={"relative " + props.className}>
             <Listbox.Button className="select select-bordered relative w-full cursor-default flex items-center">
                 <span className="truncate">{ selected ? selected.title : ( props.placeholder ?? '' ) }</span>
@@ -65,7 +67,7 @@ export const SelectComponent: React.FC<SelectProps> = (props: SelectProps) => {
                 leaveTo="opacity-0"
             >
                 <Listbox.Options className="absolute z-30 mt-1 pl-0 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                    {props.options.map((option, key) => (
+                    {_.uniq(props.options).map((option, key) => (
                         <Listbox.Option
                             key={key}
                             className={({ active }) =>

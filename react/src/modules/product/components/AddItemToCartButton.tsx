@@ -23,7 +23,7 @@ const AddItemToCartButton: React.FC<AddItemToCartButton> = (props) => {
 
     return <div className="flex">
         <Input.Input
-            className="w-16"
+            className="w-14"
             value={quantity}
             type="number"
             name="quantity"

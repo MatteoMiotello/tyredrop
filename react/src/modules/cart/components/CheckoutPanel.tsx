@@ -64,13 +64,7 @@ const CheckoutPanel: React.FC = () => {
 
     useEffect(() => {
         if (!userAddresses || !userAddresses.length) {
-            setOptions([
-                {
-                    title: t("user_address.no_address_found"),
-                    value: 1,
-                    disabled: true
-                }
-            ]);
+            setOptions([]);
             return;
         }
 
@@ -114,6 +108,7 @@ const CheckoutPanel: React.FC = () => {
                         <SelectComponent
                             options={addressOptions}
                             name="user_address"
+                            placeholder="Seleziona un indirizzo"
                             onChange={setAddress}
                         />
                     </div> : <span> {t("cart.no_address_found")} </span>
@@ -145,7 +140,7 @@ const CheckoutPanel: React.FC = () => {
             type="secondary"
             onClick={confirmOrder}
             loading={loading}
-            disabled={!selectedAddress}
+            disabled={!selectedAddress || !totalPrice}
         >
             {t("cart.checkout_button")}
         </Button>

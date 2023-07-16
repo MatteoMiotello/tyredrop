@@ -1,7 +1,7 @@
 import {SliceCaseReducers, createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import { CartState} from "./state";
 import apolloClientContext from "../../../common/contexts/apollo-client-context";
-import {ADD_CART, EDIT_CART} from "../../../common/backend/graph/mutation/carts";
+import {ADD_CART, EDIT_CART, EMPTY_CART} from "../../../common/backend/graph/mutation/carts";
 import {Cart} from "../../../__generated__/graphql";
 import {USER_CARTS} from "../../../common/backend/graph/query/carts";
 
@@ -41,6 +41,12 @@ export const fetchCartItems = createAsyncThunk( 'CART/FETCH', async (arg, thunkA
     }).then( (res) => {
         return thunkAPI.fulfillWithValue( res.data.carts );
     } );
+});
+
+export const emptyCart = createAsyncThunk( 'CART/EMPTY', async ( arg, thunkAPI ) => {
+    return apolloClientContext.mutate({
+        mutation: EMPTY_CART
+    }).then( res =>  thunkAPI.fulfillWithValue( res.data.emptyCart ) );
 });
 
 const cartSlice = createSlice<CartState, SliceCaseReducers<CartState>, string>({
@@ -90,6 +96,17 @@ const cartSlice = createSlice<CartState, SliceCaseReducers<CartState>, string>({
                 state.status = "error";
             } )
             .addCase( editCartItem.fulfilled, ( state, action ) => {
+                state.status = "fullfilled";
+
+                if ( action.payload ) {
+                    state.items = action.payload.items as Cart[];
+                    state.amountTotal = action.payload.totalPrice;
+                }
+            } )
+            .addCase( emptyCart.rejected, ( state, action ) => {
+                state.status = "error";
+            } )
+            .addCase( emptyCart.fulfilled, ( state, action ) => {
                 state.status = "fullfilled";
 
                 if ( action.payload ) {

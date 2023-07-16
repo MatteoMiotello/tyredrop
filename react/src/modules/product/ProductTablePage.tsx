@@ -72,7 +72,7 @@ const ProductTablePage: React.FC = () => {
                 name: search?.name,
                 brand: search?.brand,
                 code: search?.code,
-                vehicleCode: search?.vehicleCode,
+                vehicleCode: search?.vehicleCode as string,
                 specifications: specifications
             }
         }).finally(() => setIsLoading(false));

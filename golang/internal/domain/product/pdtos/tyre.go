@@ -69,23 +69,31 @@ func (t *Tyre) GetBrandName() string {
 }
 
 func (t *Tyre) Validate() bool {
-	if t.Width == 0 {
+	if t.Width < 1 {
 		return false
 	}
 
-	if t.Load == 0 {
+	if t.Rim < 1 {
 		return false
 	}
 
-	if t.Construction == "" {
+	if t.AspectRatio < 1 {
 		return false
 	}
 
-	if t.Brand == "" {
+	if t.Load < 1 {
 		return false
 	}
 
-	if t.EANCode == "" {
+	if len(t.Construction) == 0 {
+		return false
+	}
+
+	if len(t.Brand) == 0 {
+		return false
+	}
+
+	if len(t.EANCode) == 0 {
 		return false
 	}
 

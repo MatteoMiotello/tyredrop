@@ -13,7 +13,6 @@ import (
 	"pillowww/titw/pkg/constants"
 	"pillowww/titw/pkg/log"
 	"strings"
-	"time"
 )
 
 type Service struct {
@@ -72,12 +71,6 @@ func (s Service) findOrCreateSpecificationValue(ctx context.Context, specificati
 	}
 
 	err = s.SpecificationValueDao.Insert(ctx, specificationValue)
-
-	if err != nil && strings.Contains(err.Error(), "duplicate key value violates unique constraint") {
-		time.Sleep(time.Millisecond * 20)
-
-		return s.findOrCreateSpecificationValue(ctx, specification, value)
-	}
 
 	if err != nil {
 		return nil, err
@@ -156,13 +149,11 @@ func (s Service) UpdateSpecifications(ctx context.Context, product *models.Produ
 		}
 
 		pValue, _ := s.SpecificationValueDao.FindByProductAndCode(ctx, product, spec.SpecificationCode)
-
 		if pValue != nil {
 			continue
 		}
 
 		pValue, err = s.findOrCreateSpecificationValue(ctx, spec, strings.TrimSpace(strings.ToValidUTF8(value, "")))
-
 		if err != nil {
 			return err
 		}

@@ -1,14 +1,15 @@
 import {useLazyQuery} from "@apollo/client";
 import React from "react";
 import {SEARCH_PRODUCT_SPECIFICATION_VALUES} from "../../../common/backend/graph/query/products";
-import Autocomplete from "../../../common/components-library/Autocomplete";
+import Autocomplete, {AutocompleteOption} from "../../../common/components-library/Autocomplete";
 
 type SpecificationFieldProps = {
     specificationCode: string
     name: string
     placeholder?: string
+    vehicleCode?: string
 }
-const SpecificationField: React.FC<SpecificationFieldProps> = ({specificationCode, name, placeholder}) => {
+const SpecificationField: React.FC<SpecificationFieldProps> = ({specificationCode, name, placeholder, vehicleCode}) => {
     const [load, query] = useLazyQuery(SEARCH_PRODUCT_SPECIFICATION_VALUES);
 
     return <Autocomplete
@@ -17,11 +18,12 @@ const SpecificationField: React.FC<SpecificationFieldProps> = ({specificationCod
             const res = await load({
                 variables: {
                     code: specificationCode,
-                    value: query
+                    value: query,
+                    vehicleCode: vehicleCode
                 }
             });
 
-            return res.data ? res.data?.searchSpecificationValue.map((value: any) => ({
+            return res.data?.searchSpecificationValue ? res.data?.searchSpecificationValue?.map((value: any): AutocompleteOption<string> => ({
                 value: value.value,
                 title: value.value
             })) : [];
