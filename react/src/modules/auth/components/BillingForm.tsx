@@ -23,7 +23,7 @@ import {useToast} from "../../../hooks/useToast";
 
 
 export type BillingInput = {
-    entity_type: string
+    entity_type: SelectOption
     name: string
     surname?: string | undefined
     fiscal_code?: string | null
