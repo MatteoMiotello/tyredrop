@@ -36,6 +36,8 @@ const BillingPage: React.FC = () => {
     }, [auth]);
 
     const storeBilling = (input: BillingInput) => {
+        
+        console.log( input );
         return saveBilling({
             variables: {
                 input: {
@@ -46,7 +48,7 @@ const BillingPage: React.FC = () => {
                     country: input.country,
                     fiscalCode: input.fiscal_code,
                     iban: input.iban,
-                    legalEntityTypeId: input.entity_type,
+                    legalEntityTypeId: input.entity_type.value,
                     name: input.name,
                     province: input.province,
                     surname: input.surname as string,

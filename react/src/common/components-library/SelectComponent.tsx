@@ -21,7 +21,7 @@ interface SelectProps extends PropsWithValidators<SelectOption | null> {
 }
 
 export const SelectComponent: React.FC<SelectProps> = (props: SelectProps) => {
-    const [selected, setSelected] = useState(props.options[0] ?? props.defaultValue  ?? null);
+    const [selected, setSelected] = useState(props.options[0] ?? props.defaultValue ?? null);
     const [ error, setError ] = useState<string | null>( null );
 
     useEffect( () => {
