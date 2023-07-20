@@ -46,6 +46,6 @@ type ProductItem {
     price: [ProductPrice]!
     supplierID: ID!
     supplier: Supplier!
-    supplier_price: Float!
-    supplier_quantity: Int!
+    supplierPrice: Float!
+    supplierQuantity: Int!
 }

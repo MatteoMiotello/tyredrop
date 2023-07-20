@@ -35,6 +35,10 @@ func (s *service) createOrderRowFromCart(ctx context.Context, currency *models.C
 		return err
 	}
 
+	if productItem.SupplierQuantity < cart.Quantity {
+		return errors.New("Quantity not available")
+	}
+
 	p, err := s.itemDao.ProductItemPrice(ctx, productItem, currency)
 
 	if err != nil {
@@ -49,6 +53,14 @@ func (s *service) createOrderRowFromCart(ctx context.Context, currency *models.C
 	}
 
 	err = s.orderDao.Insert(ctx, row)
+
+	if err != nil {
+		return err
+	}
+
+	productItem.SupplierQuantity = productItem.SupplierQuantity - cart.Quantity
+
+	err = s.itemDao.Update(ctx, productItem)
 
 	if err != nil {
 		return err

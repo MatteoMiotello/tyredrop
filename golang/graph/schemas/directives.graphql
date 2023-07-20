@@ -1,3 +1,5 @@
 directive @isAdmin on FIELD_DEFINITION
 
 directive @notEmpty on INPUT_FIELD_DEFINITION | FIELD_DEFINITION | ARGUMENT_DEFINITION
+
+directive @userConfirmed on FIELD_DEFINITION

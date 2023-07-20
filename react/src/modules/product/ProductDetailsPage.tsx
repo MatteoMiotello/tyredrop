@@ -17,6 +17,9 @@ import {useDispatch} from "react-redux";
 import {addCartItem} from "../cart/store/cart-slice";
 import {ThunkDispatch} from "redux-thunk";
 import {useToast} from "../../hooks/useToast";
+import AvailabilityBadge from "./components/AvailabilityBadge";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faMoneyBill, faTruckFast} from "@fortawesome/free-solid-svg-icons";
 
 const loadingPlaceholder = <main>
     <Spinner/>
@@ -42,8 +45,6 @@ const ProductDetailsPage: React.FC = () => {
     if (loading && !data) {
         return loadingPlaceholder;
     }
-
-    console.log(data?.productItem?.product);
 
     return <main className="lg:px-24 p-4">
         <div className="grid md:grid-cols-4 gap-4 w-full">
@@ -83,36 +84,44 @@ const ProductDetailsPage: React.FC = () => {
                     />
                 </div>
             </Panel>
-            <Panel>
-                <div className="rounded-box pt-14 md:mt-0 mt-4">
-                    <div className="m-5">
+            <div>
+                <Panel>
+                    <div className="rounded-box md:mt-0 mt-4">
                         <div>
-                            Totale
-                        </div>
-                        <span className="text-primary text-5xl font-semibold">
-                        {Currency.defaultFormat(data?.productItem?.price[0]?.value as number, data?.productItem?.price[0]?.currency.iso_code as string)}</span>
-                        <div className="mt-10 flex flex-col">
-                            <div className="">
-                                <Field.FormControl className="">
-                                    <Field.Input type="number" name="quantity" placeholder={"4"} onValueChange={setQuantity}
-                                                 labelText="Quantità"
-                                                 value={quantity}/>
-                                </Field.FormControl>
+                            <div>
+                                Totale
                             </div>
-                            <Button className="ml-auto mt-4" type="secondary" onClick={() => {
-                                if (data?.productItem) {
-                                    dispatch(addCartItem({
-                                        itemId: data.productItem.id,
-                                        quantity: quantity
-                                    })).then(() => setSuccess('Elemento aggiunto a carrello'));
-                                }
-                            }}>
-                                {t('product_details.order_button')}
-                            </Button>
+                            <span className="text-primary text-5xl font-semibold">
+                        {Currency.defaultFormat(data?.productItem?.price[0]?.value as number, data?.productItem?.price[0]?.currency.iso_code as string)}</span>
+                            {data?.productItem && <AvailabilityBadge quantity={data?.productItem?.supplierQuantity}/>}
+                            <div className="mt-10 flex flex-col">
+                                <div className="">
+                                    <Field.FormControl className="">
+                                        <Field.Input type="number" name="quantity" placeholder={"4"}
+                                                     onValueChange={setQuantity}
+                                                     labelText="Quantità"
+                                                     value={quantity}/>
+                                    </Field.FormControl>
+                                </div>
+                                <Button className="ml-auto mt-4" type="primary" onClick={() => {
+                                    if (data?.productItem) {
+                                        dispatch(addCartItem({
+                                            itemId: data.productItem.id,
+                                            quantity: quantity
+                                        })).then(() => setSuccess('Elemento aggiunto a carrello'));
+                                    }
+                                }}>
+                                    {t('product_details.order_button')}
+                                </Button>
+                            </div>
                         </div>
                     </div>
+                </Panel>
+                <div className="bg-secondary text-base-100 mt-4 rounded-box p-4">
+                    <p className="my-2"><FontAwesomeIcon icon={faTruckFast}/> Consenga in 4-5 giorni lavorativi</p>
+                    <p className="my-2"><FontAwesomeIcon icon={faMoneyBill}/> Pagamento SEPA</p>
                 </div>
-            </Panel>
+            </div>
             {
                 data?.productItem?.product?.eprelProductCode &&
                 <Panel className="flex justify-center">

@@ -88,26 +88,6 @@ const TyreSearchForm: React.FC<TypeSpecificSearchFormProps> = (props) => {
                 </button>
             </div>
         </div>
-        <Field.FormControl className="col-span-4">
-            <Field.Input
-                type="text"
-                name="tyre_code"
-                placeholder={t('searchbar.code_field_label')}
-                labelText={t('searchbar.code_field_label')}
-            />
-        </Field.FormControl>
-        <Field.FormControl className="col-span-4">
-            <Field.Input
-                type="text"
-                name="tyre_name"
-                placeholder={t('searchbar.name_field_label')}
-                labelText={t('searchbar.name_field_label')}
-            />
-        </Field.FormControl>
-        <BrandField
-            className="col-span-4"
-            name="brand"
-        />
         <Field.FormControl className="col-span-3">
             <Field.Label>
                 {t('searchbar.width_field_label')}
@@ -152,6 +132,26 @@ const TyreSearchForm: React.FC<TypeSpecificSearchFormProps> = (props) => {
                 placeholder={t('searchbar.season_field_label') as string}
             />
         </Field.FormControl>
+        <Field.FormControl className="col-span-4">
+            <Field.Input
+                type="text"
+                name="tyre_code"
+                placeholder={t('searchbar.code_field_label')}
+                labelText={t('searchbar.code_field_label')}
+            />
+        </Field.FormControl>
+        <Field.FormControl className="col-span-4">
+            <Field.Input
+                type="text"
+                name="tyre_name"
+                placeholder={t('searchbar.name_field_label')}
+                labelText={t('searchbar.name_field_label')}
+            />
+        </Field.FormControl>
+        <BrandField
+            className="col-span-4"
+            name="brand"
+        />
         <Button className="col-start-6 col-span-2 btn-outline"
                 size="sm"
                 type="ghost">

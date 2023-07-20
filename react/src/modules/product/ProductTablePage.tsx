@@ -7,7 +7,7 @@ import ProductTable from "./components/ProductTable";
 import {useQuery} from "@apollo/client";
 import Spinner from "../../common/components/Spinner";
 import ProductSearchContext, {ProductSearchDataType} from "./context/product-search-context";
-import {ProductSpecificationInput} from "../../__generated__/graphql";
+import {ProductSpecificationInput, SearchQuery, SearchQueryVariables} from "../../__generated__/graphql";
 import {useNavigate} from "react-router-dom";
 
 const ELEMENT_PER_PAGE = 10;
@@ -19,7 +19,7 @@ const ProductTablePage: React.FC = () => {
     const navigate = useNavigate();
     const {setError} = useToast();
 
-    const {data, error, loading, refetch} = useQuery(SEARCH_PRODUCTS, {
+    const {data, error, loading, refetch} = useQuery<SearchQuery, SearchQueryVariables>(SEARCH_PRODUCTS, {
         variables: {
             limit: ELEMENT_PER_PAGE,
             offset: 0,

@@ -101,6 +101,14 @@ func (s Seng) matchRecords(pRecord *pdtos.Tyre, i int, slice string) error {
 		s := cases.Lower(language.Und).String(slice)
 		pRecord.Brand = cases.Title(language.Und).String(s)
 		break
+	case 12:
+		q, err := strconv.Atoi(slice)
+
+		if err == nil {
+			pRecord.Quantity = q
+		}
+
+		break
 	case 15:
 		pRecord.Season = getSeasonFromGerman(strings.ToUpper(slice))
 		break

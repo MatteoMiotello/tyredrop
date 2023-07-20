@@ -18,6 +18,7 @@ import AddItemToCartButton from "./AddItemToCartButton";
 import ProductSpecificationsGroup from "./ProductSpecificationsGroup";
 import ProductTitle from "./ProductTitle";
 import ProductQualityBadge from "./ProductQualityBadge";
+import AvailabilityBadge from "./AvailabilityBadge";
 
 
 type ProductTableProps = {
@@ -28,6 +29,7 @@ type ProductTableProps = {
 
 export type ProductRowItemData = {
     id: string
+    supplier_quantity: number
     brand: {
         name: string,
         code: string,
@@ -62,17 +64,19 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
         },
         {
             accessorKey: "brand",
-            size: 70,
+            size: 15,
             cell: (props) => <div className="w-24">
                 <Img src={(new ProdapiService()).getBrandImageUrl(props.row.original.brand.code)}
                      loading="lazy"
                      className="my-auto"
-                     unloader={ <span className="text-xl uppercase text-neutral font-semibold">{props.row.original.brand.name}</span> }
+                     unloader={<span
+                         className="text-xl uppercase text-neutral font-semibold">{props.row.original.brand.name}</span>}
                      onErrorCapture={(e) => e.preventDefault()}
                 /></div>
         },
         {
             accessorKey: "content",
+            size: 200,
             cell: (props: CellContext<ProductRowItemData, any>) => <ProductTitle showBrand={true}
                                                                                  data={props.row.original}/>
         },
@@ -85,16 +89,21 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
             </div>
         },
         {
+            accessorKey: "supplier_quantity",
+            cell: (props: CellContext<ProductRowItemData, any>) => <AvailabilityBadge quantity={props.getValue()}/>
+        },
+        {
             accessorKey: "price",
             size: 10,
             cell: (props) => {
-                return <div className="w-full flex justify-center items-center">
+                return <div className="w-full flex flex-col justify-center items-center">
 
-                <span
-                    className="font-semibold text-xl"
-                >
+                <span className="font-semibold text-xl">
                     {props.row.original.price}
-            </span>
+                </span>
+                    <span className="text-secondary text-sm font-semibold uppercase">
+                        Esentasse
+                    </span>
                 </div>;
             }
         },
@@ -102,7 +111,7 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
             accessorKey: "button",
             size: 10,
             cell: (props: CellContext<ProductRowItemData, any>) => <div className="flex justify-center items-center">
-                <AddItemToCartButton itemId={props.row.original.id}/>
+                <AddItemToCartButton itemId={props.row.original.id} quantity={props.row.original.supplier_quantity}/>
                 <Link
                     className="mx-2 aspect-square"
                     type="ghost"
@@ -134,6 +143,7 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
                     code: product.product.brand.code,
                     quality: product.product.brand.quality as number
                 },
+                supplier_quantity: product.supplierQuantity,
                 name: product.product.name as string,
                 code: product.product.code,
                 price: Currency.defaultFormat(product.price[0]?.value, product.price[0]?.currency.iso_code),

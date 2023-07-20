@@ -11,7 +11,8 @@ import {useToast} from "../../../hooks/useToast";
 import {addCartItem} from "../../cart/store/cart-slice";
 
 type AddItemToCartButton = {
-    itemId: string
+    itemId: string,
+    quantity: number
 }
 
 const AddItemToCartButton: React.FC<AddItemToCartButton> = (props) => {
@@ -22,34 +23,51 @@ const AddItemToCartButton: React.FC<AddItemToCartButton> = (props) => {
     const [loading, setLoading] = useState<boolean>(false);
 
     return <div className="flex">
-        <Input.Input
-            className="w-14"
-            value={quantity}
-            type="number"
-            name="quantity"
-            placeholder="1"
-            onValueChange={ setQuantity }
-        />
-        <Button
-            className="mx-2 aspect-square"
-            type={"primary"}
-            onClick={() => {
-                setLoading(true);
-                dispatch(addCartItem({itemId: props.itemId, quantity: quantity}))
-                    .unwrap()
-                    .then(() => {
-                        setSuccess(t("cart.item_added_success"));
-                    })
-                    .catch(() => {
-                        setError(t("cart.item_add_error"));
-                    })
-                    .finally(() => {
-                        setLoading(false);
-                    });
-            }}
-        >
-            {loading ? <LoadingSpinner/> : <FontAwesomeIcon icon={faShoppingCart}/>}
-        </Button>
+        <Input.FormControl>
+            <Input.Input
+                className="w-14"
+                value={quantity}
+                type="number"
+                name="quantity"
+                placeholder="1"
+                onValueChange={setQuantity}
+                validators={[(value) => {
+                    if (value > props.quantity) {
+                        return 'La quantità selezionata non è disponibile';
+                    }
+
+                    return null;
+                }]}
+            />
+        </Input.FormControl>
+        {props.quantity >= 4 &&
+            <Button
+                className="mx-2 aspect-square"
+                type={"primary"}
+                onClick={() => {
+                    if (quantity > props.quantity) {
+                        setError('La quantità selezionata non è disponibile');
+                        return;
+                    }
+
+                    setLoading(true);
+
+                    dispatch(addCartItem({itemId: props.itemId, quantity: quantity}))
+                        .unwrap()
+                        .then(() => {
+                            setSuccess(t("cart.item_added_success"));
+                        })
+                        .catch(() => {
+                            setError(t("cart.item_add_error"));
+                        })
+                        .finally(() => {
+                            setLoading(false);
+                        });
+                }}
+            >
+                {loading ? <LoadingSpinner/> : <FontAwesomeIcon icon={faShoppingCart}/>}
+            </Button>
+        }
     </div>;
 };
 

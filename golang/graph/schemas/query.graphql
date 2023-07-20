@@ -38,7 +38,7 @@ type Query {
 
     searchBrands( name: String! ): [Brand]
 
-    carts: CartResponse
+    carts: CartResponse @userConfirmed
 
     legalEntityTypes: [LegalEntityType]
 
@@ -54,7 +54,7 @@ type Query {
     currency( id: ID! ): Currency
     currencies: [Currency]
 
-    order( id: ID! ): Order!
-    orders( pagination: PaginationInput ): [Order]
-    userOrders( userId: ID!, pagination: PaginationInput ): [Order]
+    order( id: ID! ): Order! @userConfirmed
+    orders( pagination: PaginationInput ): [Order] @userConfirmed
+    userOrders( userId: ID!, pagination: PaginationInput ): [Order] @userConfirmed
 }

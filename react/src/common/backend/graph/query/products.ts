@@ -1,4 +1,4 @@
-import {gql} from "../../../../__generated__";
+import {gql} from "@apollo/client";
 
 export const ALL_CATEGORIES_WITH_SPECIFICATIONS = gql(`
     query getAllCategories {
@@ -31,6 +31,7 @@ export const SEARCH_PRODUCTS = gql(`
           }
           productItems {
                id
+               supplierQuantity
                price {
                     value
                     currency {
@@ -73,6 +74,7 @@ export const PRODUCT_ITEM = gql(`
             }
             value
         }
+        supplierQuantity
         product {
             code
             name

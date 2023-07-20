@@ -55,8 +55,9 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
-	IsAdmin  func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
-	NotEmpty func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
+	IsAdmin       func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
+	NotEmpty      func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
+	UserConfirmed func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -1010,14 +1011,14 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ProductItem.SupplierID(childComplexity), true
 
-	case "ProductItem.supplier_price":
+	case "ProductItem.supplierPrice":
 		if e.complexity.ProductItem.SupplierPrice == nil {
 			break
 		}
 
 		return e.complexity.ProductItem.SupplierPrice(childComplexity), true
 
-	case "ProductItem.supplier_quantity":
+	case "ProductItem.supplierQuantity":
 		if e.complexity.ProductItem.SupplierQuantity == nil {
 			break
 		}
@@ -2754,10 +2755,10 @@ func (ec *executionContext) fieldContext_Cart_productItem(ctx context.Context, f
 				return ec.fieldContext_ProductItem_supplierID(ctx, field)
 			case "supplier":
 				return ec.fieldContext_ProductItem_supplier(ctx, field)
-			case "supplier_price":
-				return ec.fieldContext_ProductItem_supplier_price(ctx, field)
-			case "supplier_quantity":
-				return ec.fieldContext_ProductItem_supplier_quantity(ctx, field)
+			case "supplierPrice":
+				return ec.fieldContext_ProductItem_supplierPrice(ctx, field)
+			case "supplierQuantity":
+				return ec.fieldContext_ProductItem_supplierQuantity(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ProductItem", field.Name)
 		},
@@ -3465,8 +3466,28 @@ func (ec *executionContext) _Mutation_addItemToCart(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().AddItemToCart(rctx, fc.Args["itemId"].(int64), fc.Args["quantity"].(*int))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().AddItemToCart(rctx, fc.Args["itemId"].(int64), fc.Args["quantity"].(*int))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.UserConfirmed == nil {
+				return nil, errors.New("directive userConfirmed is not implemented")
+			}
+			return ec.directives.UserConfirmed(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.CartResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *pillowww/titw/graph/model.CartResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3523,8 +3544,28 @@ func (ec *executionContext) _Mutation_editCart(ctx context.Context, field graphq
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().EditCart(rctx, fc.Args["cartId"].(int64), fc.Args["quantity"].(int))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().EditCart(rctx, fc.Args["cartId"].(int64), fc.Args["quantity"].(int))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.UserConfirmed == nil {
+				return nil, errors.New("directive userConfirmed is not implemented")
+			}
+			return ec.directives.UserConfirmed(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.CartResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *pillowww/titw/graph/model.CartResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3581,8 +3622,28 @@ func (ec *executionContext) _Mutation_emptyCart(ctx context.Context, field graph
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().EmptyCart(rctx)
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().EmptyCart(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.UserConfirmed == nil {
+				return nil, errors.New("directive userConfirmed is not implemented")
+			}
+			return ec.directives.UserConfirmed(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.CartResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *pillowww/titw/graph/model.CartResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3628,8 +3689,28 @@ func (ec *executionContext) _Mutation_createUserAddress(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateUserAddress(rctx, fc.Args["userAddress"].(model.UserAddressInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateUserAddress(rctx, fc.Args["userAddress"].(model.UserAddressInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.UserConfirmed == nil {
+				return nil, errors.New("directive userConfirmed is not implemented")
+			}
+			return ec.directives.UserConfirmed(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.UserAddress); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*pillowww/titw/graph/model.UserAddress`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3707,8 +3788,28 @@ func (ec *executionContext) _Mutation_editUserAddress(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().EditUserAddress(rctx, fc.Args["id"].(int64), fc.Args["userAddress"].(model.UserAddressInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().EditUserAddress(rctx, fc.Args["id"].(int64), fc.Args["userAddress"].(model.UserAddressInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.UserConfirmed == nil {
+				return nil, errors.New("directive userConfirmed is not implemented")
+			}
+			return ec.directives.UserConfirmed(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.UserAddress); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*pillowww/titw/graph/model.UserAddress`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3786,8 +3887,28 @@ func (ec *executionContext) _Mutation_deleteUserAddress(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteUserAddress(rctx, fc.Args["id"].(int64))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteUserAddress(rctx, fc.Args["id"].(int64))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.UserConfirmed == nil {
+				return nil, errors.New("directive userConfirmed is not implemented")
+			}
+			return ec.directives.UserConfirmed(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.UserAddress); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*pillowww/titw/graph/model.UserAddress`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3865,8 +3986,28 @@ func (ec *executionContext) _Mutation_newOrder(ctx context.Context, field graphq
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().NewOrder(rctx, fc.Args["userId"].(int64), fc.Args["userAddressId"].(int64))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().NewOrder(rctx, fc.Args["userId"].(int64), fc.Args["userAddressId"].(int64))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.UserConfirmed == nil {
+				return nil, errors.New("directive userConfirmed is not implemented")
+			}
+			return ec.directives.UserConfirmed(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Order); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *pillowww/titw/graph/model.Order`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4981,10 +5122,10 @@ func (ec *executionContext) fieldContext_OrderRow_productItem(ctx context.Contex
 				return ec.fieldContext_ProductItem_supplierID(ctx, field)
 			case "supplier":
 				return ec.fieldContext_ProductItem_supplier(ctx, field)
-			case "supplier_price":
-				return ec.fieldContext_ProductItem_supplier_price(ctx, field)
-			case "supplier_quantity":
-				return ec.fieldContext_ProductItem_supplier_quantity(ctx, field)
+			case "supplierPrice":
+				return ec.fieldContext_ProductItem_supplierPrice(ctx, field)
+			case "supplierQuantity":
+				return ec.fieldContext_ProductItem_supplierQuantity(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ProductItem", field.Name)
 		},
@@ -6303,8 +6444,8 @@ func (ec *executionContext) fieldContext_ProductItem_supplier(ctx context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _ProductItem_supplier_price(ctx context.Context, field graphql.CollectedField, obj *model.ProductItem) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ProductItem_supplier_price(ctx, field)
+func (ec *executionContext) _ProductItem_supplierPrice(ctx context.Context, field graphql.CollectedField, obj *model.ProductItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductItem_supplierPrice(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -6334,7 +6475,7 @@ func (ec *executionContext) _ProductItem_supplier_price(ctx context.Context, fie
 	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ProductItem_supplier_price(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ProductItem_supplierPrice(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ProductItem",
 		Field:      field,
@@ -6347,8 +6488,8 @@ func (ec *executionContext) fieldContext_ProductItem_supplier_price(ctx context.
 	return fc, nil
 }
 
-func (ec *executionContext) _ProductItem_supplier_quantity(ctx context.Context, field graphql.CollectedField, obj *model.ProductItem) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ProductItem_supplier_quantity(ctx, field)
+func (ec *executionContext) _ProductItem_supplierQuantity(ctx context.Context, field graphql.CollectedField, obj *model.ProductItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductItem_supplierQuantity(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -6378,7 +6519,7 @@ func (ec *executionContext) _ProductItem_supplier_quantity(ctx context.Context, 
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ProductItem_supplier_quantity(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ProductItem_supplierQuantity(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ProductItem",
 		Field:      field,
@@ -6488,10 +6629,10 @@ func (ec *executionContext) fieldContext_ProductItemPaginate_productItems(ctx co
 				return ec.fieldContext_ProductItem_supplierID(ctx, field)
 			case "supplier":
 				return ec.fieldContext_ProductItem_supplier(ctx, field)
-			case "supplier_price":
-				return ec.fieldContext_ProductItem_supplier_price(ctx, field)
-			case "supplier_quantity":
-				return ec.fieldContext_ProductItem_supplier_quantity(ctx, field)
+			case "supplierPrice":
+				return ec.fieldContext_ProductItem_supplierPrice(ctx, field)
+			case "supplierQuantity":
+				return ec.fieldContext_ProductItem_supplierQuantity(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ProductItem", field.Name)
 		},
@@ -7854,8 +7995,28 @@ func (ec *executionContext) _Query_carts(ctx context.Context, field graphql.Coll
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Carts(rctx)
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().Carts(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.UserConfirmed == nil {
+				return nil, errors.New("directive userConfirmed is not implemented")
+			}
+			return ec.directives.UserConfirmed(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.CartResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *pillowww/titw/graph/model.CartResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8036,10 +8197,10 @@ func (ec *executionContext) fieldContext_Query_productsItemsByCode(ctx context.C
 				return ec.fieldContext_ProductItem_supplierID(ctx, field)
 			case "supplier":
 				return ec.fieldContext_ProductItem_supplier(ctx, field)
-			case "supplier_price":
-				return ec.fieldContext_ProductItem_supplier_price(ctx, field)
-			case "supplier_quantity":
-				return ec.fieldContext_ProductItem_supplier_quantity(ctx, field)
+			case "supplierPrice":
+				return ec.fieldContext_ProductItem_supplierPrice(ctx, field)
+			case "supplierQuantity":
+				return ec.fieldContext_ProductItem_supplierQuantity(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ProductItem", field.Name)
 		},
@@ -8164,10 +8325,10 @@ func (ec *executionContext) fieldContext_Query_productItem(ctx context.Context, 
 				return ec.fieldContext_ProductItem_supplierID(ctx, field)
 			case "supplier":
 				return ec.fieldContext_ProductItem_supplier(ctx, field)
-			case "supplier_price":
-				return ec.fieldContext_ProductItem_supplier_price(ctx, field)
-			case "supplier_quantity":
-				return ec.fieldContext_ProductItem_supplier_quantity(ctx, field)
+			case "supplierPrice":
+				return ec.fieldContext_ProductItem_supplierPrice(ctx, field)
+			case "supplierQuantity":
+				return ec.fieldContext_ProductItem_supplierQuantity(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ProductItem", field.Name)
 		},
@@ -8497,8 +8658,28 @@ func (ec *executionContext) _Query_order(ctx context.Context, field graphql.Coll
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Order(rctx, fc.Args["id"].(int64))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().Order(rctx, fc.Args["id"].(int64))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.UserConfirmed == nil {
+				return nil, errors.New("directive userConfirmed is not implemented")
+			}
+			return ec.directives.UserConfirmed(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Order); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *pillowww/titw/graph/model.Order`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8586,8 +8767,28 @@ func (ec *executionContext) _Query_orders(ctx context.Context, field graphql.Col
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Orders(rctx, fc.Args["pagination"].(*model.PaginationInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().Orders(rctx, fc.Args["pagination"].(*model.PaginationInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.UserConfirmed == nil {
+				return nil, errors.New("directive userConfirmed is not implemented")
+			}
+			return ec.directives.UserConfirmed(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.Order); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*pillowww/titw/graph/model.Order`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8672,8 +8873,28 @@ func (ec *executionContext) _Query_userOrders(ctx context.Context, field graphql
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().UserOrders(rctx, fc.Args["userId"].(int64), fc.Args["pagination"].(*model.PaginationInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().UserOrders(rctx, fc.Args["userId"].(int64), fc.Args["pagination"].(*model.PaginationInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.UserConfirmed == nil {
+				return nil, errors.New("directive userConfirmed is not implemented")
+			}
+			return ec.directives.UserConfirmed(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.Order); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*pillowww/titw/graph/model.Order`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14600,16 +14821,16 @@ func (ec *executionContext) _ProductItem(ctx context.Context, sel ast.SelectionS
 				return innerFunc(ctx)
 
 			})
-		case "supplier_price":
+		case "supplierPrice":
 
-			out.Values[i] = ec._ProductItem_supplier_price(ctx, field, obj)
+			out.Values[i] = ec._ProductItem_supplierPrice(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
-		case "supplier_quantity":
+		case "supplierQuantity":
 
-			out.Values[i] = ec._ProductItem_supplier_quantity(ctx, field, obj)
+			out.Values[i] = ec._ProductItem_supplierQuantity(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)

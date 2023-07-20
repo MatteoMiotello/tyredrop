@@ -5,11 +5,7 @@ const cartItems = ( store: Store ) => store.cart.items;
 const amountTotal = ( store: Store ) => store.cart.amountTotal;
 
 const selectCartCount = createSelector( [ cartItems ], ( carts ) => {
-    if ( !carts ) {
-        return 0;
-    }
-
-    return carts.length;
+    return carts.reduce( ( current, add ) => current + add.quantity, 0 );
 } );
 
 const selectCarts = createSelector( [ cartItems ], ( carts ) => {

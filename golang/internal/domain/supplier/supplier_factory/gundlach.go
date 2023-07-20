@@ -119,3 +119,5 @@ func (g Gun) matchRecords(pRecord *pdtos.Tyre, index int, slice string) error {
 
 	return nil
 }
+
+// llkv -> furgoni

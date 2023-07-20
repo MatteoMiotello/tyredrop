@@ -58,6 +58,20 @@ func (g *GraphqlController) buildConfig() graph.Config {
 		return val, err
 	}
 
+	c.Directives.UserConfirmed = func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error) {
+		u, err := auth2.CurrentUser(ctx)
+
+		if err != nil {
+			return nil, graphErrors.NewUserNotFoundError(ctx, err)
+		}
+
+		if !u.Confirmed {
+			return nil, graphErrors.NewNotAuthorizedError(ctx)
+		}
+
+		return next(ctx)
+	}
+
 	return c
 }
 

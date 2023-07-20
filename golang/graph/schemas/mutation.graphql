@@ -10,13 +10,13 @@ type Mutation {
 
     createUserBilling( billingInput: CreateUserBilling! ): UserBilling!
 
-    addItemToCart( itemId: ID!, quantity: Int ): CartResponse
-    editCart( cartId: ID!, quantity: Int! ): CartResponse
-    emptyCart: CartResponse
+    addItemToCart( itemId: ID!, quantity: Int ): CartResponse @userConfirmed
+    editCart( cartId: ID!, quantity: Int! ): CartResponse @userConfirmed
+    emptyCart: CartResponse @userConfirmed
 
-    createUserAddress( userAddress: UserAddressInput! ): [UserAddress]!
-    editUserAddress( id: ID!, userAddress: UserAddressInput! ): [UserAddress]!
-    deleteUserAddress( id: ID! ): [UserAddress]!
+    createUserAddress( userAddress: UserAddressInput! ): [UserAddress]! @userConfirmed
+    editUserAddress( id: ID!, userAddress: UserAddressInput! ): [UserAddress]! @userConfirmed
+    deleteUserAddress( id: ID! ): [UserAddress]! @userConfirmed
 
-    newOrder(userId: ID!, userAddressId: ID!): Order!
+    newOrder(userId: ID!, userAddressId: ID!): Order! @userConfirmed
 }

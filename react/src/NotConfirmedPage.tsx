@@ -16,6 +16,11 @@ const NotConfirmedPage: React.FC = () => {
 
 
     useEffect(() => {
+        if ( auth.isUserCompleted() ) {
+            navigate('/');
+            return;
+        }
+
         if (auth.isUserRegistering()) {
             navigate('/');
             return;
