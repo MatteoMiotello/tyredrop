@@ -17,6 +17,13 @@ const Navbar: React.FC = () => {
         <MainLogo width={100}/>
 
         <div className="ml-auto">
+            {
+                auth.user?.user &&
+                <div className="mx-4 flex flex-col uppercase font-semibold text-sm">
+                    <Link className="link-primary" to={`/user/${auth.user.user.userID}`}> { auth.user.user.email } </Link>
+                    <span> Codice utente: #{ String( auth.user?.user?.userID ).padStart( 5, '0' ) } </span>
+                </div>
+            }
             <CartButton/>
             <div className="flex-none gap-2">
                 <div className="dropdown dropdown-end z-50">
