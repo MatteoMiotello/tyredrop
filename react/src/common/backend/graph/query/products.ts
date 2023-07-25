@@ -28,6 +28,8 @@ export const SEARCH_PRODUCTS = gql(`
                limit
                totals
                offset
+               currentPage
+               pageCount
           }
           productItems {
                id

@@ -41,23 +41,6 @@ func (s Service) findCategory(ctx context.Context, code constants.ProductCategor
 	return s.CategoryDao.FindByCode(ctx, string(code))
 }
 
-func (s Service) deleteOldItems(ctx context.Context, product *models.Product, supplier *models.Supplier) error {
-	items, _ := s.ItemDao.FindByProductAndSupplier(ctx, product, supplier)
-
-	if items == nil {
-		return nil
-	}
-
-	for _, item := range items {
-		err := s.ProductDao.Delete(ctx, item)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (s Service) findOrCreateSpecificationValue(ctx context.Context, specification *models.ProductSpecification, value string) (*models.ProductSpecificationValue, error) {
 	specificationValue, err := s.SpecificationValueDao.FindBySpecificationAndValue(ctx, specification, value)
 
@@ -191,12 +174,7 @@ func (s Service) setProductComplete(ctx context.Context, product *models.Product
 	return s.ProductDao.Update(ctx, product)
 }
 
-func (s Service) CreateProductItem(ctx context.Context, product *models.Product, supplier *models.Supplier, price string, quantity int) (*models.ProductItem, error) {
-	err := s.deleteOldItems(ctx, product, supplier)
-	if err != nil {
-		return nil, err
-	}
-
+func (s Service) CreateOrUpdateProductItem(ctx context.Context, product *models.Product, supplier *models.Supplier, price string, quantity int) (*models.ProductItem, error) {
 	price = strings.Replace(price, ",", ".", 1)
 	amount, err := currency.NewAmount(price, "EUR")
 	if err != nil {
@@ -209,14 +187,20 @@ func (s Service) CreateProductItem(ctx context.Context, product *models.Product,
 		return nil, err
 	}
 
-	i := &models.ProductItem{
-		ProductID:        product.ID,
-		SupplierID:       supplier.ID,
-		SupplierPrice:    int(priceInt),
-		SupplierQuantity: quantity,
+	i, _ := s.ItemDao.FindByProductAndSupplier(ctx, product, supplier)
+
+	if i == nil {
+		i = &models.ProductItem{
+			ProductID:  product.ID,
+			SupplierID: supplier.ID,
+		}
 	}
 
-	err = s.ProductDao.Insert(ctx, i)
+	i.SupplierQuantity = quantity
+	i.SupplierPrice = int(priceInt)
+
+	err = s.ProductDao.Save(ctx, i)
+
 	if err != nil {
 		return nil, err
 	}

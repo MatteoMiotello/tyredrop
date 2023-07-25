@@ -31,12 +31,12 @@ func OrderRowToGraphQL(row *models.OrderRow, cur *models.Currency) (*model.Order
 	}
 
 	return &model.OrderRow{
-		ID:             row.ID,
-		OrderID:        row.OrderID,
-		ProductItemID:  row.ProductItemID,
-		Quantity:       row.Quantity,
-		Amount:         floatValue,
-		TrackingNumber: &row.TrackingNumber.String,
-		DeliveredAt:    &row.DeliveredAt.Time,
+		ID:                 row.ID,
+		OrderID:            row.OrderID,
+		ProductItemPriceID: row.ProductItemPriceID,
+		Quantity:           row.Quantity,
+		Amount:             floatValue,
+		TrackingNumber:     &row.TrackingNumber.String,
+		DeliveredAt:        &row.DeliveredAt.Time,
 	}, nil
 }

@@ -50,11 +50,11 @@ func (d Dao) FindAllByUserId(ctx context.Context, userId int64) (models.CartSlic
 	).All(ctx, d.Db)
 }
 
-func (d Dao) FindOneByUserAndProductItemId(ctx context.Context, userId int64, itemId int64) (*models.Cart, error) {
+func (d Dao) FindOneByUserAndProductItemPriceId(ctx context.Context, userId int64, priceId int64) (*models.Cart, error) {
 	return models.Carts(
 		d.GetMods(
 			models.CartWhere.UserID.EQ(userId),
-			models.CartWhere.ProductItemID.EQ(itemId),
+			models.CartWhere.ProductItemPriceID.EQ(priceId),
 		)...,
 	).One(ctx, d.Db)
 }

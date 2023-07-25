@@ -37,3 +37,20 @@ func (d *ItemPriceDao) Currency(ctx context.Context, price *models.ProductItemPr
 		d.GetMods()...,
 	).One(ctx, d.Db)
 }
+
+func (d *ItemPriceDao) FindOneByProductItemIdAndCurrencyId(ctx context.Context, currId int64, itemId int64) (*models.ProductItemPrice, error) {
+	return models.ProductItemPrices(
+		d.GetMods(
+			models.ProductItemPriceWhere.ProductItemID.EQ(itemId),
+			models.ProductItemPriceWhere.CurrencyID.EQ(currId),
+		)...,
+	).One(ctx, d.Db)
+}
+
+func (d *ItemPriceDao) FindOneById(ctx context.Context, priceId int64) (*models.ProductItemPrice, error) {
+	return models.ProductItemPrices(
+		d.GetMods(
+			models.ProductItemPriceWhere.ID.EQ(priceId),
+		)...,
+	).One(ctx, d.Db)
+}

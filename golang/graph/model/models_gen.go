@@ -59,10 +59,23 @@ type LegalEntityType struct {
 	IsPerson bool   `json:"isPerson"`
 }
 
+type OrderFilterInput struct {
+	DateFrom *string `json:"dateFrom,omitempty"`
+	DateTo   *string `json:"dateTo,omitempty"`
+	Number   *string `json:"number,omitempty"`
+}
+
+type OrdersPaginator struct {
+	Data       []*Order    `json:"data"`
+	Pagination *Pagination `json:"pagination"`
+}
+
 type Pagination struct {
-	Limit  *int `json:"limit,omitempty"`
-	Offset *int `json:"offset,omitempty"`
-	Totals *int `json:"totals,omitempty"`
+	Limit       *int `json:"limit,omitempty"`
+	Offset      *int `json:"offset,omitempty"`
+	Totals      *int `json:"totals,omitempty"`
+	CurrentPage *int `json:"currentPage,omitempty"`
+	PageCount   *int `json:"pageCount,omitempty"`
 }
 
 type PaginationInput struct {
@@ -78,12 +91,6 @@ type ProductItemPaginate struct {
 type ProductPaginate struct {
 	Pagination *Pagination `json:"pagination,omitempty"`
 	Products   []*Product  `json:"products,omitempty"`
-}
-
-type ProductPrice struct {
-	ID       int64     `json:"id"`
-	Value    float64   `json:"value"`
-	Currency *Currency `json:"currency"`
 }
 
 type ProductSearchInput struct {

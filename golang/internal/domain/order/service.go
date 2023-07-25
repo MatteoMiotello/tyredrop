@@ -11,45 +11,46 @@ import (
 )
 
 type service struct {
-	orderDao    *Dao
-	currencyDao *currency.Dao
-	itemDao     *product.ItemDao
+	orderDao     *Dao
+	currencyDao  *currency.Dao
+	itemDao      *product.ItemDao
+	itemPriceDao *product.ItemPriceDao
 }
 
 func NewService(
 	dao *Dao,
 	currencyDao *currency.Dao,
 	itemDao *product.ItemDao,
+	itemPriceDao *product.ItemPriceDao,
 ) service {
 	return service{
 		dao,
 		currencyDao,
 		itemDao,
+		itemPriceDao,
 	}
 }
 
 func (s *service) createOrderRowFromCart(ctx context.Context, currency *models.Currency, order *models.Order, cart *models.Cart) error {
-	productItem, err := s.itemDao.FindProductItemById(ctx, cart.ProductItemID)
+	p, err := s.itemPriceDao.
+		Load(models.ProductItemPriceRels.ProductItem).
+		FindOneById(ctx, cart.ProductItemPriceID)
 
 	if err != nil {
 		return err
 	}
 
-	if productItem.SupplierQuantity < cart.Quantity {
+	productItem := p.R.ProductItem
+
+	if p.R.ProductItem.SupplierQuantity < cart.Quantity {
 		return errors.New("Quantity not available")
 	}
 
-	p, err := s.itemDao.ProductItemPrice(ctx, productItem, currency)
-
-	if err != nil {
-		return err
-	}
-
 	row := &models.OrderRow{
-		OrderID:       order.ID,
-		ProductItemID: cart.ProductItemID,
-		Quantity:      cart.Quantity,
-		Amount:        p.Price * cart.Quantity,
+		OrderID:            order.ID,
+		ProductItemPriceID: p.ID,
+		Quantity:           cart.Quantity,
+		Amount:             p.Price * cart.Quantity,
 	}
 
 	err = s.orderDao.Insert(ctx, row)

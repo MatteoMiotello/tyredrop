@@ -7,8 +7,9 @@ import {ThunkDispatch} from "redux-thunk";
 import Button from "../../../common/components-library/Button";
 import Input from "../../../common/components-library/Input";
 import LoadingSpinner from "../../../common/components-library/LoadingSpinner";
-import {useToast} from "../../../hooks/useToast";
+
 import {addCartItem} from "../../cart/store/cart-slice";
+import {useToast} from "../../../store/toast";
 
 type AddItemToCartButton = {
     itemId: string,
@@ -18,7 +19,7 @@ type AddItemToCartButton = {
 const AddItemToCartButton: React.FC<AddItemToCartButton> = (props) => {
     const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
     const [quantity, setQuantity] = useState(1);
-    const {setSuccess, setError} = useToast();
+    const {success, error} = useToast();
     const {t} = useTranslation();
     const [loading, setLoading] = useState<boolean>(false);
 
@@ -46,7 +47,7 @@ const AddItemToCartButton: React.FC<AddItemToCartButton> = (props) => {
                 type={"primary"}
                 onClick={() => {
                     if (quantity > props.quantity) {
-                        setError('La quantità selezionata non è disponibile');
+                        error('La quantità selezionata non è disponibile');
                         return;
                     }
 
@@ -55,10 +56,10 @@ const AddItemToCartButton: React.FC<AddItemToCartButton> = (props) => {
                     dispatch(addCartItem({itemId: props.itemId, quantity: quantity}))
                         .unwrap()
                         .then(() => {
-                            setSuccess(t("cart.item_added_success"));
+                            success(t("cart.item_added_success"));
                         })
                         .catch(() => {
-                            setError(t("cart.item_add_error"));
+                            error(t("cart.item_add_error"));
                         })
                         .finally(() => {
                             setLoading(false);

@@ -1,9 +1,9 @@
 type Cart {
     id: ID!
     userId: ID!
-    productItemId: ID!
+    productItemPriceId: ID!
     user: User!
-    productItem: ProductItem!
+    productItemPrice: ProductItemPrice!
     quantity: Int!
 }
 

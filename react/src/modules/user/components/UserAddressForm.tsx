@@ -7,9 +7,9 @@ import Form, {useForm} from "../../../common/components-library/Form";
 import Field from "../../../common/components-library/Input";
 import CountryField from "../../../common/components/CountryField";
 import {isRequired, maxCharacters, minCharacters} from "../../../common/validation/validators";
-import {useToast} from "../../../hooks/useToast";
 import {UserAddressRequest, createUserAddress, editUserAddress} from "../store/user-slice";
 import {ApolloError} from "@apollo/client";
+import {useToast} from "../../../store/toast";
 
 type UserAddressFormProps = {
     onSuccess: () => void
@@ -21,7 +21,7 @@ const UserAddressForm: React.FC<UserAddressFormProps> = (props) => {
     const {t} = useTranslation();
     const {form, handleFormError} = useForm();
     const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
-    const {setSuccess, setError} = useToast();
+    const toastr = useToast();
     const onSubmit = (formData: UserAddressRequest) => {
         let action: any = createUserAddress(formData);
 
@@ -32,11 +32,11 @@ const UserAddressForm: React.FC<UserAddressFormProps> = (props) => {
         dispatch(action)
             .unwrap()
             .then(() => {
-                setSuccess(t("user_address.store_success"));
+                toastr.success(t("user_address.store_success"));
                 props.onSuccess();
             })
             .catch((err: ApolloError) => {
-                setError(t("user_address.store_error"));
+                toastr.error(t("user_address.store_error"));
                 handleFormError(err.message);
             });
     };

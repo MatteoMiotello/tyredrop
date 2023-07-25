@@ -22,13 +22,13 @@ type Order struct {
 }
 
 type OrderRow struct {
-	ID             int64      `json:"id"`
-	OrderID        int64      `json:"orderID"`
-	ProductItemID  int64      `json:"productItemID"`
-	Quantity       int        `json:"quantity"`
-	Amount         float64    `json:"amount"`
-	TrackingNumber *string    `json:"trackingNumber,omitempty"`
-	DeliveredAt    *time.Time `json:"deliveredAt,omitempty"`
+	ID                 int64      `json:"id"`
+	OrderID            int64      `json:"orderID"`
+	ProductItemPriceID int64      `json:"productItemPriceID"`
+	Quantity           int        `json:"quantity"`
+	Amount             float64    `json:"amount"`
+	TrackingNumber     *string    `json:"trackingNumber,omitempty"`
+	DeliveredAt        *time.Time `json:"deliveredAt,omitempty"`
 }
 
 func (o OrderStatus) IsValidForOrder(order *models.Order) bool {

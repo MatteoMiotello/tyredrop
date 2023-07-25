@@ -39,3 +39,10 @@ type ProductSpecificationValue struct {
 	Value           string `json:"value"`
 	SpecificationID int64  `json:"specificationId"`
 }
+
+type ProductItemPrice struct {
+	ID            int64     `json:"id"`
+	Value         float64   `json:"value"`
+	Currency      *Currency `json:"currency"`
+	ProductItemID int64     `json:"productItemId"`
+}

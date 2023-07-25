@@ -1,6 +1,5 @@
 import React from "react";
-import Table from "../../../common/components-library/Table";
-import {Order} from "../../../__generated__/graphql";
+import {Order, OrdersPaginator} from "../../../__generated__/graphql";
 import {CellContext, ColumnDef} from "@tanstack/react-table";
 import {calculateTotal} from "../utils";
 import {Link} from "react-router-dom";
@@ -8,10 +7,14 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faMagnifyingGlass} from "@fortawesome/free-solid-svg-icons";
 import OrderStatusBadge from "./OrderStatusBadge";
 import Moment from "react-moment";
+import {FilteredTable, Input, useForm} from "../../../common/components/shelly-ui";
+import {useGraphTable} from "../../../hooks/useGraphTable";
+import {QueryResult} from "@apollo/client";
 
 type OrderTableProps = {
-    orders: Partial<Order>[]
+    query: QueryResult<{userOrders: OrdersPaginator}>
 }
+
 const OrderTable: React.FC<OrderTableProps> = (props) => {
     const columns: ColumnDef<Order>[] = [
         {
@@ -51,6 +54,7 @@ const OrderTable: React.FC<OrderTableProps> = (props) => {
         },
         {
             accessorKey: "id",
+            id: "btn",
             header: "",
             size: 5,
             cell: (props: CellContext<Order, any>) => <Link to={'/order/details/' + props.getValue()}
@@ -59,7 +63,37 @@ const OrderTable: React.FC<OrderTableProps> = (props) => {
         }
     ];
 
-    return <Table data={props.orders} columns={columns} hidePagination={true}></Table>;
+    const {table} = useGraphTable({
+        data: props.query.data?.userOrders.data as Order[],
+        columns: columns,
+        query: props.query,
+        paginator: props.query.data?.userOrders.pagination
+    });
+    const form = useForm();
+
+    return <FilteredTable table={table} >
+        <FilteredTable.FilterForm form={form} updateAsyncFilters={ (data) => console.log(  data ) }>
+            <FilteredTable.FilterField>
+                <Input.Label>
+                    Data da
+                </Input.Label>
+                <Input type="date" {...form.registerInput({name:'date_from' }) }/>
+            </FilteredTable.FilterField>
+            <FilteredTable.FilterField>
+                <Input.Label>
+                    Data a
+                </Input.Label>
+                <Input type="date" {...form.registerInput({name:'date_to' }) }/>
+            </FilteredTable.FilterField>
+            <FilteredTable.FilterField>
+                <Input.Label>
+                    Numero
+                </Input.Label>
+                <Input type="text" {...form.registerInput({name:'number' }) }/>
+            </FilteredTable.FilterField>
+        </FilteredTable.FilterForm>
+
+    </FilteredTable>;
 };
 
 export default OrderTable;

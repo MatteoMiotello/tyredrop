@@ -60,6 +60,10 @@ func (d *Dao) Upsert(ctx context.Context, model Upserter, updateOnConflict bool,
 	return model.Upsert(ctx, d.Db, updateOnConflict, cols, boil.Infer(), boil.Infer())
 }
 
+func (d *Dao) Save(ctx context.Context, model Upserter) error {
+	return model.Upsert(ctx, d.Db, true, []string{"id"}, boil.Infer(), boil.Infer())
+}
+
 func (d *Dao) Update(ctx context.Context, model Updater) error {
 	_, err := model.Update(ctx, d.Db, boil.Infer())
 

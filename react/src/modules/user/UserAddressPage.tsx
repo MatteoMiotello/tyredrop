@@ -3,7 +3,6 @@ import {faPencil, faPlus, faTimes} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {CellContext, ColumnDef} from "@tanstack/react-table";
 import React from "react";
-import {Simulate} from "react-dom/test-utils";
 import {useTranslation} from "react-i18next";
 import {useDispatch} from "react-redux";
 import {useParams} from "react-router-dom";
@@ -14,12 +13,11 @@ import Panel from "../../common/components-library/Panel";
 import Table from "../../common/components-library/Table";
 import Spinner from "../../common/components/Spinner";
 import useModal from "../../hooks/useModal";
-import {useToast} from "../../hooks/useToast";
 import ConfirmDeleteModal from "./components/ConfirmDeleteModal";
 import UserAddressModal from "./components/UserAddressModal";
 import {deleteUserAddress} from "./store/user-slice";
 import {ThunkDispatch} from "redux-thunk";
-import load = Simulate.load;
+import {useToast} from "../../store/toast";
 
 type UserAddressRowData = UserAddress
 const UserAddressPage: React.FC = () => {
@@ -30,7 +28,7 @@ const UserAddressPage: React.FC = () => {
         }
     });
     const {t} = useTranslation();
-    const {setSuccess, setError} = useToast();
+    const toastr = useToast();
     const {openModal, closeModal} = useModal();
     const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
 
@@ -92,10 +90,10 @@ const UserAddressPage: React.FC = () => {
                                     dispatch(deleteUserAddress({id: props.row.original.ID}))
                                         .unwrap()
                                         .then(() => {
-                                            setSuccess(t('user_address.delete_success'));
+                                            toastr.success(t('user_address.delete_success'));
                                             refetch();
                                         })
-                                        .catch(() => setError(t('user_address.delete_error')));
+                                        .catch(() => toastr.error(t('user_address.delete_error')));
                                     closeModal();
                                 }
                             }/>

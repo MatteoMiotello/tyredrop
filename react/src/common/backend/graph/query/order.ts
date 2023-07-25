@@ -1,7 +1,8 @@
-import {gql} from "../../../../__generated__";
+import {PAGINATION_FRAGMENT} from "../fragments/pagination";
+import {gql} from "@apollo/client";
 
 
-export const FETCH_ORDER = gql(`
+export const FETCH_ORDER = gql `
     query fetchOrder( $orderId: ID! ) {
         order(id: $orderId) {
             id
@@ -31,43 +32,49 @@ export const FETCH_ORDER = gql(`
                 id
                 amount
                 quantity
-                productItem {
-                    id
-                    price {
-                        value
-                        currency {
-                            iso_code
-                            symbol
-                        }
+                productItemPrice {
+                    value
+                    currency {
+                        iso_code
+                        symbol
                     }
-                    product {
+                    productItem {
                         id
-                        name
+                        product {
+                            id
+                            name
+                        }
                     }
                 }
             }
         }
     }
-`);
+`;
 
-export const FETCH_USER_ORDERS = gql(`
+export const FETCH_USER_ORDERS = gql`
+    ${PAGINATION_FRAGMENT}
     query fetchOrders( $userId: ID!, $pagination: PaginationInput ) {
         userOrders(userId: $userId, pagination: $pagination) {
-            id
-            currency {
-                iso_code
+            data {
+                id
+                currency {
+                    iso_code
+                }
+                status
+                addressLine1    
+                addressLine2
+                city
+                province
+                postalCode
+                country
+                createdAt
+                orderRows {
+                   amount
+                }
             }
-            status
-            addressLine1
-            addressLine2
-            city
-            province
-            postalCode
-            country
-            createdAt
-            orderRows {
-               amount
+            pagination {
+                ...PaginationInfo
             }
         }
     }
-`);
+`;

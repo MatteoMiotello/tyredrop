@@ -203,7 +203,7 @@ func importNextRecord(ctx context.Context, sup *models.Supplier, record pdtos.Pr
 			return err
 		}
 
-		pi, err := pService.CreateProductItem(ctx, p, sup, record.GetSupplierProductPrice(), record.GetSupplierProductQuantity())
+		pi, err := pService.CreateOrUpdateProductItem(ctx, p, sup, record.GetSupplierProductPrice(), record.GetSupplierProductQuantity())
 		if err != nil {
 			return err
 		}

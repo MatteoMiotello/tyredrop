@@ -3,7 +3,6 @@ import {useTranslation} from "react-i18next";
 import {Outlet, useNavigate} from "react-router-dom";
 import Breadcrumbs from "./common/components-library/Breadcrumbs";
 import CustomFooter from "./common/components/CustomFooter";
-import {useToast} from "./hooks/useToast";
 import {useAuth} from "./modules/auth/hooks/useAuth";
 import Navbar from "./common/components/Navbar";
 import {useDispatch} from "react-redux";
@@ -18,7 +17,6 @@ function App() {
     const auth = useAuth();
     const navigate = useNavigate();
     const {t} = useTranslation();
-    const {setError} = useToast();
     const dispatch: ThunkDispatch<ProductCategory[], any, any> = useDispatch();
 
     useEffect(() => {
@@ -40,8 +38,8 @@ function App() {
         }
 
         if (auth.isLoggedIn()) {
-            if ( auth.isAdmin() ) {
-                navigate( '/admin' );
+            if (auth.isAdmin()) {
+                navigate('/admin');
                 return;
             }
 

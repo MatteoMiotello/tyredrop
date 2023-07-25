@@ -6,6 +6,10 @@ import (
 )
 
 func CurrencyToGraphQL(currency *models.Currency) *model.Currency {
+	if len(currency.R.CurrencyLanguages) == 0 {
+		panic("Currency languages not loaded")
+	}
+
 	lang := currency.R.CurrencyLanguages[0]
 
 	return &model.Currency{

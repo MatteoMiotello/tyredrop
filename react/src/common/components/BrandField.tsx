@@ -4,7 +4,7 @@ import Autocomplete, {AutocompleteOption, AutocompleteQueryHandler} from "../com
 import {useLazyQuery} from "@apollo/client";
 import {SEARCH_BRANDS} from "../backend/graph/query/brands";
 import {useTranslation} from "react-i18next";
-import {useToast} from "../../hooks/useToast";
+import {useToast} from "../../store/toast";
 
 type BrandFieldProps = {
     name: string
@@ -14,11 +14,11 @@ type BrandFieldProps = {
 const BrandField: React.FC<BrandFieldProps> = (props) => {
     const {t} = useTranslation();
     const [loadBrands, {error}] = useLazyQuery(SEARCH_BRANDS);
-    const {setError} = useToast();
+    const toast = useToast();
 
     useEffect(() => {
-        if ( error ) {
-            setError('Si e` verificato un problema nel caricamento dei brand');
+        if (error) {
+            toast.error('Si e` verificato un problema nel caricamento dei brand');
         }
     }, [error]);
 

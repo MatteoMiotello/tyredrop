@@ -8,9 +8,11 @@ import appSlice from "./app-slice";
 import {ProductCategory} from "../__generated__/graphql";
 import {CartState} from "../modules/cart/store/state";
 import cartSlice from "../modules/cart/store/cart-slice";
+import {ToastState, toastMiddleware} from "./toast";
+import toastSlice from "./toast/toast-slice";
 
 
-export type AppState =  {
+export type AppState = {
     productCategories: ProductCategory[]
 }
 
@@ -19,19 +21,21 @@ export type Store = {
     app: AppState
     cart: CartState
     user: UserState
+    toast: ToastState
 }
 export const store = configureStore({
     reducer: {
         auth: authSlice,
         app: appSlice,
         cart: cartSlice,
-        user: userSlice
+        user: userSlice,
+        toast: toastSlice,
     },
     middleware: getDefaultMiddleware => getDefaultMiddleware({
         thunk: {
             extraArgument: {
                 backend: createBackendClient()
             }
-        }
-    })
+        },
+    }).concat(toastMiddleware)
 });

@@ -1,22 +1,17 @@
 import React from "react";
 import {useTranslation} from "react-i18next";
 import {useDispatch} from "react-redux";
-import {useNavigate} from "react-router-dom";
 import {ThunkDispatch} from "redux-thunk";
 import {RegisterRequest} from "../../common/backend/requests/register-request";
 import RegisterForm from "./components/RegisterForm";
 import {useAuth} from "./hooks/useAuth";
 import {authRegister} from "./store/auth-slice";
-import {useToast} from "../../hooks/useToast";
 
 const RegisterPage: React.FC = () => {
     const {t} = useTranslation();
     const dispatch = useDispatch<ThunkDispatch<RegisterRequest, any, any>>();
     const auth = useAuth();
-    const navigate = useNavigate();
-    const {setError} = useToast();
 
-    
     const handleRegister = ( registerRequest: RegisterRequest ): void => {
         dispatch( authRegister( registerRequest ) );
     };

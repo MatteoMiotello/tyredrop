@@ -37,11 +37,11 @@ const CartTable: React.FC<CartTableProps> = (props) => {
 
         const data: CartDataTable[] = props.cartItems.map(cart => ({
             id: cart.id,
-            name: cart.productItem.product?.name,
-            brand: cart.productItem.product.brand?.name,
+            name: cart.productItemPrice.productItem.product?.name,
+            brand: cart.productItemPrice.productItem.product.brand?.name,
             quantity: cart.quantity,
-            priceTotal: cart.productItem.price[0] ? Currency.defaultFormat(cart.productItem.price[0].value * cart.quantity, cart.productItem.price[0].currency.iso_code) : 0,
-            price: cart.productItem.price[0] ? Currency.defaultFormat(cart.productItem.price[0].value, cart.productItem.price[0].currency.iso_code) : 0
+            priceTotal: cart.productItemPrice ? Currency.defaultFormat(cart.productItemPrice.value * cart.quantity, cart.productItemPrice.currency.iso_code) : 0,
+            price: cart.productItemPrice ? Currency.defaultFormat(cart.productItemPrice.value, cart.productItemPrice.currency.iso_code) : 0
         }) as CartDataTable);
 
         setDataTable(data);

@@ -3,8 +3,8 @@ type OrderRow {
     orderID: ID!
     order: Order!
     quantity: Int!
-    productItem: ProductItem!
-    productItemID: ID!
+    productItemPrice: ProductItemPrice!
+    productItemPriceID: ID!
     amount: Float!
     trackingNumber: String
     deliveredAt: Timestamp

@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/volatiletech/null/v8"
 	"golang.org/x/net/context"
+	"pillowww/titw/internal/currency"
 	"pillowww/titw/internal/db"
 	"pillowww/titw/internal/domain/language"
 	"pillowww/titw/internal/domain/user"
@@ -63,6 +64,10 @@ func CurrentUser(ctx context.Context) (*models.User, error) {
 	return FromCtx(ctx).GetUser(ctx)
 }
 
+func CurrentCurrency(ctx context.Context) (*models.Currency, error) {
+	return FromCtx(ctx).GetCurrency(ctx)
+}
+
 func (a *Auth) InsertToCtx(ctx *gin.Context) {
 	ctx.Set(ctxKey, a)
 }
@@ -100,4 +105,20 @@ func (a *Auth) GetLanguage(ctx context.Context) *language.Language {
 
 	a.language = &l
 	return &l
+}
+
+func (a *Auth) GetCurrency(ctx context.Context) (*models.Currency, error) {
+	lang := a.GetLanguage(ctx)
+	curr, err := currency.NewDao(db.DB).
+		Load(
+			models.CurrencyRels.CurrencyLanguages,
+			models.CurrencyLanguageWhere.LanguageID.EQ(lang.L.ID),
+		).
+		FindById(ctx, lang.L.CurrencyID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return curr, nil
 }

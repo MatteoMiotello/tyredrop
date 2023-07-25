@@ -14,20 +14,20 @@ export const CART_ITEMS_FRAGMENT = gql`
         items {
             id
             quantity
-            productItem {
-                id
-                price {
-                    value
-                    currency {
-                        iso_code
-                    }
+            productItemPrice {
+                value
+                currency {
+                    iso_code
                 }
-                product {
-                    name
-                    code
-                    eprelProductCode
-                    brand {
+                productItem {
+                    id
+                    product {
                         name
+                        code
+                        eprelProductCode
+                        brand {
+                            name
+                        }
                     }
                 }
             }

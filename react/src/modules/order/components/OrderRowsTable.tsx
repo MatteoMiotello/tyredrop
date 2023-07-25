@@ -12,7 +12,7 @@ const OrderRowsTable: React.FC<OrderRowsTableProps> = (props) => {
         {
             accessorKey: "productItem",
             header: "Prodotto",
-            cell: (props: CellContext<OrderRow, any>) => <span> {props.row.original.productItem.product.name} </span>
+            cell: (props: CellContext<OrderRow, any>) => <span> {props.row.original.productItemPrice.productItem.product.name} </span>
         },
         {
             accessorKey: "quantity",
@@ -22,11 +22,11 @@ const OrderRowsTable: React.FC<OrderRowsTableProps> = (props) => {
             accessorKey: "productItem",
             header: "Prezzo Unitario",
             cell: (p: CellContext<OrderRow, any>) => {
-                if ( !p.row.original.productItem.price[0] ) {
+                if ( !p.row.original.productItemPrice ) {
                     return null;
                 }
 
-                return <span> {Currency.defaultFormat(p.row.original.productItem.price[0].value, props.order.order.currency.iso_code)} </span>;
+                return <span> {Currency.defaultFormat(p.row.original.productItemPrice.value, props.order.order.currency.iso_code)} </span>;
             }
         },
         {

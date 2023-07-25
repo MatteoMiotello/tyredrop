@@ -15,10 +15,10 @@ import UserAddressDescriptionList from "./UserAddressDescriptionList";
 import {useMutation} from "@apollo/client";
 import {NEW_ORDER} from "../../../common/backend/graph/mutation/order";
 import {useAuth} from "../../auth/hooks/useAuth";
-import {useToast} from "../../../hooks/useToast";
 import {Simulate} from "react-dom/test-utils";
 import load = Simulate.load;
 import {Link, useNavigate} from "react-router-dom";
+import {useToast} from "../../../store/toast";
 
 const CheckoutPanel: React.FC = () => {
     const userAddresses = useSelector(userSelector.addresses);
@@ -28,7 +28,7 @@ const CheckoutPanel: React.FC = () => {
     const [addressOptions, setOptions] = useState<SelectOption[]>([]);
     const [selectedAddress, setAddress] = useState<SelectOption | null>(null);
     const totalPrice = useSelector(cartSelector.amount);
-    const {setSuccess, setError} = useToast();
+    const toast= useToast();
     const navigate = useNavigate();
 
     const getPrice = () => {
@@ -50,13 +50,13 @@ const CheckoutPanel: React.FC = () => {
 
     useEffect(() => {
         if (error) {
-            setError('Si è verificato un errore' + error.message);
+            toast.error('Si è verificato un errore' + error.message);
         }
     }, [error]);
 
     useEffect(() => {
         if (data) {
-            setSuccess('Ordine confermato con successo');
+            toast.success('Ordine confermato con successo');
             navigate('/order/details/' + data.newOrder.id);
             return;
         }

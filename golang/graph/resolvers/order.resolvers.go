@@ -14,6 +14,8 @@ import (
 	"pillowww/titw/graph/policies"
 	auth2 "pillowww/titw/internal/auth"
 	"pillowww/titw/models"
+
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 // Currency is the resolver for the currency field.
@@ -76,15 +78,25 @@ func (r *orderRowResolver) Order(ctx context.Context, obj *model.OrderRow) (*mod
 	return converters.OrderToGraphQL(orderModel), nil
 }
 
-// ProductItem is the resolver for the productItem field.
-func (r *orderRowResolver) ProductItem(ctx context.Context, obj *model.OrderRow) (*model.ProductItem, error) {
-	itemModel, err := r.ProductItemDao.WithDeletes().FindProductItemById(ctx, obj.ProductItemID)
+// ProductItemPrice is the resolver for the productItemPrice field.
+func (r *orderRowResolver) ProductItemPrice(ctx context.Context, obj *model.OrderRow) (*model.ProductItemPrice, error) {
+	lang := auth2.CurrentLanguage(ctx)
+
+	dbModel, err := r.ProductItemPriceDao.
+		Load(
+			qm.Rels(
+				models.ProductItemPriceRels.Currency,
+				models.CurrencyRels.CurrencyLanguages,
+			),
+			models.CurrencyLanguageWhere.LanguageID.EQ(lang.L.ID),
+		).
+		FindOneById(ctx, obj.ProductItemPriceID)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return converters.ProductItemToGraphQL(itemModel), err
+	return converters.ProductItemPriceToGraphQL(dbModel)
 }
 
 // Order returns graph.OrderResolver implementation.

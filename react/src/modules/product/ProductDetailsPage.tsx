@@ -16,10 +16,10 @@ import ProdapiService from "./services/prodapi/prodapi-service";
 import {useDispatch} from "react-redux";
 import {addCartItem} from "../cart/store/cart-slice";
 import {ThunkDispatch} from "redux-thunk";
-import {useToast} from "../../hooks/useToast";
 import AvailabilityBadge from "./components/AvailabilityBadge";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faMoneyBill, faTruckFast} from "@fortawesome/free-solid-svg-icons";
+import {useToast} from "../../store/toast";
 
 const loadingPlaceholder = <main>
     <Spinner/>
@@ -32,7 +32,7 @@ const ProductDetailsPage: React.FC = () => {
     const res = useLoaderData() as { data: ProductItemQuery, loading: boolean };
     const {t} = useTranslation();
     const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
-    const {setSuccess} = useToast();
+    const {success} = useToast();
 
     useEffect(() => {
         if (res.data) {
@@ -108,7 +108,7 @@ const ProductDetailsPage: React.FC = () => {
                                         dispatch(addCartItem({
                                             itemId: data.productItem.id,
                                             quantity: quantity
-                                        })).then(() => setSuccess('Elemento aggiunto a carrello'));
+                                        })).then(() => success('Elemento aggiunto a carrello'));
                                     }
                                 }}>
                                     {t('product_details.order_button')}

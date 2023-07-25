@@ -113,7 +113,7 @@ func (r *mutationResolver) AddItemToCart(ctx context.Context, itemID int64, quan
 		return nil, gqlerror.Errorf("User not found in context")
 	}
 
-	s := cart.NewCartService(r.CartDao)
+	s := cart.NewCartService(r.CartDao, r.ProductItemPriceDao)
 
 	_, err = s.AddOrUpdateCart(ctx, u, itemID, quantity)
 
@@ -280,7 +280,7 @@ func (r *mutationResolver) NewOrder(ctx context.Context, userID int64, userAddre
 		return nil, err
 	}
 
-	oService := order.NewService(r.OrderDao, r.CurrencyDao, r.ProductItemDao)
+	oService := order.NewService(r.OrderDao, r.CurrencyDao, r.ProductItemDao, r.ProductItemPriceDao)
 
 	newOrder, err := oService.CreateNewOrder(ctx, uBilling, uAddressModel, carts)
 

@@ -14,19 +14,19 @@ export const USER_CARTS = gql`
            items {
                id
                quantity
-               productItem {
-                   id
-                   price {
-                       value
-                       currency {
-                           iso_code
-                       }
+               productItemPrice {
+                   value
+                   currency {
+                       iso_code
                    }
-                   product {
-                       name
-                       code
-                       brand {
+                   productItem {
+                       id
+                       product {
                            name
+                           code
+                           brand {
+                               name
+                           }
                        }
                    }
                }

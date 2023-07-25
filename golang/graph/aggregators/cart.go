@@ -7,17 +7,12 @@ import (
 	"pillowww/titw/graph/model"
 	auth2 "pillowww/titw/internal/auth"
 	"pillowww/titw/internal/currency"
-	"pillowww/titw/internal/db"
 	"pillowww/titw/internal/domain/cart"
 	"pillowww/titw/models"
 )
 
 func GetAllCartsByUserId(ctx context.Context, cartDao *cart.Dao, userId int64) (*model.CartResponse, error) {
-	currentLang := auth2.CurrentLanguage(ctx)
-
-	defaultCur, err := currency.NewDao(db.DB).
-		Load(models.CurrencyRels.CurrencyLanguages, models.CurrencyLanguageWhere.LanguageID.EQ(currentLang.L.ID)).
-		FindDefault(ctx)
+	defaultCur, err := auth2.CurrentCurrency(ctx)
 
 	if err != nil {
 		return nil, err
@@ -26,12 +21,12 @@ func GetAllCartsByUserId(ctx context.Context, cartDao *cart.Dao, userId int64) (
 	cartModels, _ := cartDao.
 		Load(
 			qm.Rels(
-				models.CartRels.ProductItem,
-				models.ProductItemRels.ProductItemPrices,
+				models.CartRels.ProductItemPrice,
+				models.ProductItemPriceRels.Currency,
 			),
-			models.ProductItemPriceWhere.CurrencyID.EQ(defaultCur.ID),
 		).
 		FindAllByUserId(ctx, userId)
+
 	amountTotal := new(float64)
 
 	if cartModels == nil {
@@ -43,9 +38,9 @@ func GetAllCartsByUserId(ctx context.Context, cartDao *cart.Dao, userId int64) (
 
 	var graphModels []*model.Cart
 	for _, c := range cartModels {
-		price := c.R.ProductItem.R.ProductItemPrices[0]
+		price := c.R.ProductItemPrice
 
-		amount, err := currency.ToFloat(price.Price, defaultCur.IsoCode)
+		amount, err := currency.ToFloat(price.Price, price.R.Currency.IsoCode)
 
 		if err != nil {
 			return nil, err

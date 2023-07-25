@@ -232,11 +232,7 @@ func (r *queryResolver) ProductItems(ctx context.Context, pagination *model.Pagi
 
 	return &model.ProductItemPaginate{
 		ProductItems: graphModels,
-		Pagination: &model.Pagination{
-			Offset: &pagination.Offset,
-			Limit:  &pagination.Limit,
-			Totals: &countInt,
-		},
+		Pagination:   converters.PaginationToGraphql(pagination, countInt),
 	}, nil
 }
 
@@ -363,7 +359,7 @@ func (r *queryResolver) Orders(ctx context.Context, pagination *model.Pagination
 }
 
 // UserOrders is the resolver for the userOrders field.
-func (r *queryResolver) UserOrders(ctx context.Context, userID int64, pagination *model.PaginationInput) ([]*model.Order, error) {
+func (r *queryResolver) UserOrders(ctx context.Context, userID int64, pagination *model.PaginationInput, filter *model.OrderFilterInput) (*model.OrdersPaginator, error) {
 	user, err := r.UserDao.FindOneById(ctx, userID)
 
 	if err != nil {
@@ -378,6 +374,9 @@ func (r *queryResolver) UserOrders(ctx context.Context, userID int64, pagination
 
 	orderDao := r.OrderDao
 
+	orderWithoutPagination, _ := orderDao.FindAllByBillingId(ctx, billing.ID)
+	totalCount := len(orderWithoutPagination)
+
 	if pagination != nil {
 		orderDao = r.OrderDao.Paginate(pagination.Limit, pagination.Offset)
 	}
@@ -388,7 +387,12 @@ func (r *queryResolver) UserOrders(ctx context.Context, userID int64, pagination
 		return nil, err
 	}
 
-	return aggregators.AggregateOrderModels(orders), nil
+	graphOrders := aggregators.AggregateOrderModels(orders)
+
+	return &model.OrdersPaginator{
+		Data:       graphOrders,
+		Pagination: converters.PaginationToGraphql(pagination, totalCount),
+	}, nil
 }
 
 // Query returns graph.QueryResolver implementation.
