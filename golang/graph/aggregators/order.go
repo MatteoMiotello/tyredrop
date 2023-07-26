@@ -6,14 +6,20 @@ import (
 	"pillowww/titw/models"
 )
 
-func AggregateOrderModels(orderModels models.OrderSlice) []*model.Order {
+func AggregateOrderModels(orderModels models.OrderSlice) ([]*model.Order, error) {
 	var ordersGraph []*model.Order
 
 	for _, order := range orderModels {
-		ordersGraph = append(ordersGraph, converters.OrderToGraphQL(order))
+		order, err := converters.OrderToGraphQL(order)
+
+		if err != nil {
+			return nil, err
+		}
+
+		ordersGraph = append(ordersGraph, order)
 	}
 
-	return ordersGraph
+	return ordersGraph, nil
 }
 
 func RowsFromOrderModel(order *models.Order) []*model.OrderRow {

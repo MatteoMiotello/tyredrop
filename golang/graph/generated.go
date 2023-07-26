@@ -113,6 +113,7 @@ type ComplexityRoot struct {
 	Order struct {
 		AddressLine1  func(childComplexity int) int
 		AddressLine2  func(childComplexity int) int
+		AddressName   func(childComplexity int) int
 		City          func(childComplexity int) int
 		Country       func(childComplexity int) int
 		CreatedAt     func(childComplexity int) int
@@ -121,6 +122,7 @@ type ComplexityRoot struct {
 		ID            func(childComplexity int) int
 		OrderRows     func(childComplexity int) int
 		PostalCode    func(childComplexity int) int
+		PriceAmount   func(childComplexity int) int
 		Province      func(childComplexity int) int
 		Status        func(childComplexity int) int
 		Tax           func(childComplexity int) int
@@ -243,7 +245,7 @@ type ComplexityRoot struct {
 		User                     func(childComplexity int, id int64) int
 		UserAddress              func(childComplexity int, userID int64) int
 		UserBilling              func(childComplexity int, userID int64) int
-		UserOrders               func(childComplexity int, userID int64, pagination *model.PaginationInput, filter *model.OrderFilterInput) int
+		UserOrders               func(childComplexity int, userID int64, pagination *model.PaginationInput, filter *model.OrderFilterInput, ordering []*model.OrderingInput) int
 		Users                    func(childComplexity int) int
 	}
 
@@ -400,7 +402,7 @@ type QueryResolver interface {
 	Currencies(ctx context.Context) ([]*model.Currency, error)
 	Order(ctx context.Context, id int64) (*model.Order, error)
 	Orders(ctx context.Context, pagination *model.PaginationInput) ([]*model.Order, error)
-	UserOrders(ctx context.Context, userID int64, pagination *model.PaginationInput, filter *model.OrderFilterInput) (*model.OrdersPaginator, error)
+	UserOrders(ctx context.Context, userID int64, pagination *model.PaginationInput, filter *model.OrderFilterInput, ordering []*model.OrderingInput) (*model.OrdersPaginator, error)
 }
 type UserResolver interface {
 	UserRole(ctx context.Context, obj *model.User) (*model.UserRole, error)
@@ -695,6 +697,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Order.AddressLine2(childComplexity), true
 
+	case "Order.addressName":
+		if e.complexity.Order.AddressName == nil {
+			break
+		}
+
+		return e.complexity.Order.AddressName(childComplexity), true
+
 	case "Order.city":
 		if e.complexity.Order.City == nil {
 			break
@@ -750,6 +759,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Order.PostalCode(childComplexity), true
+
+	case "Order.priceAmount":
+		if e.complexity.Order.PriceAmount == nil {
+			break
+		}
+
+		return e.complexity.Order.PriceAmount(childComplexity), true
 
 	case "Order.province":
 		if e.complexity.Order.Province == nil {
@@ -1423,7 +1439,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.UserOrders(childComplexity, args["userId"].(int64), args["pagination"].(*model.PaginationInput), args["filter"].(*model.OrderFilterInput)), true
+		return e.complexity.Query.UserOrders(childComplexity, args["userId"].(int64), args["pagination"].(*model.PaginationInput), args["filter"].(*model.OrderFilterInput), args["ordering"].([]*model.OrderingInput)), true
 
 	case "Query.users":
 		if e.complexity.Query.Users == nil {
@@ -1807,6 +1823,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateAdminUserInput,
 		ec.unmarshalInputCreateUserBilling,
 		ec.unmarshalInputOrderFilterInput,
+		ec.unmarshalInputOrderingInput,
 		ec.unmarshalInputPaginationInput,
 		ec.unmarshalInputProductSearchInput,
 		ec.unmarshalInputProductSpecificationInput,
@@ -2302,6 +2319,15 @@ func (ec *executionContext) field_Query_userOrders_args(ctx context.Context, raw
 		}
 	}
 	args["filter"] = arg2
+	var arg3 []*model.OrderingInput
+	if tmp, ok := rawArgs["ordering"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ordering"))
+		arg3, err = ec.unmarshalOOrderingInput2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐOrderingInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["ordering"] = arg3
 	return args, nil
 }
 
@@ -4107,6 +4133,10 @@ func (ec *executionContext) fieldContext_Mutation_newOrder(ctx context.Context, 
 				return ec.fieldContext_Order_userBillingID(ctx, field)
 			case "status":
 				return ec.fieldContext_Order_status(ctx, field)
+			case "priceAmount":
+				return ec.fieldContext_Order_priceAmount(ctx, field)
+			case "addressName":
+				return ec.fieldContext_Order_addressName(ctx, field)
 			case "addressLine1":
 				return ec.fieldContext_Order_addressLine1(ctx, field)
 			case "addressLine2":
@@ -4546,6 +4576,94 @@ func (ec *executionContext) fieldContext_Order_status(ctx context.Context, field
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type OrderStatus does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Order_priceAmount(ctx context.Context, field graphql.CollectedField, obj *model.Order) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Order_priceAmount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PriceAmount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Order_priceAmount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Order",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Order_addressName(ctx context.Context, field graphql.CollectedField, obj *model.Order) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Order_addressName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AddressName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Order_addressName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Order",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -5063,6 +5181,10 @@ func (ec *executionContext) fieldContext_OrderRow_order(ctx context.Context, fie
 				return ec.fieldContext_Order_userBillingID(ctx, field)
 			case "status":
 				return ec.fieldContext_Order_status(ctx, field)
+			case "priceAmount":
+				return ec.fieldContext_Order_priceAmount(ctx, field)
+			case "addressName":
+				return ec.fieldContext_Order_addressName(ctx, field)
 			case "addressLine1":
 				return ec.fieldContext_Order_addressLine1(ctx, field)
 			case "addressLine2":
@@ -5411,6 +5533,10 @@ func (ec *executionContext) fieldContext_OrdersPaginator_data(ctx context.Contex
 				return ec.fieldContext_Order_userBillingID(ctx, field)
 			case "status":
 				return ec.fieldContext_Order_status(ctx, field)
+			case "priceAmount":
+				return ec.fieldContext_Order_priceAmount(ctx, field)
+			case "addressName":
+				return ec.fieldContext_Order_addressName(ctx, field)
 			case "addressLine1":
 				return ec.fieldContext_Order_addressLine1(ctx, field)
 			case "addressLine2":
@@ -9107,6 +9233,10 @@ func (ec *executionContext) fieldContext_Query_order(ctx context.Context, field 
 				return ec.fieldContext_Order_userBillingID(ctx, field)
 			case "status":
 				return ec.fieldContext_Order_status(ctx, field)
+			case "priceAmount":
+				return ec.fieldContext_Order_priceAmount(ctx, field)
+			case "addressName":
+				return ec.fieldContext_Order_addressName(ctx, field)
 			case "addressLine1":
 				return ec.fieldContext_Order_addressLine1(ctx, field)
 			case "addressLine2":
@@ -9213,6 +9343,10 @@ func (ec *executionContext) fieldContext_Query_orders(ctx context.Context, field
 				return ec.fieldContext_Order_userBillingID(ctx, field)
 			case "status":
 				return ec.fieldContext_Order_status(ctx, field)
+			case "priceAmount":
+				return ec.fieldContext_Order_priceAmount(ctx, field)
+			case "addressName":
+				return ec.fieldContext_Order_addressName(ctx, field)
 			case "addressLine1":
 				return ec.fieldContext_Order_addressLine1(ctx, field)
 			case "addressLine2":
@@ -9262,7 +9396,7 @@ func (ec *executionContext) _Query_userOrders(ctx context.Context, field graphql
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().UserOrders(rctx, fc.Args["userId"].(int64), fc.Args["pagination"].(*model.PaginationInput), fc.Args["filter"].(*model.OrderFilterInput))
+			return ec.resolvers.Query().UserOrders(rctx, fc.Args["userId"].(int64), fc.Args["pagination"].(*model.PaginationInput), fc.Args["filter"].(*model.OrderFilterInput), fc.Args["ordering"].([]*model.OrderingInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.UserConfirmed == nil {
@@ -13931,6 +14065,44 @@ func (ec *executionContext) unmarshalInputOrderFilterInput(ctx context.Context, 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputOrderingInput(ctx context.Context, obj interface{}) (model.OrderingInput, error) {
+	var it model.OrderingInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"column", "desc"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "column":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("column"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Column = data
+		case "desc":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("desc"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Desc = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputPaginationInput(ctx context.Context, obj interface{}) (model.PaginationInput, error) {
 	var it model.PaginationInput
 	asMap := map[string]interface{}{}
@@ -14712,6 +14884,20 @@ func (ec *executionContext) _Order(ctx context.Context, sel ast.SelectionSet, ob
 		case "status":
 
 			out.Values[i] = ec._Order_status(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "priceAmount":
+
+			out.Values[i] = ec._Order_priceAmount(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "addressName":
+
+			out.Values[i] = ec._Order_addressName(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
@@ -18088,6 +18274,34 @@ func (ec *executionContext) marshalOOrderRow2ᚖpillowwwᚋtitwᚋgraphᚋmodel�
 		return graphql.Null
 	}
 	return ec._OrderRow(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOOrderingInput2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐOrderingInput(ctx context.Context, v interface{}) ([]*model.OrderingInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.OrderingInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalOOrderingInput2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐOrderingInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOOrderingInput2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐOrderingInput(ctx context.Context, v interface{}) (*model.OrderingInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputOrderingInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOOrdersPaginator2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐOrdersPaginator(ctx context.Context, sel ast.SelectionSet, v *model.OrdersPaginator) graphql.Marshaler {

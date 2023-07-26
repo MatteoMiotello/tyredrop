@@ -1,7 +1,6 @@
 import React from "react";
-import {Order, OrdersPaginator} from "../../../__generated__/graphql";
+import { FetchOrdersQuery, FetchOrdersQueryVariables, Order} from "../../../__generated__/graphql";
 import {CellContext, ColumnDef} from "@tanstack/react-table";
-import {calculateTotal} from "../utils";
 import {Link} from "react-router-dom";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faMagnifyingGlass} from "@fortawesome/free-solid-svg-icons";
@@ -10,9 +9,10 @@ import Moment from "react-moment";
 import {FilteredTable, Input, useForm} from "../../../common/components/shelly-ui";
 import {useGraphTable} from "../../../hooks/useGraphTable";
 import {QueryResult} from "@apollo/client";
+import {Currency} from "../../../common/utilities/currency";
 
 type OrderTableProps = {
-    query: QueryResult<{userOrders: OrdersPaginator}>
+    query: QueryResult<FetchOrdersQuery, FetchOrdersQueryVariables>
 }
 
 const OrderTable: React.FC<OrderTableProps> = (props) => {
@@ -25,6 +25,9 @@ const OrderTable: React.FC<OrderTableProps> = (props) => {
         },
         {
             accessorKey: "createdAt",
+            id: "created_at",
+            enableSorting: true,
+            sortDescFirst: true,
             header: "Data",
             cell: props => {
                 return <Moment date={props.row.original.createdAt}> </Moment>;
@@ -36,6 +39,7 @@ const OrderTable: React.FC<OrderTableProps> = (props) => {
                 const order = props.row.original;
 
                 return <ul>
+                    <li>{ order.addressName }</li>
                     <li> {order.addressLine1}</li>
                     {order.addressLine2 && <li> {order.addressLine1}</li>}
                     <li> {`${order.city} (${order.province}) ${order.postalCode} ${order.country}`} </li>
@@ -50,7 +54,17 @@ const OrderTable: React.FC<OrderTableProps> = (props) => {
         {
             accessorKey: "orderRows",
             header: "Totale",
-            cell: (props: CellContext<Order, any>) => <span> {calculateTotal(props.row.original)} </span>
+            cell: (props: CellContext<Order, any>) => <span> {Currency.defaultFormat(
+                props.row.original.priceAmount,
+                props.row.original.currency.iso_code
+            )} </span>
+        },
+        {
+            id: "items",
+            header: "Numero pezzi",
+            cell: props => <span> {props.row.original.orderRows.length} ({ props.row.original.orderRows.reduce( ( acc, curr) => {
+                return acc + (curr ? curr.quantity : 0);
+            }, 0 ) }) </span>
         },
         {
             accessorKey: "id",
@@ -64,26 +78,36 @@ const OrderTable: React.FC<OrderTableProps> = (props) => {
     ];
 
     const {table} = useGraphTable({
-        data: props.query.data?.userOrders.data as Order[],
+        data: props.query.data?.userOrders?.data as Order[],
         columns: columns,
         query: props.query,
-        paginator: props.query.data?.userOrders.pagination
+        paginator: props.query.data?.userOrders?.pagination,
+        defaultSorting: [
+            {
+                id: "created_at",
+                desc: true
+            }
+        ]
     });
     const form = useForm();
 
     return <FilteredTable table={table} >
-        <FilteredTable.FilterForm form={form} updateAsyncFilters={ (data) => console.log(  data ) }>
+        <FilteredTable.FilterForm form={form} updateAsyncFilters={ (data) => {
+            return props.query.refetch({
+                filter: data
+            });
+        } }>
             <FilteredTable.FilterField>
                 <Input.Label>
                     Data da
                 </Input.Label>
-                <Input type="date" {...form.registerInput({name:'date_from' }) }/>
+                <Input type="date" {...form.registerInput({name:'dateFrom' }) }/>
             </FilteredTable.FilterField>
             <FilteredTable.FilterField>
                 <Input.Label>
                     Data a
                 </Input.Label>
-                <Input type="date" {...form.registerInput({name:'date_to' }) }/>
+                <Input type="date" {...form.registerInput({name:'dateTo' }) }/>
             </FilteredTable.FilterField>
             <FilteredTable.FilterField>
                 <Input.Label>

@@ -37,6 +37,8 @@ type Order struct {
 	PostalCode    string      `boil:"postal_code" json:"postal_code" toml:"postal_code" yaml:"postal_code"`
 	UpdatedAt     time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
 	CreatedAt     time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	AddressName   string      `boil:"address_name" json:"address_name" toml:"address_name" yaml:"address_name"`
+	PriceAmount   int         `boil:"price_amount" json:"price_amount" toml:"price_amount" yaml:"price_amount"`
 
 	R *orderR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L orderL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -56,6 +58,8 @@ var OrderColumns = struct {
 	PostalCode    string
 	UpdatedAt     string
 	CreatedAt     string
+	AddressName   string
+	PriceAmount   string
 }{
 	ID:            "id",
 	CurrencyID:    "currency_id",
@@ -70,6 +74,8 @@ var OrderColumns = struct {
 	PostalCode:    "postal_code",
 	UpdatedAt:     "updated_at",
 	CreatedAt:     "created_at",
+	AddressName:   "address_name",
+	PriceAmount:   "price_amount",
 }
 
 var OrderTableColumns = struct {
@@ -86,6 +92,8 @@ var OrderTableColumns = struct {
 	PostalCode    string
 	UpdatedAt     string
 	CreatedAt     string
+	AddressName   string
+	PriceAmount   string
 }{
 	ID:            "orders.id",
 	CurrencyID:    "orders.currency_id",
@@ -100,6 +108,8 @@ var OrderTableColumns = struct {
 	PostalCode:    "orders.postal_code",
 	UpdatedAt:     "orders.updated_at",
 	CreatedAt:     "orders.created_at",
+	AddressName:   "orders.address_name",
+	PriceAmount:   "orders.price_amount",
 }
 
 // Generated where
@@ -118,6 +128,8 @@ var OrderWhere = struct {
 	PostalCode    whereHelperstring
 	UpdatedAt     whereHelpertime_Time
 	CreatedAt     whereHelpertime_Time
+	AddressName   whereHelperstring
+	PriceAmount   whereHelperint
 }{
 	ID:            whereHelperint64{field: "\"orders\".\"id\""},
 	CurrencyID:    whereHelperint64{field: "\"orders\".\"currency_id\""},
@@ -132,6 +144,8 @@ var OrderWhere = struct {
 	PostalCode:    whereHelperstring{field: "\"orders\".\"postal_code\""},
 	UpdatedAt:     whereHelpertime_Time{field: "\"orders\".\"updated_at\""},
 	CreatedAt:     whereHelpertime_Time{field: "\"orders\".\"created_at\""},
+	AddressName:   whereHelperstring{field: "\"orders\".\"address_name\""},
+	PriceAmount:   whereHelperint{field: "\"orders\".\"price_amount\""},
 }
 
 // OrderRels is where relationship names are stored.
@@ -192,9 +206,9 @@ func (r *orderR) GetOrderRows() OrderRowSlice {
 type orderL struct{}
 
 var (
-	orderAllColumns            = []string{"id", "currency_id", "tax_id", "user_billing_id", "status", "address_line_1", "address_line_2", "city", "province", "country", "postal_code", "updated_at", "created_at"}
+	orderAllColumns            = []string{"id", "currency_id", "tax_id", "user_billing_id", "status", "address_line_1", "address_line_2", "city", "province", "country", "postal_code", "updated_at", "created_at", "address_name", "price_amount"}
 	orderColumnsWithoutDefault = []string{"currency_id", "tax_id", "user_billing_id", "status", "address_line_1", "city", "province", "country", "postal_code"}
-	orderColumnsWithDefault    = []string{"id", "address_line_2", "updated_at", "created_at"}
+	orderColumnsWithDefault    = []string{"id", "address_line_2", "updated_at", "created_at", "address_name", "price_amount"}
 	orderPrimaryKeyColumns     = []string{"id"}
 	orderGeneratedColumns      = []string{}
 )

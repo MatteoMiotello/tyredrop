@@ -63,7 +63,9 @@ func (r *orderResolver) OrderRows(ctx context.Context, obj *model.Order) ([]*mod
 
 // Order is the resolver for the order field.
 func (r *orderRowResolver) Order(ctx context.Context, obj *model.OrderRow) (*model.Order, error) {
-	orderModel, err := r.OrderDao.FindOneById(ctx, obj.OrderID)
+	orderModel, err := r.OrderDao.
+		Load(models.OrderRels.Currency).
+		FindOneById(ctx, obj.OrderID)
 
 	if err != nil {
 		return nil, err
@@ -75,7 +77,7 @@ func (r *orderRowResolver) Order(ctx context.Context, obj *model.OrderRow) (*mod
 		return nil, graphErrors.NewNotAuthorizedError(ctx)
 	}
 
-	return converters.OrderToGraphQL(orderModel), nil
+	return converters.OrderToGraphQL(orderModel)
 }
 
 // ProductItemPrice is the resolver for the productItemPrice field.

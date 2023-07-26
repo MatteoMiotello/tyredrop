@@ -12,6 +12,8 @@ type Order struct {
 	TaxID         int64       `json:"taxID"`
 	UserBillingID int64       `json:"userBillingID"`
 	Status        OrderStatus `json:"status,omitempty"`
+	PriceAmount   float64     `json:"priceAmount"`
+	AddressName   string      `json:"addressName"`
 	AddressLine1  string      `json:"addressLine1"`
 	AddressLine2  *string     `json:"addressLine2,omitempty"`
 	City          string      `json:"city"`

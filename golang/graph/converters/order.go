@@ -6,12 +6,26 @@ import (
 	"pillowww/titw/models"
 )
 
-func OrderToGraphQL(order *models.Order) *model.Order {
+func OrderToGraphQL(order *models.Order) (*model.Order, error) {
+	curr := order.R.Currency
+
+	if curr == nil {
+		panic("Currency not loaded on order")
+	}
+
+	floatValue, err := currency.ToFloat(order.PriceAmount, curr.IsoCode)
+
+	if err != nil {
+		return nil, err
+	}
+
 	return &model.Order{
 		ID:            order.ID,
 		CurrencyID:    order.CurrencyID,
 		UserBillingID: order.UserBillingID,
 		TaxID:         order.TaxID,
+		PriceAmount:   floatValue,
+		AddressName:   order.AddressName,
 		AddressLine1:  order.AddressLine1,
 		AddressLine2:  &order.AddressLine2.String,
 		Country:       order.Country,
@@ -20,7 +34,7 @@ func OrderToGraphQL(order *models.Order) *model.Order {
 		Province:      order.Province,
 		Status:        model.OrderStatus(order.Status),
 		CreatedAt:     order.CreatedAt,
-	}
+	}, nil
 }
 
 func OrderRowToGraphQL(row *models.OrderRow, cur *models.Currency) (*model.OrderRow, error) {

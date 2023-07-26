@@ -28,6 +28,8 @@ type Order {
     userBilling: UserBilling!
     userBillingID: ID!
     status: OrderStatus!
+    priceAmount: Float!
+    addressName: String!
     addressLine1: String!
     addressLine2: String
     city: String!

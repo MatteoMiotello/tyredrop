@@ -1,9 +1,23 @@
-import React from "react";
+import React, {ReactNode, memo} from "react";
 import { Table, flexRender } from "@tanstack/react-table";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faArrowDown, faArrowUp} from "@fortawesome/free-solid-svg-icons";
 
 type BasicTableProps<T = any> = {
     table: Table<T>
 }
+
+type SortingToggleProps = {
+	order: "desc" | "asc" | false
+}
+const SortingToggle = memo<SortingToggleProps>( ({order}: SortingToggleProps) => {
+	return <>
+		{order === 'asc' && <FontAwesomeIcon icon={faArrowDown}/>}
+		{order === 'desc' && <FontAwesomeIcon icon={faArrowUp}/>}
+	</>;
+} );
+
+SortingToggle.displayName = 'SortingToggle';
 
 const BasicTable: React.FC<BasicTableProps> = ( {table, ...props} ) => {
 	return <div className="overflow-x-auto">
@@ -21,11 +35,13 @@ const BasicTable: React.FC<BasicTableProps> = ( {table, ...props} ) => {
 									}}
 								>
 									{header.isPlaceholder ? null : (
-										<div>
-											{flexRender(
-												header.column.columnDef.header,
-												header.getContext()
+										<div className="flex justify-between">
+											{
+												flexRender(
+													<button onClick={header.column.getToggleSortingHandler()} disabled={!header.column.columnDef.enableSorting}>{header.column.columnDef.header as ReactNode}</button>,
+													header.getContext(),
 											)}
+											<SortingToggle order={header.column.getIsSorted()}/>
 										</div>
 									)}
 								</th>

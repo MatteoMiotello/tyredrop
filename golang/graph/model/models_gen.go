@@ -65,6 +65,11 @@ type OrderFilterInput struct {
 	Number   *string `json:"number,omitempty"`
 }
 
+type OrderingInput struct {
+	Column string `json:"column"`
+	Desc   *bool  `json:"desc,omitempty"`
+}
+
 type OrdersPaginator struct {
 	Data       []*Order    `json:"data"`
 	Pagination *Pagination `json:"pagination"`

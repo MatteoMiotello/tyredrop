@@ -44,6 +44,7 @@ const OrderDetailsPage: React.FC = () => {
         <Panel className="col-span-6">
             <h3 className="font-semibold">Indirizzo di spedizione</h3>
             <ul className="ml-2">
+                <li><strong>Nome:</strong> {order.order.addressName}</li>
                 <li><strong>Indirizzo:</strong> {order.order.addressLine1}</li>
                 {order.order.addressLine2 && <li><strong>Indirizzo 2:</strong> {order.order.addressLine2}</li>}
                 <li><strong>Città:</strong> {order.order.city}</li>

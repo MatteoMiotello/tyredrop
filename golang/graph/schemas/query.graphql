@@ -6,6 +6,11 @@ type Pagination {
     pageCount: Int
 }
 
+input OrderingInput {
+    column: String!
+    desc: Boolean
+}
+
 input PaginationInput {
     limit: Int!
     offset: Int!
@@ -69,5 +74,5 @@ type Query {
 
     order( id: ID! ): Order! @userConfirmed
     orders( pagination: PaginationInput ): [Order] @userConfirmed
-    userOrders( userId: ID!, pagination: PaginationInput, filter: OrderFilterInput ): OrdersPaginator @userConfirmed
+    userOrders( userId: ID!, pagination: PaginationInput, filter: OrderFilterInput, ordering: [OrderingInput] ): OrdersPaginator @userConfirmed
 }

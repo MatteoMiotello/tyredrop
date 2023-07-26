@@ -9,6 +9,11 @@ type DaoMod interface {
 	AddMods(mods ...qm.QueryMod)
 }
 
+type OrderMods struct {
+	Column string
+	Desc   *bool
+}
+
 func newInstanceWithMods[T DaoMod](d T, mods ...qm.QueryMod) *T {
 	no := d.Clone()
 	no.AddMods(mods...)
@@ -29,6 +34,25 @@ func Paginate[T DaoMod](d T, limit int, offset int) *T {
 		d,
 		qm.Limit(limit),
 		qm.Offset(offset),
+	)
+}
+
+func Order[T DaoMod](d T, ordersMods []OrderMods) *T {
+	var mods []qm.QueryMod
+
+	for _, order := range ordersMods {
+		direction := " ASC"
+
+		if order.Desc != nil && *order.Desc {
+			direction = " DESC"
+		}
+
+		mods = append(mods, qm.OrderBy(order.Column+direction))
+	}
+
+	return newInstanceWithMods(
+		d,
+		mods...,
 	)
 }
 

@@ -10,6 +10,7 @@ export const FETCH_ORDER = gql `
                 iso_code
                 name
             }
+            addressName
             addressLine1
             addressLine2
             city
@@ -53,14 +54,15 @@ export const FETCH_ORDER = gql `
 
 export const FETCH_USER_ORDERS = gql`
     ${PAGINATION_FRAGMENT}
-    query fetchOrders( $userId: ID!, $pagination: PaginationInput ) {
-        userOrders(userId: $userId, pagination: $pagination) {
+    query fetchOrders( $userId: ID!, $pagination: PaginationInput, $filter: OrderFilterInput, $ordering: [OrderingInput] ) {
+        userOrders(userId: $userId, pagination: $pagination, filter: $filter, ordering: $ordering) {
             data {
                 id
                 currency {
                     iso_code
                 }
                 status
+                addressName
                 addressLine1    
                 addressLine2
                 city
@@ -68,8 +70,10 @@ export const FETCH_USER_ORDERS = gql`
                 postalCode
                 country
                 createdAt
+                priceAmount
                 orderRows {
-                   amount
+                    amount
+                    quantity
                 }
             }
             pagination {

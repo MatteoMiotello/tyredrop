@@ -344,13 +344,15 @@ func (r *queryResolver) Currencies(ctx context.Context) ([]*model.Currency, erro
 
 // Order is the resolver for the order field.
 func (r *queryResolver) Order(ctx context.Context, id int64) (*model.Order, error) {
-	orderModel, err := r.OrderDao.FindOneById(ctx, id)
+	orderModel, err := r.OrderDao.
+		Load(models.OrderRels.Currency).
+		FindOneById(ctx, id)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return converters.OrderToGraphQL(orderModel), nil
+	return converters.OrderToGraphQL(orderModel)
 }
 
 // Orders is the resolver for the orders field.
@@ -359,7 +361,7 @@ func (r *queryResolver) Orders(ctx context.Context, pagination *model.Pagination
 }
 
 // UserOrders is the resolver for the userOrders field.
-func (r *queryResolver) UserOrders(ctx context.Context, userID int64, pagination *model.PaginationInput, filter *model.OrderFilterInput) (*model.OrdersPaginator, error) {
+func (r *queryResolver) UserOrders(ctx context.Context, userID int64, pagination *model.PaginationInput, filter *model.OrderFilterInput, ordering []*model.OrderingInput) (*model.OrdersPaginator, error) {
 	user, err := r.UserDao.FindOneById(ctx, userID)
 
 	if err != nil {
@@ -372,22 +374,39 @@ func (r *queryResolver) UserOrders(ctx context.Context, userID int64, pagination
 		return nil, err
 	}
 
-	orderDao := r.OrderDao
-
-	orderWithoutPagination, _ := orderDao.FindAllByBillingId(ctx, billing.ID)
-	totalCount := len(orderWithoutPagination)
+	orderDao := r.OrderDao.
+		Load(models.OrderRels.Currency)
 
 	if pagination != nil {
-		orderDao = r.OrderDao.Paginate(pagination.Limit, pagination.Offset)
+		orderDao = orderDao.Paginate(pagination.Limit, pagination.Offset)
 	}
 
-	orders, err := orderDao.FindAllByBillingId(ctx, billing.ID)
+	if ordering != nil {
+		orderDao = orderDao.Order(ordering)
+	}
+
+	var orders models.OrderSlice
+	var ordersWithoutPagination models.OrderSlice
+
+	if filter != nil {
+		ordersWithoutPagination, _ = r.OrderDao.FindAllByBillingId(ctx, billing.ID, filter.DateFrom, filter.DateTo, filter.Number)
+		orders, err = orderDao.FindAllByBillingId(ctx, billing.ID, filter.DateFrom, filter.DateTo, filter.Number)
+	} else {
+		ordersWithoutPagination, _ = r.OrderDao.FindAllByBillingId(ctx, billing.ID, nil, nil, nil)
+		orders, err = orderDao.FindAllByBillingId(ctx, billing.ID, nil, nil, nil)
+	}
+
+	totalCount := len(ordersWithoutPagination)
 
 	if err != nil {
 		return nil, err
 	}
 
-	graphOrders := aggregators.AggregateOrderModels(orders)
+	graphOrders, err := aggregators.AggregateOrderModels(orders)
+
+	if err != nil {
+		return nil, err
+	}
 
 	return &model.OrdersPaginator{
 		Data:       graphOrders,

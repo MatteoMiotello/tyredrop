@@ -11,9 +11,14 @@ import {faTimes} from "@fortawesome/free-solid-svg-icons";
 import {useDispatch} from "react-redux";
 import {ThunkDispatch} from "redux-thunk";
 import {editCartItem} from "../store/cart-slice";
+import {Img} from "react-image";
+import ProdapiService from "../../product/services/prodapi/prodapi-service";
+import {ProductCategorySet} from "../../product/enums/product-specifications-set";
+import tyrePlaceholder from "../../../assets/placeholder-tyre.jpg";
 
 type CartDataTable = {
     id: string
+    code: string,
     name: string,
     brand: string,
     quantity: number
@@ -37,6 +42,7 @@ const CartTable: React.FC<CartTableProps> = (props) => {
 
         const data: CartDataTable[] = props.cartItems.map(cart => ({
             id: cart.id,
+            code: cart.productItemPrice.productItem.product.code,
             name: cart.productItemPrice.productItem.product?.name,
             brand: cart.productItemPrice.productItem.product.brand?.name,
             quantity: cart.quantity,
@@ -53,6 +59,21 @@ const CartTable: React.FC<CartTableProps> = (props) => {
             header: "",
             size: 5,
             cell: (props) => <Button type="ghost" onClick={ () => dispatch( editCartItem( {itemId: props.row.original.id, quantity: 0} ) ) }> <FontAwesomeIcon icon={faTimes}/> </Button>
+        },
+        {
+            id: 'image',
+            size: 5,
+            cell: (props) => {
+                return <div className="w-10">
+                    <Img src={[
+                        (new ProdapiService()).getProductImageUrl(props.row.original.code, ProductCategorySet.TYRE),
+                        tyrePlaceholder,
+                    ]}
+                         loading="lazy"
+                         className="mx-auto"
+                         alt={props.row.original.name}/>
+                </div>;
+            }
         },
         {
             accessorKey: 'name',
