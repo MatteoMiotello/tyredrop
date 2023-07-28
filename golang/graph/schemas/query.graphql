@@ -45,9 +45,20 @@ input OrderFilterInput {
     number: String
 }
 
+input UserFilterInput {
+    name: String @emptyStringToNull
+    email: String @emptyStringToNull
+    confirmed: Boolean
+}
+
+type UserPaginator {
+    data: [User]!
+    pagination: Pagination!
+}
+
 type Query {
     user(ID: ID!): User
-    users: [User] @isAdmin
+    users( pagination: PaginationInput, filter: UserFilterInput ): UserPaginator @isAdmin
     userAddress( userId: ID! ): [UserAddress]
     userBilling( userId: ID! ): UserBilling
 
@@ -73,6 +84,5 @@ type Query {
     currencies: [Currency]
 
     order( id: ID! ): Order! @userConfirmed
-    orders( pagination: PaginationInput ): [Order] @userConfirmed
     userOrders( userId: ID!, pagination: PaginationInput, filter: OrderFilterInput, ordering: [OrderingInput] ): OrdersPaginator @userConfirmed
 }

@@ -58,6 +58,51 @@ func (d Dao) FindOneById(ctx context.Context, id int64) (*models.Order, error) {
 	).One(ctx, d.Db)
 }
 
+func (d Dao) FindAll(ctx context.Context, from *string, to *string, number *string, status *model.OrderStatus) (models.OrderSlice, error) {
+	var mods []qm.QueryMod
+
+	if from != nil && len(*from) > 0 {
+		fromTime, err := time.Parse("2006-01-02", *from)
+
+		if err != nil {
+			return nil, err
+		}
+
+		mods = append(mods, models.OrderWhere.CreatedAt.GTE(fromTime))
+	}
+
+	if to != nil && len(*to) > 0 {
+		toTime, err := time.Parse("2006-01-02", *to)
+
+		if err != nil {
+			return nil, err
+		}
+
+		mods = append(mods, models.OrderWhere.CreatedAt.GTE(toTime))
+	}
+
+	if number != nil && len(*number) > 0 {
+		sanitizedNumber := strings.TrimLeft(*number, "#")
+		id, err := strconv.Atoi(sanitizedNumber)
+
+		if err != nil {
+			return nil, err
+		}
+
+		mods = append(mods, models.OrderWhere.ID.EQ(int64(id)))
+	}
+
+	if status != nil {
+		mods = append(mods, models.OrderWhere.Status.EQ(status.String()))
+	}
+
+	return models.Orders(
+		d.GetMods(
+			mods...,
+		)...,
+	).All(ctx, d.Db)
+}
+
 func (d Dao) FindAllOrderRowsByOrderId(ctx context.Context, id int64) (models.OrderRowSlice, error) {
 	return models.OrderRows(
 		d.GetMods(

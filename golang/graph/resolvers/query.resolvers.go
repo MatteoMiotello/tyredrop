@@ -36,8 +36,36 @@ func (r *queryResolver) User(ctx context.Context, id int64) (*model.User, error)
 }
 
 // Users is the resolver for the users field.
-func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
-	panic(fmt.Errorf("not implemented: Users - users"))
+func (r *queryResolver) Users(ctx context.Context, pagination *model.PaginationInput, filter *model.UserFilterInput) (*model.UserPaginator, error) {
+	userDao := r.UserDao
+
+	if pagination != nil {
+		userDao = userDao.Paginate(pagination.Limit, pagination.Offset)
+	}
+
+	var users models.UserSlice
+	var allUsers models.UserSlice
+	var err error
+
+	if filter != nil {
+		users, err = userDao.FindAll(ctx, filter.Email, filter.Name, filter.Confirmed)
+		allUsers, _ = r.UserDao.FindAll(ctx, filter.Email, filter.Name, filter.Confirmed)
+	} else {
+		users, err = userDao.FindAll(ctx, nil, nil, nil)
+		allUsers, _ = r.UserDao.FindAll(ctx, nil, nil, nil)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.UserPaginator{
+		Data: aggregators.UsersToGraphql(users),
+		Pagination: converters.PaginationToGraphql(
+			pagination,
+			len(allUsers),
+		),
+	}, nil
 }
 
 // UserAddress is the resolver for the userAddress field.
@@ -353,11 +381,6 @@ func (r *queryResolver) Order(ctx context.Context, id int64) (*model.Order, erro
 	}
 
 	return converters.OrderToGraphQL(orderModel)
-}
-
-// Orders is the resolver for the orders field.
-func (r *queryResolver) Orders(ctx context.Context, pagination *model.PaginationInput) ([]*model.Order, error) {
-	panic(fmt.Errorf("not implemented: Orders - orders"))
 }
 
 // UserOrders is the resolver for the userOrders field.

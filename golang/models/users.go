@@ -36,6 +36,7 @@ type User struct {
 	UpdatedAt         time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
 	CreatedAt         time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 	Confirmed         bool        `boil:"confirmed" json:"confirmed" toml:"confirmed" yaml:"confirmed"`
+	Rejected          bool        `boil:"rejected" json:"rejected" toml:"rejected" yaml:"rejected"`
 
 	R *userR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L userL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -54,6 +55,7 @@ var UserColumns = struct {
 	UpdatedAt         string
 	CreatedAt         string
 	Confirmed         string
+	Rejected          string
 }{
 	ID:                "id",
 	UserRoleID:        "user_role_id",
@@ -67,6 +69,7 @@ var UserColumns = struct {
 	UpdatedAt:         "updated_at",
 	CreatedAt:         "created_at",
 	Confirmed:         "confirmed",
+	Rejected:          "rejected",
 }
 
 var UserTableColumns = struct {
@@ -82,6 +85,7 @@ var UserTableColumns = struct {
 	UpdatedAt         string
 	CreatedAt         string
 	Confirmed         string
+	Rejected          string
 }{
 	ID:                "users.id",
 	UserRoleID:        "users.user_role_id",
@@ -95,6 +99,7 @@ var UserTableColumns = struct {
 	UpdatedAt:         "users.updated_at",
 	CreatedAt:         "users.created_at",
 	Confirmed:         "users.confirmed",
+	Rejected:          "users.rejected",
 }
 
 // Generated where
@@ -112,6 +117,7 @@ var UserWhere = struct {
 	UpdatedAt         whereHelpertime_Time
 	CreatedAt         whereHelpertime_Time
 	Confirmed         whereHelperbool
+	Rejected          whereHelperbool
 }{
 	ID:                whereHelperint64{field: "\"users\".\"id\""},
 	UserRoleID:        whereHelperint64{field: "\"users\".\"user_role_id\""},
@@ -125,6 +131,7 @@ var UserWhere = struct {
 	UpdatedAt:         whereHelpertime_Time{field: "\"users\".\"updated_at\""},
 	CreatedAt:         whereHelpertime_Time{field: "\"users\".\"created_at\""},
 	Confirmed:         whereHelperbool{field: "\"users\".\"confirmed\""},
+	Rejected:          whereHelperbool{field: "\"users\".\"rejected\""},
 }
 
 // UserRels is where relationship names are stored.
@@ -215,9 +222,9 @@ func (r *userR) GetUserPaymentMethods() UserPaymentMethodSlice {
 type userL struct{}
 
 var (
-	userAllColumns            = []string{"id", "user_role_id", "default_language_id", "email", "username", "password", "name", "surname", "deleted_at", "updated_at", "created_at", "confirmed"}
+	userAllColumns            = []string{"id", "user_role_id", "default_language_id", "email", "username", "password", "name", "surname", "deleted_at", "updated_at", "created_at", "confirmed", "rejected"}
 	userColumnsWithoutDefault = []string{"user_role_id", "default_language_id", "email", "password", "name"}
-	userColumnsWithDefault    = []string{"id", "username", "surname", "deleted_at", "updated_at", "created_at", "confirmed"}
+	userColumnsWithDefault    = []string{"id", "username", "surname", "deleted_at", "updated_at", "created_at", "confirmed", "rejected"}
 	userPrimaryKeyColumns     = []string{"id"}
 	userGeneratedColumns      = []string{}
 )

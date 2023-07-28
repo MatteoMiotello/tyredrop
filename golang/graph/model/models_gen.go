@@ -70,6 +70,13 @@ type OrderingInput struct {
 	Desc   *bool  `json:"desc,omitempty"`
 }
 
+type OrdersFilterInput struct {
+	From   *string      `json:"from,omitempty"`
+	To     *string      `json:"to,omitempty"`
+	Number *string      `json:"number,omitempty"`
+	Status *OrderStatus `json:"status,omitempty"`
+}
+
 type OrdersPaginator struct {
 	Data       []*Order    `json:"data"`
 	Pagination *Pagination `json:"pagination"`
@@ -139,11 +146,22 @@ type UserAddressInput struct {
 	IsDefault    bool    `json:"IsDefault"`
 }
 
+type UserFilterInput struct {
+	Name      *string `json:"name,omitempty"`
+	Email     *string `json:"email,omitempty"`
+	Confirmed *bool   `json:"confirmed,omitempty"`
+}
+
+type UserPaginator struct {
+	Data       []*User     `json:"data"`
+	Pagination *Pagination `json:"pagination"`
+}
+
 type UserRole struct {
 	ID       int64  `json:"id"`
 	RoleCode string `json:"roleCode"`
 	Name     string `json:"name"`
-	IsAdmin  *bool  `json:"isAdmin,omitempty"`
+	IsAdmin  bool   `json:"isAdmin"`
 }
 
 type VehicleType struct {

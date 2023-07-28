@@ -15,11 +15,9 @@ export const useGraphTable = <T = any,  TQuery = any, TVariables extends Operati
 	return useTable( {
 		data: data,
 		onPaginationChange: (pageIndex, pageCount) => {
-			console.log( pageIndex * pageCount );
-
 			return query.refetch({
 				pagination: {
-					limit: paginator?.limit,
+					limit: pageCount,
 					offset: ( pageIndex - 1 ) * pageCount
 				}
 			});

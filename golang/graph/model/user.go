@@ -1,12 +1,14 @@
 package model
 
 type User struct {
-	ID        int64   `json:"id"`
-	Email     string  `json:"email"`
-	Username  *string `json:"username"`
-	Confirmed bool    `json:"confirmed"`
-	Name      *string `json:"name"`
-	Surname   *string `json:"surname"`
+	ID         int64   `json:"id"`
+	Email      string  `json:"email"`
+	Username   *string `json:"username"`
+	Confirmed  bool    `json:"confirmed"`
+	Rejected   bool    `json:"rejected"`
+	Name       *string `json:"name"`
+	Surname    *string `json:"surname"`
+	UserRoleID int64   `json:"userRoleId"`
 }
 
 type UserBilling struct {

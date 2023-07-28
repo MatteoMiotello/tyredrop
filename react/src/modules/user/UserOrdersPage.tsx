@@ -16,7 +16,13 @@ const UserOrdersPage: React.FC = () => {
             pagination: {
                 limit: 10,
                 offset: 0
-            }
+            },
+            ordering: [
+                {
+                    column: 'created_at',
+                    desc: true
+                }
+            ]
         },
         fetchPolicy: "no-cache"
     });

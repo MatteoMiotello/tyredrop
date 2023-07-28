@@ -49,13 +49,10 @@ const Select: React.FC<SelectProps> = ( {displayFn, value, options, defaultOptio
 			onValueChange( selectedValue );	
 		}
 
-		const option = options.find( opt => opt.value == selectedValue );  
-        
-		if ( option ){
-			setSelectedOption( option );
-		}
+		const option = options.find( opt => opt.value === selectedValue );
+		setSelectedOption( option );
 
-		if ( validators.length ) {
+		if ( validators && validators.length ) {
 			validators.every( (validator: InputValidatorHandler) => {
 				if ( !validator ) {
 					return true;
@@ -95,7 +92,7 @@ const Select: React.FC<SelectProps> = ( {displayFn, value, options, defaultOptio
 						(placeholder && !selectedOption) && <span className="text-sm text-gray-400 font-normal h-full flex items-center">{placeholder}</span>
 					}
 					{       
-						<span className="mx-1">{ (displayFn && selectedOption) ? displayFn( selectedOption ) : selectedOption?.title } </span>
+						<span className="mx-1 whitespace-nowrap">{ (displayFn && selectedOption) ? displayFn( selectedOption ) : selectedOption?.title } </span>
 					} 
 				</span>
 			</Listbox.Button>

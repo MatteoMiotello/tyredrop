@@ -7,7 +7,7 @@ type OrderStatusBadgeProps = {
     className?: string
 }
 
-const badgeConfig: { [key in OrderStatus]: { title: string, color: string } } = {
+export const badgeConfig: { [key in OrderStatus]: { title: string, color: string } } = {
     CANCELED: {
         title: "Cancellato",
         color: "#FF6666"

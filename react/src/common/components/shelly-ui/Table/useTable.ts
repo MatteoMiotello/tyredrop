@@ -38,7 +38,7 @@ const useTable = <T = any>({ data, columns, onPaginationChange, onSortingChange,
 	}, [pagination]);
 
 	useEffect( () => {
-		if ( onSortingChange && sorting ) {
+		if ( onSortingChange && sorting.length ) {
 			onSortingChange( sorting.map( sort => ({column: sort.id, desc: sort.desc}) ) );
 		}
 	}, [sorting] );

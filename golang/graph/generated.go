@@ -56,9 +56,10 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
-	IsAdmin       func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
-	NotEmpty      func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
-	UserConfirmed func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
+	EmptyStringToNull func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
+	IsAdmin           func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
+	NotEmpty          func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
+	UserConfirmed     func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -108,6 +109,7 @@ type ComplexityRoot struct {
 		EditUserAddress   func(childComplexity int, id int64, userAddress model.UserAddressInput) int
 		EmptyCart         func(childComplexity int) int
 		NewOrder          func(childComplexity int, userID int64, userAddressID int64) int
+		UpdateUserStatus  func(childComplexity int, userID int64, confirmed *bool, rejected *bool) int
 	}
 
 	Order struct {
@@ -226,13 +228,13 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		AllOrders                func(childComplexity int, pagination *model.PaginationInput, filter *model.OrdersFilterInput, ordering []*model.OrderingInput) int
 		Brands                   func(childComplexity int) int
 		Carts                    func(childComplexity int) int
 		Currencies               func(childComplexity int) int
 		Currency                 func(childComplexity int, id int64) int
 		LegalEntityTypes         func(childComplexity int) int
 		Order                    func(childComplexity int, id int64) int
-		Orders                   func(childComplexity int, pagination *model.PaginationInput) int
 		ProductCategories        func(childComplexity int) int
 		ProductItem              func(childComplexity int, id int64) int
 		ProductItems             func(childComplexity int, pagination *model.PaginationInput, productSearchInput *model.ProductSearchInput) int
@@ -246,7 +248,7 @@ type ComplexityRoot struct {
 		UserAddress              func(childComplexity int, userID int64) int
 		UserBilling              func(childComplexity int, userID int64) int
 		UserOrders               func(childComplexity int, userID int64, pagination *model.PaginationInput, filter *model.OrderFilterInput, ordering []*model.OrderingInput) int
-		Users                    func(childComplexity int) int
+		Users                    func(childComplexity int, pagination *model.PaginationInput, filter *model.UserFilterInput) int
 	}
 
 	Supplier struct {
@@ -271,9 +273,11 @@ type ComplexityRoot struct {
 		Email       func(childComplexity int) int
 		ID          func(childComplexity int) int
 		Name        func(childComplexity int) int
+		Rejected    func(childComplexity int) int
 		Surname     func(childComplexity int) int
 		UserBilling func(childComplexity int) int
 		UserRole    func(childComplexity int) int
+		UserRoleID  func(childComplexity int) int
 		Username    func(childComplexity int) int
 	}
 
@@ -312,6 +316,11 @@ type ComplexityRoot struct {
 		VatNumber         func(childComplexity int) int
 	}
 
+	UserPaginator struct {
+		Data       func(childComplexity int) int
+		Pagination func(childComplexity int) int
+	}
+
 	UserRole struct {
 		ID       func(childComplexity int) int
 		IsAdmin  func(childComplexity int) int
@@ -340,6 +349,7 @@ type MutationResolver interface {
 	EditUserAddress(ctx context.Context, id int64, userAddress model.UserAddressInput) ([]*model.UserAddress, error)
 	DeleteUserAddress(ctx context.Context, id int64) ([]*model.UserAddress, error)
 	NewOrder(ctx context.Context, userID int64, userAddressID int64) (*model.Order, error)
+	UpdateUserStatus(ctx context.Context, userID int64, confirmed *bool, rejected *bool) (*model.User, error)
 }
 type OrderResolver interface {
 	Currency(ctx context.Context, obj *model.Order) (*model.Currency, error)
@@ -383,7 +393,7 @@ type ProductSpecificationValueResolver interface {
 }
 type QueryResolver interface {
 	User(ctx context.Context, id int64) (*model.User, error)
-	Users(ctx context.Context) ([]*model.User, error)
+	Users(ctx context.Context, pagination *model.PaginationInput, filter *model.UserFilterInput) (*model.UserPaginator, error)
 	UserAddress(ctx context.Context, userID int64) ([]*model.UserAddress, error)
 	UserBilling(ctx context.Context, userID int64) (*model.UserBilling, error)
 	TaxRates(ctx context.Context) ([]*model.Tax, error)
@@ -401,8 +411,8 @@ type QueryResolver interface {
 	Currency(ctx context.Context, id int64) (*model.Currency, error)
 	Currencies(ctx context.Context) ([]*model.Currency, error)
 	Order(ctx context.Context, id int64) (*model.Order, error)
-	Orders(ctx context.Context, pagination *model.PaginationInput) ([]*model.Order, error)
 	UserOrders(ctx context.Context, userID int64, pagination *model.PaginationInput, filter *model.OrderFilterInput, ordering []*model.OrderingInput) (*model.OrdersPaginator, error)
+	AllOrders(ctx context.Context, pagination *model.PaginationInput, filter *model.OrdersFilterInput, ordering []*model.OrderingInput) (*model.OrdersPaginator, error)
 }
 type UserResolver interface {
 	UserRole(ctx context.Context, obj *model.User) (*model.UserRole, error)
@@ -682,6 +692,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.NewOrder(childComplexity, args["userId"].(int64), args["userAddressId"].(int64)), true
+
+	case "Mutation.updateUserStatus":
+		if e.complexity.Mutation.UpdateUserStatus == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateUserStatus_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateUserStatus(childComplexity, args["userID"].(int64), args["confirmed"].(*bool), args["rejected"].(*bool)), true
 
 	case "Order.addressLine1":
 		if e.complexity.Order.AddressLine1 == nil {
@@ -1236,6 +1258,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ProductSpecificationValue.Value(childComplexity), true
 
+	case "Query.allOrders":
+		if e.complexity.Query.AllOrders == nil {
+			break
+		}
+
+		args, err := ec.field_Query_allOrders_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.AllOrders(childComplexity, args["pagination"].(*model.PaginationInput), args["filter"].(*model.OrdersFilterInput), args["ordering"].([]*model.OrderingInput)), true
+
 	case "Query.brands":
 		if e.complexity.Query.Brands == nil {
 			break
@@ -1287,18 +1321,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Order(childComplexity, args["id"].(int64)), true
-
-	case "Query.orders":
-		if e.complexity.Query.Orders == nil {
-			break
-		}
-
-		args, err := ec.field_Query_orders_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.Orders(childComplexity, args["pagination"].(*model.PaginationInput)), true
 
 	case "Query.productCategories":
 		if e.complexity.Query.ProductCategories == nil {
@@ -1446,7 +1468,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.Users(childComplexity), true
+		args, err := ec.field_Query_users_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Users(childComplexity, args["pagination"].(*model.PaginationInput), args["filter"].(*model.UserFilterInput)), true
 
 	case "Supplier.code":
 		if e.complexity.Supplier.Code == nil {
@@ -1532,6 +1559,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Name(childComplexity), true
 
+	case "User.rejected":
+		if e.complexity.User.Rejected == nil {
+			break
+		}
+
+		return e.complexity.User.Rejected(childComplexity), true
+
 	case "User.surname":
 		if e.complexity.User.Surname == nil {
 			break
@@ -1552,6 +1586,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.User.UserRole(childComplexity), true
+
+	case "User.userRoleId":
+		if e.complexity.User.UserRoleID == nil {
+			break
+		}
+
+		return e.complexity.User.UserRoleID(childComplexity), true
 
 	case "User.username":
 		if e.complexity.User.Username == nil {
@@ -1763,6 +1804,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UserBilling.VatNumber(childComplexity), true
 
+	case "UserPaginator.data":
+		if e.complexity.UserPaginator.Data == nil {
+			break
+		}
+
+		return e.complexity.UserPaginator.Data(childComplexity), true
+
+	case "UserPaginator.pagination":
+		if e.complexity.UserPaginator.Pagination == nil {
+			break
+		}
+
+		return e.complexity.UserPaginator.Pagination(childComplexity), true
+
 	case "UserRole.id":
 		if e.complexity.UserRole.ID == nil {
 			break
@@ -1824,10 +1879,12 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateUserBilling,
 		ec.unmarshalInputOrderFilterInput,
 		ec.unmarshalInputOrderingInput,
+		ec.unmarshalInputOrdersFilterInput,
 		ec.unmarshalInputPaginationInput,
 		ec.unmarshalInputProductSearchInput,
 		ec.unmarshalInputProductSpecificationInput,
 		ec.unmarshalInputUserAddressInput,
+		ec.unmarshalInputUserFilterInput,
 	)
 	first := true
 
@@ -1887,7 +1944,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(parsedSchema, parsedSchema.Types[name]), nil
 }
 
-//go:embed "schemas/cart.graphql" "schemas/currency.graphql" "schemas/directives.graphql" "schemas/mutation.graphql" "schemas/order.graphql" "schemas/product.graphql" "schemas/product_specification.graphql" "schemas/query.graphql" "schemas/scalars.graphql" "schemas/user.graphql" "schemas/vehicle.graphql"
+//go:embed "schemas/cart.graphql" "schemas/currency.graphql" "schemas/directives.graphql" "schemas/mutation.graphql" "schemas/order.graphql" "schemas/order.query.graphql" "schemas/product.graphql" "schemas/product_specification.graphql" "schemas/query.graphql" "schemas/scalars.graphql" "schemas/user.graphql" "schemas/user.mutation.graphql" "schemas/vehicle.graphql"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -1904,11 +1961,13 @@ var sources = []*ast.Source{
 	{Name: "schemas/directives.graphql", Input: sourceData("schemas/directives.graphql"), BuiltIn: false},
 	{Name: "schemas/mutation.graphql", Input: sourceData("schemas/mutation.graphql"), BuiltIn: false},
 	{Name: "schemas/order.graphql", Input: sourceData("schemas/order.graphql"), BuiltIn: false},
+	{Name: "schemas/order.query.graphql", Input: sourceData("schemas/order.query.graphql"), BuiltIn: false},
 	{Name: "schemas/product.graphql", Input: sourceData("schemas/product.graphql"), BuiltIn: false},
 	{Name: "schemas/product_specification.graphql", Input: sourceData("schemas/product_specification.graphql"), BuiltIn: false},
 	{Name: "schemas/query.graphql", Input: sourceData("schemas/query.graphql"), BuiltIn: false},
 	{Name: "schemas/scalars.graphql", Input: sourceData("schemas/scalars.graphql"), BuiltIn: false},
 	{Name: "schemas/user.graphql", Input: sourceData("schemas/user.graphql"), BuiltIn: false},
+	{Name: "schemas/user.mutation.graphql", Input: sourceData("schemas/user.mutation.graphql"), BuiltIn: false},
 	{Name: "schemas/vehicle.graphql", Input: sourceData("schemas/vehicle.graphql"), BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -2073,6 +2132,39 @@ func (ec *executionContext) field_Mutation_newOrder_args(ctx context.Context, ra
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_updateUserStatus_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["userID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userID"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["userID"] = arg0
+	var arg1 *bool
+	if tmp, ok := rawArgs["confirmed"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("confirmed"))
+		arg1, err = ec.unmarshalOBoolean2ᚖbool(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["confirmed"] = arg1
+	var arg2 *bool
+	if tmp, ok := rawArgs["rejected"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rejected"))
+		arg2, err = ec.unmarshalOBoolean2ᚖbool(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["rejected"] = arg2
+	return args, nil
+}
+
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -2085,6 +2177,39 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_allOrders_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.PaginationInput
+	if tmp, ok := rawArgs["pagination"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
+		arg0, err = ec.unmarshalOPaginationInput2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐPaginationInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pagination"] = arg0
+	var arg1 *model.OrdersFilterInput
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+		arg1, err = ec.unmarshalOOrdersFilterInput2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐOrdersFilterInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg1
+	var arg2 []*model.OrderingInput
+	if tmp, ok := rawArgs["ordering"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ordering"))
+		arg2, err = ec.unmarshalOOrderingInput2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐOrderingInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["ordering"] = arg2
 	return args, nil
 }
 
@@ -2115,21 +2240,6 @@ func (ec *executionContext) field_Query_order_args(ctx context.Context, rawArgs 
 		}
 	}
 	args["id"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_orders_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 *model.PaginationInput
-	if tmp, ok := rawArgs["pagination"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
-		arg0, err = ec.unmarshalOPaginationInput2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐPaginationInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["pagination"] = arg0
 	return args, nil
 }
 
@@ -2343,6 +2453,30 @@ func (ec *executionContext) field_Query_user_args(ctx context.Context, rawArgs m
 		}
 	}
 	args["ID"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_users_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.PaginationInput
+	if tmp, ok := rawArgs["pagination"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
+		arg0, err = ec.unmarshalOPaginationInput2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐPaginationInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pagination"] = arg0
+	var arg1 *model.UserFilterInput
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+		arg1, err = ec.unmarshalOUserFilterInput2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐUserFilterInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg1
 	return args, nil
 }
 
@@ -2778,12 +2912,16 @@ func (ec *executionContext) fieldContext_Cart_user(ctx context.Context, field gr
 				return ec.fieldContext_User_email(ctx, field)
 			case "confirmed":
 				return ec.fieldContext_User_confirmed(ctx, field)
+			case "rejected":
+				return ec.fieldContext_User_rejected(ctx, field)
 			case "name":
 				return ec.fieldContext_User_name(ctx, field)
 			case "surname":
 				return ec.fieldContext_User_surname(ctx, field)
 			case "username":
 				return ec.fieldContext_User_username(ctx, field)
+			case "userRoleId":
+				return ec.fieldContext_User_userRoleId(ctx, field)
 			case "userRole":
 				return ec.fieldContext_User_userRole(ctx, field)
 			case "userBilling":
@@ -3417,12 +3555,16 @@ func (ec *executionContext) fieldContext_Mutation_createAdminUser(ctx context.Co
 				return ec.fieldContext_User_email(ctx, field)
 			case "confirmed":
 				return ec.fieldContext_User_confirmed(ctx, field)
+			case "rejected":
+				return ec.fieldContext_User_rejected(ctx, field)
 			case "name":
 				return ec.fieldContext_User_name(ctx, field)
 			case "surname":
 				return ec.fieldContext_User_surname(ctx, field)
 			case "username":
 				return ec.fieldContext_User_username(ctx, field)
+			case "userRoleId":
+				return ec.fieldContext_User_userRoleId(ctx, field)
 			case "userRole":
 				return ec.fieldContext_User_userRole(ctx, field)
 			case "userBilling":
@@ -4165,6 +4307,103 @@ func (ec *executionContext) fieldContext_Mutation_newOrder(ctx context.Context, 
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_newOrder_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateUserStatus(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateUserStatus(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateUserStatus(rctx, fc.Args["userID"].(int64), fc.Args["confirmed"].(*bool), fc.Args["rejected"].(*bool))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAdmin == nil {
+				return nil, errors.New("directive isAdmin is not implemented")
+			}
+			return ec.directives.IsAdmin(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.User); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *pillowww/titw/graph/model.User`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateUserStatus(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "confirmed":
+				return ec.fieldContext_User_confirmed(ctx, field)
+			case "rejected":
+				return ec.fieldContext_User_rejected(ctx, field)
+			case "name":
+				return ec.fieldContext_User_name(ctx, field)
+			case "surname":
+				return ec.fieldContext_User_surname(ctx, field)
+			case "username":
+				return ec.fieldContext_User_username(ctx, field)
+			case "userRoleId":
+				return ec.fieldContext_User_userRoleId(ctx, field)
+			case "userRole":
+				return ec.fieldContext_User_userRole(ctx, field)
+			case "userBilling":
+				return ec.fieldContext_User_userBilling(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateUserStatus_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -8056,12 +8295,16 @@ func (ec *executionContext) fieldContext_Query_user(ctx context.Context, field g
 				return ec.fieldContext_User_email(ctx, field)
 			case "confirmed":
 				return ec.fieldContext_User_confirmed(ctx, field)
+			case "rejected":
+				return ec.fieldContext_User_rejected(ctx, field)
 			case "name":
 				return ec.fieldContext_User_name(ctx, field)
 			case "surname":
 				return ec.fieldContext_User_surname(ctx, field)
 			case "username":
 				return ec.fieldContext_User_username(ctx, field)
+			case "userRoleId":
+				return ec.fieldContext_User_userRoleId(ctx, field)
 			case "userRole":
 				return ec.fieldContext_User_userRole(ctx, field)
 			case "userBilling":
@@ -8099,7 +8342,7 @@ func (ec *executionContext) _Query_users(ctx context.Context, field graphql.Coll
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().Users(rctx)
+			return ec.resolvers.Query().Users(rctx, fc.Args["pagination"].(*model.PaginationInput), fc.Args["filter"].(*model.UserFilterInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.IsAdmin == nil {
@@ -8115,10 +8358,10 @@ func (ec *executionContext) _Query_users(ctx context.Context, field graphql.Coll
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.([]*model.User); ok {
+		if data, ok := tmp.(*model.UserPaginator); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*pillowww/titw/graph/model.User`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *pillowww/titw/graph/model.UserPaginator`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8127,9 +8370,9 @@ func (ec *executionContext) _Query_users(ctx context.Context, field graphql.Coll
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]*model.User)
+	res := resTmp.(*model.UserPaginator)
 	fc.Result = res
-	return ec.marshalOUser2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalOUserPaginator2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐUserPaginator(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_users(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -8140,25 +8383,24 @@ func (ec *executionContext) fieldContext_Query_users(ctx context.Context, field 
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_User_id(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
-			case "confirmed":
-				return ec.fieldContext_User_confirmed(ctx, field)
-			case "name":
-				return ec.fieldContext_User_name(ctx, field)
-			case "surname":
-				return ec.fieldContext_User_surname(ctx, field)
-			case "username":
-				return ec.fieldContext_User_username(ctx, field)
-			case "userRole":
-				return ec.fieldContext_User_userRole(ctx, field)
-			case "userBilling":
-				return ec.fieldContext_User_userBilling(ctx, field)
+			case "data":
+				return ec.fieldContext_UserPaginator_data(ctx, field)
+			case "pagination":
+				return ec.fieldContext_UserPaginator_pagination(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type UserPaginator", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_users_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
@@ -9271,116 +9513,6 @@ func (ec *executionContext) fieldContext_Query_order(ctx context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_orders(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_orders(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().Orders(rctx, fc.Args["pagination"].(*model.PaginationInput))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.UserConfirmed == nil {
-				return nil, errors.New("directive userConfirmed is not implemented")
-			}
-			return ec.directives.UserConfirmed(ctx, nil, directive0)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.([]*model.Order); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*pillowww/titw/graph/model.Order`, tmp)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*model.Order)
-	fc.Result = res
-	return ec.marshalOOrder2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐOrder(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_orders(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Order_id(ctx, field)
-			case "currency":
-				return ec.fieldContext_Order_currency(ctx, field)
-			case "currencyID":
-				return ec.fieldContext_Order_currencyID(ctx, field)
-			case "tax":
-				return ec.fieldContext_Order_tax(ctx, field)
-			case "taxID":
-				return ec.fieldContext_Order_taxID(ctx, field)
-			case "userBilling":
-				return ec.fieldContext_Order_userBilling(ctx, field)
-			case "userBillingID":
-				return ec.fieldContext_Order_userBillingID(ctx, field)
-			case "status":
-				return ec.fieldContext_Order_status(ctx, field)
-			case "priceAmount":
-				return ec.fieldContext_Order_priceAmount(ctx, field)
-			case "addressName":
-				return ec.fieldContext_Order_addressName(ctx, field)
-			case "addressLine1":
-				return ec.fieldContext_Order_addressLine1(ctx, field)
-			case "addressLine2":
-				return ec.fieldContext_Order_addressLine2(ctx, field)
-			case "city":
-				return ec.fieldContext_Order_city(ctx, field)
-			case "province":
-				return ec.fieldContext_Order_province(ctx, field)
-			case "postalCode":
-				return ec.fieldContext_Order_postalCode(ctx, field)
-			case "country":
-				return ec.fieldContext_Order_country(ctx, field)
-			case "orderRows":
-				return ec.fieldContext_Order_orderRows(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Order_createdAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Order", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_orders_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Query_userOrders(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_userOrders(ctx, field)
 	if err != nil {
@@ -9453,6 +9585,87 @@ func (ec *executionContext) fieldContext_Query_userOrders(ctx context.Context, f
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_userOrders_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_allOrders(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_allOrders(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().AllOrders(rctx, fc.Args["pagination"].(*model.PaginationInput), fc.Args["filter"].(*model.OrdersFilterInput), fc.Args["ordering"].([]*model.OrderingInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAdmin == nil {
+				return nil, errors.New("directive isAdmin is not implemented")
+			}
+			return ec.directives.IsAdmin(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.OrdersPaginator); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *pillowww/titw/graph/model.OrdersPaginator`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.OrdersPaginator)
+	fc.Result = res
+	return ec.marshalNOrdersPaginator2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐOrdersPaginator(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_allOrders(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "data":
+				return ec.fieldContext_OrdersPaginator_data(ctx, field)
+			case "pagination":
+				return ec.fieldContext_OrdersPaginator_pagination(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type OrdersPaginator", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_allOrders_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -10081,6 +10294,50 @@ func (ec *executionContext) fieldContext_User_confirmed(ctx context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _User_rejected(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_rejected(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Rejected, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_rejected(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _User_name(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_User_name(ctx, field)
 	if err != nil {
@@ -10204,6 +10461,50 @@ func (ec *executionContext) fieldContext_User_username(ctx context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _User_userRoleId(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_userRoleId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserRoleID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNID2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_userRoleId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _User_userRole(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_User_userRole(ctx, field)
 	if err != nil {
@@ -10279,14 +10580,11 @@ func (ec *executionContext) _User_userBilling(ctx context.Context, field graphql
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(*model.UserBilling)
 	fc.Result = res
-	return ec.marshalNUserBilling2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐUserBilling(ctx, field.Selections, res)
+	return ec.marshalOUserBilling2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐUserBilling(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_userBilling(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -10517,12 +10815,16 @@ func (ec *executionContext) fieldContext_UserAddress_user(ctx context.Context, f
 				return ec.fieldContext_User_email(ctx, field)
 			case "confirmed":
 				return ec.fieldContext_User_confirmed(ctx, field)
+			case "rejected":
+				return ec.fieldContext_User_rejected(ctx, field)
 			case "name":
 				return ec.fieldContext_User_name(ctx, field)
 			case "surname":
 				return ec.fieldContext_User_surname(ctx, field)
 			case "username":
 				return ec.fieldContext_User_username(ctx, field)
+			case "userRoleId":
+				return ec.fieldContext_User_userRoleId(ctx, field)
 			case "userRole":
 				return ec.fieldContext_User_userRole(ctx, field)
 			case "userBilling":
@@ -11466,12 +11768,16 @@ func (ec *executionContext) fieldContext_UserBilling_user(ctx context.Context, f
 				return ec.fieldContext_User_email(ctx, field)
 			case "confirmed":
 				return ec.fieldContext_User_confirmed(ctx, field)
+			case "rejected":
+				return ec.fieldContext_User_rejected(ctx, field)
 			case "name":
 				return ec.fieldContext_User_name(ctx, field)
 			case "surname":
 				return ec.fieldContext_User_surname(ctx, field)
 			case "username":
 				return ec.fieldContext_User_username(ctx, field)
+			case "userRoleId":
+				return ec.fieldContext_User_userRoleId(ctx, field)
 			case "userRole":
 				return ec.fieldContext_User_userRole(ctx, field)
 			case "userBilling":
@@ -11647,6 +11953,128 @@ func (ec *executionContext) fieldContext_UserBilling_sdiPec(ctx context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _UserPaginator_data(ctx context.Context, field graphql.CollectedField, obj *model.UserPaginator) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserPaginator_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Data, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserPaginator_data(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserPaginator",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "confirmed":
+				return ec.fieldContext_User_confirmed(ctx, field)
+			case "rejected":
+				return ec.fieldContext_User_rejected(ctx, field)
+			case "name":
+				return ec.fieldContext_User_name(ctx, field)
+			case "surname":
+				return ec.fieldContext_User_surname(ctx, field)
+			case "username":
+				return ec.fieldContext_User_username(ctx, field)
+			case "userRoleId":
+				return ec.fieldContext_User_userRoleId(ctx, field)
+			case "userRole":
+				return ec.fieldContext_User_userRole(ctx, field)
+			case "userBilling":
+				return ec.fieldContext_User_userBilling(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserPaginator_pagination(ctx context.Context, field graphql.CollectedField, obj *model.UserPaginator) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserPaginator_pagination(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Pagination, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Pagination)
+	fc.Result = res
+	return ec.marshalNPagination2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐPagination(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserPaginator_pagination(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserPaginator",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "limit":
+				return ec.fieldContext_Pagination_limit(ctx, field)
+			case "offset":
+				return ec.fieldContext_Pagination_offset(ctx, field)
+			case "totals":
+				return ec.fieldContext_Pagination_totals(ctx, field)
+			case "currentPage":
+				return ec.fieldContext_Pagination_currentPage(ctx, field)
+			case "pageCount":
+				return ec.fieldContext_Pagination_pageCount(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Pagination", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _UserRole_id(ctx context.Context, field graphql.CollectedField, obj *model.UserRole) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UserRole_id(ctx, field)
 	if err != nil {
@@ -11800,11 +12228,14 @@ func (ec *executionContext) _UserRole_isAdmin(ctx context.Context, field graphql
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*bool)
+	res := resTmp.(bool)
 	fc.Result = res
-	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_UserRole_isAdmin(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -14103,6 +14534,124 @@ func (ec *executionContext) unmarshalInputOrderingInput(ctx context.Context, obj
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputOrdersFilterInput(ctx context.Context, obj interface{}) (model.OrdersFilterInput, error) {
+	var it model.OrdersFilterInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"from", "to", "number", "status"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "from":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("from"))
+			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalOString2ᚖstring(ctx, v) }
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				if ec.directives.EmptyStringToNull == nil {
+					return nil, errors.New("directive emptyStringToNull is not implemented")
+				}
+				return ec.directives.EmptyStringToNull(ctx, obj, directive0)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*string); ok {
+				it.From = data
+			} else if tmp == nil {
+				it.From = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+		case "to":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("to"))
+			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalOString2ᚖstring(ctx, v) }
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				if ec.directives.EmptyStringToNull == nil {
+					return nil, errors.New("directive emptyStringToNull is not implemented")
+				}
+				return ec.directives.EmptyStringToNull(ctx, obj, directive0)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*string); ok {
+				it.To = data
+			} else if tmp == nil {
+				it.To = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+		case "number":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("number"))
+			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalOString2ᚖstring(ctx, v) }
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				if ec.directives.EmptyStringToNull == nil {
+					return nil, errors.New("directive emptyStringToNull is not implemented")
+				}
+				return ec.directives.EmptyStringToNull(ctx, obj, directive0)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*string); ok {
+				it.Number = data
+			} else if tmp == nil {
+				it.Number = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+		case "status":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
+			directive0 := func(ctx context.Context) (interface{}, error) {
+				return ec.unmarshalOOrderStatus2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐOrderStatus(ctx, v)
+			}
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				if ec.directives.EmptyStringToNull == nil {
+					return nil, errors.New("directive emptyStringToNull is not implemented")
+				}
+				return ec.directives.EmptyStringToNull(ctx, obj, directive0)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*model.OrderStatus); ok {
+				it.Status = data
+			} else if tmp == nil {
+				it.Status = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *pillowww/titw/graph/model.OrderStatus`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputPaginationInput(ctx context.Context, obj interface{}) (model.PaginationInput, error) {
 	var it model.PaginationInput
 	asMap := map[string]interface{}{}
@@ -14408,6 +14957,83 @@ func (ec *executionContext) unmarshalInputUserAddressInput(ctx context.Context, 
 				return it, err
 			}
 			it.IsDefault = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUserFilterInput(ctx context.Context, obj interface{}) (model.UserFilterInput, error) {
+	var it model.UserFilterInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "email", "confirmed"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalOString2ᚖstring(ctx, v) }
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				if ec.directives.EmptyStringToNull == nil {
+					return nil, errors.New("directive emptyStringToNull is not implemented")
+				}
+				return ec.directives.EmptyStringToNull(ctx, obj, directive0)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*string); ok {
+				it.Name = data
+			} else if tmp == nil {
+				it.Name = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+		case "email":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalOString2ᚖstring(ctx, v) }
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				if ec.directives.EmptyStringToNull == nil {
+					return nil, errors.New("directive emptyStringToNull is not implemented")
+				}
+				return ec.directives.EmptyStringToNull(ctx, obj, directive0)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*string); ok {
+				it.Email = data
+			} else if tmp == nil {
+				it.Email = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+		case "confirmed":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("confirmed"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Confirmed = data
 		}
 	}
 
@@ -14780,6 +15406,15 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_newOrder(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "updateUserStatus":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateUserStatus(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
@@ -16173,26 +16808,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "orders":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_orders(ctx, field)
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return rrm(innerCtx)
-			})
 		case "userOrders":
 			field := field
 
@@ -16203,6 +16818,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_userOrders(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "allOrders":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_allOrders(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
 				return res
 			}
 
@@ -16383,6 +17021,13 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "rejected":
+
+			out.Values[i] = ec._User_rejected(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "name":
 
 			out.Values[i] = ec._User_name(ctx, field, obj)
@@ -16395,6 +17040,13 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 
 			out.Values[i] = ec._User_username(ctx, field, obj)
 
+		case "userRoleId":
+
+			out.Values[i] = ec._User_userRoleId(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "userRole":
 			field := field
 
@@ -16425,9 +17077,6 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 					}
 				}()
 				res = ec._User_userBilling(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
 				return res
 			}
 
@@ -16722,6 +17371,41 @@ func (ec *executionContext) _UserBilling(ctx context.Context, sel ast.SelectionS
 	return out
 }
 
+var userPaginatorImplementors = []string{"UserPaginator"}
+
+func (ec *executionContext) _UserPaginator(ctx context.Context, sel ast.SelectionSet, obj *model.UserPaginator) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, userPaginatorImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UserPaginator")
+		case "data":
+
+			out.Values[i] = ec._UserPaginator_data(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "pagination":
+
+			out.Values[i] = ec._UserPaginator_pagination(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var userRoleImplementors = []string{"UserRole"}
 
 func (ec *executionContext) _UserRole(ctx context.Context, sel ast.SelectionSet, obj *model.UserRole) graphql.Marshaler {
@@ -16757,6 +17441,9 @@ func (ec *executionContext) _UserRole(ctx context.Context, sel ast.SelectionSet,
 
 			out.Values[i] = ec._UserRole_isAdmin(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -17378,6 +18065,20 @@ func (ec *executionContext) marshalNOrderStatus2pillowwwᚋtitwᚋgraphᚋmodel�
 	return v
 }
 
+func (ec *executionContext) marshalNOrdersPaginator2pillowwwᚋtitwᚋgraphᚋmodelᚐOrdersPaginator(ctx context.Context, sel ast.SelectionSet, v model.OrdersPaginator) graphql.Marshaler {
+	return ec._OrdersPaginator(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNOrdersPaginator2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐOrdersPaginator(ctx context.Context, sel ast.SelectionSet, v *model.OrdersPaginator) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._OrdersPaginator(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNPagination2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐPagination(ctx context.Context, sel ast.SelectionSet, v *model.Pagination) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -17653,6 +18354,44 @@ func (ec *executionContext) marshalNTimestamp2timeᚐTime(ctx context.Context, s
 
 func (ec *executionContext) marshalNUser2pillowwwᚋtitwᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUser2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v []*model.User) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOUser2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐUser(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
 }
 
 func (ec *executionContext) marshalNUser2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
@@ -18213,47 +18952,6 @@ func (ec *executionContext) marshalOLegalEntityType2ᚖpillowwwᚋtitwᚋgraph�
 	return ec._LegalEntityType(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOOrder2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐOrder(ctx context.Context, sel ast.SelectionSet, v []*model.Order) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOOrder2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐOrder(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	return ret
-}
-
 func (ec *executionContext) marshalOOrder2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐOrder(ctx context.Context, sel ast.SelectionSet, v *model.Order) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -18274,6 +18972,22 @@ func (ec *executionContext) marshalOOrderRow2ᚖpillowwwᚋtitwᚋgraphᚋmodel�
 		return graphql.Null
 	}
 	return ec._OrderRow(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOOrderStatus2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐOrderStatus(ctx context.Context, v interface{}) (*model.OrderStatus, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(model.OrderStatus)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOOrderStatus2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐOrderStatus(ctx context.Context, sel ast.SelectionSet, v *model.OrderStatus) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) unmarshalOOrderingInput2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐOrderingInput(ctx context.Context, v interface{}) ([]*model.OrderingInput, error) {
@@ -18301,6 +19015,14 @@ func (ec *executionContext) unmarshalOOrderingInput2ᚖpillowwwᚋtitwᚋgraph�
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputOrderingInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOOrdersFilterInput2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐOrdersFilterInput(ctx context.Context, v interface{}) (*model.OrdersFilterInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputOrdersFilterInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -18720,47 +19442,6 @@ func (ec *executionContext) marshalOTotalPrice2ᚖpillowwwᚋtitwᚋgraphᚋmode
 	return ec._TotalPrice(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOUser2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v []*model.User) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOUser2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐUser(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	return ret
-}
-
 func (ec *executionContext) marshalOUser2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -18821,6 +19502,21 @@ func (ec *executionContext) marshalOUserBilling2ᚖpillowwwᚋtitwᚋgraphᚋmod
 		return graphql.Null
 	}
 	return ec._UserBilling(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOUserFilterInput2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐUserFilterInput(ctx context.Context, v interface{}) (*model.UserFilterInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputUserFilterInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOUserPaginator2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐUserPaginator(ctx context.Context, sel ast.SelectionSet, v *model.UserPaginator) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._UserPaginator(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

@@ -22,6 +22,7 @@ import {orderRoutes} from "./modules/order/routes";
 import moment from 'moment-timezone';
 import Moment from "react-moment";
 import 'moment/locale/it';
+import {adminRoutes} from "./modules/admin/routes";
 
 Moment.globalMoment = moment;
 Moment.globalLocale = 'it';
@@ -51,7 +52,7 @@ const router = createBrowserRouter([
             crumb: () => <Link className="link" to="/admin"> Area privata </Link>
         },
         children: [
-
+            adminRoutes
         ]
     },
     {

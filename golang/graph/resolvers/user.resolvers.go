@@ -10,11 +10,26 @@ import (
 	"pillowww/titw/graph"
 	"pillowww/titw/graph/converters"
 	"pillowww/titw/graph/model"
+	auth2 "pillowww/titw/internal/auth"
+	"pillowww/titw/models"
 )
 
 // UserRole is the resolver for the userRole field.
 func (r *userResolver) UserRole(ctx context.Context, obj *model.User) (*model.UserRole, error) {
-	panic(fmt.Errorf("not implemented: UserRole - userRole"))
+	lang := auth2.CurrentLanguage(ctx)
+
+	roleModel, err := r.UserDao.
+		Load(
+			models.UserRoleRels.UserRoleLanguages,
+			models.UserRoleLanguageWhere.LanguageID.EQ(lang.L.ID),
+		).
+		FindUserRoleById(ctx, obj.UserRoleID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return converters.UserRoleToGraphQL(roleModel), nil
 }
 
 // UserBilling is the resolver for the userBilling field.
@@ -26,8 +41,9 @@ func (r *userResolver) UserBilling(ctx context.Context, obj *model.User) (*model
 	}
 
 	billing, err := r.UserDao.GetUserBilling(ctx, uModel)
-	if err != nil {
-		return nil, err
+
+	if billing == nil {
+		return nil, nil
 	}
 
 	return converters.UserBillingToGraphQL(billing), nil
@@ -61,7 +77,13 @@ func (r *userBillingResolver) TaxRate(ctx context.Context, obj *model.UserBillin
 
 // User is the resolver for the user field.
 func (r *userBillingResolver) User(ctx context.Context, obj *model.UserBilling) (*model.User, error) {
-	panic(fmt.Errorf("not implemented: User - user"))
+	user, err := r.UserDao.FindOneById(ctx, obj.UserID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return converters.UserToGraphQL(user), nil
 }
 
 // User returns graph.UserResolver implementation.

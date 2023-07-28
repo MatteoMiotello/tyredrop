@@ -5,6 +5,7 @@ import (
 	"pillowww/titw/graph/converters"
 	"pillowww/titw/graph/model"
 	"pillowww/titw/internal/domain/user"
+	"pillowww/titw/models"
 )
 
 type UserAggregator struct {
@@ -31,4 +32,14 @@ func (u UserAggregator) GetAllAddressesByUser(ctx context.Context, userId int64)
 	}
 
 	return graphModels, nil
+}
+
+func UsersToGraphql(users models.UserSlice) []*model.User {
+	var graphModels []*model.User
+
+	for _, user := range users {
+		graphModels = append(graphModels, converters.UserToGraphQL(user))
+	}
+
+	return graphModels
 }

@@ -10,6 +10,7 @@ export const FETCH_ORDER = gql `
                 iso_code
                 name
             }
+            priceAmount
             addressName
             addressLine1
             addressLine2
@@ -74,6 +75,38 @@ export const FETCH_USER_ORDERS = gql`
                 orderRows {
                     amount
                     quantity
+                }
+            }
+            pagination {
+                ...PaginationInfo
+            }
+        }
+    }
+`;
+
+export const FETCH_ALL_ORDERS = gql`
+    ${PAGINATION_FRAGMENT}
+    query allOrders( $filter: OrdersFilterInput, $pagination: PaginationInput, $ordering: [OrderingInput] ) {
+        allOrders( filter: $filter, pagination: $pagination, ordering: $ordering ) {
+            data {
+                id
+                priceAmount
+                createdAt
+                status
+                currency {
+                    iso_code
+                }
+                userBilling {
+                    name
+                    surname
+                    user {
+                        id
+                        email
+                    }
+                }
+                orderRows {
+                    id
+                    amount
                 }
             }
             pagination {

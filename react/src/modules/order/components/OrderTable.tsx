@@ -77,19 +77,13 @@ const OrderTable: React.FC<OrderTableProps> = (props) => {
         }
     ];
 
-    const {table} = useGraphTable({
+    const {table} = useGraphTable<Order, FetchOrdersQuery, FetchOrdersQueryVariables>({
         data: props.query.data?.userOrders?.data as Order[],
         columns: columns,
         query: props.query,
         paginator: props.query.data?.userOrders?.pagination,
-        defaultSorting: [
-            {
-                id: "created_at",
-                desc: true
-            }
-        ]
     });
-    const form = useForm();
+    const form = useForm({type:'filter'});
 
     return <FilteredTable table={table} >
         <FilteredTable.FilterForm form={form} updateAsyncFilters={ (data) => {
