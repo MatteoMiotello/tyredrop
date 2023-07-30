@@ -7,8 +7,15 @@ type Cart {
     quantity: Int!
 }
 
+type AdditionValue {
+    additionName: String!
+    value: Float!
+}
+
 type TotalPrice {
     value: Float!
+    taxesValue: Float!
+    additionsValues: [AdditionValue]
     currency: Currency
 }
 

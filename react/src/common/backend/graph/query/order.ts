@@ -73,6 +73,7 @@ export const FETCH_USER_ORDERS = gql`
                 createdAt
                 priceAmount
                 orderRows {
+                    id
                     amount
                     quantity
                 }

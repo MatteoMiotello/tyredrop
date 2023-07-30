@@ -62,7 +62,7 @@ func extractDimensionsFromName(slice string) (*pdtos.TyreDimension, error) {
 		width, _ := strconv.Atoi(match[1])
 		aspectRatio, _ := strconv.Atoi(match[2])
 		construction := match[3]
-		diameter, _ := strconv.Atoi(match[4])
+		diameter, _ := strconv.ParseFloat(match[4], 64)
 		loadIndex, _ := strconv.Atoi(match[5])
 		speedIndex := match[6]
 

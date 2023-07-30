@@ -191,6 +191,7 @@ func importNextRecord(ctx context.Context, sup *models.Supplier, record pdtos.Pr
 			itemDao,
 			product.NewPriceMarkupDao(tx),
 			currency2.NewDao(tx),
+			product.NewItemPriceDao(tx),
 		)
 
 		p, err := pService.FindOrCreateProduct(ctx, record)
@@ -209,6 +210,11 @@ func importNextRecord(ctx context.Context, sup *models.Supplier, record pdtos.Pr
 		}
 
 		err = pPriceService.CalculateAndStoreProductPrices(ctx, pi)
+		if err != nil {
+			return err
+		}
+
+		err = pPriceService.CalculatePriceAdditions(ctx, pi, record)
 		if err != nil {
 			return err
 		}

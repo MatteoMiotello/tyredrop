@@ -15,4 +15,5 @@ type ProductDto interface {
 	GetVehicleType() constants.VehicleType
 	GetProductName() string
 	GetEprelProductCode() *string
+	GetPriceAdditionCodes() []string
 }

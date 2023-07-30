@@ -8,6 +8,11 @@ import (
 	"strconv"
 )
 
+type AdditionValue struct {
+	AdditionName string  `json:"additionName"`
+	Value        float64 `json:"value"`
+}
+
 type Brand struct {
 	ID        int64  `json:"id"`
 	Name      string `json:"name"`
@@ -131,8 +136,10 @@ type Tax struct {
 }
 
 type TotalPrice struct {
-	Value    float64   `json:"value"`
-	Currency *Currency `json:"currency,omitempty"`
+	Value           float64          `json:"value"`
+	TaxesValue      float64          `json:"taxesValue"`
+	AdditionsValues []*AdditionValue `json:"additionsValues,omitempty"`
+	Currency        *Currency        `json:"currency,omitempty"`
 }
 
 type UserAddressInput struct {

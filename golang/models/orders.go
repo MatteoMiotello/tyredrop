@@ -24,128 +24,142 @@ import (
 
 // Order is an object representing the database table.
 type Order struct {
-	ID            int64       `boil:"id" json:"id" toml:"id" yaml:"id"`
-	CurrencyID    int64       `boil:"currency_id" json:"currency_id" toml:"currency_id" yaml:"currency_id"`
-	TaxID         int64       `boil:"tax_id" json:"tax_id" toml:"tax_id" yaml:"tax_id"`
-	UserBillingID int64       `boil:"user_billing_id" json:"user_billing_id" toml:"user_billing_id" yaml:"user_billing_id"`
-	Status        string      `boil:"status" json:"status" toml:"status" yaml:"status"`
-	AddressLine1  string      `boil:"address_line_1" json:"address_line_1" toml:"address_line_1" yaml:"address_line_1"`
-	AddressLine2  null.String `boil:"address_line_2" json:"address_line_2,omitempty" toml:"address_line_2" yaml:"address_line_2,omitempty"`
-	City          string      `boil:"city" json:"city" toml:"city" yaml:"city"`
-	Province      string      `boil:"province" json:"province" toml:"province" yaml:"province"`
-	Country       string      `boil:"country" json:"country" toml:"country" yaml:"country"`
-	PostalCode    string      `boil:"postal_code" json:"postal_code" toml:"postal_code" yaml:"postal_code"`
-	UpdatedAt     time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
-	CreatedAt     time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
-	AddressName   string      `boil:"address_name" json:"address_name" toml:"address_name" yaml:"address_name"`
-	PriceAmount   int         `boil:"price_amount" json:"price_amount" toml:"price_amount" yaml:"price_amount"`
+	ID               int64       `boil:"id" json:"id" toml:"id" yaml:"id"`
+	CurrencyID       int64       `boil:"currency_id" json:"currency_id" toml:"currency_id" yaml:"currency_id"`
+	TaxID            int64       `boil:"tax_id" json:"tax_id" toml:"tax_id" yaml:"tax_id"`
+	UserBillingID    int64       `boil:"user_billing_id" json:"user_billing_id" toml:"user_billing_id" yaml:"user_billing_id"`
+	Status           string      `boil:"status" json:"status" toml:"status" yaml:"status"`
+	AddressLine1     string      `boil:"address_line_1" json:"address_line_1" toml:"address_line_1" yaml:"address_line_1"`
+	AddressLine2     null.String `boil:"address_line_2" json:"address_line_2,omitempty" toml:"address_line_2" yaml:"address_line_2,omitempty"`
+	City             string      `boil:"city" json:"city" toml:"city" yaml:"city"`
+	Province         string      `boil:"province" json:"province" toml:"province" yaml:"province"`
+	Country          string      `boil:"country" json:"country" toml:"country" yaml:"country"`
+	PostalCode       string      `boil:"postal_code" json:"postal_code" toml:"postal_code" yaml:"postal_code"`
+	UpdatedAt        time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	CreatedAt        time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	AddressName      string      `boil:"address_name" json:"address_name" toml:"address_name" yaml:"address_name"`
+	PriceAmount      int         `boil:"price_amount" json:"price_amount" toml:"price_amount" yaml:"price_amount"`
+	TaxesAmount      int         `boil:"taxes_amount" json:"taxes_amount" toml:"taxes_amount" yaml:"taxes_amount"`
+	PriceAmountTotal int         `boil:"price_amount_total" json:"price_amount_total" toml:"price_amount_total" yaml:"price_amount_total"`
 
 	R *orderR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L orderL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var OrderColumns = struct {
-	ID            string
-	CurrencyID    string
-	TaxID         string
-	UserBillingID string
-	Status        string
-	AddressLine1  string
-	AddressLine2  string
-	City          string
-	Province      string
-	Country       string
-	PostalCode    string
-	UpdatedAt     string
-	CreatedAt     string
-	AddressName   string
-	PriceAmount   string
+	ID               string
+	CurrencyID       string
+	TaxID            string
+	UserBillingID    string
+	Status           string
+	AddressLine1     string
+	AddressLine2     string
+	City             string
+	Province         string
+	Country          string
+	PostalCode       string
+	UpdatedAt        string
+	CreatedAt        string
+	AddressName      string
+	PriceAmount      string
+	TaxesAmount      string
+	PriceAmountTotal string
 }{
-	ID:            "id",
-	CurrencyID:    "currency_id",
-	TaxID:         "tax_id",
-	UserBillingID: "user_billing_id",
-	Status:        "status",
-	AddressLine1:  "address_line_1",
-	AddressLine2:  "address_line_2",
-	City:          "city",
-	Province:      "province",
-	Country:       "country",
-	PostalCode:    "postal_code",
-	UpdatedAt:     "updated_at",
-	CreatedAt:     "created_at",
-	AddressName:   "address_name",
-	PriceAmount:   "price_amount",
+	ID:               "id",
+	CurrencyID:       "currency_id",
+	TaxID:            "tax_id",
+	UserBillingID:    "user_billing_id",
+	Status:           "status",
+	AddressLine1:     "address_line_1",
+	AddressLine2:     "address_line_2",
+	City:             "city",
+	Province:         "province",
+	Country:          "country",
+	PostalCode:       "postal_code",
+	UpdatedAt:        "updated_at",
+	CreatedAt:        "created_at",
+	AddressName:      "address_name",
+	PriceAmount:      "price_amount",
+	TaxesAmount:      "taxes_amount",
+	PriceAmountTotal: "price_amount_total",
 }
 
 var OrderTableColumns = struct {
-	ID            string
-	CurrencyID    string
-	TaxID         string
-	UserBillingID string
-	Status        string
-	AddressLine1  string
-	AddressLine2  string
-	City          string
-	Province      string
-	Country       string
-	PostalCode    string
-	UpdatedAt     string
-	CreatedAt     string
-	AddressName   string
-	PriceAmount   string
+	ID               string
+	CurrencyID       string
+	TaxID            string
+	UserBillingID    string
+	Status           string
+	AddressLine1     string
+	AddressLine2     string
+	City             string
+	Province         string
+	Country          string
+	PostalCode       string
+	UpdatedAt        string
+	CreatedAt        string
+	AddressName      string
+	PriceAmount      string
+	TaxesAmount      string
+	PriceAmountTotal string
 }{
-	ID:            "orders.id",
-	CurrencyID:    "orders.currency_id",
-	TaxID:         "orders.tax_id",
-	UserBillingID: "orders.user_billing_id",
-	Status:        "orders.status",
-	AddressLine1:  "orders.address_line_1",
-	AddressLine2:  "orders.address_line_2",
-	City:          "orders.city",
-	Province:      "orders.province",
-	Country:       "orders.country",
-	PostalCode:    "orders.postal_code",
-	UpdatedAt:     "orders.updated_at",
-	CreatedAt:     "orders.created_at",
-	AddressName:   "orders.address_name",
-	PriceAmount:   "orders.price_amount",
+	ID:               "orders.id",
+	CurrencyID:       "orders.currency_id",
+	TaxID:            "orders.tax_id",
+	UserBillingID:    "orders.user_billing_id",
+	Status:           "orders.status",
+	AddressLine1:     "orders.address_line_1",
+	AddressLine2:     "orders.address_line_2",
+	City:             "orders.city",
+	Province:         "orders.province",
+	Country:          "orders.country",
+	PostalCode:       "orders.postal_code",
+	UpdatedAt:        "orders.updated_at",
+	CreatedAt:        "orders.created_at",
+	AddressName:      "orders.address_name",
+	PriceAmount:      "orders.price_amount",
+	TaxesAmount:      "orders.taxes_amount",
+	PriceAmountTotal: "orders.price_amount_total",
 }
 
 // Generated where
 
 var OrderWhere = struct {
-	ID            whereHelperint64
-	CurrencyID    whereHelperint64
-	TaxID         whereHelperint64
-	UserBillingID whereHelperint64
-	Status        whereHelperstring
-	AddressLine1  whereHelperstring
-	AddressLine2  whereHelpernull_String
-	City          whereHelperstring
-	Province      whereHelperstring
-	Country       whereHelperstring
-	PostalCode    whereHelperstring
-	UpdatedAt     whereHelpertime_Time
-	CreatedAt     whereHelpertime_Time
-	AddressName   whereHelperstring
-	PriceAmount   whereHelperint
+	ID               whereHelperint64
+	CurrencyID       whereHelperint64
+	TaxID            whereHelperint64
+	UserBillingID    whereHelperint64
+	Status           whereHelperstring
+	AddressLine1     whereHelperstring
+	AddressLine2     whereHelpernull_String
+	City             whereHelperstring
+	Province         whereHelperstring
+	Country          whereHelperstring
+	PostalCode       whereHelperstring
+	UpdatedAt        whereHelpertime_Time
+	CreatedAt        whereHelpertime_Time
+	AddressName      whereHelperstring
+	PriceAmount      whereHelperint
+	TaxesAmount      whereHelperint
+	PriceAmountTotal whereHelperint
 }{
-	ID:            whereHelperint64{field: "\"orders\".\"id\""},
-	CurrencyID:    whereHelperint64{field: "\"orders\".\"currency_id\""},
-	TaxID:         whereHelperint64{field: "\"orders\".\"tax_id\""},
-	UserBillingID: whereHelperint64{field: "\"orders\".\"user_billing_id\""},
-	Status:        whereHelperstring{field: "\"orders\".\"status\""},
-	AddressLine1:  whereHelperstring{field: "\"orders\".\"address_line_1\""},
-	AddressLine2:  whereHelpernull_String{field: "\"orders\".\"address_line_2\""},
-	City:          whereHelperstring{field: "\"orders\".\"city\""},
-	Province:      whereHelperstring{field: "\"orders\".\"province\""},
-	Country:       whereHelperstring{field: "\"orders\".\"country\""},
-	PostalCode:    whereHelperstring{field: "\"orders\".\"postal_code\""},
-	UpdatedAt:     whereHelpertime_Time{field: "\"orders\".\"updated_at\""},
-	CreatedAt:     whereHelpertime_Time{field: "\"orders\".\"created_at\""},
-	AddressName:   whereHelperstring{field: "\"orders\".\"address_name\""},
-	PriceAmount:   whereHelperint{field: "\"orders\".\"price_amount\""},
+	ID:               whereHelperint64{field: "\"orders\".\"id\""},
+	CurrencyID:       whereHelperint64{field: "\"orders\".\"currency_id\""},
+	TaxID:            whereHelperint64{field: "\"orders\".\"tax_id\""},
+	UserBillingID:    whereHelperint64{field: "\"orders\".\"user_billing_id\""},
+	Status:           whereHelperstring{field: "\"orders\".\"status\""},
+	AddressLine1:     whereHelperstring{field: "\"orders\".\"address_line_1\""},
+	AddressLine2:     whereHelpernull_String{field: "\"orders\".\"address_line_2\""},
+	City:             whereHelperstring{field: "\"orders\".\"city\""},
+	Province:         whereHelperstring{field: "\"orders\".\"province\""},
+	Country:          whereHelperstring{field: "\"orders\".\"country\""},
+	PostalCode:       whereHelperstring{field: "\"orders\".\"postal_code\""},
+	UpdatedAt:        whereHelpertime_Time{field: "\"orders\".\"updated_at\""},
+	CreatedAt:        whereHelpertime_Time{field: "\"orders\".\"created_at\""},
+	AddressName:      whereHelperstring{field: "\"orders\".\"address_name\""},
+	PriceAmount:      whereHelperint{field: "\"orders\".\"price_amount\""},
+	TaxesAmount:      whereHelperint{field: "\"orders\".\"taxes_amount\""},
+	PriceAmountTotal: whereHelperint{field: "\"orders\".\"price_amount_total\""},
 }
 
 // OrderRels is where relationship names are stored.
@@ -206,9 +220,9 @@ func (r *orderR) GetOrderRows() OrderRowSlice {
 type orderL struct{}
 
 var (
-	orderAllColumns            = []string{"id", "currency_id", "tax_id", "user_billing_id", "status", "address_line_1", "address_line_2", "city", "province", "country", "postal_code", "updated_at", "created_at", "address_name", "price_amount"}
+	orderAllColumns            = []string{"id", "currency_id", "tax_id", "user_billing_id", "status", "address_line_1", "address_line_2", "city", "province", "country", "postal_code", "updated_at", "created_at", "address_name", "price_amount", "taxes_amount", "price_amount_total"}
 	orderColumnsWithoutDefault = []string{"currency_id", "tax_id", "user_billing_id", "status", "address_line_1", "city", "province", "country", "postal_code"}
-	orderColumnsWithDefault    = []string{"id", "address_line_2", "updated_at", "created_at", "address_name", "price_amount"}
+	orderColumnsWithDefault    = []string{"id", "address_line_2", "updated_at", "created_at", "address_name", "price_amount", "taxes_amount", "price_amount_total"}
 	orderPrimaryKeyColumns     = []string{"id"}
 	orderGeneratedColumns      = []string{}
 )

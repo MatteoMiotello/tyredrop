@@ -54,3 +54,28 @@ func (d *ItemPriceDao) FindOneById(ctx context.Context, priceId int64) (*models.
 		)...,
 	).One(ctx, d.Db)
 }
+
+func (d *ItemPriceDao) FindPriceAdditionTypeById(ctx context.Context, id int64) (*models.PriceAdditionType, error) {
+	return models.PriceAdditionTypes(
+		d.GetMods(
+			models.PriceAdditionTypeWhere.ID.EQ(id),
+		)...,
+	).One(ctx, d.Db)
+}
+
+func (d *ItemPriceDao) FindPriceAdditionsByProductItemPriceID(ctx context.Context, id int64) (models.ProductItemPriceAdditionSlice, error) {
+	return models.ProductItemPriceAdditions(
+		d.GetMods(
+			models.ProductItemPriceAdditionWhere.ProductItemPriceID.EQ(id),
+		)...,
+	).All(ctx, d.Db)
+}
+
+func (d *ItemPriceDao) FindPriceAdditionTypeByCurrencyAndCode(ctx context.Context, currencyId int64, code string) (*models.PriceAdditionType, error) {
+	return models.PriceAdditionTypes(
+		d.GetMods(
+			models.PriceAdditionTypeWhere.AdditionCode.EQ(code),
+			models.PriceAdditionTypeWhere.CurrencyID.EQ(currencyId),
+		)...,
+	).One(ctx, d.Db)
+}

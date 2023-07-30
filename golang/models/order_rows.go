@@ -33,6 +33,7 @@ type OrderRow struct {
 	UpdatedAt          time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
 	CreatedAt          time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 	ProductItemPriceID int64       `boil:"product_item_price_id" json:"product_item_price_id" toml:"product_item_price_id" yaml:"product_item_price_id"`
+	AdditionsAmount    int         `boil:"additions_amount" json:"additions_amount" toml:"additions_amount" yaml:"additions_amount"`
 
 	R *orderRowR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L orderRowL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -48,6 +49,7 @@ var OrderRowColumns = struct {
 	UpdatedAt          string
 	CreatedAt          string
 	ProductItemPriceID string
+	AdditionsAmount    string
 }{
 	ID:                 "id",
 	OrderID:            "order_id",
@@ -58,6 +60,7 @@ var OrderRowColumns = struct {
 	UpdatedAt:          "updated_at",
 	CreatedAt:          "created_at",
 	ProductItemPriceID: "product_item_price_id",
+	AdditionsAmount:    "additions_amount",
 }
 
 var OrderRowTableColumns = struct {
@@ -70,6 +73,7 @@ var OrderRowTableColumns = struct {
 	UpdatedAt          string
 	CreatedAt          string
 	ProductItemPriceID string
+	AdditionsAmount    string
 }{
 	ID:                 "order_rows.id",
 	OrderID:            "order_rows.order_id",
@@ -80,6 +84,7 @@ var OrderRowTableColumns = struct {
 	UpdatedAt:          "order_rows.updated_at",
 	CreatedAt:          "order_rows.created_at",
 	ProductItemPriceID: "order_rows.product_item_price_id",
+	AdditionsAmount:    "order_rows.additions_amount",
 }
 
 // Generated where
@@ -94,6 +99,7 @@ var OrderRowWhere = struct {
 	UpdatedAt          whereHelpertime_Time
 	CreatedAt          whereHelpertime_Time
 	ProductItemPriceID whereHelperint64
+	AdditionsAmount    whereHelperint
 }{
 	ID:                 whereHelperint64{field: "\"order_rows\".\"id\""},
 	OrderID:            whereHelperint64{field: "\"order_rows\".\"order_id\""},
@@ -104,6 +110,7 @@ var OrderRowWhere = struct {
 	UpdatedAt:          whereHelpertime_Time{field: "\"order_rows\".\"updated_at\""},
 	CreatedAt:          whereHelpertime_Time{field: "\"order_rows\".\"created_at\""},
 	ProductItemPriceID: whereHelperint64{field: "\"order_rows\".\"product_item_price_id\""},
+	AdditionsAmount:    whereHelperint{field: "\"order_rows\".\"additions_amount\""},
 }
 
 // OrderRowRels is where relationship names are stored.
@@ -144,9 +151,9 @@ func (r *orderRowR) GetProductItemPrice() *ProductItemPrice {
 type orderRowL struct{}
 
 var (
-	orderRowAllColumns            = []string{"id", "order_id", "amount", "quantity", "tracking_number", "delivered_at", "updated_at", "created_at", "product_item_price_id"}
+	orderRowAllColumns            = []string{"id", "order_id", "amount", "quantity", "tracking_number", "delivered_at", "updated_at", "created_at", "product_item_price_id", "additions_amount"}
 	orderRowColumnsWithoutDefault = []string{"order_id", "amount", "quantity", "product_item_price_id"}
-	orderRowColumnsWithDefault    = []string{"id", "tracking_number", "delivered_at", "updated_at", "created_at"}
+	orderRowColumnsWithDefault    = []string{"id", "tracking_number", "delivered_at", "updated_at", "created_at", "additions_amount"}
 	orderRowPrimaryKeyColumns     = []string{"id"}
 	orderRowGeneratedColumns      = []string{}
 )

@@ -174,6 +174,34 @@ func (r *productItemPriceResolver) ProductItem(ctx context.Context, obj *model.P
 	return converters.ProductItemToGraphQL(dbModel), nil
 }
 
+// PriceAdditions is the resolver for the priceAdditions field.
+func (r *productItemPriceResolver) PriceAdditions(ctx context.Context, obj *model.ProductItemPrice) ([]*model.ProductItemPriceAddition, error) {
+	additions, err := r.ProductItemPriceDao.
+		Load(qm.Rels(
+			models.ProductItemPriceAdditionRels.ProductItemPrice,
+			models.PriceAdditionTypeRels.Currency,
+		)).
+		FindPriceAdditionsByProductItemPriceID(ctx, obj.ID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var graphModels []*model.ProductItemPriceAddition
+
+	for _, add := range additions {
+		a, err := converters.ProductItemPriceAdditionToGraphQL(add)
+
+		if err != nil {
+			return nil, err
+		}
+
+		graphModels = append(graphModels, a)
+	}
+
+	return graphModels, nil
+}
+
 // Product returns graph.ProductResolver implementation.
 func (r *Resolver) Product() graph.ProductResolver { return &productResolver{r} }
 

@@ -22,6 +22,10 @@ type Deleter interface {
 	Delete(ctx context.Context, exec boil.ContextExecutor, hardDelete bool) (int64, error)
 }
 
+type HardDeleter interface {
+	Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error)
+}
+
 type Dao struct {
 	Db   boil.ContextExecutor
 	Mods []qm.QueryMod
@@ -76,6 +80,12 @@ func (d *Dao) Insert(ctx context.Context, model Inserter) error {
 
 func (d *Dao) Delete(ctx context.Context, model Deleter) error {
 	_, err := model.Delete(ctx, d.Db, false)
+
+	return err
+}
+
+func (d *Dao) HardDelete(ctx context.Context, model HardDeleter) error {
+	_, err := model.Delete(ctx, d.Db)
 
 	return err
 }

@@ -16,6 +16,13 @@ export const USER_CARTS = gql`
                quantity
                productItemPrice {
                    value
+                   priceAdditions {
+                       additionValue
+                       priceAdditionType {
+                           additionName
+                           additionCode
+                       }
+                   }
                    currency {
                        iso_code
                    }

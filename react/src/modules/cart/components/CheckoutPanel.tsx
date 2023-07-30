@@ -2,7 +2,7 @@ import {faPlus} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import React, {useEffect, useState} from "react";
 import {useTranslation} from "react-i18next";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import Button from "../../../common/components-library/Button";
 import Modal from "../../../common/components-library/Modal";
 import {SelectComponent, SelectOption} from "../../../common/components-library/SelectComponent";
@@ -19,11 +19,16 @@ import {Simulate} from "react-dom/test-utils";
 import load = Simulate.load;
 import {Link, useNavigate} from "react-router-dom";
 import {useToast} from "../../../store/toast";
+import {ThunkDispatch} from "redux-thunk";
+import {emptyCart} from "../store/cart-slice";
 
 const CheckoutPanel: React.FC = () => {
     const userAddresses = useSelector(userSelector.addresses);
     const auth = useAuth();
-    const [mutate, {loading, error, data}] = useMutation(NEW_ORDER);
+    const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
+    const [mutate, {loading, error, data}] = useMutation(NEW_ORDER, {
+        onCompleted: () => dispatch( emptyCart() )
+    });
     const {t} = useTranslation();
     const [addressOptions, setOptions] = useState<SelectOption[]>([]);
     const [selectedAddress, setAddress] = useState<SelectOption | null>(null);

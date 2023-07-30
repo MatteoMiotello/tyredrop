@@ -46,11 +46,24 @@ func (s *service) createOrderRowFromCart(ctx context.Context, currency *models.C
 		return nil, errors.New("Quantity not available")
 	}
 
+	additions, err := s.itemPriceDao.FindPriceAdditionsByProductItemPriceID(ctx, p.ID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	priceWithAddition := 0
+
+	for _, add := range additions {
+		priceWithAddition = priceWithAddition + (add.AdditionValue * cart.Quantity)
+	}
+
 	row := &models.OrderRow{
 		OrderID:            order.ID,
 		ProductItemPriceID: p.ID,
 		Quantity:           cart.Quantity,
 		Amount:             p.Price * cart.Quantity,
+		AdditionsAmount:    priceWithAddition,
 	}
 
 	err = s.orderDao.Insert(ctx, row)
@@ -103,6 +116,8 @@ func (s *service) CreateNewOrder(ctx context.Context, userBilling *models.UserBi
 		return nil, err
 	}
 
+	var priceWithAdditions int
+
 	for _, cart := range carts {
 		row, err := s.createOrderRowFromCart(ctx, currentCurrency, newOrder, cart)
 
@@ -111,7 +126,11 @@ func (s *service) CreateNewOrder(ctx context.Context, userBilling *models.UserBi
 		}
 
 		newOrder.PriceAmount = newOrder.PriceAmount + row.Amount
+		priceWithAdditions = priceWithAdditions + row.AdditionsAmount
 	}
+
+	newOrder.TaxesAmount = (defaultTax.MarkupPercentage / 100) * newOrder.PriceAmount
+	newOrder.PriceAmountTotal = newOrder.PriceAmount + newOrder.TaxesAmount + priceWithAdditions
 
 	err = s.orderDao.
 		Update(ctx, newOrder)

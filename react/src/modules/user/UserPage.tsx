@@ -25,7 +25,9 @@ const UserPage: React.FC = () => {
 
     return <main className="flex flex-wrap gap-4 w-full">
         <Panel className="flex-auto w-1/2">
-            <h3 className="text-xl font-semibold divider"> Dati dell'utente </h3>
+            <Panel.Title>
+                Dati dell'utente
+            </Panel.Title>
             <ul>
                 <li><strong>Nome: </strong> {user.name}</li>
                 <li><strong>Cognome: </strong> {user.surname}</li>
@@ -36,7 +38,9 @@ const UserPage: React.FC = () => {
             user.userBilling &&
             <>
                 <Panel className="flex-auto w-1/2">
-                    <h3 className="text-xl font-semibold divider">Dati di fatturazione</h3>
+                    <Panel.Title>
+                        Dati di fatturazione
+                    </Panel.Title>
                     <ul>
                         <li><strong>Nome:</strong> {user.userBilling.name}</li>
                         <li><strong>Cognome:</strong> {user.userBilling.surname}</li>
@@ -53,7 +57,9 @@ const UserPage: React.FC = () => {
                     </ul>
                 </Panel>
                 <Panel className="flex-auto">
-                    <h3 className="text-xl font-semibold divider"> Fatturazione elettronica </h3>
+                    <Panel.Title>
+                        Fatturazione elettronica
+                    </Panel.Title>
                     <ul>
                         <li><strong>Codice destinatario: </strong> {user.userBilling?.sdiCode}</li>
                         <li><strong>PEC: </strong> {user.userBilling.sdiPec}</li>

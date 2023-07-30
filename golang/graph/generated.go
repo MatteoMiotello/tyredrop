@@ -43,10 +43,12 @@ type ResolverRoot interface {
 	Mutation() MutationResolver
 	Order() OrderResolver
 	OrderRow() OrderRowResolver
+	PriceAdditionType() PriceAdditionTypeResolver
 	Product() ProductResolver
 	ProductCategory() ProductCategoryResolver
 	ProductItem() ProductItemResolver
 	ProductItemPrice() ProductItemPriceResolver
+	ProductItemPriceAddition() ProductItemPriceAdditionResolver
 	ProductSpecification() ProductSpecificationResolver
 	ProductSpecificationValue() ProductSpecificationValueResolver
 	Query() QueryResolver
@@ -63,6 +65,11 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	AdditionValue struct {
+		AdditionName func(childComplexity int) int
+		Value        func(childComplexity int) int
+	}
+
 	Brand struct {
 		Code      func(childComplexity int) int
 		ID        func(childComplexity int) int
@@ -113,27 +120,30 @@ type ComplexityRoot struct {
 	}
 
 	Order struct {
-		AddressLine1  func(childComplexity int) int
-		AddressLine2  func(childComplexity int) int
-		AddressName   func(childComplexity int) int
-		City          func(childComplexity int) int
-		Country       func(childComplexity int) int
-		CreatedAt     func(childComplexity int) int
-		Currency      func(childComplexity int) int
-		CurrencyID    func(childComplexity int) int
-		ID            func(childComplexity int) int
-		OrderRows     func(childComplexity int) int
-		PostalCode    func(childComplexity int) int
-		PriceAmount   func(childComplexity int) int
-		Province      func(childComplexity int) int
-		Status        func(childComplexity int) int
-		Tax           func(childComplexity int) int
-		TaxID         func(childComplexity int) int
-		UserBilling   func(childComplexity int) int
-		UserBillingID func(childComplexity int) int
+		AddressLine1     func(childComplexity int) int
+		AddressLine2     func(childComplexity int) int
+		AddressName      func(childComplexity int) int
+		City             func(childComplexity int) int
+		Country          func(childComplexity int) int
+		CreatedAt        func(childComplexity int) int
+		Currency         func(childComplexity int) int
+		CurrencyID       func(childComplexity int) int
+		ID               func(childComplexity int) int
+		OrderRows        func(childComplexity int) int
+		PostalCode       func(childComplexity int) int
+		PriceAmount      func(childComplexity int) int
+		PriceAmountTotal func(childComplexity int) int
+		Province         func(childComplexity int) int
+		Status           func(childComplexity int) int
+		Tax              func(childComplexity int) int
+		TaxID            func(childComplexity int) int
+		TaxesAmount      func(childComplexity int) int
+		UserBilling      func(childComplexity int) int
+		UserBillingID    func(childComplexity int) int
 	}
 
 	OrderRow struct {
+		AdditionsAmount    func(childComplexity int) int
 		Amount             func(childComplexity int) int
 		DeliveredAt        func(childComplexity int) int
 		ID                 func(childComplexity int) int
@@ -156,6 +166,16 @@ type ComplexityRoot struct {
 		Offset      func(childComplexity int) int
 		PageCount   func(childComplexity int) int
 		Totals      func(childComplexity int) int
+	}
+
+	PriceAdditionType struct {
+		AdditionCode  func(childComplexity int) int
+		AdditionName  func(childComplexity int) int
+		AdditionType  func(childComplexity int) int
+		AdditionValue func(childComplexity int) int
+		Currency      func(childComplexity int) int
+		CurrencyID    func(childComplexity int) int
+		ID            func(childComplexity int) int
 	}
 
 	Product struct {
@@ -196,11 +216,21 @@ type ComplexityRoot struct {
 	}
 
 	ProductItemPrice struct {
-		Currency      func(childComplexity int) int
-		ID            func(childComplexity int) int
-		ProductItem   func(childComplexity int) int
-		ProductItemID func(childComplexity int) int
-		Value         func(childComplexity int) int
+		Currency       func(childComplexity int) int
+		ID             func(childComplexity int) int
+		PriceAdditions func(childComplexity int) int
+		ProductItem    func(childComplexity int) int
+		ProductItemID  func(childComplexity int) int
+		Value          func(childComplexity int) int
+	}
+
+	ProductItemPriceAddition struct {
+		AdditionValue       func(childComplexity int) int
+		ID                  func(childComplexity int) int
+		PriceAdditionType   func(childComplexity int) int
+		PriceAdditionTypeID func(childComplexity int) int
+		ProductItemPrice    func(childComplexity int) int
+		ProductItemPriceID  func(childComplexity int) int
 	}
 
 	ProductPaginate struct {
@@ -264,8 +294,10 @@ type ComplexityRoot struct {
 	}
 
 	TotalPrice struct {
-		Currency func(childComplexity int) int
-		Value    func(childComplexity int) int
+		AdditionsValues func(childComplexity int) int
+		Currency        func(childComplexity int) int
+		TaxesValue      func(childComplexity int) int
+		Value           func(childComplexity int) int
 	}
 
 	User struct {
@@ -363,6 +395,9 @@ type OrderRowResolver interface {
 
 	ProductItemPrice(ctx context.Context, obj *model.OrderRow) (*model.ProductItemPrice, error)
 }
+type PriceAdditionTypeResolver interface {
+	Currency(ctx context.Context, obj *model.PriceAdditionType) (*model.Currency, error)
+}
 type ProductResolver interface {
 	Brand(ctx context.Context, obj *model.Product) (*model.Brand, error)
 
@@ -382,6 +417,12 @@ type ProductItemResolver interface {
 }
 type ProductItemPriceResolver interface {
 	ProductItem(ctx context.Context, obj *model.ProductItemPrice) (*model.ProductItem, error)
+	PriceAdditions(ctx context.Context, obj *model.ProductItemPrice) ([]*model.ProductItemPriceAddition, error)
+}
+type ProductItemPriceAdditionResolver interface {
+	ProductItemPrice(ctx context.Context, obj *model.ProductItemPriceAddition) (*model.ProductItemPrice, error)
+
+	PriceAdditionType(ctx context.Context, obj *model.ProductItemPriceAddition) (*model.PriceAdditionType, error)
 }
 type ProductSpecificationResolver interface {
 	ProductCategory(ctx context.Context, obj *model.ProductSpecification) (*model.ProductCategory, error)
@@ -442,6 +483,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "AdditionValue.additionName":
+		if e.complexity.AdditionValue.AdditionName == nil {
+			break
+		}
+
+		return e.complexity.AdditionValue.AdditionName(childComplexity), true
+
+	case "AdditionValue.value":
+		if e.complexity.AdditionValue.Value == nil {
+			break
+		}
+
+		return e.complexity.AdditionValue.Value(childComplexity), true
 
 	case "Brand.code":
 		if e.complexity.Brand.Code == nil {
@@ -789,6 +844,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Order.PriceAmount(childComplexity), true
 
+	case "Order.priceAmountTotal":
+		if e.complexity.Order.PriceAmountTotal == nil {
+			break
+		}
+
+		return e.complexity.Order.PriceAmountTotal(childComplexity), true
+
 	case "Order.province":
 		if e.complexity.Order.Province == nil {
 			break
@@ -817,6 +879,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Order.TaxID(childComplexity), true
 
+	case "Order.taxesAmount":
+		if e.complexity.Order.TaxesAmount == nil {
+			break
+		}
+
+		return e.complexity.Order.TaxesAmount(childComplexity), true
+
 	case "Order.userBilling":
 		if e.complexity.Order.UserBilling == nil {
 			break
@@ -830,6 +899,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Order.UserBillingID(childComplexity), true
+
+	case "OrderRow.additionsAmount":
+		if e.complexity.OrderRow.AdditionsAmount == nil {
+			break
+		}
+
+		return e.complexity.OrderRow.AdditionsAmount(childComplexity), true
 
 	case "OrderRow.amount":
 		if e.complexity.OrderRow.Amount == nil {
@@ -942,6 +1018,55 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Pagination.Totals(childComplexity), true
+
+	case "PriceAdditionType.additionCode":
+		if e.complexity.PriceAdditionType.AdditionCode == nil {
+			break
+		}
+
+		return e.complexity.PriceAdditionType.AdditionCode(childComplexity), true
+
+	case "PriceAdditionType.additionName":
+		if e.complexity.PriceAdditionType.AdditionName == nil {
+			break
+		}
+
+		return e.complexity.PriceAdditionType.AdditionName(childComplexity), true
+
+	case "PriceAdditionType.additionType":
+		if e.complexity.PriceAdditionType.AdditionType == nil {
+			break
+		}
+
+		return e.complexity.PriceAdditionType.AdditionType(childComplexity), true
+
+	case "PriceAdditionType.additionValue":
+		if e.complexity.PriceAdditionType.AdditionValue == nil {
+			break
+		}
+
+		return e.complexity.PriceAdditionType.AdditionValue(childComplexity), true
+
+	case "PriceAdditionType.currency":
+		if e.complexity.PriceAdditionType.Currency == nil {
+			break
+		}
+
+		return e.complexity.PriceAdditionType.Currency(childComplexity), true
+
+	case "PriceAdditionType.currencyId":
+		if e.complexity.PriceAdditionType.CurrencyID == nil {
+			break
+		}
+
+		return e.complexity.PriceAdditionType.CurrencyID(childComplexity), true
+
+	case "PriceAdditionType.ID":
+		if e.complexity.PriceAdditionType.ID == nil {
+			break
+		}
+
+		return e.complexity.PriceAdditionType.ID(childComplexity), true
 
 	case "Product.brand":
 		if e.complexity.Product.Brand == nil {
@@ -1132,6 +1257,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ProductItemPrice.ID(childComplexity), true
 
+	case "ProductItemPrice.priceAdditions":
+		if e.complexity.ProductItemPrice.PriceAdditions == nil {
+			break
+		}
+
+		return e.complexity.ProductItemPrice.PriceAdditions(childComplexity), true
+
 	case "ProductItemPrice.productItem":
 		if e.complexity.ProductItemPrice.ProductItem == nil {
 			break
@@ -1152,6 +1284,48 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ProductItemPrice.Value(childComplexity), true
+
+	case "ProductItemPriceAddition.additionValue":
+		if e.complexity.ProductItemPriceAddition.AdditionValue == nil {
+			break
+		}
+
+		return e.complexity.ProductItemPriceAddition.AdditionValue(childComplexity), true
+
+	case "ProductItemPriceAddition.ID":
+		if e.complexity.ProductItemPriceAddition.ID == nil {
+			break
+		}
+
+		return e.complexity.ProductItemPriceAddition.ID(childComplexity), true
+
+	case "ProductItemPriceAddition.priceAdditionType":
+		if e.complexity.ProductItemPriceAddition.PriceAdditionType == nil {
+			break
+		}
+
+		return e.complexity.ProductItemPriceAddition.PriceAdditionType(childComplexity), true
+
+	case "ProductItemPriceAddition.priceAdditionTypeId":
+		if e.complexity.ProductItemPriceAddition.PriceAdditionTypeID == nil {
+			break
+		}
+
+		return e.complexity.ProductItemPriceAddition.PriceAdditionTypeID(childComplexity), true
+
+	case "ProductItemPriceAddition.productItemPrice":
+		if e.complexity.ProductItemPriceAddition.ProductItemPrice == nil {
+			break
+		}
+
+		return e.complexity.ProductItemPriceAddition.ProductItemPrice(childComplexity), true
+
+	case "ProductItemPriceAddition.productItemPriceId":
+		if e.complexity.ProductItemPriceAddition.ProductItemPriceID == nil {
+			break
+		}
+
+		return e.complexity.ProductItemPriceAddition.ProductItemPriceID(childComplexity), true
 
 	case "ProductPaginate.pagination":
 		if e.complexity.ProductPaginate.Pagination == nil {
@@ -1517,12 +1691,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Tax.Name(childComplexity), true
 
+	case "TotalPrice.additionsValues":
+		if e.complexity.TotalPrice.AdditionsValues == nil {
+			break
+		}
+
+		return e.complexity.TotalPrice.AdditionsValues(childComplexity), true
+
 	case "TotalPrice.currency":
 		if e.complexity.TotalPrice.Currency == nil {
 			break
 		}
 
 		return e.complexity.TotalPrice.Currency(childComplexity), true
+
+	case "TotalPrice.taxesValue":
+		if e.complexity.TotalPrice.TaxesValue == nil {
+			break
+		}
+
+		return e.complexity.TotalPrice.TaxesValue(childComplexity), true
 
 	case "TotalPrice.value":
 		if e.complexity.TotalPrice.Value == nil {
@@ -1944,7 +2132,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(parsedSchema, parsedSchema.Types[name]), nil
 }
 
-//go:embed "schemas/cart.graphql" "schemas/currency.graphql" "schemas/directives.graphql" "schemas/mutation.graphql" "schemas/order.graphql" "schemas/order.query.graphql" "schemas/product.graphql" "schemas/product_specification.graphql" "schemas/query.graphql" "schemas/scalars.graphql" "schemas/user.graphql" "schemas/user.mutation.graphql" "schemas/vehicle.graphql"
+//go:embed "schemas/cart.graphql" "schemas/currency.graphql" "schemas/directives.graphql" "schemas/mutation.graphql" "schemas/order.graphql" "schemas/order.query.graphql" "schemas/price_additions.graphql" "schemas/product.graphql" "schemas/product_specification.graphql" "schemas/query.graphql" "schemas/scalars.graphql" "schemas/user.graphql" "schemas/user.mutation.graphql" "schemas/vehicle.graphql"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -1962,6 +2150,7 @@ var sources = []*ast.Source{
 	{Name: "schemas/mutation.graphql", Input: sourceData("schemas/mutation.graphql"), BuiltIn: false},
 	{Name: "schemas/order.graphql", Input: sourceData("schemas/order.graphql"), BuiltIn: false},
 	{Name: "schemas/order.query.graphql", Input: sourceData("schemas/order.query.graphql"), BuiltIn: false},
+	{Name: "schemas/price_additions.graphql", Input: sourceData("schemas/price_additions.graphql"), BuiltIn: false},
 	{Name: "schemas/product.graphql", Input: sourceData("schemas/product.graphql"), BuiltIn: false},
 	{Name: "schemas/product_specification.graphql", Input: sourceData("schemas/product_specification.graphql"), BuiltIn: false},
 	{Name: "schemas/query.graphql", Input: sourceData("schemas/query.graphql"), BuiltIn: false},
@@ -2518,6 +2707,94 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
+func (ec *executionContext) _AdditionValue_additionName(ctx context.Context, field graphql.CollectedField, obj *model.AdditionValue) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AdditionValue_additionName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AdditionName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AdditionValue_additionName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdditionValue",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdditionValue_value(ctx context.Context, field graphql.CollectedField, obj *model.AdditionValue) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AdditionValue_value(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Value, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AdditionValue_value(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdditionValue",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Brand_id(ctx context.Context, field graphql.CollectedField, obj *model.Brand) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Brand_id(ctx, field)
 	if err != nil {
@@ -2982,6 +3259,8 @@ func (ec *executionContext) fieldContext_Cart_productItemPrice(ctx context.Conte
 				return ec.fieldContext_ProductItemPrice_productItemId(ctx, field)
 			case "productItem":
 				return ec.fieldContext_ProductItemPrice_productItem(ctx, field)
+			case "priceAdditions":
+				return ec.fieldContext_ProductItemPrice_priceAdditions(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ProductItemPrice", field.Name)
 		},
@@ -3129,6 +3408,10 @@ func (ec *executionContext) fieldContext_CartResponse_totalPrice(ctx context.Con
 			switch field.Name {
 			case "value":
 				return ec.fieldContext_TotalPrice_value(ctx, field)
+			case "taxesValue":
+				return ec.fieldContext_TotalPrice_taxesValue(ctx, field)
+			case "additionsValues":
+				return ec.fieldContext_TotalPrice_additionsValues(ctx, field)
 			case "currency":
 				return ec.fieldContext_TotalPrice_currency(ctx, field)
 			}
@@ -4277,6 +4560,10 @@ func (ec *executionContext) fieldContext_Mutation_newOrder(ctx context.Context, 
 				return ec.fieldContext_Order_status(ctx, field)
 			case "priceAmount":
 				return ec.fieldContext_Order_priceAmount(ctx, field)
+			case "taxesAmount":
+				return ec.fieldContext_Order_taxesAmount(ctx, field)
+			case "priceAmountTotal":
+				return ec.fieldContext_Order_priceAmountTotal(ctx, field)
 			case "addressName":
 				return ec.fieldContext_Order_addressName(ctx, field)
 			case "addressLine1":
@@ -4864,6 +5151,94 @@ func (ec *executionContext) fieldContext_Order_priceAmount(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _Order_taxesAmount(ctx context.Context, field graphql.CollectedField, obj *model.Order) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Order_taxesAmount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TaxesAmount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Order_taxesAmount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Order",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Order_priceAmountTotal(ctx context.Context, field graphql.CollectedField, obj *model.Order) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Order_priceAmountTotal(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PriceAmountTotal, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Order_priceAmountTotal(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Order",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Order_addressName(ctx context.Context, field graphql.CollectedField, obj *model.Order) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Order_addressName(ctx, field)
 	if err != nil {
@@ -5222,6 +5597,8 @@ func (ec *executionContext) fieldContext_Order_orderRows(ctx context.Context, fi
 				return ec.fieldContext_OrderRow_productItemPriceID(ctx, field)
 			case "amount":
 				return ec.fieldContext_OrderRow_amount(ctx, field)
+			case "additionsAmount":
+				return ec.fieldContext_OrderRow_additionsAmount(ctx, field)
 			case "trackingNumber":
 				return ec.fieldContext_OrderRow_trackingNumber(ctx, field)
 			case "deliveredAt":
@@ -5422,6 +5799,10 @@ func (ec *executionContext) fieldContext_OrderRow_order(ctx context.Context, fie
 				return ec.fieldContext_Order_status(ctx, field)
 			case "priceAmount":
 				return ec.fieldContext_Order_priceAmount(ctx, field)
+			case "taxesAmount":
+				return ec.fieldContext_Order_taxesAmount(ctx, field)
+			case "priceAmountTotal":
+				return ec.fieldContext_Order_priceAmountTotal(ctx, field)
 			case "addressName":
 				return ec.fieldContext_Order_addressName(ctx, field)
 			case "addressLine1":
@@ -5540,6 +5921,8 @@ func (ec *executionContext) fieldContext_OrderRow_productItemPrice(ctx context.C
 				return ec.fieldContext_ProductItemPrice_productItemId(ctx, field)
 			case "productItem":
 				return ec.fieldContext_ProductItemPrice_productItem(ctx, field)
+			case "priceAdditions":
+				return ec.fieldContext_ProductItemPrice_priceAdditions(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ProductItemPrice", field.Name)
 		},
@@ -5623,6 +6006,50 @@ func (ec *executionContext) _OrderRow_amount(ctx context.Context, field graphql.
 }
 
 func (ec *executionContext) fieldContext_OrderRow_amount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "OrderRow",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _OrderRow_additionsAmount(ctx context.Context, field graphql.CollectedField, obj *model.OrderRow) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_OrderRow_additionsAmount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AdditionsAmount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_OrderRow_additionsAmount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "OrderRow",
 		Field:      field,
@@ -5774,6 +6201,10 @@ func (ec *executionContext) fieldContext_OrdersPaginator_data(ctx context.Contex
 				return ec.fieldContext_Order_status(ctx, field)
 			case "priceAmount":
 				return ec.fieldContext_Order_priceAmount(ctx, field)
+			case "taxesAmount":
+				return ec.fieldContext_Order_taxesAmount(ctx, field)
+			case "priceAmountTotal":
+				return ec.fieldContext_Order_priceAmountTotal(ctx, field)
 			case "addressName":
 				return ec.fieldContext_Order_addressName(ctx, field)
 			case "addressLine1":
@@ -6055,6 +6486,326 @@ func (ec *executionContext) fieldContext_Pagination_pageCount(ctx context.Contex
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PriceAdditionType_ID(ctx context.Context, field graphql.CollectedField, obj *model.PriceAdditionType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PriceAdditionType_ID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNID2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PriceAdditionType_ID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PriceAdditionType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PriceAdditionType_currencyId(ctx context.Context, field graphql.CollectedField, obj *model.PriceAdditionType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PriceAdditionType_currencyId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CurrencyID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNID2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PriceAdditionType_currencyId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PriceAdditionType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PriceAdditionType_currency(ctx context.Context, field graphql.CollectedField, obj *model.PriceAdditionType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PriceAdditionType_currency(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.PriceAdditionType().Currency(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Currency)
+	fc.Result = res
+	return ec.marshalNCurrency2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐCurrency(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PriceAdditionType_currency(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PriceAdditionType",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Currency_id(ctx, field)
+			case "iso_code":
+				return ec.fieldContext_Currency_iso_code(ctx, field)
+			case "symbol":
+				return ec.fieldContext_Currency_symbol(ctx, field)
+			case "tag":
+				return ec.fieldContext_Currency_tag(ctx, field)
+			case "name":
+				return ec.fieldContext_Currency_name(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Currency", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PriceAdditionType_additionType(ctx context.Context, field graphql.CollectedField, obj *model.PriceAdditionType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PriceAdditionType_additionType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AdditionType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PriceAdditionType_additionType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PriceAdditionType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PriceAdditionType_additionName(ctx context.Context, field graphql.CollectedField, obj *model.PriceAdditionType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PriceAdditionType_additionName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AdditionName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PriceAdditionType_additionName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PriceAdditionType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PriceAdditionType_additionCode(ctx context.Context, field graphql.CollectedField, obj *model.PriceAdditionType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PriceAdditionType_additionCode(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AdditionCode, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PriceAdditionType_additionCode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PriceAdditionType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PriceAdditionType_additionValue(ctx context.Context, field graphql.CollectedField, obj *model.PriceAdditionType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PriceAdditionType_additionValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AdditionValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PriceAdditionType_additionValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PriceAdditionType",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6979,6 +7730,8 @@ func (ec *executionContext) fieldContext_ProductItem_price(ctx context.Context, 
 				return ec.fieldContext_ProductItemPrice_productItemId(ctx, field)
 			case "productItem":
 				return ec.fieldContext_ProductItemPrice_productItem(ctx, field)
+			case "priceAdditions":
+				return ec.fieldContext_ProductItemPrice_priceAdditions(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ProductItemPrice", field.Name)
 		},
@@ -7527,6 +8280,358 @@ func (ec *executionContext) fieldContext_ProductItemPrice_productItem(ctx contex
 				return ec.fieldContext_ProductItem_supplierQuantity(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ProductItem", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductItemPrice_priceAdditions(ctx context.Context, field graphql.CollectedField, obj *model.ProductItemPrice) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductItemPrice_priceAdditions(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ProductItemPrice().PriceAdditions(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.ProductItemPriceAddition)
+	fc.Result = res
+	return ec.marshalNProductItemPriceAddition2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductItemPriceAddition(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductItemPrice_priceAdditions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductItemPrice",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "ID":
+				return ec.fieldContext_ProductItemPriceAddition_ID(ctx, field)
+			case "productItemPriceId":
+				return ec.fieldContext_ProductItemPriceAddition_productItemPriceId(ctx, field)
+			case "productItemPrice":
+				return ec.fieldContext_ProductItemPriceAddition_productItemPrice(ctx, field)
+			case "priceAdditionTypeId":
+				return ec.fieldContext_ProductItemPriceAddition_priceAdditionTypeId(ctx, field)
+			case "priceAdditionType":
+				return ec.fieldContext_ProductItemPriceAddition_priceAdditionType(ctx, field)
+			case "additionValue":
+				return ec.fieldContext_ProductItemPriceAddition_additionValue(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ProductItemPriceAddition", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductItemPriceAddition_ID(ctx context.Context, field graphql.CollectedField, obj *model.ProductItemPriceAddition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductItemPriceAddition_ID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNID2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductItemPriceAddition_ID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductItemPriceAddition",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductItemPriceAddition_productItemPriceId(ctx context.Context, field graphql.CollectedField, obj *model.ProductItemPriceAddition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductItemPriceAddition_productItemPriceId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ProductItemPriceID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNID2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductItemPriceAddition_productItemPriceId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductItemPriceAddition",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductItemPriceAddition_productItemPrice(ctx context.Context, field graphql.CollectedField, obj *model.ProductItemPriceAddition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductItemPriceAddition_productItemPrice(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ProductItemPriceAddition().ProductItemPrice(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.ProductItemPrice)
+	fc.Result = res
+	return ec.marshalNProductItemPrice2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductItemPrice(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductItemPriceAddition_productItemPrice(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductItemPriceAddition",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ProductItemPrice_id(ctx, field)
+			case "value":
+				return ec.fieldContext_ProductItemPrice_value(ctx, field)
+			case "currency":
+				return ec.fieldContext_ProductItemPrice_currency(ctx, field)
+			case "productItemId":
+				return ec.fieldContext_ProductItemPrice_productItemId(ctx, field)
+			case "productItem":
+				return ec.fieldContext_ProductItemPrice_productItem(ctx, field)
+			case "priceAdditions":
+				return ec.fieldContext_ProductItemPrice_priceAdditions(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ProductItemPrice", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductItemPriceAddition_priceAdditionTypeId(ctx context.Context, field graphql.CollectedField, obj *model.ProductItemPriceAddition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductItemPriceAddition_priceAdditionTypeId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PriceAdditionTypeID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNID2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductItemPriceAddition_priceAdditionTypeId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductItemPriceAddition",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductItemPriceAddition_priceAdditionType(ctx context.Context, field graphql.CollectedField, obj *model.ProductItemPriceAddition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductItemPriceAddition_priceAdditionType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ProductItemPriceAddition().PriceAdditionType(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.PriceAdditionType)
+	fc.Result = res
+	return ec.marshalNPriceAdditionType2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐPriceAdditionType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductItemPriceAddition_priceAdditionType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductItemPriceAddition",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "ID":
+				return ec.fieldContext_PriceAdditionType_ID(ctx, field)
+			case "currencyId":
+				return ec.fieldContext_PriceAdditionType_currencyId(ctx, field)
+			case "currency":
+				return ec.fieldContext_PriceAdditionType_currency(ctx, field)
+			case "additionType":
+				return ec.fieldContext_PriceAdditionType_additionType(ctx, field)
+			case "additionName":
+				return ec.fieldContext_PriceAdditionType_additionName(ctx, field)
+			case "additionCode":
+				return ec.fieldContext_PriceAdditionType_additionCode(ctx, field)
+			case "additionValue":
+				return ec.fieldContext_PriceAdditionType_additionValue(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PriceAdditionType", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductItemPriceAddition_additionValue(ctx context.Context, field graphql.CollectedField, obj *model.ProductItemPriceAddition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductItemPriceAddition_additionValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AdditionValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductItemPriceAddition_additionValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductItemPriceAddition",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -9477,6 +10582,10 @@ func (ec *executionContext) fieldContext_Query_order(ctx context.Context, field 
 				return ec.fieldContext_Order_status(ctx, field)
 			case "priceAmount":
 				return ec.fieldContext_Order_priceAmount(ctx, field)
+			case "taxesAmount":
+				return ec.fieldContext_Order_taxesAmount(ctx, field)
+			case "priceAmountTotal":
+				return ec.fieldContext_Order_priceAmountTotal(ctx, field)
 			case "addressName":
 				return ec.fieldContext_Order_addressName(ctx, field)
 			case "addressLine1":
@@ -10104,6 +11213,97 @@ func (ec *executionContext) fieldContext_TotalPrice_value(ctx context.Context, f
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TotalPrice_taxesValue(ctx context.Context, field graphql.CollectedField, obj *model.TotalPrice) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TotalPrice_taxesValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TaxesValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TotalPrice_taxesValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TotalPrice",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TotalPrice_additionsValues(ctx context.Context, field graphql.CollectedField, obj *model.TotalPrice) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TotalPrice_additionsValues(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AdditionsValues, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.AdditionValue)
+	fc.Result = res
+	return ec.marshalOAdditionValue2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐAdditionValue(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TotalPrice_additionsValues(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TotalPrice",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "additionName":
+				return ec.fieldContext_AdditionValue_additionName(ctx, field)
+			case "value":
+				return ec.fieldContext_AdditionValue_value(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdditionValue", field.Name)
 		},
 	}
 	return fc, nil
@@ -15048,6 +16248,41 @@ func (ec *executionContext) unmarshalInputUserFilterInput(ctx context.Context, o
 
 // region    **************************** object.gotpl ****************************
 
+var additionValueImplementors = []string{"AdditionValue"}
+
+func (ec *executionContext) _AdditionValue(ctx context.Context, sel ast.SelectionSet, obj *model.AdditionValue) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, additionValueImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdditionValue")
+		case "additionName":
+
+			out.Values[i] = ec._AdditionValue_additionName(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "value":
+
+			out.Values[i] = ec._AdditionValue_value(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var brandImplementors = []string{"Brand"}
 
 func (ec *executionContext) _Brand(ctx context.Context, sel ast.SelectionSet, obj *model.Brand) graphql.Marshaler {
@@ -15530,6 +16765,20 @@ func (ec *executionContext) _Order(ctx context.Context, sel ast.SelectionSet, ob
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "taxesAmount":
+
+			out.Values[i] = ec._Order_taxesAmount(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "priceAmountTotal":
+
+			out.Values[i] = ec._Order_priceAmountTotal(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "addressName":
 
 			out.Values[i] = ec._Order_addressName(ctx, field, obj)
@@ -15699,6 +16948,13 @@ func (ec *executionContext) _OrderRow(ctx context.Context, sel ast.SelectionSet,
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "additionsAmount":
+
+			out.Values[i] = ec._OrderRow_additionsAmount(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "trackingNumber":
 
 			out.Values[i] = ec._OrderRow_trackingNumber(ctx, field, obj)
@@ -15783,6 +17039,89 @@ func (ec *executionContext) _Pagination(ctx context.Context, sel ast.SelectionSe
 
 			out.Values[i] = ec._Pagination_pageCount(ctx, field, obj)
 
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var priceAdditionTypeImplementors = []string{"PriceAdditionType"}
+
+func (ec *executionContext) _PriceAdditionType(ctx context.Context, sel ast.SelectionSet, obj *model.PriceAdditionType) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, priceAdditionTypeImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PriceAdditionType")
+		case "ID":
+
+			out.Values[i] = ec._PriceAdditionType_ID(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "currencyId":
+
+			out.Values[i] = ec._PriceAdditionType_currencyId(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "currency":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PriceAdditionType_currency(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "additionType":
+
+			out.Values[i] = ec._PriceAdditionType_additionType(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "additionName":
+
+			out.Values[i] = ec._PriceAdditionType_additionName(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "additionCode":
+
+			out.Values[i] = ec._PriceAdditionType_additionCode(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "additionValue":
+
+			out.Values[i] = ec._PriceAdditionType_additionValue(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -16203,6 +17542,115 @@ func (ec *executionContext) _ProductItemPrice(ctx context.Context, sel ast.Selec
 				return innerFunc(ctx)
 
 			})
+		case "priceAdditions":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ProductItemPrice_priceAdditions(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var productItemPriceAdditionImplementors = []string{"ProductItemPriceAddition"}
+
+func (ec *executionContext) _ProductItemPriceAddition(ctx context.Context, sel ast.SelectionSet, obj *model.ProductItemPriceAddition) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, productItemPriceAdditionImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ProductItemPriceAddition")
+		case "ID":
+
+			out.Values[i] = ec._ProductItemPriceAddition_ID(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "productItemPriceId":
+
+			out.Values[i] = ec._ProductItemPriceAddition_productItemPriceId(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "productItemPrice":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ProductItemPriceAddition_productItemPrice(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "priceAdditionTypeId":
+
+			out.Values[i] = ec._ProductItemPriceAddition_priceAdditionTypeId(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "priceAdditionType":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ProductItemPriceAddition_priceAdditionType(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "additionValue":
+
+			out.Values[i] = ec._ProductItemPriceAddition_additionValue(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -16975,6 +18423,17 @@ func (ec *executionContext) _TotalPrice(ctx context.Context, sel ast.SelectionSe
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "taxesValue":
+
+			out.Values[i] = ec._TotalPrice_taxesValue(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "additionsValues":
+
+			out.Values[i] = ec._TotalPrice_additionsValues(ctx, field, obj)
+
 		case "currency":
 
 			out.Values[i] = ec._TotalPrice_currency(ctx, field, obj)
@@ -18089,6 +19548,20 @@ func (ec *executionContext) marshalNPagination2ᚖpillowwwᚋtitwᚋgraphᚋmode
 	return ec._Pagination(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNPriceAdditionType2pillowwwᚋtitwᚋgraphᚋmodelᚐPriceAdditionType(ctx context.Context, sel ast.SelectionSet, v model.PriceAdditionType) graphql.Marshaler {
+	return ec._PriceAdditionType(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPriceAdditionType2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐPriceAdditionType(ctx context.Context, sel ast.SelectionSet, v *model.PriceAdditionType) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PriceAdditionType(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNProduct2pillowwwᚋtitwᚋgraphᚋmodelᚐProduct(ctx context.Context, sel ast.SelectionSet, v model.Product) graphql.Marshaler {
 	return ec._Product(ctx, sel, &v)
 }
@@ -18181,6 +19654,44 @@ func (ec *executionContext) marshalNProductItemPrice2ᚖpillowwwᚋtitwᚋgraph�
 		return graphql.Null
 	}
 	return ec._ProductItemPrice(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNProductItemPriceAddition2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductItemPriceAddition(ctx context.Context, sel ast.SelectionSet, v []*model.ProductItemPriceAddition) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOProductItemPriceAddition2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductItemPriceAddition(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
 }
 
 func (ec *executionContext) marshalNProductSpecification2pillowwwᚋtitwᚋgraphᚋmodelᚐProductSpecification(ctx context.Context, sel ast.SelectionSet, v model.ProductSpecification) graphql.Marshaler {
@@ -18742,6 +20253,54 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 	return res
 }
 
+func (ec *executionContext) marshalOAdditionValue2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐAdditionValue(ctx context.Context, sel ast.SelectionSet, v []*model.AdditionValue) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOAdditionValue2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐAdditionValue(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (ec *executionContext) marshalOAdditionValue2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐAdditionValue(ctx context.Context, sel ast.SelectionSet, v *model.AdditionValue) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._AdditionValue(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -19204,6 +20763,13 @@ func (ec *executionContext) marshalOProductItemPrice2ᚖpillowwwᚋtitwᚋgraph�
 		return graphql.Null
 	}
 	return ec._ProductItemPrice(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOProductItemPriceAddition2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductItemPriceAddition(ctx context.Context, sel ast.SelectionSet, v *model.ProductItemPriceAddition) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ProductItemPriceAddition(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOProductPaginate2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductPaginate(ctx context.Context, sel ast.SelectionSet, v *model.ProductPaginate) graphql.Marshaler {

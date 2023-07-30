@@ -1,0 +1,18 @@
+type PriceAdditionType {
+    ID: ID!
+    currencyId: ID!
+    currency: Currency!
+    additionType: String!
+    additionName: String!
+    additionCode: String!
+    additionValue: Float!
+}
+
+type ProductItemPriceAddition {
+    ID: ID!
+    productItemPriceId: ID!
+    productItemPrice: ProductItemPrice!
+    priceAdditionTypeId: ID!
+    priceAdditionType: PriceAdditionType!
+    additionValue: Float!
+}

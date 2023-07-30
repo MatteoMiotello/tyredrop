@@ -33,14 +33,12 @@ export const authLogin: AsyncThunk<LoginResponse, any, any> = createAsyncThunk('
 });
 
 export const authRefreshToken: AsyncThunk<RefreshTokenResponse, any, any> = createAsyncThunk('AUTH/REFRESH-TOKEN', async (refreshToken: string, thunkAPI) => {
-    console.log( 'refresh' );
     return createBackendClient()
         .refreshToken(refreshToken)
         .then((res: AxiosResponse<RefreshTokenResponse>) => {
             return thunkAPI.fulfillWithValue(res.data);
         })
         .catch((err: AxiosError) => {
-            console.log( err );
             if (!err.response) {
                 return thunkAPI.rejectWithValue(err.message);
             }

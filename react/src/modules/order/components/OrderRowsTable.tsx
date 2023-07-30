@@ -10,6 +10,12 @@ type OrderRowsTableProps = {
 const OrderRowsTable: React.FC<OrderRowsTableProps> = (props) => {
     const columns: ColumnDef<OrderRow>[] = [
         {
+            accessorKey: 'id',
+            size: 10,
+            header: "Numero",
+            cell: (props) => <span> #{props.row.original.id} </span>
+        },
+        {
             accessorKey: "productItem",
             header: "Prodotto",
             cell: (props: CellContext<OrderRow, any>) => <span> {props.row.original.productItemPrice.productItem.product.name} </span>
@@ -19,7 +25,7 @@ const OrderRowsTable: React.FC<OrderRowsTableProps> = (props) => {
             header: "Quantità",
         },
         {
-            accessorKey: "productItem",
+            id: "unit_price",
             header: "Prezzo Unitario",
             cell: (p: CellContext<OrderRow, any>) => {
                 if ( !p.row.original.productItemPrice ) {

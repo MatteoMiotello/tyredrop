@@ -19,6 +19,7 @@ func Init(ctx context.Context) (*Ftp, error) {
 	}
 
 	err = c.Login(viper.GetString("FTP_USER"), viper.GetString("FTP_PASSWORD"))
+
 	if err != nil {
 		return nil, err
 	}

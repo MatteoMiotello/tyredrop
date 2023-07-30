@@ -36,8 +36,6 @@ const BillingPage: React.FC = () => {
     }, [auth]);
 
     const storeBilling = (input: BillingInput) => {
-        
-        console.log( input );
         return saveBilling({
             variables: {
                 input: {

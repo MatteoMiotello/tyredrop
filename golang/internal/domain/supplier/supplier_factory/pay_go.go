@@ -96,7 +96,7 @@ func (g PayGo) matchRecords(pRecord *pdtos.Tyre, index int, slice string) error 
 		if err != nil {
 			return err
 		}
-		pRecord.Rim = int(f)
+		pRecord.Rim = f
 		break
 	case 16:
 		f, err := strconv.ParseFloat(slice, 32)

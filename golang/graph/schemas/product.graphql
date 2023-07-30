@@ -33,6 +33,7 @@ type ProductItemPrice {
     currency: Currency!
     productItemId: ID!
     productItem: ProductItem!
+    priceAdditions: [ProductItemPriceAddition]!
 }
 
 type Supplier {

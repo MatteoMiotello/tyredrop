@@ -60,7 +60,6 @@ const OrderAdminTable: React.FC<OrderTableProps> = ({query}) => {
 
     return <FilteredTable table={table}>
         <FilteredTable.FilterForm form={form} updateAsyncFilters={( data ) => {
-            console.log( data );
             return query.refetch( {
                 filter: {
                     ...data,

@@ -74,7 +74,7 @@ func (s Seng) matchRecords(pRecord *pdtos.Tyre, i int, slice string) error {
 		pRecord.Construction = slice
 		break
 	case 5:
-		a, err := strconv.Atoi(slice)
+		a, err := strconv.ParseFloat(slice, 64)
 
 		if err == nil {
 			pRecord.Rim = a

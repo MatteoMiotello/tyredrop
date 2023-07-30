@@ -66,7 +66,6 @@ const UserAdminTable: React.FC<UserAdminTableProps> = ({query}) => {
 
     return <FilteredTable table={table}>
         <FilteredTable.FilterForm form={form} updateAsyncFilters={(data) => {
-            console.log( data );
             return query.refetch({
                 filter: {
                     name: data.name,

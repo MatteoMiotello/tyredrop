@@ -32,16 +32,14 @@ const useTable = <T = any>({ data, columns, onPaginationChange, onSortingChange,
 	const [sorting, setSorting] = useState<SortingState>(defaultSorting || []);
 
 	useEffect( () => {
-		if ( onPaginationChange ) {
+		if ( onPaginationChange && pageSize !== undefined && pageCount !== undefined ) {
 			onPaginationChange(pagination.pageIndex + 1, pagination.pageSize );
 		}
-	}, [pagination]);
 
-	useEffect( () => {
 		if ( onSortingChange && sorting.length ) {
 			onSortingChange( sorting.map( sort => ({column: sort.id, desc: sort.desc}) ) );
 		}
-	}, [sorting] );
+	}, [pagination, sorting]);
 
 	const table = useReactTable({
 		data,

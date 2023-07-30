@@ -6,6 +6,7 @@ type OrderRow {
     productItemPrice: ProductItemPrice!
     productItemPriceID: ID!
     amount: Float!
+    additionsAmount: Float!
     trackingNumber: String
     deliveredAt: Timestamp
 }
@@ -29,6 +30,8 @@ type Order {
     userBillingID: ID!
     status: OrderStatus!
     priceAmount: Float!
+    taxesAmount: Float!
+    priceAmountTotal: Float!
     addressName: String!
     addressLine1: String!
     addressLine2: String

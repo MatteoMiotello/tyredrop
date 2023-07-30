@@ -22,12 +22,17 @@ func CopySupplierFiles() {
 	ftp, err := ftp2.Init(ctx)
 	check(err)
 
+	if err != nil {
+		return
+	}
+
 	for _, sup := range suppliers {
 		dirName := strings.ToLower(sup.Code)
 
 		var factory supplier_factory.Importer
 
 		factory = supplier.GetFactory(sup)
+
 		if !factory.NeedsImportFromFile() {
 			continue
 		}

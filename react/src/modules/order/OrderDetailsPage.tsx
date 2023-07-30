@@ -6,11 +6,20 @@ import OrderRowsTable from "./components/OrderRowsTable";
 import OrderStatusBadge from "./components/OrderStatusBadge";
 import Moment from "react-moment";
 import {Currency} from "../../common/utilities/currency";
+import {Button, useModal} from "../../common/components/shelly-ui";
+import OrderHelpModal from "./components/OrderHelpModal";
 
 const OrderDetailsPage: React.FC = () => {
     const order = useLoaderData() as FetchOrderQuery;
+    const modal = useModal();
 
     return <main className="p-4 grid grid-flow-row md:grid-cols-12 gap-4">
+        <OrderHelpModal modal={modal}/>
+        <div className="col-start-11 col-span-2 flex justify-end">
+            <Button size="sm" buttonType="warning" onClick={modal.open}>
+                Richiedi assistenza
+            </Button>
+        </div>
         <div className="col-span-12 text-center my-10">
             <h1 className=" text-3xl ">
                 Ordine n. #{order.order.id}

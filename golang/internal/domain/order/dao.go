@@ -78,7 +78,7 @@ func (d Dao) FindAll(ctx context.Context, from *string, to *string, number *stri
 			return nil, err
 		}
 
-		mods = append(mods, models.OrderWhere.CreatedAt.GTE(toTime))
+		mods = append(mods, models.OrderWhere.CreatedAt.LTE(toTime))
 	}
 
 	if number != nil && len(*number) > 0 {
@@ -131,7 +131,7 @@ func (d Dao) FindAllByBillingId(ctx context.Context, id int64, from *string, to 
 			return nil, err
 		}
 
-		mods = append(mods, models.OrderWhere.CreatedAt.GTE(toTime))
+		mods = append(mods, models.OrderWhere.CreatedAt.LTE(toTime))
 	}
 
 	if number != nil && len(*number) > 0 {

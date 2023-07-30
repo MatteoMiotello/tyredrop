@@ -1,4 +1,4 @@
-import { faShoppingCart} from "@fortawesome/free-solid-svg-icons";
+import {faMoneyBill, faShoppingCart, faTruckFast} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import React from "react";
 import {useTranslation} from "react-i18next";
@@ -40,9 +40,15 @@ const CartPage: React.FC = () => {
                     </div>
                 }
             </Panel>
-            <Panel className="p-4 ">
-                <CheckoutPanel/>
-            </Panel>
+            <div>
+                <Panel className="p-4 ">
+                    <CheckoutPanel/>
+                </Panel>
+                <div className="bg-secondary text-base-100 mt-4 rounded-box p-4">
+                    <p className="my-2"><FontAwesomeIcon icon={faTruckFast}/> Consenga in 4-5 giorni lavorativi</p>
+                    <p className="my-2"><FontAwesomeIcon icon={faMoneyBill}/> Pagamento SEPA</p>
+                </div>
+            </div>
         </div>
     </main>;
 };

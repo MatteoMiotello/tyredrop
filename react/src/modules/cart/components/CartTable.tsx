@@ -23,6 +23,10 @@ type CartDataTable = {
     brand: string,
     quantity: number
     price: string
+    additions: {
+        name: string,
+        value: string
+    }[]
     priceTotal: string
 }
 
@@ -46,6 +50,7 @@ const CartTable: React.FC<CartTableProps> = (props) => {
             name: cart.productItemPrice.productItem.product?.name,
             brand: cart.productItemPrice.productItem.product.brand?.name,
             quantity: cart.quantity,
+            additions: cart.productItemPrice.priceAdditions?.map( add => ({ name: add.priceAdditionType.additionName, value: Currency.defaultFormat( add.additionValue, cart.productItemPrice.currency.iso_code ) }) ),
             priceTotal: cart.productItemPrice ? Currency.defaultFormat(cart.productItemPrice.value * cart.quantity, cart.productItemPrice.currency.iso_code) : 0,
             price: cart.productItemPrice ? Currency.defaultFormat(cart.productItemPrice.value, cart.productItemPrice.currency.iso_code) : 0
         }) as CartDataTable);
@@ -91,6 +96,15 @@ const CartTable: React.FC<CartTableProps> = (props) => {
             accessorKey: "priceTotal",
             header: t("cart.price_total_column") as string,
             cell: props => props.getValue()
+        },
+        {
+            id: 'additions',
+            header: "Tasse aggiuntive",
+            cell: props => <ul>
+                {
+                    props.row.original.additions.map(  add => <li> { add.name }: { add.value } </li>)
+                }
+            </ul>
         },
         {
             id: "actions",

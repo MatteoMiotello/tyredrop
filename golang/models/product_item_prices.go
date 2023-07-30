@@ -94,23 +94,26 @@ var ProductItemPriceWhere = struct {
 
 // ProductItemPriceRels is where relationship names are stored.
 var ProductItemPriceRels = struct {
-	Currency    string
-	ProductItem string
-	Carts       string
-	OrderRows   string
+	Currency                  string
+	ProductItem               string
+	Carts                     string
+	OrderRows                 string
+	ProductItemPriceAdditions string
 }{
-	Currency:    "Currency",
-	ProductItem: "ProductItem",
-	Carts:       "Carts",
-	OrderRows:   "OrderRows",
+	Currency:                  "Currency",
+	ProductItem:               "ProductItem",
+	Carts:                     "Carts",
+	OrderRows:                 "OrderRows",
+	ProductItemPriceAdditions: "ProductItemPriceAdditions",
 }
 
 // productItemPriceR is where relationships are stored.
 type productItemPriceR struct {
-	Currency    *Currency     `boil:"Currency" json:"Currency" toml:"Currency" yaml:"Currency"`
-	ProductItem *ProductItem  `boil:"ProductItem" json:"ProductItem" toml:"ProductItem" yaml:"ProductItem"`
-	Carts       CartSlice     `boil:"Carts" json:"Carts" toml:"Carts" yaml:"Carts"`
-	OrderRows   OrderRowSlice `boil:"OrderRows" json:"OrderRows" toml:"OrderRows" yaml:"OrderRows"`
+	Currency                  *Currency                     `boil:"Currency" json:"Currency" toml:"Currency" yaml:"Currency"`
+	ProductItem               *ProductItem                  `boil:"ProductItem" json:"ProductItem" toml:"ProductItem" yaml:"ProductItem"`
+	Carts                     CartSlice                     `boil:"Carts" json:"Carts" toml:"Carts" yaml:"Carts"`
+	OrderRows                 OrderRowSlice                 `boil:"OrderRows" json:"OrderRows" toml:"OrderRows" yaml:"OrderRows"`
+	ProductItemPriceAdditions ProductItemPriceAdditionSlice `boil:"ProductItemPriceAdditions" json:"ProductItemPriceAdditions" toml:"ProductItemPriceAdditions" yaml:"ProductItemPriceAdditions"`
 }
 
 // NewStruct creates a new relationship struct
@@ -144,6 +147,13 @@ func (r *productItemPriceR) GetOrderRows() OrderRowSlice {
 		return nil
 	}
 	return r.OrderRows
+}
+
+func (r *productItemPriceR) GetProductItemPriceAdditions() ProductItemPriceAdditionSlice {
+	if r == nil {
+		return nil
+	}
+	return r.ProductItemPriceAdditions
 }
 
 // productItemPriceL is where Load methods for each relationship are stored.
@@ -483,6 +493,20 @@ func (o *ProductItemPrice) OrderRows(mods ...qm.QueryMod) orderRowQuery {
 	)
 
 	return OrderRows(queryMods...)
+}
+
+// ProductItemPriceAdditions retrieves all the product_item_price_addition's ProductItemPriceAdditions with an executor.
+func (o *ProductItemPrice) ProductItemPriceAdditions(mods ...qm.QueryMod) productItemPriceAdditionQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("\"product_item_price_additions\".\"product_item_price_id\"=?", o.ID),
+	)
+
+	return ProductItemPriceAdditions(queryMods...)
 }
 
 // LoadCurrency allows an eager lookup of values, cached into the
@@ -955,6 +979,120 @@ func (productItemPriceL) LoadOrderRows(ctx context.Context, e boil.ContextExecut
 	return nil
 }
 
+// LoadProductItemPriceAdditions allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (productItemPriceL) LoadProductItemPriceAdditions(ctx context.Context, e boil.ContextExecutor, singular bool, maybeProductItemPrice interface{}, mods queries.Applicator) error {
+	var slice []*ProductItemPrice
+	var object *ProductItemPrice
+
+	if singular {
+		var ok bool
+		object, ok = maybeProductItemPrice.(*ProductItemPrice)
+		if !ok {
+			object = new(ProductItemPrice)
+			ok = queries.SetFromEmbeddedStruct(&object, &maybeProductItemPrice)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", object, maybeProductItemPrice))
+			}
+		}
+	} else {
+		s, ok := maybeProductItemPrice.(*[]*ProductItemPrice)
+		if ok {
+			slice = *s
+		} else {
+			ok = queries.SetFromEmbeddedStruct(&slice, maybeProductItemPrice)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", slice, maybeProductItemPrice))
+			}
+		}
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &productItemPriceR{}
+		}
+		args = append(args, object.ID)
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &productItemPriceR{}
+			}
+
+			for _, a := range args {
+				if a == obj.ID {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.ID)
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`product_item_price_additions`),
+		qm.WhereIn(`product_item_price_additions.product_item_price_id in ?`, args...),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load product_item_price_additions")
+	}
+
+	var resultSlice []*ProductItemPriceAddition
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice product_item_price_additions")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on product_item_price_additions")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for product_item_price_additions")
+	}
+
+	if len(productItemPriceAdditionAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
+				return err
+			}
+		}
+	}
+	if singular {
+		object.R.ProductItemPriceAdditions = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &productItemPriceAdditionR{}
+			}
+			foreign.R.ProductItemPrice = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if local.ID == foreign.ProductItemPriceID {
+				local.R.ProductItemPriceAdditions = append(local.R.ProductItemPriceAdditions, foreign)
+				if foreign.R == nil {
+					foreign.R = &productItemPriceAdditionR{}
+				}
+				foreign.R.ProductItemPrice = local
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
 // SetCurrency of the productItemPrice to the related item.
 // Sets o.R.Currency to related.
 // Adds o to related.R.ProductItemPrices.
@@ -1146,6 +1284,59 @@ func (o *ProductItemPrice) AddOrderRows(ctx context.Context, exec boil.ContextEx
 	for _, rel := range related {
 		if rel.R == nil {
 			rel.R = &orderRowR{
+				ProductItemPrice: o,
+			}
+		} else {
+			rel.R.ProductItemPrice = o
+		}
+	}
+	return nil
+}
+
+// AddProductItemPriceAdditions adds the given related objects to the existing relationships
+// of the product_item_price, optionally inserting them as new records.
+// Appends related to o.R.ProductItemPriceAdditions.
+// Sets related.R.ProductItemPrice appropriately.
+func (o *ProductItemPrice) AddProductItemPriceAdditions(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*ProductItemPriceAddition) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			rel.ProductItemPriceID = o.ID
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE \"product_item_price_additions\" SET %s WHERE %s",
+				strmangle.SetParamNames("\"", "\"", 1, []string{"product_item_price_id"}),
+				strmangle.WhereClause("\"", "\"", 2, productItemPriceAdditionPrimaryKeyColumns),
+			)
+			values := []interface{}{o.ID, rel.ID}
+
+			if boil.IsDebug(ctx) {
+				writer := boil.DebugWriterFrom(ctx)
+				fmt.Fprintln(writer, updateQuery)
+				fmt.Fprintln(writer, values)
+			}
+			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			rel.ProductItemPriceID = o.ID
+		}
+	}
+
+	if o.R == nil {
+		o.R = &productItemPriceR{
+			ProductItemPriceAdditions: related,
+		}
+	} else {
+		o.R.ProductItemPriceAdditions = append(o.R.ProductItemPriceAdditions, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &productItemPriceAdditionR{
 				ProductItemPrice: o,
 			}
 		} else {

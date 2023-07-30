@@ -8,6 +8,7 @@ import (
 	auth2 "pillowww/titw/internal/auth"
 	"pillowww/titw/internal/currency"
 	"pillowww/titw/internal/domain/cart"
+	"pillowww/titw/internal/domain/order"
 	"pillowww/titw/models"
 )
 
@@ -22,6 +23,8 @@ func GetAllCartsByUserId(ctx context.Context, cartDao *cart.Dao, userId int64) (
 		Load(
 			qm.Rels(
 				models.CartRels.ProductItemPrice,
+				models.ProductItemPriceRels.ProductItemPriceAdditions,
+				models.ProductItemPriceAdditionRels.PriceAdditionType,
 				models.ProductItemPriceRels.Currency,
 			),
 		).
@@ -37,6 +40,8 @@ func GetAllCartsByUserId(ctx context.Context, cartDao *cart.Dao, userId int64) (
 	}
 
 	var graphModels []*model.Cart
+	var additions map[string]int
+
 	for _, c := range cartModels {
 		price := c.R.ProductItemPrice
 
@@ -48,14 +53,42 @@ func GetAllCartsByUserId(ctx context.Context, cartDao *cart.Dao, userId int64) (
 
 		amount = *amountTotal + (amount * float64(c.Quantity))
 		amountTotal = &amount
+
+		for _, add := range price.R.ProductItemPriceAdditions {
+			if _, ok := additions[add.R.PriceAdditionType.AdditionName]; ok == false {
+				additions[add.R.PriceAdditionType.AdditionName] = add.AdditionValue
+				continue
+			}
+
+			additions[add.R.PriceAdditionType.AdditionName] = additions[add.R.PriceAdditionType.AdditionName] + add.AdditionValue
+		}
+
 		graphModels = append(graphModels, converters.CartToGraphQL(c))
+	}
+
+	tax, err := order.NewDao(cartDao.Db).FindDefaultTax(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	taxValue := float64(tax.MarkupPercentage/100) * (*amountTotal)
+
+	var additionValues []*model.AdditionValue
+
+	for name, value := range additions {
+		additionValues = append(additionValues, &model.AdditionValue{
+			AdditionName: name,
+			Value:        currency.ToFloat(value),
+		})
 	}
 
 	return &model.CartResponse{
 		Items: graphModels,
 		TotalPrice: &model.TotalPrice{
-			Value:    *amountTotal,
-			Currency: converters.CurrencyToGraphQL(defaultCur),
+			Value:      *amountTotal,
+			TaxesValue: taxValue,
+			Currency:   converters.CurrencyToGraphQL(defaultCur),
 		},
 	}, nil
 }

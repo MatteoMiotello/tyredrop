@@ -72,9 +72,7 @@ const errorLink = onError(
 );
 
 const client = new ApolloClient({
-    cache: new InMemoryCache({
-        addTypename: false
-    }),
+    cache: new InMemoryCache(),
     link: from([refreshTokenLink, errorLink, httpLink])
 });
 
