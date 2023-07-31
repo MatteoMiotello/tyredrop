@@ -1,0 +1,123 @@
+{
+  "login": {
+    "email_placeholder": "Email",
+    "password_placeholder": "Password",
+    "Submit": "Login",
+    "register_label": "Possiedi già un account? Registrati",
+    "forgot_password": "Password dimenticata",
+    "email_required": "L'email è richiesta",
+    "password_required": "La password è richiesta",
+    "wrong_username_or_password": "Username o password errati",
+    "page_title": "Login",
+    "error_redirect": "C'è stato un errore nella richiesta"
+  },
+  "register": {
+    "repeat_password_placeholder": "Ripeti password",
+    "repeat_password_required": "La password è richiesta",
+    "login_label": "Già registrato? Accedi",
+    "password_are_not_equal": "Le password non coincidono",
+    "name_placeholder": "Nome",
+    "surname_placeholder": "Cognome",
+    "page_title": "Registrati",
+    "submit_button": "Registrati",
+    "invalid_email": "Immettere una email valida",
+    "email_already_used": "Questa email è già associata ad un altro account.",
+    "password_requirement": "La password deve avere almento 8 caratteri"
+  },
+  "billing": {
+    "name_placeholder": "Nome o Ragione Sociale",
+    "surname_placeholder":"Cognome",
+    "fiscal_code_placeholder": "Codice Fiscale",
+    "vat_number_placeholder":"P. IVA",
+    "address_line_1_placeholder": "Indirizzo: linea 1",
+    "address_line_2_placeholder":"Indirizzo: linea 2",
+    "country_placeholder": "Paese",
+    "city_placeholder":"Città",
+    "province_placeholder": "Provincia",
+    "cap_placeholder": "Cap",
+    "submit_button": "Salva",
+    "page_title": "Inserisci i dati personali",
+    "page_subtitle": "Per proseguire è necessario inserire tutti i dati personali.",
+    "error_loading": "C'è stato un problema nel caricamento",
+    "user_not_found": "Utente non trovato, ti preghiamo di ricaricare la pagina.",
+    "error_storing": "Ops, c'è stato un errore nel salvataggio. Riprova più tardi",
+    "store_success": "Salvataggio avvenuto con successo!",
+    "iban_placeholder": "IBAN",
+    "sdi_code": "Codice destinatario",
+    "sdi_pec": "PEC"
+  },
+  "footer": {
+    "who": "Chi siamo",
+    "newsletter": "Iscriviti alla newsletter",
+    "assistance": "Assistenza Clienti",
+    "faq": "Domande frequenti"
+  },
+  "fields": {
+    "is_required": "Il campo {{inputName}} è richiesto",
+    "min_characters": "Il testo deve avere un minimo di {{min}} caratteri",
+    "max_characters": "Il testo deve avere un massimo di {{max}} caratteri",
+    "empty_query": "Nessun risultato trovato, immetti il parametro di ricerca",
+    "no_results": "Nessun risultato trovato"
+  },
+  "searchbar": {
+    "width_field_label": "Larghezza",
+    "height_field_label":"Altezza",
+    "rim_field_label": "Diametro",
+    "brand_field_label": "Brand",
+    "tyre_tab_title": "Pneumatici",
+    "basic_search_tab_title": "Ricerca semplice",
+    "name_field_label": "Nome prodotto",
+    "code_field_label": "Codice EAN",
+    "season_field_label": "Stagione"
+  },
+  "not_confirmed": {
+    "title": "Non ancora verificato!",
+    "text": "Stiamo verificando i tuoi dati, se tutto è corretto tra poco sarai in grado di entrare nella piattaforma!"
+  },
+  "product_details": {
+    "order_button": "Ordina"
+  },
+  "cart": {
+    "item_added_success": "Elemento aggiunto al carrello",
+    "item_add_error": "C'è stato un problema nell'aggiunta a carrello",
+    "breadcrumb_title": "Carrello",
+    "name_column": "Prodotto",
+    "brand_column": "Brand",
+    "quantity_column": "Quantità",
+    "empty_cart": "Il carrello è ancora vuoto",
+    "go_back_to_home": "Torna alla Home",
+    "select_address_field": "Seleziona un indirizzo di consegna",
+    "checkout_button": "Conferma ordine",
+    "total_price": "Prezzo totale",
+    "no_address_found": "Nessun indirizzo trovato",
+    "price_column": "Prezzo unitario",
+    "price_total_column": "Prezzo totale"
+  },
+  "user_address": {
+    "add_new_address": "Aggiungi un nuovo indirizzo",
+    "new_address_modal_title": "Aggiungi un nuvo indirizzo",
+    "close_modal": "Annulla",
+    "submit_form": "Salva",
+    "address_name_placeholder":  "Nome",
+    "address_line_1_placeholder": "Indirizzo, linea 1",
+    "address_line_2_placeholder":  "Indirizzo linea 2",
+    "city_placeholder": "Città",
+    "province_placeholder":  "Provincia",
+    "cap_placeholder": "Cap",
+    "store_success": "Indirizzo salvato correttamente",
+    "store_error": "C'è stato un errore nel salvataggio dell'indirizzo",
+    "user_address_name_column":  "Nome",
+    "user_address_line1_column": "Indirizzo linea 1",
+    "user_address_line2_column":  "Indirizzo linea 2",
+    "user_address_city_column": "Città",
+    "user_address_postal_code_column":  "CAP",
+    "user_address_province_column": "Provincia",
+    "user_address_country_column": "Paese",
+    "title_page": "Tutti gli indirizzi",
+    "delete_success": "Elemento eliminato con successo"
+  },
+  "common": {
+    "mutation_error_message": "C'è stato un errore nell'esecuzione dell'azione",
+    "mutation_success_message": "Azione completata con successo!"
+  }
+}

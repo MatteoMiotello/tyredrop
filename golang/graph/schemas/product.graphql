@@ -1,0 +1,54 @@
+type ProductCategory {
+    id: ID!
+    code: String!
+    name: String!
+    specifications: [ProductSpecification]!
+}
+
+type Brand {
+    id: ID!
+    name: String!
+    code: String!
+    image_logo: String!
+    quality: Int
+}
+
+type Product {
+    id: ID!
+    code: String!
+    brandID: ID!
+    brand: Brand!
+    name: String
+    eprelProductCode: String
+    productCategoryID: ID!
+    category: ProductCategory!
+    productSpecificationValues: [ProductSpecificationValue]!
+    vehicleTypeID: ID!
+    vehicleType: VehicleType!
+}
+
+type ProductItemPrice {
+    id: ID!
+    value: Float!
+    currency: Currency!
+    productItemId: ID!
+    productItem: ProductItem!
+    priceAdditions: [ProductItemPriceAddition]!
+}
+
+type Supplier {
+    id: ID!
+    name: String!
+    code: String!
+}
+
+type ProductItem {
+    id: ID!
+    productID: ID!
+    product: Product!
+    price: [ProductItemPrice]!
+    supplierID: ID!
+    supplier: Supplier!
+    supplierPrice: Float!
+    supplierQuantity: Int!
+}

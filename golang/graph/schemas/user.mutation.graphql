@@ -1,0 +1,3 @@
+extend type Mutation {
+    updateUserStatus( userID: ID!, confirmed: Boolean, rejected: Boolean ): User! @isAdmin
+}

@@ -1,0 +1,94 @@
+type LegalEntityType {
+    id: ID!
+    name: String!
+    isPerson: Boolean!
+}
+
+type Tax {
+    id: ID!
+    markupPercentage: Float!
+    name: String!
+}
+
+type UserRole {
+    id: ID!
+    roleCode: String!
+    name: String!
+    isAdmin: Boolean!
+}
+
+type UserBilling {
+    id: ID!
+    legalEntityType: LegalEntityType!
+    taxRate: Tax!
+    name: String!
+    surname: String!
+    fiscalCode: String!
+    vatNumber: String!
+    addressLine1: String!
+    addressLine2: String
+    city: String!
+    province: String
+    cap: String!
+    country: String!
+    user: User!
+    userID: ID
+    legalEntityTypeID: ID
+    sdiCode: String
+    sdiPec: String
+}
+
+type UserAddress {
+    ID: ID!
+    userID: ID!
+    addressName: String!
+    user: User!
+    addressLine1: String!
+    addressLine2: String
+    city: String!
+    province: String!
+    postalCode: String!
+    country: String!
+    isDefault: Boolean!
+}
+
+type User {
+    id: ID!
+    email: String!
+    confirmed: Boolean!
+    rejected: Boolean!
+    name: String
+    surname: String
+    username: String
+    userRoleId: ID!
+    userRole: UserRole!
+    userBilling: UserBilling
+}
+
+input CreateUserBilling {
+    legalEntityTypeId: ID!
+    name: String! @notEmpty
+    surname: String
+    fiscalCode: String
+    vatNumber: String!
+    addressLine1: String! @notEmpty
+    addressLine2: String
+    city: String! @notEmpty
+    province: String! @notEmpty
+    cap: String! @notEmpty
+    country: String! @notEmpty
+    iban: String! @notEmpty
+    sdiCode: String
+    sdiPec: String
+}
+
+input UserAddressInput {
+    addressName: String! @notEmpty
+    addressLine1: String! @notEmpty
+    addressLine2: String
+    city: String! @notEmpty
+    province: String! @notEmpty
+    postalCode: String! @notEmpty
+    country: String! @notEmpty
+    IsDefault: Boolean!
+}

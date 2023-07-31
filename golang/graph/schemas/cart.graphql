@@ -1,0 +1,26 @@
+type Cart {
+    id: ID!
+    userId: ID!
+    productItemPriceId: ID!
+    user: User!
+    productItemPrice: ProductItemPrice!
+    quantity: Int!
+}
+
+type AdditionValue {
+    additionName: String!
+    value: Float!
+}
+
+type TotalPrice {
+    value: Float!
+    totalValue: Float!
+    taxesValue: Float!
+    additionsValues: [AdditionValue]
+    currency: Currency
+}
+
+type CartResponse {
+    items: [Cart]!
+    totalPrice: TotalPrice
+}

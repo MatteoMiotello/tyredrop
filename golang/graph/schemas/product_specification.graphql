@@ -1,0 +1,23 @@
+type ProductSpecificationValue {
+    id: ID!
+    value: String!
+    specificationId: ID!
+    specification: ProductSpecification!
+}
+
+type ProductSpecification {
+    id: ID!
+    code: String!
+    name: String!
+    type: String!
+    productCategoryID: ID!
+    productCategory: ProductCategory
+    mandatory: Boolean
+    searchable: Boolean
+    values: [ProductSpecificationValue]!
+}
+
+input ProductSpecificationInput {
+    code: String!
+    value: String!
+}

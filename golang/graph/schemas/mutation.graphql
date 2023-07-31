@@ -1,0 +1,21 @@
+input CreateAdminUserInput {
+    name: String!
+    surname: String!
+    email: String!
+    password: String!
+}
+
+type Mutation {
+    createAdminUser( userInput: CreateAdminUserInput!): User! @isAdmin
+    createUserBilling( billingInput: CreateUserBilling! ): UserBilling!
+
+    addItemToCart( itemId: ID!, quantity: Int ): CartResponse @userConfirmed
+    editCart( cartId: ID!, quantity: Int! ): CartResponse @userConfirmed
+    emptyCart: CartResponse @userConfirmed
+
+    createUserAddress( userAddress: UserAddressInput! ): [UserAddress]! @userConfirmed
+    editUserAddress( id: ID!, userAddress: UserAddressInput! ): [UserAddress]! @userConfirmed
+    deleteUserAddress( id: ID! ): [UserAddress]! @userConfirmed
+
+    newOrder(userId: ID!, userAddressId: ID!): Order! @userConfirmed
+}

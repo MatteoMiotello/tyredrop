@@ -1,0 +1,5 @@
+type VehicleType {
+    ID: ID!
+    code: String!
+    name: String!
+}

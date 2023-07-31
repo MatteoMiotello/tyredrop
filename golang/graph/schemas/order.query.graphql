@@ -1,0 +1,10 @@
+input OrdersFilterInput {
+    from: String @emptyStringToNull
+    to: String @emptyStringToNull
+    number: String @emptyStringToNull
+    status: OrderStatus @emptyStringToNull
+}
+
+extend type Query {
+    allOrders( pagination: PaginationInput, filter: OrdersFilterInput, ordering: [OrderingInput] ): OrdersPaginator! @isAdmin
+}

@@ -1,0 +1,44 @@
+type OrderRow {
+    id: ID!
+    orderID: ID!
+    order: Order!
+    quantity: Int!
+    productItemPrice: ProductItemPrice!
+    productItemPriceID: ID!
+    amount: Float!
+    additionsAmount: Float!
+    trackingNumber: String
+    deliveredAt: Timestamp
+}
+
+enum OrderStatus {
+    NEW
+    CONFIRMED
+    CANCELED
+    REJECTED
+    DELIVERED
+    RETURNED
+}
+
+type Order {
+    id: ID!
+    currency: Currency!
+    currencyID: ID!
+    tax: Tax!
+    taxID: ID!
+    userBilling: UserBilling!
+    userBillingID: ID!
+    status: OrderStatus!
+    priceAmount: Float!
+    taxesAmount: Float!
+    priceAmountTotal: Float!
+    addressName: String!
+    addressLine1: String!
+    addressLine2: String
+    city: String!
+    province: String!
+    postalCode: String!
+    country: String!
+    orderRows: [OrderRow]!
+    createdAt: Timestamp!
+}

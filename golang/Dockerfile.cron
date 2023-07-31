@@ -1,0 +1,14 @@
+FROM golang:alpine
+
+WORKDIR /app
+
+RUN apk add --no-cache tzdata
+ENV TZ=Europe/Rome
+
+COPY . .
+
+RUN go mod download
+
+RUN go build -o cron ./cmd/cron/cron.go
+
+CMD ["./cron"]
