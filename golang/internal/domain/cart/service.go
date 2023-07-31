@@ -2,16 +2,21 @@ package cart
 
 import (
 	"context"
+	"github.com/friendsofgo/errors"
+	auth2 "pillowww/titw/internal/auth"
+	"pillowww/titw/internal/domain/product"
 	"pillowww/titw/models"
 )
 
 type service struct {
-	Dao *Dao
+	Dao          *Dao
+	ItemPriceDao *product.ItemPriceDao
 }
 
-func NewCartService(dao *Dao) *service {
+func NewCartService(dao *Dao, itemPriceDao *product.ItemPriceDao) *service {
 	return &service{
-		Dao: dao,
+		Dao:          dao,
+		ItemPriceDao: itemPriceDao,
 	}
 }
 
@@ -21,27 +26,36 @@ func (s service) AddOrUpdateCart(ctx context.Context, user *models.User, product
 		quantity = &q
 	}
 
-	cart, _ := s.Dao.FindOneByUserAndProductItemId(ctx, user.ID, productItemId)
+	currency, err := auth2.CurrentCurrency(ctx)
+
+	if err != nil {
+		return nil, errors.WithMessage(err, "Currency not found in language")
+	}
+
+	price, _ := s.ItemPriceDao.
+		FindOneByProductItemIdAndCurrencyId(ctx, currency.ID, productItemId)
+
+	if err != nil {
+		return nil, errors.WithMessage(err, "Product item is not associate with price with currency: "+currency.IsoCode)
+	}
+
+	cart, _ := s.Dao.FindOneByUserAndProductItemPriceId(ctx, user.ID, price.ID)
 
 	if cart == nil {
 		cart = &models.Cart{
-			UserID:        user.ID,
-			ProductItemID: productItemId,
-			Quantity:      *quantity,
+			UserID:             user.ID,
+			ProductItemPriceID: price.ID,
+			Quantity:           *quantity,
 		}
 	} else {
 		cart.Quantity = cart.Quantity + *quantity
 	}
 
-	err := s.Dao.Upsert(ctx, cart, true, []string{models.CartColumns.ID})
+	err = s.Dao.Save(ctx, cart)
 
 	if err != nil {
 		return nil, err
 	}
 
 	return cart, nil
-}
-
-func (s service) GetUserCarts(ctx context.Context, user *models.User) {
-
 }

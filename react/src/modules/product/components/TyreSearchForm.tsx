@@ -26,8 +26,6 @@ export type TyreSearchFormRequest = {
 }
 
 export const toSearchDataType = (req: TyreSearchFormRequest, vehicleCode: string): ProductSearchDataType => {
-    console.log(req);
-
     return {
         code: req.tyre_code?.length ? req.tyre_code : null,
         name: req.tyre_name?.length ? req.tyre_name : null,

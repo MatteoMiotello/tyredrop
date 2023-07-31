@@ -1,4 +1,4 @@
-import {faUsers} from "@fortawesome/free-solid-svg-icons";
+import {faBoxesStacked, faUsers} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import React from "react";
 import {Link} from "react-router-dom";
@@ -11,7 +11,7 @@ type AdminSidebarProps = {
 
 const AdminSidebar: React.FC<AdminSidebarProps> = ( {className} ) => {
     const classNames = twMerge(
-        "bg-base-200",
+        "bg-base-100 rounded-box shadow",
         
         className
     );
@@ -22,7 +22,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ( {className} ) => {
                 <Link to={'/admin/user'}> <FontAwesomeIcon icon={faUsers}/> Utenti </Link>
             </Menu.Item>
             <Menu.Item>
-                <Link to={'/admin/order'}> Ordini </Link>
+                <Link to={'/admin/order'}> <FontAwesomeIcon icon={faBoxesStacked}/> Ordini </Link>
             </Menu.Item><Menu.Item>
                 <Link to={'/admin/product'}> Prodotti </Link>
             </Menu.Item>

@@ -2,8 +2,7 @@ import {useQuery} from "@apollo/client";
 import {faPencil, faPlus, faTimes} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {CellContext, ColumnDef} from "@tanstack/react-table";
-import React from "react";
-import {Simulate} from "react-dom/test-utils";
+import React, {useState} from "react";
 import {useTranslation} from "react-i18next";
 import {useDispatch} from "react-redux";
 import {useParams} from "react-router-dom";
@@ -13,13 +12,12 @@ import Button from "../../common/components-library/Button";
 import Panel from "../../common/components-library/Panel";
 import Table from "../../common/components-library/Table";
 import Spinner from "../../common/components/Spinner";
-import useModal from "../../hooks/useModal";
-import {useToast} from "../../hooks/useToast";
 import ConfirmDeleteModal from "./components/ConfirmDeleteModal";
-import UserAddressModal from "./components/UserAddressModal";
 import {deleteUserAddress} from "./store/user-slice";
 import {ThunkDispatch} from "redux-thunk";
-import load = Simulate.load;
+import {useToast} from "../../store/toast";
+import { useModal} from "../../common/components/shelly-ui";
+import UserAddressModal from "./components/UserAddressModal";
 
 type UserAddressRowData = UserAddress
 const UserAddressPage: React.FC = () => {
@@ -30,8 +28,13 @@ const UserAddressPage: React.FC = () => {
         }
     });
     const {t} = useTranslation();
-    const {setSuccess, setError} = useToast();
-    const {openModal, closeModal} = useModal();
+    const toastr = useToast();
+    const userAddressModal = useModal({
+        onClose: () => refetch()
+    });
+    const confirmDeleteModal = useModal();
+    const [selectedAddress, setSelectedAddress] = useState<UserAddress | undefined>();
+    const [selectedAddressToDelete, setSelectedAddressToDelete] = useState<UserAddress | undefined>();
     const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
 
     if (loading) {
@@ -74,32 +77,14 @@ const UserAddressPage: React.FC = () => {
                 return <div className="flex">
                     <Button className="mx-1"
                             onClick={() => {
-                                openModal(<UserAddressModal
-
-                                    closeModal={() => {
-                                        closeModal();
-                                        refetch();
-                                    }}
-                                    address={props.row.original}/>);
+                                setSelectedAddress( props.row.original );
+                                userAddressModal.open();
                             }}>
                         <FontAwesomeIcon icon={faPencil}/>
                     </Button>
                     <Button className="mx-1" type="error" onClick={() => {
-                        openModal(<ConfirmDeleteModal
-                            closeModal={closeModal}
-                            onConfirm={
-                                () => {
-                                    dispatch(deleteUserAddress({id: props.row.original.ID}))
-                                        .unwrap()
-                                        .then(() => {
-                                            setSuccess(t('user_address.delete_success'));
-                                            refetch();
-                                        })
-                                        .catch(() => setError(t('user_address.delete_error')));
-                                    closeModal();
-                                }
-                            }/>
-                        );
+                        setSelectedAddressToDelete( props.row.original );
+                        confirmDeleteModal.open();
                     }}>
                         <FontAwesomeIcon icon={faTimes}/>
                     </Button>
@@ -109,15 +94,29 @@ const UserAddressPage: React.FC = () => {
     ];
 
     return <main className="h-full">
+        <UserAddressModal modal={userAddressModal} address={selectedAddress}/>
+        <ConfirmDeleteModal modal={confirmDeleteModal} onConfirm={() => {
+            if ( !selectedAddressToDelete ) {
+                return;
+            }
+
+            dispatch(deleteUserAddress({id: selectedAddressToDelete?.ID}))
+                .unwrap()
+                .then(() => {
+                    toastr.success(t('user_address.delete_success'));
+                    refetch();
+                })
+                .catch(() => toastr.error(t('user_address.delete_error')));
+
+            confirmDeleteModal.close();
+        }}/>
         <Panel>
             <div className="flex w-full justify-between">
                 <h3 className="text-xl">{t('user_address.title_page')}</h3>
-                <Button onClick={() => {
-                    openModal(<UserAddressModal closeModal={() => {
-                        closeModal();
-                        refetch();
-                    }}/>);
-                }} type="primary"> <FontAwesomeIcon icon={faPlus}/> </Button>
+                <Button onClick={ () => {
+                    setSelectedAddress(undefined);
+                    userAddressModal.open();
+                } } type="primary"> <FontAwesomeIcon icon={faPlus}/> </Button>
             </div>
             <Table data={data.userAddress} columns={columns} hidePagination={true}/>
         </Panel>

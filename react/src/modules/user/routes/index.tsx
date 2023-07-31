@@ -7,7 +7,7 @@ import UserPage from "../UserPage";
 import UserTemplatePage from "../UserTemplatePage";
 import UserOrdersPage from "../UserOrdersPage";
 
-const userLoader: LoaderFunction = async ({params}) => {
+export const userLoader: LoaderFunction = async ({params}) => {
     return apolloClientContext.query({
         query: USER,
         variables: {

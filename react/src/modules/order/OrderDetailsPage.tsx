@@ -4,13 +4,22 @@ import {FetchOrderQuery, Order} from "../../__generated__/graphql";
 import Panel from "../../common/components-library/Panel";
 import OrderRowsTable from "./components/OrderRowsTable";
 import OrderStatusBadge from "./components/OrderStatusBadge";
-import {calculateTotal} from "./utils";
 import Moment from "react-moment";
+import {Currency} from "../../common/utilities/currency";
+import {Button, useModal} from "../../common/components/shelly-ui";
+import OrderSupportModal from "./components/OrderSupportModal";
 
 const OrderDetailsPage: React.FC = () => {
     const order = useLoaderData() as FetchOrderQuery;
+    const modal = useModal();
 
     return <main className="p-4 grid grid-flow-row md:grid-cols-12 gap-4">
+        <OrderSupportModal modal={modal} order={order.order as Order}/>
+        <div className="col-start-11 col-span-2 flex justify-end">
+            <Button size="sm" buttonType="warning" onClick={modal.open}>
+                Richiedi assistenza
+            </Button>
+        </div>
         <div className="col-span-12 text-center my-10">
             <h1 className=" text-3xl ">
                 Ordine n. #{order.order.id}
@@ -24,7 +33,18 @@ const OrderDetailsPage: React.FC = () => {
         <Panel className="col-span-4 flex flex-col">
             <h3 className="font-semibold">Totale Ordine</h3>
             <div
-                className="w-full my-auto text-center text-6xl font-bold text-primary">{calculateTotal(order.order as Order)}</div>
+                className="w-full my-auto text-center text-6xl font-bold text-primary">{Currency.defaultFormat(
+                order.order.priceAmountTotal,
+                order.order.currency.iso_code
+            )}</div>
+            <div className="text-sm mt-4">
+                <div>
+                    Totale IVA: {Currency.defaultFormat(order.order.taxesAmount, order.order.currency.iso_code)}
+                </div>
+                <div>
+                    Totale senza IVA: {Currency.defaultFormat(order.order.priceAmount, order.order.currency.iso_code)}
+                </div>
+            </div>
         </Panel>
         <Panel className="col-span-4 flex flex-col">
             <h3 className="font-semibold">Stato dell'ordine</h3>
@@ -44,6 +64,7 @@ const OrderDetailsPage: React.FC = () => {
         <Panel className="col-span-6">
             <h3 className="font-semibold">Indirizzo di spedizione</h3>
             <ul className="ml-2">
+                <li><strong>Nome:</strong> {order.order.addressName}</li>
                 <li><strong>Indirizzo:</strong> {order.order.addressLine1}</li>
                 {order.order.addressLine2 && <li><strong>Indirizzo 2:</strong> {order.order.addressLine2}</li>}
                 <li><strong>Città:</strong> {order.order.city}</li>

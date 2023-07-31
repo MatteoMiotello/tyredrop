@@ -1,25 +1,26 @@
 import React from "react";
 import Button from "../../../common/components-library/Button";
-import Modal from "../../../common/components-library/Modal";
+import {Modal} from "../../../common/components/shelly-ui";
+import {ModalHandler} from "../../../common/components/shelly-ui/Modal/useModal";
 
 type ConfirmDeleteModalProps = {
-    closeModal:() => void,
+    modal: ModalHandler
     onConfirm: () => void
 }
 const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ( props ) => {
-    return <Modal.Content>
-        <Modal.Header>
+    return <Modal modal={props.modal}>
+        <Modal.Title>
             Confermi di voler eliminare l'elemento selezionato?
-        </Modal.Header>
-        <Modal.Action>
-            <Button onClick={props.closeModal}>
+        </Modal.Title>
+        <Modal.Actions>
+            <Button onClick={props.modal.close}>
                 Annulla
             </Button>
             <Button type="primary" onClick={props.onConfirm}>
                 Conferma
             </Button>
-        </Modal.Action>
-    </Modal.Content>;
+        </Modal.Actions>
+    </Modal>;
 };
 
 export default ConfirmDeleteModal;

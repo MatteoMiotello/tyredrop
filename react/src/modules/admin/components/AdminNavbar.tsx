@@ -10,9 +10,9 @@ import {logout} from "../../auth/store/auth-slice";
 const AdminNavbar: React.FC = () => {
     const dispatch  = useDispatch();
 
-    return <div className="navbar">
+    return <div className="navbar bg-primary rounded-box">
         <MainLogo width={100}/>
-        <div className="text-4xl text-secondary uppercase font-semibold ml-4">
+        <div className="text-4xl text-white uppercase font-semibold ml-4">
             <h1>
                 Area privata
             </h1>

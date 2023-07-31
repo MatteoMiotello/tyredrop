@@ -14,7 +14,7 @@ type UserRole {
     id: ID!
     roleCode: String!
     name: String!
-    isAdmin: Boolean
+    isAdmin: Boolean!
 }
 
 type UserBilling {
@@ -56,11 +56,13 @@ type User {
     id: ID!
     email: String!
     confirmed: Boolean!
+    rejected: Boolean!
     name: String
     surname: String
     username: String
+    userRoleId: ID!
     userRole: UserRole!
-    userBilling: UserBilling!
+    userBilling: UserBilling
 }
 
 input CreateUserBilling {

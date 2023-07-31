@@ -1,4 +1,4 @@
-import {SliceCaseReducers, createAsyncThunk, createSlice} from "@reduxjs/toolkit";
+import { SliceCaseReducers, createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import { CartState} from "./state";
 import apolloClientContext from "../../../common/contexts/apollo-client-context";
 import {ADD_CART, EDIT_CART, EMPTY_CART} from "../../../common/backend/graph/mutation/carts";
@@ -55,7 +55,10 @@ const cartSlice = createSlice<CartState, SliceCaseReducers<CartState>, string>({
         items: [],
         status: 'pending',
         amountTotal: {
-            value: 0
+            value: 0,
+            totalValue: 0,
+            taxesValue: 0,
+            additionsValues: [],
         }
     },
     reducers: {},
@@ -117,4 +120,5 @@ const cartSlice = createSlice<CartState, SliceCaseReducers<CartState>, string>({
         ;
     }
 });
+
 export default cartSlice.reducer;

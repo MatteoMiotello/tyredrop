@@ -8,6 +8,11 @@ import (
 	"strconv"
 )
 
+type AdditionValue struct {
+	AdditionName string  `json:"additionName"`
+	Value        float64 `json:"value"`
+}
+
 type Brand struct {
 	ID        int64  `json:"id"`
 	Name      string `json:"name"`
@@ -59,10 +64,35 @@ type LegalEntityType struct {
 	IsPerson bool   `json:"isPerson"`
 }
 
+type OrderFilterInput struct {
+	DateFrom *string `json:"dateFrom,omitempty"`
+	DateTo   *string `json:"dateTo,omitempty"`
+	Number   *string `json:"number,omitempty"`
+}
+
+type OrderingInput struct {
+	Column string `json:"column"`
+	Desc   *bool  `json:"desc,omitempty"`
+}
+
+type OrdersFilterInput struct {
+	From   *string      `json:"from,omitempty"`
+	To     *string      `json:"to,omitempty"`
+	Number *string      `json:"number,omitempty"`
+	Status *OrderStatus `json:"status,omitempty"`
+}
+
+type OrdersPaginator struct {
+	Data       []*Order    `json:"data"`
+	Pagination *Pagination `json:"pagination"`
+}
+
 type Pagination struct {
-	Limit  *int `json:"limit,omitempty"`
-	Offset *int `json:"offset,omitempty"`
-	Totals *int `json:"totals,omitempty"`
+	Limit       *int `json:"limit,omitempty"`
+	Offset      *int `json:"offset,omitempty"`
+	Totals      *int `json:"totals,omitempty"`
+	CurrentPage *int `json:"currentPage,omitempty"`
+	PageCount   *int `json:"pageCount,omitempty"`
 }
 
 type PaginationInput struct {
@@ -78,12 +108,6 @@ type ProductItemPaginate struct {
 type ProductPaginate struct {
 	Pagination *Pagination `json:"pagination,omitempty"`
 	Products   []*Product  `json:"products,omitempty"`
-}
-
-type ProductPrice struct {
-	ID       int64     `json:"id"`
-	Value    float64   `json:"value"`
-	Currency *Currency `json:"currency"`
 }
 
 type ProductSearchInput struct {
@@ -112,8 +136,11 @@ type Tax struct {
 }
 
 type TotalPrice struct {
-	Value    float64   `json:"value"`
-	Currency *Currency `json:"currency,omitempty"`
+	Value           float64          `json:"value"`
+	TotalValue      float64          `json:"totalValue"`
+	TaxesValue      float64          `json:"taxesValue"`
+	AdditionsValues []*AdditionValue `json:"additionsValues,omitempty"`
+	Currency        *Currency        `json:"currency,omitempty"`
 }
 
 type UserAddressInput struct {
@@ -127,11 +154,22 @@ type UserAddressInput struct {
 	IsDefault    bool    `json:"IsDefault"`
 }
 
+type UserFilterInput struct {
+	Name      *string `json:"name,omitempty"`
+	Email     *string `json:"email,omitempty"`
+	Confirmed *bool   `json:"confirmed,omitempty"`
+}
+
+type UserPaginator struct {
+	Data       []*User     `json:"data"`
+	Pagination *Pagination `json:"pagination"`
+}
+
 type UserRole struct {
 	ID       int64  `json:"id"`
 	RoleCode string `json:"roleCode"`
 	Name     string `json:"name"`
-	IsAdmin  *bool  `json:"isAdmin,omitempty"`
+	IsAdmin  bool   `json:"isAdmin"`
 }
 
 type VehicleType struct {

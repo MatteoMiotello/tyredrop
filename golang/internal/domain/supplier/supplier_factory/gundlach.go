@@ -87,7 +87,7 @@ func (g Gun) matchRecords(pRecord *pdtos.Tyre, index int, slice string) error {
 		r, err := strconv.ParseFloat(slice, 32)
 
 		if err == nil {
-			pRecord.Rim = int(r)
+			pRecord.Rim = r
 		}
 
 		break

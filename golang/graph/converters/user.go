@@ -8,12 +8,29 @@ import (
 
 func UserToGraphQL(user *models.User) *model.User {
 	return &model.User{
-		ID:        user.ID,
-		Email:     user.Email,
-		Username:  &user.Username.String,
-		Confirmed: user.Confirmed,
-		Name:      &user.Name,
-		Surname:   user.Surname.Ptr(),
+		ID:         user.ID,
+		Email:      user.Email,
+		Username:   &user.Username.String,
+		Confirmed:  user.Confirmed,
+		Rejected:   user.Rejected,
+		Name:       &user.Name,
+		Surname:    user.Surname.Ptr(),
+		UserRoleID: user.UserRoleID,
+	}
+}
+
+func UserRoleToGraphQL(role *models.UserRole) *model.UserRole {
+	if len(role.R.UserRoleLanguages) == 0 {
+		panic("role languages not loaded")
+	}
+
+	lang := role.R.UserRoleLanguages[0]
+
+	return &model.UserRole{
+		ID:       role.ID,
+		RoleCode: role.RoleCode,
+		Name:     lang.Name,
+		IsAdmin:  role.Admin,
 	}
 }
 
@@ -21,6 +38,7 @@ func UserBillingToGraphQL(billing *models.UserBilling) *model.UserBilling {
 	return &model.UserBilling{
 		ID:                billing.ID,
 		LegalEntityTypeID: billing.LegalEntityTypeID,
+		UserID:            billing.UserID,
 		Name:              billing.Name,
 		Surname:           &billing.Surname.String,
 		FiscalCode:        billing.FiscalCode,

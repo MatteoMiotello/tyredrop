@@ -1,29 +1,21 @@
 import React from "react";
-import Alert, {AlertType} from "../components-library/Alert";
-import {Toast} from "../components-library/Toast";
+import { selectToasts } from "../../store/toast";
+import { useSelector } from "react-redux";
+import { Alert } from "./shelly-ui";
+import {ToastConfiguration} from "../../store/toast/toast-state";
 
-export type ToastConfig = {
-    key: string | number
-    type: AlertType
-    message: string
-}
+const ToastContainer: React.FC = () => {
+    const toasts = useSelector( selectToasts );
 
-type CustomToastProps = {
-    toasts: ToastConfig[]
-}
-export const ToastContainer: React.FC<CustomToastProps> = (props) => {
-    return <Toast>
-            {
-                props.toasts.map((toast: ToastConfig) => {
-                    return (
-                        <Alert
-                            key={toast.key}
-                            type={toast.type}
-                        >
-                            {toast.message}
-                        </Alert>
-                    );
-                })
-            }
-    </Toast>;
+    return <div className="toast toast-top toast-end z-50">
+        {
+            toasts.map( (toastConfig: ToastConfiguration) => {
+                return <Alert type={toastConfig.type} key={toastConfig.id} showCloseButton={true}>
+                    {toastConfig.message}
+                </Alert>;
+            } )
+        }
+    </div>;
 };
+
+export default ToastContainer;

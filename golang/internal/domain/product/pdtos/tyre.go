@@ -23,7 +23,7 @@ type TyreDimension struct {
 	Width        int
 	AspectRatio  int
 	Construction string
-	Rim          int
+	Rim          float64
 	Load         int
 	Speed        string
 }
@@ -56,7 +56,7 @@ func (t *Tyre) GetSpecifications() map[constants.ProductSpecification]string {
 		constants.TYRE_SPEC_WIDTH:        strconv.Itoa(t.Width),
 		constants.TYRE_SPEC_ASPECT_RATIO: strconv.Itoa(t.AspectRatio),
 		constants.TYRE_SPEC_CONSTRUCTION: t.Construction,
-		constants.TYRE_SPEC_RIM:          strconv.Itoa(t.Rim),
+		constants.TYRE_SPEC_RIM:          strconv.FormatFloat(t.Rim, 'f', 0, 64),
 		constants.TYRE_SPEC_LOAD:         strconv.Itoa(t.Load),
 		constants.TYRE_SPEC_SPEED:        t.Speed,
 		constants.TYRE_SPEC_SEASON:       t.Season,
@@ -117,4 +117,40 @@ func (t *Tyre) GetEprelProductCode() *string {
 
 	i := t.EprelID
 	return &i
+}
+
+func (t *Tyre) GetPriceAdditionCodes() []string {
+	if t.GetVehicleType() == constants.VEHICLE_MOTO {
+		return []string{
+			constants.TYRE_PFU_MOTO.String(),
+		}
+	}
+
+	if t.Rim == 17.5 {
+		return []string{
+			constants.TYRE_PFU_R_17_5.String(),
+		}
+	}
+
+	if t.Rim <= 18 {
+		return []string{
+			constants.TYRE_PFU_R_13_18.String(),
+		}
+	}
+
+	if t.Rim <= 20 {
+		return []string{
+			constants.TYRE_PFU_R_19_20.String(),
+		}
+	}
+
+	if t.Rim <= 23 {
+		return []string{
+			constants.TYRE_PFU_R_21_23.String(),
+		}
+	}
+
+	return []string{
+		constants.TYRE_PFU_R_22_5_23_5.String(),
+	}
 }

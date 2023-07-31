@@ -14,9 +14,15 @@ const Navbar: React.FC = () => {
     const dispatch = useDispatch();
 
     return <div className="navbar rounded-box bg-base-100">
-        <MainLogo width={100}/>
-
-        <div className="ml-auto">
+        <div className="navbar-start">
+            <MainLogo width={100}/>
+        </div>
+        <div className="navbar-center flex gap-4 hidden md:block">
+            <Link to="/" className="uppercase btn btn-ghost"> Home </Link>
+            <Link to="/contacts" className="uppercase btn btn-ghost"> Contatti </Link>
+            <Link to={`/user/${auth.user?.user?.userID}/orders`} className="uppercase btn btn-ghost"> I miei ordini </Link>
+        </div>
+        <div className="navbar-end">
             {
                 auth.user?.user &&
                 <div className="mx-4 flex flex-col uppercase font-semibold text-sm">

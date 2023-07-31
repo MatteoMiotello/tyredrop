@@ -11,13 +11,22 @@ import {faTimes} from "@fortawesome/free-solid-svg-icons";
 import {useDispatch} from "react-redux";
 import {ThunkDispatch} from "redux-thunk";
 import {editCartItem} from "../store/cart-slice";
+import {Img} from "react-image";
+import ProdapiService from "../../product/services/prodapi/prodapi-service";
+import {ProductCategorySet} from "../../product/enums/product-specifications-set";
+import tyrePlaceholder from "../../../assets/placeholder-tyre.jpg";
 
 type CartDataTable = {
     id: string
+    code: string,
     name: string,
     brand: string,
     quantity: number
     price: string
+    additions: {
+        name: string,
+        value: string
+    }[]
     priceTotal: string
 }
 
@@ -37,11 +46,13 @@ const CartTable: React.FC<CartTableProps> = (props) => {
 
         const data: CartDataTable[] = props.cartItems.map(cart => ({
             id: cart.id,
-            name: cart.productItem.product?.name,
-            brand: cart.productItem.product.brand?.name,
+            code: cart.productItemPrice.productItem.product.code,
+            name: cart.productItemPrice.productItem.product?.name,
+            brand: cart.productItemPrice.productItem.product.brand?.name,
             quantity: cart.quantity,
-            priceTotal: cart.productItem.price[0] ? Currency.defaultFormat(cart.productItem.price[0].value * cart.quantity, cart.productItem.price[0].currency.iso_code) : 0,
-            price: cart.productItem.price[0] ? Currency.defaultFormat(cart.productItem.price[0].value, cart.productItem.price[0].currency.iso_code) : 0
+            additions: cart.productItemPrice.priceAdditions?.map( add => ({ name: add?.priceAdditionType?.additionName, value: Currency.defaultFormat( add?.additionValue as number, cart.productItemPrice.currency.iso_code ) }) ),
+            priceTotal: cart.productItemPrice ? Currency.defaultFormat(cart.productItemPrice.value * cart.quantity, cart.productItemPrice.currency.iso_code) : 0,
+            price: cart.productItemPrice ? Currency.defaultFormat(cart.productItemPrice.value, cart.productItemPrice.currency.iso_code) : 0
         }) as CartDataTable);
 
         setDataTable(data);
@@ -53,6 +64,21 @@ const CartTable: React.FC<CartTableProps> = (props) => {
             header: "",
             size: 5,
             cell: (props) => <Button type="ghost" onClick={ () => dispatch( editCartItem( {itemId: props.row.original.id, quantity: 0} ) ) }> <FontAwesomeIcon icon={faTimes}/> </Button>
+        },
+        {
+            id: 'image',
+            size: 5,
+            cell: (props) => {
+                return <div className="w-10">
+                    <Img src={[
+                        (new ProdapiService()).getProductImageUrl(props.row.original.code, ProductCategorySet.TYRE),
+                        tyrePlaceholder,
+                    ]}
+                         loading="lazy"
+                         className="mx-auto"
+                         alt={props.row.original.name}/>
+                </div>;
+            }
         },
         {
             accessorKey: 'name',
@@ -72,11 +98,20 @@ const CartTable: React.FC<CartTableProps> = (props) => {
             cell: props => props.getValue()
         },
         {
+            id: 'additions',
+            header: "Tasse aggiuntive",
+            cell: props => <ul>
+                {
+                    props.row.original.additions?.map(  (add, key) => <li key={key}> { add.name }: { add.value } </li>)
+                }
+            </ul>
+        },
+        {
             id: "actions",
             accessorKey: "id",
             header: () => <div className="w-full text-right"> {t("cart.quantity_column") as string} </div>,
             cell: (props: CellContext<CartDataTable, any>) => {
-                return <div className="w-40 ml-auto"><CartQuantityButtons cartId={props.getValue()}/></div>;
+                return <div className="w-32 ml-auto"><CartQuantityButtons cartId={props.getValue()}/></div>;
             },
             size: 20
         }

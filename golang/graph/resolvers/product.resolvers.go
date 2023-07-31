@@ -114,7 +114,7 @@ func (r *productItemResolver) Product(ctx context.Context, obj *model.ProductIte
 }
 
 // Price is the resolver for the price field.
-func (r *productItemResolver) Price(ctx context.Context, obj *model.ProductItem) ([]*model.ProductPrice, error) {
+func (r *productItemResolver) Price(ctx context.Context, obj *model.ProductItem) ([]*model.ProductItemPrice, error) {
 	defLang := auth.CurrentLanguage(ctx)
 
 	item, err := r.ProductItemDao.
@@ -133,7 +133,7 @@ func (r *productItemResolver) Price(ctx context.Context, obj *model.ProductItem)
 		return nil, err
 	}
 
-	var graphPrices []*model.ProductPrice
+	var graphPrices []*model.ProductItemPrice
 	prices := item.R.ProductItemPrices
 
 	for _, price := range prices {
@@ -163,6 +163,45 @@ func (r *productItemResolver) Supplier(ctx context.Context, obj *model.ProductIt
 	return converters.SupplierToGraphQL(sup), nil
 }
 
+// ProductItem is the resolver for the productItem field.
+func (r *productItemPriceResolver) ProductItem(ctx context.Context, obj *model.ProductItemPrice) (*model.ProductItem, error) {
+	dbModel, err := r.ProductItemDao.FindProductItemById(ctx, obj.ProductItemID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return converters.ProductItemToGraphQL(dbModel), nil
+}
+
+// PriceAdditions is the resolver for the priceAdditions field.
+func (r *productItemPriceResolver) PriceAdditions(ctx context.Context, obj *model.ProductItemPrice) ([]*model.ProductItemPriceAddition, error) {
+	additions, err := r.ProductItemPriceDao.
+		Load(qm.Rels(
+			models.ProductItemPriceAdditionRels.ProductItemPrice,
+			models.PriceAdditionTypeRels.Currency,
+		)).
+		FindPriceAdditionsByProductItemPriceID(ctx, obj.ID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var graphModels []*model.ProductItemPriceAddition
+
+	for _, add := range additions {
+		a, err := converters.ProductItemPriceAdditionToGraphQL(add)
+
+		if err != nil {
+			return nil, err
+		}
+
+		graphModels = append(graphModels, a)
+	}
+
+	return graphModels, nil
+}
+
 // Product returns graph.ProductResolver implementation.
 func (r *Resolver) Product() graph.ProductResolver { return &productResolver{r} }
 
@@ -174,6 +213,12 @@ func (r *Resolver) ProductCategory() graph.ProductCategoryResolver {
 // ProductItem returns graph.ProductItemResolver implementation.
 func (r *Resolver) ProductItem() graph.ProductItemResolver { return &productItemResolver{r} }
 
+// ProductItemPrice returns graph.ProductItemPriceResolver implementation.
+func (r *Resolver) ProductItemPrice() graph.ProductItemPriceResolver {
+	return &productItemPriceResolver{r}
+}
+
 type productResolver struct{ *Resolver }
 type productCategoryResolver struct{ *Resolver }
 type productItemResolver struct{ *Resolver }
+type productItemPriceResolver struct{ *Resolver }

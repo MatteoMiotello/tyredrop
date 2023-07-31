@@ -2,32 +2,33 @@ import React from "react";
 import {useTranslation} from "react-i18next";
 import {UserAddress} from "../../../__generated__/graphql";
 import Button from "../../../common/components-library/Button";
-import Modal from "../../../common/components-library/Modal";
 import UserAddressForm from "./UserAddressForm";
+import {Modal} from "../../../common/components/shelly-ui";
+import {ModalHandler} from "../../../common/components/shelly-ui/Modal/useModal";
 
 type UserAddressModalProps = {
-    closeModal: () => void
-    address?: UserAddress | undefined
+    address?: UserAddress
+    modal: ModalHandler
 }
 
 const UserAddressModal: React.FC<UserAddressModalProps> = (props) => {
     const {t} = useTranslation();
 
-    return <Modal.Content>
-        <Modal.Header>
+    return <Modal modal={props.modal}>
+        <Modal.Title>
             {t("user_address.new_address_modal_title")}
-        </Modal.Header>
-        <UserAddressForm onSuccess={() => props.closeModal()} address={props.address}>
-            <Modal.Action>
-                <Button onClick={() => props.closeModal()} htmlType="button">
+        </Modal.Title>
+        <UserAddressForm onSuccess={() => props.modal.close()} address={props.address}>
+            <Modal.Actions>
+                <Button onClick={() => props.modal.close()} htmlType="button">
                     {t("user_address.close_modal")}
                 </Button>
                 <Button type="primary" htmlType="submit">
                     {t("user_address.submit_form")}
                 </Button>
-            </Modal.Action>
+            </Modal.Actions>
         </UserAddressForm>
-    </Modal.Content>;
+    </Modal>;
 };
 
 export default UserAddressModal;

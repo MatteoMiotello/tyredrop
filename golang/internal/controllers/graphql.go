@@ -58,6 +58,21 @@ func (g *GraphqlController) buildConfig() graph.Config {
 		return val, err
 	}
 
+	c.Directives.EmptyStringToNull = func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error) {
+		val, err := next(ctx)
+		str, ok := val.(*string)
+
+		if !ok {
+			return val, nil
+		}
+
+		if len(*str) == 0 {
+			return nil, nil
+		}
+
+		return val, err
+	}
+
 	c.Directives.UserConfirmed = func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error) {
 		u, err := auth2.CurrentUser(ctx)
 

@@ -15,9 +15,11 @@ import (
 	"pillowww/titw/graph/graphErrors"
 	"pillowww/titw/graph/model"
 	"pillowww/titw/internal/auth"
+	"pillowww/titw/internal/currency"
 	"pillowww/titw/internal/db"
 	"pillowww/titw/internal/domain/cart"
 	"pillowww/titw/internal/domain/order"
+	"pillowww/titw/internal/domain/product"
 	"pillowww/titw/internal/domain/user"
 	"pillowww/titw/models"
 	"pillowww/titw/pkg/constants"
@@ -113,7 +115,7 @@ func (r *mutationResolver) AddItemToCart(ctx context.Context, itemID int64, quan
 		return nil, gqlerror.Errorf("User not found in context")
 	}
 
-	s := cart.NewCartService(r.CartDao)
+	s := cart.NewCartService(r.CartDao, r.ProductItemPriceDao)
 
 	_, err = s.AddOrUpdateCart(ctx, u, itemID, quantity)
 
@@ -280,15 +282,35 @@ func (r *mutationResolver) NewOrder(ctx context.Context, userID int64, userAddre
 		return nil, err
 	}
 
-	oService := order.NewService(r.OrderDao, r.CurrencyDao, r.ProductItemDao)
+	var newOrder *models.Order
 
-	newOrder, err := oService.CreateNewOrder(ctx, uBilling, uAddressModel, carts)
+	err = db.WithTx(ctx, func(tx *sql.Tx) error {
+		oService := order.NewService(
+			order.NewDao(tx),
+			currency.NewDao(tx),
+			product.NewItemDao(tx),
+			product.NewItemPriceDao(tx),
+		)
+
+		newOrder, err = oService.CreateNewOrder(ctx, uBilling, uAddressModel, carts)
+
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	newOrder, err = r.OrderDao.Load(models.OrderRels.Currency).FindOneById(ctx, newOrder.ID)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return converters.OrderToGraphQL(newOrder), nil
+	return converters.OrderToGraphQL(newOrder)
 }
 
 // Mutation returns graph.MutationResolver implementation.

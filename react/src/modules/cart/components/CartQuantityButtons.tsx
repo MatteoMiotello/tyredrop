@@ -6,9 +6,9 @@ import {useDispatch, useSelector} from "react-redux";
 import {ThunkDispatch} from "redux-thunk";
 import Button from "../../../common/components-library/Button";
 import LoadingSpinner from "../../../common/components-library/LoadingSpinner";
-import {useToast} from "../../../hooks/useToast";
 import cartSelector from "../store/cart-selector";
 import {editCartItem} from "../store/cart-slice";
+import {useToast} from "../../../store/toast";
 
 type CartQuantityButtonsProps = {
     cartId: string
@@ -16,7 +16,7 @@ type CartQuantityButtonsProps = {
 
 const CartQuantityButtons: React.FC<CartQuantityButtonsProps> = (props) => {
     const cart = useSelector(cartSelector.cart(props.cartId));
-    const {setSuccess, setError} = useToast();
+    const {error} = useToast();
     const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
     const {t} = useTranslation();
     const [loading, setLoading] = useState<boolean>(false);
@@ -30,7 +30,7 @@ const CartQuantityButtons: React.FC<CartQuantityButtonsProps> = (props) => {
         dispatch(editCartItem({itemId: cart.id, quantity: quantity}))
             .unwrap()
             .catch(() => {
-                setError(t("cart.item_quantity_edit_error"));
+                error(t("cart.item_quantity_edit_error"));
             })
             .finally(() => setLoading(false));
     };

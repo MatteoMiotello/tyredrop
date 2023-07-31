@@ -90,6 +90,15 @@ func (d Dao) FindAllPriceForProductItem(ctx context.Context, pi *models.ProductI
 	).All(ctx, d.Db)
 }
 
+func (d Dao) FindPriceForProductItemAndCurrency(ctx context.Context, pi *models.ProductItem, c *models.Currency) (*models.ProductItemPrice, error) {
+	return models.ProductItemPrices(
+		d.GetMods(
+			models.ProductItemPriceWhere.ProductItemID.EQ(pi.ID),
+			models.ProductItemPriceWhere.CurrencyID.EQ(c.ID),
+		)...,
+	).One(ctx, d.Db)
+}
+
 func (d Dao) DeleteProductItemPrice(ctx context.Context, price *models.ProductItemPrice) error {
 	_, err := price.Delete(ctx, d.Db, false)
 

@@ -40,11 +40,15 @@ const Admin: React.FC = () => {
     }, [auth] );
 
     return <>
-        <AdminNavbar/>
+        <div className="m-1">
+            <AdminNavbar/>
+        </div>
         <Breadcrumbs/>
-        <div className="grid grid-cols-12 min-h-screen">
-            <AdminSidebar className="col-span-2"/>
-            <Outlet/>
+        <div className="grid grid-cols-12 gap-1 min-h-screen">
+            <AdminSidebar className="col-span-2 ml-1"/>
+            <div className="col-span-10 mr-1">
+                <Outlet/>
+            </div>
         </div>
     </>;
 };

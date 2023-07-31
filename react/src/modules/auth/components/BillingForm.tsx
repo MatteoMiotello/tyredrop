@@ -1,4 +1,4 @@
-import {ApolloError, useQuery} from "@apollo/client";
+import {ApolloError} from "@apollo/client";
 import React, {useEffect, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {
@@ -19,7 +19,8 @@ import {
     maxCharacters,
     minCharacters
 } from "../../../common/validation/validators";
-import {useToast} from "../../../hooks/useToast";
+import {useToast} from "../../../store/toast";
+import {useQuery} from "../../../common/backend/graph/hooks";
 
 
 export type BillingInput = {
@@ -53,7 +54,7 @@ export const BillingForm: React.FC<BillingFormProps> = (props) => {
 
     const {form, handleFormError} = useForm();
     const {t} = useTranslation();
-    const {setError} = useToast();
+    const toast = useToast();
 
     const onSubmit = (billingInput: BillingInput) => {
         props.store(billingInput)
@@ -88,7 +89,7 @@ export const BillingForm: React.FC<BillingFormProps> = (props) => {
 
     useEffect(() => {
         if (error) {
-            setError(t('billing.error_loading'));
+            toast.error(t('billing.error_loading'));
         }
     }, [error]);
 

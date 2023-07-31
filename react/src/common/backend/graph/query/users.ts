@@ -1,4 +1,5 @@
 
+import {PAGINATION_FRAGMENT} from "../fragments/pagination";
 import {gql} from "@apollo/client";
 
 export const USER_ADDRESSES = gql`
@@ -53,6 +54,12 @@ export const USER = gql`
             name
             surname
             email
+            confirmed
+            rejected
+            userRole {
+                isAdmin
+                name
+            }
             userBilling {
                 id
                 name
@@ -73,4 +80,28 @@ export const USER = gql`
             }
         }
     }
+`;
+
+export const ALL_USERS = gql`
+    ${PAGINATION_FRAGMENT}
+    query fetchAllUsers( $pagination: PaginationInput, $filter: UserFilterInput ) {
+        users( filter: $filter, pagination: $pagination) {
+            data {
+                id
+                name
+                surname
+                email
+                confirmed
+                rejected
+                userRole {
+                    id
+                    roleCode
+                    name
+                }
+            }
+            pagination {
+                ...PaginationInfo
+            }
+        }
+    } 
 `;

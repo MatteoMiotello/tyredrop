@@ -1,7 +1,8 @@
-import {gql} from "../../../../__generated__";
+import {PAGINATION_FRAGMENT} from "../fragments/pagination";
+import {gql} from "@apollo/client";
 
 
-export const FETCH_ORDER = gql(`
+export const FETCH_ORDER = gql `
     query fetchOrder( $orderId: ID! ) {
         order(id: $orderId) {
             id
@@ -9,6 +10,10 @@ export const FETCH_ORDER = gql(`
                 iso_code
                 name
             }
+            priceAmount
+            priceAmountTotal
+            taxesAmount
+            addressName
             addressLine1
             addressLine2
             city
@@ -31,43 +36,89 @@ export const FETCH_ORDER = gql(`
                 id
                 amount
                 quantity
-                productItem {
-                    id
-                    price {
-                        value
-                        currency {
-                            iso_code
-                            symbol
-                        }
+                productItemPrice {
+                    value
+                    currency {
+                        iso_code
+                        symbol
                     }
-                    product {
+                    productItem {
                         id
-                        name
+                        product {
+                            id
+                            name
+                        }
                     }
                 }
             }
         }
     }
-`);
+`;
 
-export const FETCH_USER_ORDERS = gql(`
-    query fetchOrders( $userId: ID!, $pagination: PaginationInput ) {
-        userOrders(userId: $userId, pagination: $pagination) {
-            id
-            currency {
-                iso_code
+export const FETCH_USER_ORDERS = gql`
+    ${PAGINATION_FRAGMENT}
+    query fetchOrders( $userId: ID!, $pagination: PaginationInput, $filter: OrderFilterInput, $ordering: [OrderingInput] ) {
+        userOrders(userId: $userId, pagination: $pagination, filter: $filter, ordering: $ordering) {
+            data {
+                id
+                currency {
+                    iso_code
+                }
+                status
+                addressName
+                addressLine1    
+                addressLine2
+                city
+                province
+                postalCode
+                country
+                createdAt
+                priceAmount
+                taxesAmount
+                priceAmountTotal
+                orderRows {
+                    id
+                    amount
+                    quantity
+                }
             }
-            status
-            addressLine1
-            addressLine2
-            city
-            province
-            postalCode
-            country
-            createdAt
-            orderRows {
-               amount
+            pagination {
+                ...PaginationInfo
             }
         }
     }
-`);
+`;
+
+export const FETCH_ALL_ORDERS = gql`
+    ${PAGINATION_FRAGMENT}
+    query allOrders( $filter: OrdersFilterInput, $pagination: PaginationInput, $ordering: [OrderingInput] ) {
+        allOrders( filter: $filter, pagination: $pagination, ordering: $ordering ) {
+            data {
+                id
+                priceAmount
+                priceAmountTotal
+                taxesAmount
+                createdAt
+                status
+                currency {
+                    iso_code
+                }
+                userBilling {
+                    name
+                    surname
+                    user {
+                        id
+                        email
+                    }
+                }
+                orderRows {
+                    id
+                    amount
+                }
+            }
+            pagination {
+                ...PaginationInfo
+            }
+        }
+    }
+`;

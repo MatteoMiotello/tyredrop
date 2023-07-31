@@ -1,14 +1,22 @@
 type Cart {
     id: ID!
     userId: ID!
-    productItemId: ID!
+    productItemPriceId: ID!
     user: User!
-    productItem: ProductItem!
+    productItemPrice: ProductItemPrice!
     quantity: Int!
+}
+
+type AdditionValue {
+    additionName: String!
+    value: Float!
 }
 
 type TotalPrice {
     value: Float!
+    totalValue: Float!
+    taxesValue: Float!
+    additionsValues: [AdditionValue]
     currency: Currency
 }
 

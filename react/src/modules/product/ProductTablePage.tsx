@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {SEARCH_PRODUCTS} from "../../common/backend/graph/query/products";
 import Panel from "../../common/components-library/Panel";
-import {useToast} from "../../hooks/useToast";
 import Searchbar from "./components/Searchbar";
 import ProductTable from "./components/ProductTable";
 import {useQuery} from "@apollo/client";
@@ -9,6 +8,7 @@ import Spinner from "../../common/components/Spinner";
 import ProductSearchContext, {ProductSearchDataType} from "./context/product-search-context";
 import {ProductSpecificationInput, SearchQuery, SearchQueryVariables} from "../../__generated__/graphql";
 import {useNavigate} from "react-router-dom";
+import {useToast} from "../../store/toast";
 
 const ELEMENT_PER_PAGE = 10;
 
@@ -17,7 +17,7 @@ const ProductTablePage: React.FC = () => {
     const [search, setSearch] = useState<ProductSearchDataType | null>(null);
     const [offset, setOffset] = useState(0);
     const navigate = useNavigate();
-    const {setError} = useToast();
+    const toast = useToast();
 
     const {data, error, loading, refetch} = useQuery<SearchQuery, SearchQueryVariables>(SEARCH_PRODUCTS, {
         variables: {
@@ -80,7 +80,7 @@ const ProductTablePage: React.FC = () => {
 
     useEffect(() => {
         if (error) {
-            setError("C'e` stato un errore nel caricamento");
+            toast.error("C'e` stato un errore nel caricamento");
         }
 
     }, [error]);

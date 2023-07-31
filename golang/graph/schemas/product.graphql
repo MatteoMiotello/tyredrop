@@ -27,10 +27,13 @@ type Product {
     vehicleType: VehicleType!
 }
 
-type ProductPrice {
+type ProductItemPrice {
     id: ID!
     value: Float!
     currency: Currency!
+    productItemId: ID!
+    productItem: ProductItem!
+    priceAdditions: [ProductItemPriceAddition]!
 }
 
 type Supplier {
@@ -43,7 +46,7 @@ type ProductItem {
     id: ID!
     productID: ID!
     product: Product!
-    price: [ProductPrice]!
+    price: [ProductItemPrice]!
     supplierID: ID!
     supplier: Supplier!
     supplierPrice: Float!

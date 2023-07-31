@@ -115,5 +115,9 @@
     "user_address_country_column": "Paese",
     "title_page": "Tutti gli indirizzi",
     "delete_success": "Elemento eliminato con successo"
+  },
+  "common": {
+    "mutation_error_message": "C'è stato un errore nell'esecuzione dell'azione",
+    "mutation_success_message": "Azione completata con successo!"
   }
 }

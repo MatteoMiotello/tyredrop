@@ -66,13 +66,13 @@ func (d *ItemDao) ProductItemPrice(ctx context.Context, item *models.ProductItem
 	).One(ctx, d.Db)
 }
 
-func (d *ItemDao) FindByProductAndSupplier(ctx context.Context, product *models.Product, supplier *models.Supplier) (models.ProductItemSlice, error) {
+func (d *ItemDao) FindByProductAndSupplier(ctx context.Context, product *models.Product, supplier *models.Supplier) (*models.ProductItem, error) {
 	return models.ProductItems(
 		d.GetMods(
 			models.ProductItemWhere.ProductID.EQ(product.ID),
 			models.ProductItemWhere.SupplierID.EQ(supplier.ID),
 		)...,
-	).All(ctx, d.Db)
+	).One(ctx, d.Db)
 }
 
 func (d *ItemDao) FindByCategory(ctx context.Context, category *models.ProductCategory) (models.ProductItemSlice, error) {

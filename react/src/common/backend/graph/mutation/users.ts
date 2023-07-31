@@ -27,3 +27,11 @@ export const DELETE_USER_ADDRESS = gql`
         }
     }
 `;
+
+export const UPDATE_USER_STATUS = gql`
+    mutation changeUserStatus( $userID: ID!, $confirmed: Boolean, $rejected: Boolean ) {
+        updateUserStatus( userID: $userID, confirmed: $confirmed, rejected: $rejected ) {
+            id
+        }
+    }
+`;

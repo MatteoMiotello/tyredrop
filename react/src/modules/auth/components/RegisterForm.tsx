@@ -30,8 +30,6 @@ const RegisterForm: React.FC<RegisterFormProps> = (props: RegisterFormProps) => 
     const authStatus = useSelector(selectAuthStatus);
 
     useEffect(() => {
-        console.log( authStatus );
-
         if (authStatus.error) {
             let error = authStatus.error;
             if (authStatus.error && (typeof authStatus.error == 'number' && authStatus.error >= 5000)) {

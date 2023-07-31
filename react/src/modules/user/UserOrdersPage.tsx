@@ -1,37 +1,37 @@
 import React from "react";
-import {useQuery} from "@apollo/client";
 import {useParams} from "react-router-dom";
-import {Order} from "../../__generated__/graphql";
 import {FETCH_USER_ORDERS} from "../../common/backend/graph/query/order";
 import Panel from "../../common/components-library/Panel";
-import Spinner from "../../common/components/Spinner";
-import {useToast} from "../../hooks/useToast";
 import OrderTable from "../order/components/OrderTable";
+import {useToast} from "../../store/toast";
+import {useQuery} from "../../common/backend/graph/hooks";
+import {FetchOrdersQuery} from "../../__generated__/graphql";
 
 const UserOrdersPage: React.FC = () => {
     const params = useParams();
-    const {setError} = useToast();
-    const {data, loading, error} = useQuery(FETCH_USER_ORDERS, {
+    const toastr = useToast();
+    const query = useQuery<FetchOrdersQuery>(FETCH_USER_ORDERS, {
         variables: {
             userId: params.id as string,
+            pagination: {
+                limit: 10,
+                offset: 0
+            },
+            ordering: [
+                {
+                    column: 'created_at',
+                    desc: true
+                }
+            ]
         },
         fetchPolicy: "no-cache"
     });
 
-    if (loading) {
-        return <Spinner></Spinner>;
-    }
-
-    if (error) {
-        setError('C\'è stato un errore nel caricamento');
-        return null;
-    }
-
     return <main className="">
         <Panel className="min-h-full">
             <h3 className="text-xl"> Tutti gli ordini </h3>
-            {data?.userOrders == null && <span> Non e` stato effettuato alcun ordine </span>}
-            {data?.userOrders && <OrderTable orders={data?.userOrders as Order[]}></OrderTable>}
+            {!query.data?.userOrders?.data && <span> Non e` stato effettuato alcun ordine </span>}
+            {query.data?.userOrders?.data && <OrderTable query={query}></OrderTable>}
         </Panel>
     </main>;
 };

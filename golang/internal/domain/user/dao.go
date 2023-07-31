@@ -1,6 +1,7 @@
 package user
 
 import (
+	"fmt"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"golang.org/x/net/context"
@@ -72,6 +73,14 @@ func (u Dao) FindUserRoleByCode(ctx context.Context, roleCode RoleSet) (*models.
 	return models.UserRoles(qm.Where("role_code = ?", string(roleCode))).One(ctx, u.Db)
 }
 
+func (u Dao) FindUserRoleById(ctx context.Context, id int64) (*models.UserRole, error) {
+	return models.UserRoles(
+		u.GetMods(
+			models.UserRoleWhere.ID.EQ(id),
+		)...,
+	).One(ctx, u.Db)
+}
+
 func (u Dao) GetUserRoleLanguage(ctx context.Context, role *models.UserRole, language models.Language) (*models.UserRoleLanguage, error) {
 	l, err := role.UserRoleLanguages(qm.Where(models.UserRoleLanguageColumns.LanguageID+"= ?", language.ID)).One(ctx, u.Db)
 	if err != nil {
@@ -96,4 +105,28 @@ func (d Dao) FindUserBillingById(ctx context.Context, id int64) (*models.UserBil
 			models.UserBillingWhere.ID.EQ(id),
 		)...,
 	).One(ctx, d.Db)
+}
+
+func (d Dao) FindAll(ctx context.Context, email *string, name *string, confirmed *bool) (models.UserSlice, error) {
+	var mods []qm.QueryMod
+
+	if email != nil {
+		mods = append(mods, qm.Where("email LIKE ?", fmt.Sprintf("%%%s%%", *email)))
+	}
+
+	if name != nil {
+		mods = append(mods, qm.Where("( name || ' ' || surname ILIKE ? ) ", fmt.Sprintf("%%%s%%", *name)))
+	}
+
+	if confirmed != nil {
+		mods = append(mods, models.UserWhere.Confirmed.EQ(*confirmed))
+	}
+
+	mods = append(mods, qm.OrderBy(models.UserColumns.ID+" DESC"))
+
+	return models.Users(
+		d.GetMods(
+			mods...,
+		)...,
+	).All(ctx, d.Db)
 }

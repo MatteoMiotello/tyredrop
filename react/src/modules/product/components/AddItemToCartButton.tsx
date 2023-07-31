@@ -5,10 +5,11 @@ import {useTranslation} from "react-i18next";
 import {useDispatch} from "react-redux";
 import {ThunkDispatch} from "redux-thunk";
 import Button from "../../../common/components-library/Button";
-import Input from "../../../common/components-library/Input";
 import LoadingSpinner from "../../../common/components-library/LoadingSpinner";
-import {useToast} from "../../../hooks/useToast";
+
 import {addCartItem} from "../../cart/store/cart-slice";
+import {useToast} from "../../../store/toast";
+import {Input} from "../../../common/components/shelly-ui";
 
 type AddItemToCartButton = {
     itemId: string,
@@ -18,21 +19,22 @@ type AddItemToCartButton = {
 const AddItemToCartButton: React.FC<AddItemToCartButton> = (props) => {
     const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
     const [quantity, setQuantity] = useState(1);
-    const {setSuccess, setError} = useToast();
+    const {success, error} = useToast();
     const {t} = useTranslation();
     const [loading, setLoading] = useState<boolean>(false);
 
     return <div className="flex">
         <Input.FormControl>
-            <Input.Input
-                className="!w-14"
-                value={quantity}
+            <Input
+                min={0}
+                className="!w-16"
+                defaultValue={quantity}
                 type="number"
                 name="quantity"
                 placeholder="1"
                 onValueChange={setQuantity}
                 validators={[(value) => {
-                    if (value > props.quantity) {
+                    if (Number(value) > props.quantity) {
                         return 'La quantità selezionata non è disponibile';
                     }
 
@@ -45,8 +47,13 @@ const AddItemToCartButton: React.FC<AddItemToCartButton> = (props) => {
                 className="mx-2 aspect-square"
                 type={"primary"}
                 onClick={() => {
+                    if (quantity <= 0) {
+                        error( 'Selezionare una quantità valida' );
+                        return;
+                    }
+
                     if (quantity > props.quantity) {
-                        setError('La quantità selezionata non è disponibile');
+                        error('La quantità selezionata non è disponibile');
                         return;
                     }
 
@@ -55,10 +62,10 @@ const AddItemToCartButton: React.FC<AddItemToCartButton> = (props) => {
                     dispatch(addCartItem({itemId: props.itemId, quantity: quantity}))
                         .unwrap()
                         .then(() => {
-                            setSuccess(t("cart.item_added_success"));
+                            success(t("cart.item_added_success"));
                         })
                         .catch(() => {
-                            setError(t("cart.item_add_error"));
+                            error(t("cart.item_add_error"));
                         })
                         .finally(() => {
                             setLoading(false);

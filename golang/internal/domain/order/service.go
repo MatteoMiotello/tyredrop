@@ -11,51 +11,65 @@ import (
 )
 
 type service struct {
-	orderDao    *Dao
-	currencyDao *currency.Dao
-	itemDao     *product.ItemDao
+	orderDao     *Dao
+	currencyDao  *currency.Dao
+	itemDao      *product.ItemDao
+	itemPriceDao *product.ItemPriceDao
 }
 
 func NewService(
 	dao *Dao,
 	currencyDao *currency.Dao,
 	itemDao *product.ItemDao,
+	itemPriceDao *product.ItemPriceDao,
 ) service {
 	return service{
 		dao,
 		currencyDao,
 		itemDao,
+		itemPriceDao,
 	}
 }
 
-func (s *service) createOrderRowFromCart(ctx context.Context, currency *models.Currency, order *models.Order, cart *models.Cart) error {
-	productItem, err := s.itemDao.FindProductItemById(ctx, cart.ProductItemID)
+func (s *service) createOrderRowFromCart(ctx context.Context, currency *models.Currency, order *models.Order, cart *models.Cart) (*models.OrderRow, error) {
+	p, err := s.itemPriceDao.
+		Load(models.ProductItemPriceRels.ProductItem).
+		FindOneById(ctx, cart.ProductItemPriceID)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	if productItem.SupplierQuantity < cart.Quantity {
-		return errors.New("Quantity not available")
+	productItem := p.R.ProductItem
+
+	if p.R.ProductItem.SupplierQuantity < cart.Quantity {
+		return nil, errors.New("Quantity not available")
 	}
 
-	p, err := s.itemDao.ProductItemPrice(ctx, productItem, currency)
+	additions, err := s.itemPriceDao.FindPriceAdditionsByProductItemPriceID(ctx, p.ID)
 
 	if err != nil {
-		return err
+		return nil, err
+	}
+
+	priceWithAddition := 0
+
+	for _, add := range additions {
+		priceWithAddition = priceWithAddition + (add.AdditionValue * cart.Quantity)
 	}
 
 	row := &models.OrderRow{
-		OrderID:       order.ID,
-		ProductItemID: cart.ProductItemID,
-		Quantity:      cart.Quantity,
-		Amount:        p.Price * cart.Quantity,
+		OrderID:            order.ID,
+		ProductItemPriceID: p.ID,
+		Quantity:           cart.Quantity,
+		Amount:             p.Price * cart.Quantity,
+		AdditionsAmount:    priceWithAddition,
 	}
 
 	err = s.orderDao.Insert(ctx, row)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	productItem.SupplierQuantity = productItem.SupplierQuantity - cart.Quantity
@@ -63,10 +77,10 @@ func (s *service) createOrderRowFromCart(ctx context.Context, currency *models.C
 	err = s.itemDao.Update(ctx, productItem)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return row, nil
 }
 
 func (s *service) CreateNewOrder(ctx context.Context, userBilling *models.UserBilling, address *models.UserAddress, carts models.CartSlice) (*models.Order, error) {
@@ -86,6 +100,7 @@ func (s *service) CreateNewOrder(ctx context.Context, userBilling *models.UserBi
 		CurrencyID:    currentCurrency.ID,
 		TaxID:         defaultTax.ID,
 		UserBillingID: userBilling.ID,
+		AddressName:   address.AddressName,
 		AddressLine1:  address.AddressLine1,
 		AddressLine2:  address.AddressLine2,
 		City:          address.City,
@@ -101,15 +116,37 @@ func (s *service) CreateNewOrder(ctx context.Context, userBilling *models.UserBi
 		return nil, err
 	}
 
+	var priceWithAdditions int
+	var orderAmount int
+
 	for _, cart := range carts {
-		err = s.createOrderRowFromCart(ctx, currentCurrency, newOrder, cart)
+		row, err := s.createOrderRowFromCart(ctx, currentCurrency, newOrder, cart)
 
 		if err != nil {
 			return nil, err
 		}
+
+		orderAmount = orderAmount + row.Amount
+		priceWithAdditions = priceWithAdditions + (row.AdditionsAmount + row.Amount)
+	}
+
+	taxAmountFloat := (float64(defaultTax.MarkupPercentage) / 100) * float64(orderAmount)
+	newOrder.PriceAmount = priceWithAdditions
+	newOrder.TaxesAmount = int(taxAmountFloat)
+	newOrder.PriceAmountTotal = newOrder.PriceAmount + newOrder.TaxesAmount
+
+	err = s.orderDao.
+		Update(ctx, newOrder)
+
+	if err != nil {
+		return nil, err
 	}
 
 	return newOrder, nil
+}
+
+func (s *service) updateOrderPrice(ctx context.Context) {
+
 }
 
 func (s *service) updateOrderStatus(ctx context.Context, order *models.Order, newStatus model.OrderStatus) error {
