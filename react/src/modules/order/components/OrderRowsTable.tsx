@@ -23,6 +23,7 @@ const OrderRowsTable: React.FC<OrderRowsTableProps> = (props) => {
         {
             accessorKey: "quantity",
             header: "Quantità",
+            size: 10,
         },
         {
             id: "unit_price",

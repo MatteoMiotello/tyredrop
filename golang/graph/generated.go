@@ -297,6 +297,7 @@ type ComplexityRoot struct {
 		AdditionsValues func(childComplexity int) int
 		Currency        func(childComplexity int) int
 		TaxesValue      func(childComplexity int) int
+		TotalValue      func(childComplexity int) int
 		Value           func(childComplexity int) int
 	}
 
@@ -1711,6 +1712,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TotalPrice.TaxesValue(childComplexity), true
+
+	case "TotalPrice.totalValue":
+		if e.complexity.TotalPrice.TotalValue == nil {
+			break
+		}
+
+		return e.complexity.TotalPrice.TotalValue(childComplexity), true
 
 	case "TotalPrice.value":
 		if e.complexity.TotalPrice.Value == nil {
@@ -3408,6 +3416,8 @@ func (ec *executionContext) fieldContext_CartResponse_totalPrice(ctx context.Con
 			switch field.Name {
 			case "value":
 				return ec.fieldContext_TotalPrice_value(ctx, field)
+			case "totalValue":
+				return ec.fieldContext_TotalPrice_totalValue(ctx, field)
 			case "taxesValue":
 				return ec.fieldContext_TotalPrice_taxesValue(ctx, field)
 			case "additionsValues":
@@ -11218,6 +11228,50 @@ func (ec *executionContext) fieldContext_TotalPrice_value(ctx context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _TotalPrice_totalValue(ctx context.Context, field graphql.CollectedField, obj *model.TotalPrice) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TotalPrice_totalValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TotalPrice_totalValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TotalPrice",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TotalPrice_taxesValue(ctx context.Context, field graphql.CollectedField, obj *model.TotalPrice) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TotalPrice_taxesValue(ctx, field)
 	if err != nil {
@@ -18419,6 +18473,13 @@ func (ec *executionContext) _TotalPrice(ctx context.Context, sel ast.SelectionSe
 		case "value":
 
 			out.Values[i] = ec._TotalPrice_value(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "totalValue":
+
+			out.Values[i] = ec._TotalPrice_totalValue(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++

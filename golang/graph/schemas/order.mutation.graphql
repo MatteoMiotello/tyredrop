@@ -1,0 +1,3 @@
+extend type Mutation {
+    orderSupport( orderID: ID! message: String! ): Order! @userConfirmed
+}

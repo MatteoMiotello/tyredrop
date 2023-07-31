@@ -1,4 +1,4 @@
-import React, { FormEvent, PropsWithChildren } from "react";
+import React, {FormEvent, LegacyRef, PropsWithChildren} from "react";
 import Alert from "../Alert/Alert";
 import { twMerge } from "tailwind-merge";
 import clsx from "clsx";
@@ -86,7 +86,9 @@ const Form: React.FC<FormProps> = < T extends object >( {children, saveForm, for
 		if ( form.onSuccess ) {
 			if ( res instanceof Promise ) {
 				res.then( () => {
-					form.onSuccess();
+					if (form.onSuccess) {
+						form.onSuccess();
+					}
 				} );
 			} else {
 				if ( res ) {
@@ -97,7 +99,7 @@ const Form: React.FC<FormProps> = < T extends object >( {children, saveForm, for
 	};
 
 	return <form 
-		ref={form.ref}
+		ref={form.ref as LegacyRef<HTMLFormElement>}
 		onSubmit={onSubmit}
 	>	
 		{form.state.formErrors.hasErrors() &&
@@ -142,6 +144,7 @@ const FormButtons: React.FC<FormButtonsProps> = ({children, align}) => {
 		'ml-auto',
 		'max-w-fit',
 		'grid grid-flow-col gap-2',
+		'mt-1',
 		clsx(
 			align && swtc( align, {
 				left: 'text-left',

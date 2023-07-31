@@ -1,7 +1,7 @@
 import { createSelector } from "@reduxjs/toolkit";
-import { AppState } from "../../store/store";
+import {Store} from "../store";
 
-const toastState = ( state: AppState ) => state.toast;
+const toastState = ( state: Store ) => state.toast;
 
 export const selectToasts = createSelector( [toastState], ( toastState ) => {
 	return toastState.toasts;

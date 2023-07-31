@@ -1,4 +1,5 @@
-import React from "react";
+import React, {HTMLAttributes, PropsWithChildren} from "react";
+import {twMerge} from "tailwind-merge";
 
 export type FooterColumn = {
     title?: string
@@ -12,19 +13,37 @@ export type FooterLink = {
     url?: string
 }
 
-export interface FooterProps {
-    data: FooterColumn[]
-}
+type FooterProps = PropsWithChildren
 
-const Footer: React.FC<FooterProps> = ( props ) => {
+const Footer: React.FC<FooterProps> = ({children} ) => {
     return <footer className="footer p-10 bg-neutral text-neutral-content w-full">
-        {
-            props.data.map( (column: FooterColumn) => <div key={column.key}>
-                <span className="footer-title">{ column.title }</span>
-                    { column.links.map( ( link: FooterLink ) => <a key={link.key} className="link link-hover" href={link.url}>{link.title}</a> ) }
-                 </div> )
-        }
+        {children}
     </footer>;
 };
 
-export default Footer;
+type LinkProps = HTMLAttributes<HTMLSpanElement> & PropsWithChildren
+
+const Element: React.FC<LinkProps> = ({className, children, ...props} ) => {
+    const classNames = twMerge( 
+        'footer-title',
+        className
+    );
+    
+    return <span className={classNames} {...props}>
+        {children}
+    </span>;
+};
+
+type ColumnProps = {
+    className?: string
+} & PropsWithChildren
+const Column: React.FC<ColumnProps> = ({ className, children}) => {
+    return <div className={className}>
+        {children}
+    </div>;
+};
+
+export default Object.assign( Footer, {
+    Element,
+    Column
+});

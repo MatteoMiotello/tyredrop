@@ -55,7 +55,10 @@ const cartSlice = createSlice<CartState, SliceCaseReducers<CartState>, string>({
         items: [],
         status: 'pending',
         amountTotal: {
-            value: 0
+            value: 0,
+            totalValue: 0,
+            taxesValue: 0,
+            additionsValues: [],
         }
     },
     reducers: {},

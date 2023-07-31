@@ -9,7 +9,7 @@ type DropdownProps = {
 	position?: DropdownPosition | undefined
 } & PropsWithChildren 
 
-const Dropdown: React.FC<DropdownProps> = ({buttonLabel, children, position, ...props}) => {
+const Dropdown: React.FC<DropdownProps> = ({children, position, ...props}) => {
 	const classNames = clsx(
 		'dropdown',
 		'dropdown-end',

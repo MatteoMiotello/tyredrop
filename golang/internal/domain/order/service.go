@@ -117,6 +117,7 @@ func (s *service) CreateNewOrder(ctx context.Context, userBilling *models.UserBi
 	}
 
 	var priceWithAdditions int
+	var orderAmount int
 
 	for _, cart := range carts {
 		row, err := s.createOrderRowFromCart(ctx, currentCurrency, newOrder, cart)
@@ -125,12 +126,14 @@ func (s *service) CreateNewOrder(ctx context.Context, userBilling *models.UserBi
 			return nil, err
 		}
 
-		newOrder.PriceAmount = newOrder.PriceAmount + row.Amount
-		priceWithAdditions = priceWithAdditions + row.AdditionsAmount
+		orderAmount = orderAmount + row.Amount
+		priceWithAdditions = priceWithAdditions + (row.AdditionsAmount + row.Amount)
 	}
 
-	newOrder.TaxesAmount = (defaultTax.MarkupPercentage / 100) * newOrder.PriceAmount
-	newOrder.PriceAmountTotal = newOrder.PriceAmount + newOrder.TaxesAmount + priceWithAdditions
+	taxAmountFloat := (float64(defaultTax.MarkupPercentage) / 100) * float64(orderAmount)
+	newOrder.PriceAmount = priceWithAdditions
+	newOrder.TaxesAmount = int(taxAmountFloat)
+	newOrder.PriceAmountTotal = newOrder.PriceAmount + newOrder.TaxesAmount
 
 	err = s.orderDao.
 		Update(ctx, newOrder)

@@ -23,6 +23,8 @@ import moment from 'moment-timezone';
 import Moment from "react-moment";
 import 'moment/locale/it';
 import {adminRoutes} from "./modules/admin/routes";
+import ContactsPage from "./common/pages/ContactsPage";
+import GeneralTermsPage from "./common/pages/GeneralTermsPage";
 
 Moment.globalMoment = moment;
 Moment.globalLocale = 'it';
@@ -38,6 +40,20 @@ const router = createBrowserRouter([
             crumb: () => <Link className="link" to="/"> Home </Link>
         },
         children: [
+            {
+                path: 'contacts',
+                handle: {
+                    crumb: () => <span> Contatti </span>
+                },
+                Component: ContactsPage
+            },
+            {
+                path: 'general-terms',
+                handle: {
+                    crumb: () => <span> Condizioni generali di vendita </span>
+                },
+                Component: GeneralTermsPage,
+            },
             billingRoute,
             productRoute,
             cartRoute,

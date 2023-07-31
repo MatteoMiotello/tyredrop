@@ -1,5 +1,5 @@
-import React from "react";
-import {FetchOrdersQuery, FetchOrdersQueryVariables, Order} from "../../../__generated__/graphql";
+import React, {useState} from "react";
+import {FetchOrdersQuery, Order} from "../../../__generated__/graphql";
 import {CellContext, ColumnDef} from "@tanstack/react-table";
 import {Link} from "react-router-dom";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -10,14 +10,14 @@ import {Button, FilteredTable, Input, TableButtons, useForm, useModal} from "../
 import {useGraphTable} from "../../../hooks/useGraphTable";
 import {QueryResult} from "@apollo/client";
 import {Currency} from "../../../common/utilities/currency";
-import OrderHelpModal from "./OrderHelpModal";
+import OrderSupportModal from "./OrderSupportModal";
 
 type OrderTableProps = {
-    query: QueryResult<FetchOrdersQuery, FetchOrdersQueryVariables>
+    query: QueryResult<FetchOrdersQuery>
 }
 
 const OrderTable: React.FC<OrderTableProps> = (props) => {
-
+    const [selectedOrder, setSelectedOrder] = useState<Order | undefined>();
     const columns: ColumnDef<Order>[] = [
         {
             accessorKey: "id",
@@ -51,13 +51,22 @@ const OrderTable: React.FC<OrderTableProps> = (props) => {
         {
             accessorKey: "status",
             header: "Stato",
+            size: 10,
             cell: (props: CellContext<Order, any>) => <OrderStatusBadge status={props.row.original.status}/>
         },
         {
-            accessorKey: "orderRows",
+            id: "total",
             header: "Totale",
             cell: (props: CellContext<Order, any>) => <span> {Currency.defaultFormat(
                 props.row.original.priceAmount,
+                props.row.original.currency.iso_code
+            )} </span>
+        },
+        {
+            id: "total_taxes",
+            header: "Totale con iva",
+            cell: (props: CellContext<Order, any>) => <span> {Currency.defaultFormat(
+                props.row.original.priceAmountTotal,
                 props.row.original.currency.iso_code
             )} </span>
         },
@@ -80,14 +89,17 @@ const OrderTable: React.FC<OrderTableProps> = (props) => {
             cell: (props: CellContext<Order, any>) => <TableButtons>
                 <Link to={'/order/details/' + props.getValue()} className="btn btn-secondary"> <FontAwesomeIcon
                     icon={faMagnifyingGlass}/> </Link>
-                <Button buttonType="warning" onClick={modal.open}> <FontAwesomeIcon icon={faHeadset}/> </Button>
+                <Button buttonType="warning" onClick={() => {
+                    setSelectedOrder( props.row.original );
+                    modal.open();
+                }}> <FontAwesomeIcon icon={faHeadset}/> </Button>
             </TableButtons>
         }
     ];
 
     const modal = useModal();
 
-    const {table} = useGraphTable<Order, FetchOrdersQuery, FetchOrdersQueryVariables>({
+    const {table} = useGraphTable<Order, FetchOrdersQuery>({
         data: props.query.data?.userOrders?.data as Order[],
         columns: columns,
         query: props.query,
@@ -96,7 +108,7 @@ const OrderTable: React.FC<OrderTableProps> = (props) => {
     const form = useForm({type: 'filter'});
 
     return <>
-        <OrderHelpModal modal={modal}/>
+        <OrderSupportModal modal={modal} order={selectedOrder}/>
         <FilteredTable table={table}>
             <FilteredTable.FilterForm form={form} updateAsyncFilters={(data) => {
                 return props.query.refetch({

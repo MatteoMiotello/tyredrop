@@ -137,6 +137,7 @@ type Tax struct {
 
 type TotalPrice struct {
 	Value           float64          `json:"value"`
+	TotalValue      float64          `json:"totalValue"`
 	TaxesValue      float64          `json:"taxesValue"`
 	AdditionsValues []*AdditionValue `json:"additionsValues,omitempty"`
 	Currency        *Currency        `json:"currency,omitempty"`

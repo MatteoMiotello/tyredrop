@@ -38,6 +38,9 @@ export {Breadcrumb};
 import Checkbox from './Checkbox';
 export {Checkbox};
 
+import Textarea from "./Textarea";
+export {Textarea};
+
 import Modal from './Modal';
 import { useModal } from './Modal';
 export {Modal, useModal};

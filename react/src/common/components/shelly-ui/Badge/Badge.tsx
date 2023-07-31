@@ -5,7 +5,7 @@ import { swtc } from "../utils";
 type BadgeProps = {
     badgeType?: 'neutral' | 'primary' | 'secondary' | 'accent' | 'ghost' | undefined,
     color?: string,
-	outline?: bool
+	outline?: boolean
 } & HTMLAttributes<HTMLDivElement> & PropsWithChildren
 
 const Badge: React.FC<BadgeProps> = ( {children, className, badgeType, color, outline, ...props} ) =>{

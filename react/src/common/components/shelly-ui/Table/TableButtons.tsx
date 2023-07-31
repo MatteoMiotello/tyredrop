@@ -13,7 +13,9 @@ const TableButtons: React.FC<TableButtonsProps> = ({children}) => {
 	</div>;
 };
 
-type TableButtonProviderProps = ButtonProps;
+type TableButtonProviderProps = {
+	to?: string
+} & ButtonProps;
 
 type TableButtonProps = {
 	to?: string

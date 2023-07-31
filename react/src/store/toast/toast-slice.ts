@@ -53,6 +53,8 @@ export const toastMiddleware: Middleware = (store) => (next) => ( action ) => {
 	const actions = [ setSuccess.type, setError.type, setInfo.type, setWarning.type ];
 	if ( action && actions.includes( action.type ) ) {
 		setTimeout( () => {
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			// @ts-ignore
 			store.dispatch( removeToast() );
 		}, 3000 );
 	}
@@ -60,7 +62,7 @@ export const toastMiddleware: Middleware = (store) => (next) => ( action ) => {
 	if ( action ) {
 		return next( action );
 	}
-};  
+};
 
 export const { setSuccess, setError, setInfo, setWarning, removeToast } = toastSlice.actions;
 export default toastSlice.reducer;

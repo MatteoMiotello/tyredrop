@@ -26,9 +26,11 @@ const FilterForm: React.FC<FilterFormProps> = ( {children, id, form, updateAsync
 	const saveForm = ( formData: any ) => {
 		if ( updateAsyncFilters ) {
 			setIsLoading( true );
-			updateAsyncFilters( formData )
+			return updateAsyncFilters( formData )
 				.finally( () => setIsLoading(false) );
 		}
+
+		return false;
 	};
 
 	return <div className="relative">

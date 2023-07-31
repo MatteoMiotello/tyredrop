@@ -1,43 +1,11 @@
 import {gql} from "@apollo/client";
+import {CART_ITEMS_FRAGMENT} from "../fragments/carts";
 
 export const USER_CARTS = gql`
+    ${CART_ITEMS_FRAGMENT}
     query userCarts {
        carts {
-           totalPrice {
-               value
-               currency {
-                   iso_code
-                   symbol
-                   name
-               }
-           }
-           items {
-               id
-               quantity
-               productItemPrice {
-                   value
-                   priceAdditions {
-                       additionValue
-                       priceAdditionType {
-                           additionName
-                           additionCode
-                       }
-                   }
-                   currency {
-                       iso_code
-                   }
-                   productItem {
-                       id
-                       product {
-                           name
-                           code
-                           brand {
-                               name
-                           }
-                       }
-                   }
-               }
-           }
+           ...CartItems
        }
     }
 `;

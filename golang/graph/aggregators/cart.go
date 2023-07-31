@@ -9,6 +9,7 @@ import (
 	"pillowww/titw/internal/currency"
 	"pillowww/titw/internal/domain/cart"
 	"pillowww/titw/internal/domain/order"
+	"pillowww/titw/internal/domain/product"
 	"pillowww/titw/models"
 )
 
@@ -23,10 +24,8 @@ func GetAllCartsByUserId(ctx context.Context, cartDao *cart.Dao, userId int64) (
 		Load(
 			qm.Rels(
 				models.CartRels.ProductItemPrice,
-				models.ProductItemPriceRels.ProductItemPriceAdditions,
-				models.ProductItemPriceAdditionRels.PriceAdditionType,
-				models.ProductItemPriceRels.Currency,
 			),
+			models.ProductItemPriceWhere.CurrencyID.EQ(defaultCur.ID),
 		).
 		FindAllByUserId(ctx, userId)
 
@@ -40,12 +39,12 @@ func GetAllCartsByUserId(ctx context.Context, cartDao *cart.Dao, userId int64) (
 	}
 
 	var graphModels []*model.Cart
-	var additions map[string]int
+	var addMap map[string]int = make(map[string]int)
 
 	for _, c := range cartModels {
 		price := c.R.ProductItemPrice
 
-		amount, err := currency.ToFloat(price.Price, price.R.Currency.IsoCode)
+		amount, err := currency.ToFloat(price.Price, defaultCur.IsoCode)
 
 		if err != nil {
 			return nil, err
@@ -54,13 +53,23 @@ func GetAllCartsByUserId(ctx context.Context, cartDao *cart.Dao, userId int64) (
 		amount = *amountTotal + (amount * float64(c.Quantity))
 		amountTotal = &amount
 
-		for _, add := range price.R.ProductItemPriceAdditions {
-			if _, ok := additions[add.R.PriceAdditionType.AdditionName]; ok == false {
-				additions[add.R.PriceAdditionType.AdditionName] = add.AdditionValue
+		pAdds, err := product.NewItemPriceDao(cartDao.Db).
+			Load(
+				models.ProductItemPriceAdditionRels.PriceAdditionType,
+			).
+			FindPriceAdditionsByProductItemPriceID(ctx, price.ID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		for _, add := range pAdds {
+			if _, ok := addMap[add.R.PriceAdditionType.AdditionName]; ok == false {
+				addMap[add.R.PriceAdditionType.AdditionName] = add.AdditionValue * c.Quantity
 				continue
 			}
 
-			additions[add.R.PriceAdditionType.AdditionName] = additions[add.R.PriceAdditionType.AdditionName] + add.AdditionValue
+			addMap[add.R.PriceAdditionType.AdditionName] = addMap[add.R.PriceAdditionType.AdditionName] + (add.AdditionValue * c.Quantity)
 		}
 
 		graphModels = append(graphModels, converters.CartToGraphQL(c))
@@ -72,23 +81,33 @@ func GetAllCartsByUserId(ctx context.Context, cartDao *cart.Dao, userId int64) (
 		return nil, err
 	}
 
-	taxValue := float64(tax.MarkupPercentage/100) * (*amountTotal)
+	taxValue := float64(tax.MarkupPercentage) / 100 * (*amountTotal)
 
 	var additionValues []*model.AdditionValue
+	var totalAdditions float64
 
-	for name, value := range additions {
+	for name, value := range addMap {
+		floatVal, err := currency.ToFloat(value, defaultCur.IsoCode)
+
+		if err != nil {
+			return nil, err
+		}
+
+		totalAdditions = totalAdditions + floatVal
 		additionValues = append(additionValues, &model.AdditionValue{
 			AdditionName: name,
-			Value:        currency.ToFloat(value),
+			Value:        floatVal,
 		})
 	}
 
 	return &model.CartResponse{
 		Items: graphModels,
 		TotalPrice: &model.TotalPrice{
-			Value:      *amountTotal,
-			TaxesValue: taxValue,
-			Currency:   converters.CurrencyToGraphQL(defaultCur),
+			Value:           *amountTotal,
+			TotalValue:      *amountTotal + taxValue + totalAdditions,
+			TaxesValue:      taxValue,
+			AdditionsValues: additionValues,
+			Currency:        converters.CurrencyToGraphQL(defaultCur),
 		},
 	}, nil
 }

@@ -5,12 +5,12 @@ import Panel from "../../common/components-library/Panel";
 import OrderTable from "../order/components/OrderTable";
 import {useToast} from "../../store/toast";
 import {useQuery} from "../../common/backend/graph/hooks";
-import {FetchOrdersQuery, FetchOrdersQueryVariables} from "../../__generated__/graphql";
+import {FetchOrdersQuery} from "../../__generated__/graphql";
 
 const UserOrdersPage: React.FC = () => {
     const params = useParams();
     const toastr = useToast();
-    const query = useQuery<FetchOrdersQuery, FetchOrdersQueryVariables>(FETCH_USER_ORDERS, {
+    const query = useQuery<FetchOrdersQuery>(FETCH_USER_ORDERS, {
         variables: {
             userId: params.id as string,
             pagination: {

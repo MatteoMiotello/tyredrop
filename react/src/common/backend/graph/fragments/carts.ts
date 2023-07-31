@@ -5,6 +5,12 @@ export const CART_ITEMS_FRAGMENT = gql`
     fragment CartItems on CartResponse {
         totalPrice {
             value
+            totalValue
+            additionsValues {
+                additionName
+                value
+            }
+            taxesValue
             currency {
                 iso_code
                 symbol
@@ -16,6 +22,12 @@ export const CART_ITEMS_FRAGMENT = gql`
             quantity
             productItemPrice {
                 value
+                priceAdditions {
+                    additionValue
+                    priceAdditionType {
+                        additionName
+                    }
+                }
                 currency {
                     iso_code
                 }

@@ -14,6 +14,7 @@ type AdditionValue {
 
 type TotalPrice {
     value: Float!
+    totalValue: Float!
     taxesValue: Float!
     additionsValues: [AdditionValue]
     currency: Currency

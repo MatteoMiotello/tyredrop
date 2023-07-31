@@ -1,5 +1,4 @@
-import { AlertType } from "../components/shelly-ui/Alert";
-
+import {AlertType} from "../../common/components/shelly-ui/Alert";
 type ToastType = AlertType;
 
 export type ToastConfiguration = {

@@ -182,7 +182,7 @@ const useForm = (props?: UseFormProps): FormHandler => {
 		};
 	};
 
-	const registerInput = ({name, validators, disable}: RegisterHandler) => {
+	const registerInput = ({name, validators, disable}: RegisterHandler): InputProps => {
 		if ( disable ) {
 			if ( inputRef.current[name] ) {
 				delete inputRef.current[name];
@@ -194,7 +194,7 @@ const useForm = (props?: UseFormProps): FormHandler => {
 				validators: validators,
 				inputSize: ( props?.type == 'filter' ) ? 'sm' : undefined,
 				disabled: true
-			};
+			} as InputProps;
 		}
 
 		if ( !inputRef.current[name] ) {
@@ -222,7 +222,7 @@ const useForm = (props?: UseFormProps): FormHandler => {
 			validators: validators,
 			inputSize: ( props?.type == 'filter' ) ? 'sm' : undefined,
 			error: inputRef.current[name]?.error
-		};
+		} as InputProps;
 	};
 
 	return {

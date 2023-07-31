@@ -1,6 +1,6 @@
 import i18n from "../../../i18n";
 
-export type InputValidatorHandler = <T = any>(value: T | null) => string | null;
+export type InputValidatorHandler<T = any> = (value: T | null) => string | null;
 
 export const isRequired = (errMessage: string | null = null): InputValidatorHandler => {
 	return (value) => {
@@ -39,7 +39,7 @@ export const minCharacters = ( min: number,  errMessage: string ): InputValidato
 
 
 export const maxCharacters = ( max: number,  errMessage: string ): InputValidatorHandler => {
-	return ( value: string | null ) => {
+	const handler: InputValidatorHandler<string> = ( value ) => {
 		if ( !value ) {
 			return errMessage;
 		}
@@ -50,4 +50,6 @@ export const maxCharacters = ( max: number,  errMessage: string ): InputValidato
 
 		return null;
 	};
+
+	return handler;
 };

@@ -2,14 +2,14 @@ import React from "react";
 import Panel from "../../../../common/components-library/Panel";
 import OrderTable from "../../../order/components/OrderTable";
 import {useQuery} from "../../../../common/backend/graph/hooks";
-import {FetchOrdersQuery, FetchOrdersQueryVariables, User} from "../../../../__generated__/graphql";
+import {FetchOrdersQuery, User} from "../../../../__generated__/graphql";
 import {FETCH_USER_ORDERS} from "../../../../common/backend/graph/query/order";
 
 type UserOrdersPanelProps = {
     user: User
 }
 const UserOrdersPanel: React.FC<UserOrdersPanelProps> = ({user}) => {
-    const orderQuery = useQuery<FetchOrdersQuery, FetchOrdersQueryVariables>( FETCH_USER_ORDERS, {
+    const orderQuery = useQuery<FetchOrdersQuery>( FETCH_USER_ORDERS, {
         variables: {
             userId: user?.id as string,
             pagination: {

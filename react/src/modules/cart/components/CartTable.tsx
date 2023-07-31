@@ -50,7 +50,7 @@ const CartTable: React.FC<CartTableProps> = (props) => {
             name: cart.productItemPrice.productItem.product?.name,
             brand: cart.productItemPrice.productItem.product.brand?.name,
             quantity: cart.quantity,
-            additions: cart.productItemPrice.priceAdditions?.map( add => ({ name: add.priceAdditionType.additionName, value: Currency.defaultFormat( add.additionValue, cart.productItemPrice.currency.iso_code ) }) ),
+            additions: cart.productItemPrice.priceAdditions?.map( add => ({ name: add?.priceAdditionType?.additionName, value: Currency.defaultFormat( add?.additionValue as number, cart.productItemPrice.currency.iso_code ) }) ),
             priceTotal: cart.productItemPrice ? Currency.defaultFormat(cart.productItemPrice.value * cart.quantity, cart.productItemPrice.currency.iso_code) : 0,
             price: cart.productItemPrice ? Currency.defaultFormat(cart.productItemPrice.value, cart.productItemPrice.currency.iso_code) : 0
         }) as CartDataTable);
@@ -102,7 +102,7 @@ const CartTable: React.FC<CartTableProps> = (props) => {
             header: "Tasse aggiuntive",
             cell: props => <ul>
                 {
-                    props.row.original.additions.map(  add => <li> { add.name }: { add.value } </li>)
+                    props.row.original.additions?.map(  (add, key) => <li key={key}> { add.name }: { add.value } </li>)
                 }
             </ul>
         },
@@ -111,7 +111,7 @@ const CartTable: React.FC<CartTableProps> = (props) => {
             accessorKey: "id",
             header: () => <div className="w-full text-right"> {t("cart.quantity_column") as string} </div>,
             cell: (props: CellContext<CartDataTable, any>) => {
-                return <div className="w-40 ml-auto"><CartQuantityButtons cartId={props.getValue()}/></div>;
+                return <div className="w-32 ml-auto"><CartQuantityButtons cartId={props.getValue()}/></div>;
             },
             size: 20
         }

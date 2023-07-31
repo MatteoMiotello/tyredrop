@@ -11,6 +11,8 @@ export const FETCH_ORDER = gql `
                 name
             }
             priceAmount
+            priceAmountTotal
+            taxesAmount
             addressName
             addressLine1
             addressLine2
@@ -72,6 +74,8 @@ export const FETCH_USER_ORDERS = gql`
                 country
                 createdAt
                 priceAmount
+                taxesAmount
+                priceAmountTotal
                 orderRows {
                     id
                     amount
@@ -92,6 +96,8 @@ export const FETCH_ALL_ORDERS = gql`
             data {
                 id
                 priceAmount
+                priceAmountTotal
+                taxesAmount
                 createdAt
                 status
                 currency {
