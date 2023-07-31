@@ -31,6 +31,9 @@ Moment.globalLocale = 'it';
 Moment.globalTimezone = 'Europe/Rome';
 Moment.globalFormat = 'DD/MM/YYYY HH:mm';
 Moment.globalLocal = true;
+moment.updateLocale( 'it', {
+    workingWeekdays: [1, 2, 3, 4, 5]
+} );
 
 const router = createBrowserRouter([
     {

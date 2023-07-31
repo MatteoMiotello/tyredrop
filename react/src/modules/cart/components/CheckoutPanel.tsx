@@ -18,8 +18,8 @@ import {ThunkDispatch} from "redux-thunk";
 import {emptyCart} from "../store/cart-slice";
 import UserAddressModal from "../../user/components/UserAddressModal";
 import {useModal} from "../../../common/components/shelly-ui";
-import Moment from "react-moment";
-import moment from "moment/moment";
+import Moment from 'react-moment';
+import moment from 'moment-business-days';
 
 const CheckoutPanel: React.FC = () => {
     const userAddresses = useSelector(userSelector.addresses);
@@ -132,7 +132,7 @@ const CheckoutPanel: React.FC = () => {
         }
         <div className="rounded-box p-4 mt-4 w-full bg-accent-content/10">
             <span className="font-semibold"> <FontAwesomeIcon icon={faTruckFast}/> Consegna prevista: </span>
-            <Moment className="uppercase" date={moment().add(5, 'days')} format="dddd D MMMM"/>
+            <Moment className="uppercase" date={moment().businessAdd( 5 )} format="dddd D MMMM"/>
         </div>
         <div className="text-sm mt-4 p-4">
             <div className="flex justify-between"><span>Totale </span> {getPrice()} </div>
