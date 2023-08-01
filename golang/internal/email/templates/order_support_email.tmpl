@@ -1,0 +1,12 @@
+{{- /*gotype: pillowww/titw/internal/email/templates.OrderSupport*/ -}}
+{{define "content"}}
+    <p>Gentile operatore, <p>
+
+    <p> il cliente {{.UserName}} ha richiesto assistenza per l'ordine <a href="{{.ApplicationUrl}}/admin/order/{{.OrderId}}"> #{{.OrderId}} </a> </p>
+
+        <p>
+            <strong> Messaggio del cliente: </strong>
+        </p>
+
+        {{.Message}}
+{{end}}

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Subject}}</title>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        /* Stili per l'header */
+        .header {
+            background-color: #F38944;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .header img {
+            max-width: 150px;
+            height: auto;
+        }
+
+        .header h1 {
+            margin: 10px 0;
+            color: #fff; /* Colore del testo nell'header (bianco) */
+        }
+
+        /* Stili per il contenuto dell'email */
+        .content {
+            padding: 20px;
+        }
+
+        .content h2 {
+            color: #F38944;
+        }
+
+        /* Stili per il footer */
+        .footer {
+            background-color: #476a6f;
+            text-align: center;
+            padding: 10px;
+            color: #fff; /* Colore del testo nel footer (bianco) */
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <img src="link_al_tuo_logo" alt="Logo del tuo ecommerce">
+    <h1>Tyres in the world</h1>
+</div>
+
+<!-- Contenuto del messaggio dell'email -->
+<div class="content">
+    {{template "content" .Content}}
+</div>
+
+<div class="footer">
+    <strong>SDR TRADING SRLS</strong>
+    <p>Indirizzo: Via Roma, 220</p>
+    <p>CAP: 35020</p>
+    <p>Località: Albignasego (PD)</p>
+    <p>Tel.: 049 6898916</p>
+</div>
+</body>
+</html>
