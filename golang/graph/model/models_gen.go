@@ -181,15 +181,17 @@ type VehicleType struct {
 type OrderStatus string
 
 const (
-	OrderStatusNew       OrderStatus = "NEW"
-	OrderStatusConfirmed OrderStatus = "CONFIRMED"
-	OrderStatusCanceled  OrderStatus = "CANCELED"
-	OrderStatusRejected  OrderStatus = "REJECTED"
-	OrderStatusDelivered OrderStatus = "DELIVERED"
-	OrderStatusReturned  OrderStatus = "RETURNED"
+	OrderStatusNotCompleted OrderStatus = "NOT_COMPLETED"
+	OrderStatusNew          OrderStatus = "NEW"
+	OrderStatusConfirmed    OrderStatus = "CONFIRMED"
+	OrderStatusCanceled     OrderStatus = "CANCELED"
+	OrderStatusRejected     OrderStatus = "REJECTED"
+	OrderStatusDelivered    OrderStatus = "DELIVERED"
+	OrderStatusReturned     OrderStatus = "RETURNED"
 )
 
 var AllOrderStatus = []OrderStatus{
+	OrderStatusNotCompleted,
 	OrderStatusNew,
 	OrderStatusConfirmed,
 	OrderStatusCanceled,
@@ -200,7 +202,7 @@ var AllOrderStatus = []OrderStatus{
 
 func (e OrderStatus) IsValid() bool {
 	switch e {
-	case OrderStatusNew, OrderStatusConfirmed, OrderStatusCanceled, OrderStatusRejected, OrderStatusDelivered, OrderStatusReturned:
+	case OrderStatusNotCompleted, OrderStatusNew, OrderStatusConfirmed, OrderStatusCanceled, OrderStatusRejected, OrderStatusDelivered, OrderStatusReturned:
 		return true
 	}
 	return false

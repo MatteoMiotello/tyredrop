@@ -78,7 +78,7 @@ const CheckoutPanel: React.FC = () => {
     useEffect(() => {
         if (data) {
             toast.success('Ordine confermato con successo');
-            navigate('/order/details/' + data.newOrder.id);
+            navigate('/order/checkout/' + data.newOrder.id);
             return;
         }
     }, [data]);

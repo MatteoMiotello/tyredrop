@@ -116,6 +116,7 @@ type ComplexityRoot struct {
 		EditUserAddress   func(childComplexity int, id int64, userAddress model.UserAddressInput) int
 		EmptyCart         func(childComplexity int) int
 		NewOrder          func(childComplexity int, userID int64, userAddressID int64) int
+		OrderSupport      func(childComplexity int, orderID int64, message string) int
 		UpdateUserStatus  func(childComplexity int, userID int64, confirmed *bool, rejected *bool) int
 	}
 
@@ -382,6 +383,7 @@ type MutationResolver interface {
 	EditUserAddress(ctx context.Context, id int64, userAddress model.UserAddressInput) ([]*model.UserAddress, error)
 	DeleteUserAddress(ctx context.Context, id int64) ([]*model.UserAddress, error)
 	NewOrder(ctx context.Context, userID int64, userAddressID int64) (*model.Order, error)
+	OrderSupport(ctx context.Context, orderID int64, message string) (*model.Order, error)
 	UpdateUserStatus(ctx context.Context, userID int64, confirmed *bool, rejected *bool) (*model.User, error)
 }
 type OrderResolver interface {
@@ -748,6 +750,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.NewOrder(childComplexity, args["userId"].(int64), args["userAddressId"].(int64)), true
+
+	case "Mutation.orderSupport":
+		if e.complexity.Mutation.OrderSupport == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_orderSupport_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.OrderSupport(childComplexity, args["orderID"].(int64), args["message"].(string)), true
 
 	case "Mutation.updateUserStatus":
 		if e.complexity.Mutation.UpdateUserStatus == nil {
@@ -2140,7 +2154,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(parsedSchema, parsedSchema.Types[name]), nil
 }
 
-//go:embed "schemas/cart.graphql" "schemas/currency.graphql" "schemas/directives.graphql" "schemas/mutation.graphql" "schemas/order.graphql" "schemas/order.query.graphql" "schemas/price_additions.graphql" "schemas/product.graphql" "schemas/product_specification.graphql" "schemas/query.graphql" "schemas/scalars.graphql" "schemas/user.graphql" "schemas/user.mutation.graphql" "schemas/vehicle.graphql"
+//go:embed "schemas/cart.graphql" "schemas/currency.graphql" "schemas/directives.graphql" "schemas/mutation.graphql" "schemas/order.graphql" "schemas/order.mutation.graphql" "schemas/order.query.graphql" "schemas/price_additions.graphql" "schemas/product.graphql" "schemas/product_specification.graphql" "schemas/query.graphql" "schemas/scalars.graphql" "schemas/user.graphql" "schemas/user.mutation.graphql" "schemas/vehicle.graphql"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -2157,6 +2171,7 @@ var sources = []*ast.Source{
 	{Name: "schemas/directives.graphql", Input: sourceData("schemas/directives.graphql"), BuiltIn: false},
 	{Name: "schemas/mutation.graphql", Input: sourceData("schemas/mutation.graphql"), BuiltIn: false},
 	{Name: "schemas/order.graphql", Input: sourceData("schemas/order.graphql"), BuiltIn: false},
+	{Name: "schemas/order.mutation.graphql", Input: sourceData("schemas/order.mutation.graphql"), BuiltIn: false},
 	{Name: "schemas/order.query.graphql", Input: sourceData("schemas/order.query.graphql"), BuiltIn: false},
 	{Name: "schemas/price_additions.graphql", Input: sourceData("schemas/price_additions.graphql"), BuiltIn: false},
 	{Name: "schemas/product.graphql", Input: sourceData("schemas/product.graphql"), BuiltIn: false},
@@ -2326,6 +2341,30 @@ func (ec *executionContext) field_Mutation_newOrder_args(ctx context.Context, ra
 		}
 	}
 	args["userAddressId"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_orderSupport_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["orderID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderID"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["orderID"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["message"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("message"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["message"] = arg1
 	return args, nil
 }
 
@@ -4604,6 +4643,123 @@ func (ec *executionContext) fieldContext_Mutation_newOrder(ctx context.Context, 
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_newOrder_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_orderSupport(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_orderSupport(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().OrderSupport(rctx, fc.Args["orderID"].(int64), fc.Args["message"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.UserConfirmed == nil {
+				return nil, errors.New("directive userConfirmed is not implemented")
+			}
+			return ec.directives.UserConfirmed(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Order); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *pillowww/titw/graph/model.Order`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Order)
+	fc.Result = res
+	return ec.marshalNOrder2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐOrder(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_orderSupport(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Order_id(ctx, field)
+			case "currency":
+				return ec.fieldContext_Order_currency(ctx, field)
+			case "currencyID":
+				return ec.fieldContext_Order_currencyID(ctx, field)
+			case "tax":
+				return ec.fieldContext_Order_tax(ctx, field)
+			case "taxID":
+				return ec.fieldContext_Order_taxID(ctx, field)
+			case "userBilling":
+				return ec.fieldContext_Order_userBilling(ctx, field)
+			case "userBillingID":
+				return ec.fieldContext_Order_userBillingID(ctx, field)
+			case "status":
+				return ec.fieldContext_Order_status(ctx, field)
+			case "priceAmount":
+				return ec.fieldContext_Order_priceAmount(ctx, field)
+			case "taxesAmount":
+				return ec.fieldContext_Order_taxesAmount(ctx, field)
+			case "priceAmountTotal":
+				return ec.fieldContext_Order_priceAmountTotal(ctx, field)
+			case "addressName":
+				return ec.fieldContext_Order_addressName(ctx, field)
+			case "addressLine1":
+				return ec.fieldContext_Order_addressLine1(ctx, field)
+			case "addressLine2":
+				return ec.fieldContext_Order_addressLine2(ctx, field)
+			case "city":
+				return ec.fieldContext_Order_city(ctx, field)
+			case "province":
+				return ec.fieldContext_Order_province(ctx, field)
+			case "postalCode":
+				return ec.fieldContext_Order_postalCode(ctx, field)
+			case "country":
+				return ec.fieldContext_Order_country(ctx, field)
+			case "orderRows":
+				return ec.fieldContext_Order_orderRows(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Order_createdAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Order", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_orderSupport_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -15428,38 +15584,34 @@ func (ec *executionContext) unmarshalInputCreateAdminUserInput(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			it.Name, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Name = data
 		case "surname":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("surname"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			it.Surname, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Surname = data
 		case "email":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			it.Email, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Email = data
 		case "password":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			it.Password, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Password = data
 		}
 	}
 
@@ -15484,11 +15636,10 @@ func (ec *executionContext) unmarshalInputCreateUserBilling(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("legalEntityTypeId"))
-			data, err := ec.unmarshalNID2int64(ctx, v)
+			it.LegalEntityTypeID, err = ec.unmarshalNID2int64(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.LegalEntityTypeID = data
 		case "name":
 			var err error
 
@@ -15515,29 +15666,26 @@ func (ec *executionContext) unmarshalInputCreateUserBilling(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("surname"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			it.Surname, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Surname = data
 		case "fiscalCode":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fiscalCode"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			it.FiscalCode, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.FiscalCode = data
 		case "vatNumber":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vatNumber"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			it.VatNumber, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.VatNumber = data
 		case "addressLine1":
 			var err error
 
@@ -15564,11 +15712,10 @@ func (ec *executionContext) unmarshalInputCreateUserBilling(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("addressLine2"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			it.AddressLine2, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.AddressLine2 = data
 		case "city":
 			var err error
 
@@ -15683,20 +15830,18 @@ func (ec *executionContext) unmarshalInputCreateUserBilling(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sdiCode"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			it.SdiCode, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.SdiCode = data
 		case "sdiPec":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sdiPec"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			it.SdiPec, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.SdiPec = data
 		}
 	}
 
@@ -15721,29 +15866,26 @@ func (ec *executionContext) unmarshalInputOrderFilterInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dateFrom"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			it.DateFrom, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.DateFrom = data
 		case "dateTo":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dateTo"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			it.DateTo, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.DateTo = data
 		case "number":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("number"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			it.Number, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Number = data
 		}
 	}
 
@@ -15768,20 +15910,18 @@ func (ec *executionContext) unmarshalInputOrderingInput(ctx context.Context, obj
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("column"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			it.Column, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Column = data
 		case "desc":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("desc"))
-			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			it.Desc, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Desc = data
 		}
 	}
 
@@ -15924,20 +16064,18 @@ func (ec *executionContext) unmarshalInputPaginationInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
-			data, err := ec.unmarshalNInt2int(ctx, v)
+			it.Limit, err = ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Limit = data
 		case "offset":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
-			data, err := ec.unmarshalNInt2int(ctx, v)
+			it.Offset, err = ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Offset = data
 		}
 	}
 
@@ -15962,47 +16100,42 @@ func (ec *executionContext) unmarshalInputProductSearchInput(ctx context.Context
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("brand"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			it.Brand, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Brand = data
 		case "name":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			it.Name, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Name = data
 		case "code":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("code"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			it.Code, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Code = data
 		case "vehicleCode":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vehicleCode"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			it.VehicleCode, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.VehicleCode = data
 		case "specifications":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("specifications"))
-			data, err := ec.unmarshalOProductSpecificationInput2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductSpecificationInput(ctx, v)
+			it.Specifications, err = ec.unmarshalOProductSpecificationInput2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductSpecificationInput(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Specifications = data
 		}
 	}
 
@@ -16027,20 +16160,18 @@ func (ec *executionContext) unmarshalInputProductSpecificationInput(ctx context.
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("code"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			it.Code, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Code = data
 		case "value":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			it.Value, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Value = data
 		}
 	}
 
@@ -16109,11 +16240,10 @@ func (ec *executionContext) unmarshalInputUserAddressInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("addressLine2"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			it.AddressLine2, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.AddressLine2 = data
 		case "city":
 			var err error
 
@@ -16206,11 +16336,10 @@ func (ec *executionContext) unmarshalInputUserAddressInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("IsDefault"))
-			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			it.IsDefault, err = ec.unmarshalNBoolean2bool(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.IsDefault = data
 		}
 	}
 
@@ -16283,11 +16412,10 @@ func (ec *executionContext) unmarshalInputUserFilterInput(ctx context.Context, o
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("confirmed"))
-			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			it.Confirmed, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Confirmed = data
 		}
 	}
 
@@ -16695,6 +16823,15 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_newOrder(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "orderSupport":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_orderSupport(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {

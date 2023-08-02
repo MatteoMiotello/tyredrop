@@ -107,7 +107,7 @@ func (s *service) CreateNewOrder(ctx context.Context, userBilling *models.UserBi
 		PostalCode:    address.PostalCode,
 		Province:      address.Province,
 		Country:       address.Country,
-		Status:        model.OrderStatusNew.String(),
+		Status:        model.OrderStatusNotCompleted.String(),
 	}
 
 	err = s.orderDao.Insert(ctx, newOrder)

@@ -12,6 +12,7 @@ type OrderRow {
 }
 
 enum OrderStatus {
+    NOT_COMPLETED
     NEW
     CONFIRMED
     CANCELED

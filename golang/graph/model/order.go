@@ -38,8 +38,10 @@ type OrderRow struct {
 
 func (o OrderStatus) IsValidForOrder(order *models.Order) bool {
 	switch o {
-	case OrderStatusNew:
+	case OrderStatusNotCompleted:
 		return false
+	case OrderStatusNew:
+		return order.Status == OrderStatusNotCompleted.String()
 	case OrderStatusConfirmed, OrderStatusRejected, OrderStatusCanceled:
 		return order.Status == OrderStatusNew.String()
 	case OrderStatusDelivered:

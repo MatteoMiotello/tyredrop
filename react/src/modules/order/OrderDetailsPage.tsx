@@ -1,17 +1,24 @@
-import React from "react";
-import {useLoaderData} from "react-router-dom";
-import {FetchOrderQuery, Order} from "../../__generated__/graphql";
+import React, {useEffect} from "react";
+import Moment from "react-moment";
+import {useLoaderData, useNavigate} from "react-router-dom";
+import {FetchOrderQuery, Order, OrderStatus} from "../../__generated__/graphql";
 import Panel from "../../common/components-library/Panel";
+import {Button, useModal} from "../../common/components/shelly-ui";
+import {Currency} from "../../common/utilities/currency";
 import OrderRowsTable from "./components/OrderRowsTable";
 import OrderStatusBadge from "./components/OrderStatusBadge";
-import Moment from "react-moment";
-import {Currency} from "../../common/utilities/currency";
-import {Button, useModal} from "../../common/components/shelly-ui";
 import OrderSupportModal from "./components/OrderSupportModal";
 
 const OrderDetailsPage: React.FC = () => {
     const order = useLoaderData() as FetchOrderQuery;
     const modal = useModal();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if ( order.order.status == OrderStatus.NotCompleted ) {
+            navigate( `/order/checkout/${order.order.id}` );
+        }
+    }, [order]);
 
     return <main className="p-4 grid grid-flow-row md:grid-cols-12 gap-4">
         <OrderSupportModal modal={modal} order={order.order as Order}/>

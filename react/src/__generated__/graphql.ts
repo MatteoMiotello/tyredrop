@@ -97,6 +97,7 @@ export type Mutation = {
   editUserAddress: Array<Maybe<UserAddress>>;
   emptyCart?: Maybe<CartResponse>;
   newOrder: Order;
+  orderSupport: Order;
   updateUserStatus: User;
 };
 
@@ -142,6 +143,12 @@ export type MutationEditUserAddressArgs = {
 export type MutationNewOrderArgs = {
   userAddressId: Scalars['ID'];
   userId: Scalars['ID'];
+};
+
+
+export type MutationOrderSupportArgs = {
+  message: Scalars['String'];
+  orderID: Scalars['ID'];
 };
 
 
@@ -200,6 +207,7 @@ export enum OrderStatus {
   Confirmed = 'CONFIRMED',
   Delivered = 'DELIVERED',
   New = 'NEW',
+  NotCompleted = 'NOT_COMPLETED',
   Rejected = 'REJECTED',
   Returned = 'RETURNED'
 }
