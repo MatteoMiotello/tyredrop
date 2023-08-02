@@ -47,7 +47,7 @@ const Input = forwardRef<HTMLInputElement, InputComponentProps>( ( {className, v
 
 		if ( !validators?.length ) {
 			return;
-		} 
+		}
 
 		validators.every( (validator: InputValidatorHandler) => {
 			if ( !validator ) {
