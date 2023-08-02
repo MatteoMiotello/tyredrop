@@ -13,6 +13,8 @@ var TableNames = struct {
 	LegalEntityTypes                  string
 	OrderRows                         string
 	Orders                            string
+	PaymentMethods                    string
+	Payments                          string
 	PriceAdditionTypes                string
 	ProductCategories                 string
 	ProductCategoryLanguages          string
@@ -47,6 +49,8 @@ var TableNames = struct {
 	LegalEntityTypes:                  "legal_entity_types",
 	OrderRows:                         "order_rows",
 	Orders:                            "orders",
+	PaymentMethods:                    "payment_methods",
+	Payments:                          "payments",
 	PriceAdditionTypes:                "price_addition_types",
 	ProductCategories:                 "product_categories",
 	ProductCategoryLanguages:          "product_category_languages",

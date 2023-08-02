@@ -77,7 +77,7 @@ const CheckoutPanel: React.FC = () => {
 
     useEffect(() => {
         if (data) {
-            toast.success('Ordine confermato con successo');
+            toast.success('Ordine creato con successo');
             navigate('/order/checkout/' + data.newOrder.id);
             return;
         }
@@ -91,8 +91,7 @@ const CheckoutPanel: React.FC = () => {
 
         const options = userAddresses.map((address) => {
             return {
-                title: <span> {address.addressName} <span
-                    className="text-sm text-accent-content/60 "> {address.addressLine1} </span> </span>,
+                title: <span> {address.addressName} <span className="text-sm text-accent-content/60"> {address.addressLine1} </span> </span>,
                 value: address,
             };
         });

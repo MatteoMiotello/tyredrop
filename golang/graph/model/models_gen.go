@@ -100,6 +100,15 @@ type PaginationInput struct {
 	Offset int `json:"offset"`
 }
 
+type PaymentMethod struct {
+	ID       int64   `json:"id"`
+	Code     string  `json:"code"`
+	Name     string  `json:"name"`
+	Receiver *string `json:"receiver,omitempty"`
+	BankName *string `json:"bank_name,omitempty"`
+	Iban     *string `json:"iban,omitempty"`
+}
+
 type ProductItemPaginate struct {
 	Pagination   *Pagination    `json:"pagination,omitempty"`
 	ProductItems []*ProductItem `json:"productItems,omitempty"`

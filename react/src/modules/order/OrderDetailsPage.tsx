@@ -3,7 +3,7 @@ import Moment from "react-moment";
 import {useLoaderData, useNavigate} from "react-router-dom";
 import {FetchOrderQuery, Order, OrderStatus} from "../../__generated__/graphql";
 import Panel from "../../common/components-library/Panel";
-import {Button, useModal} from "../../common/components/shelly-ui";
+import {Badge, Button, useModal} from "../../common/components/shelly-ui";
 import {Currency} from "../../common/utilities/currency";
 import OrderRowsTable from "./components/OrderRowsTable";
 import OrderStatusBadge from "./components/OrderStatusBadge";
@@ -15,8 +15,8 @@ const OrderDetailsPage: React.FC = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if ( order.order.status == OrderStatus.NotCompleted ) {
-            navigate( `/order/checkout/${order.order.id}` );
+        if (order.order.status == OrderStatus.NotCompleted) {
+            navigate(`/order/checkout/${order.order.id}`);
         }
     }, [order]);
 
@@ -80,6 +80,32 @@ const OrderDetailsPage: React.FC = () => {
                 <li><strong>CAP:</strong> {order.order.postalCode}</li>
             </ul>
         </Panel>
+        {
+            order.order?.payment &&
+            <Panel className="col-span-6">
+                <h3 className="font-semibold">Dati del pagamento</h3>
+                <p className="font-medium my-4"> Totale: { Currency.defaultFormat( order.order.payment.amount, order.order.currency.iso_code ) } </p>
+                <ul className="">
+                    <li > Metodo: <span className="font-medium"> {order.order.payment.userPaymentMethod.paymentMethod.name}</span> </li>
+                    {
+                        order.order.payment.userPaymentMethod.paymentMethod.receiver &&
+                        <li> Beneficiario: {order.order.payment.userPaymentMethod.paymentMethod.receiver} </li>
+                    }
+                    {
+                        order.order.payment.userPaymentMethod.paymentMethod.bank_name &&
+                        <li> Istituto: {order.order.payment.userPaymentMethod.paymentMethod.bank_name} </li>
+                    }
+                    {
+                        order.order.payment.userPaymentMethod.paymentMethod.bank_name?.length &&
+                        <li> IBAN: {order.order.payment.userPaymentMethod.paymentMethod.iban} </li>
+                    }
+                    {
+                        order.order.payment.userPaymentMethod.paymentMethod.receiver &&
+                        <li> Causale: <Badge>titw_order_#{order.order.id}</Badge> </li>
+                    }
+                </ul>
+            </Panel>
+        }
     </main>
         ;
 };

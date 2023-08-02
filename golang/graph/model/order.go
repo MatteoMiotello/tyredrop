@@ -12,6 +12,7 @@ type Order struct {
 	TaxID            int64       `json:"taxID"`
 	UserBillingID    int64       `json:"userBillingID"`
 	Status           OrderStatus `json:"status,omitempty"`
+	PaymentID        *int64      `json:"paymentId,omitempty"`
 	PriceAmount      float64     `json:"priceAmount"`
 	PriceAmountTotal float64     `json:"priceAmountTotal"`
 	TaxesAmount      float64     `json:"taxesAmount"`

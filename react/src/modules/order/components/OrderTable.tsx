@@ -51,7 +51,6 @@ const OrderTable: React.FC<OrderTableProps> = (props) => {
         {
             accessorKey: "status",
             header: "Stato",
-            size: 10,
             cell: (props: CellContext<Order, any>) => <OrderStatusBadge status={props.row.original.status}/>
         },
         {

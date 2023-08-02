@@ -12,7 +12,8 @@ const orderLoader: LoaderFunction = async ({params}) => {
         query: FETCH_ORDER,
         variables: {
             orderId: params.id as string
-        }
+        },
+        fetchPolicy: "no-cache"
     }).then(res => res.data);
 };
 

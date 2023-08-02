@@ -3,44 +3,34 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Disclosure, RadioGroup} from "@headlessui/react";
 import React, {useEffect, useState} from "react";
 import {useLoaderData, useNavigate} from "react-router-dom";
-import {FetchOrderQuery, OrderStatus} from "../../__generated__/graphql";
+import {
+    AllMethodsQuery,
+    AllMethodsQueryVariables,
+    FetchOrderQuery,
+    OrderStatus, PaymentMethod
+} from "../../__generated__/graphql";
 import Panel from "../../common/components-library/Panel";
 import {Button} from "../../common/components/shelly-ui";
 import {Currency} from "../../common/utilities/currency";
 import OrderRowsTable from "./components/OrderRowsTable";
+import {useMutation, useQuery} from "../../common/backend/graph/hooks";
+import {ALL_PAYMENT_METHODS} from "../../common/backend/graph/query/payments";
+import {PAY_ORDER} from "../../common/backend/graph/mutation/order";
+import {useToast} from "../../store/toast";
 
 const OrderCheckoutPage: React.FC = () => {
     const order = useLoaderData() as FetchOrderQuery;
     const navigate = useNavigate();
-    const [selected, setSelected] = useState();
+    const [selected, setSelected] = useState<PaymentMethod | undefined>();
+    const {data} = useQuery<AllMethodsQuery, AllMethodsQueryVariables>(ALL_PAYMENT_METHODS);
+    const [mutate] = useMutation(PAY_ORDER);
+    const toastr = useToast();
 
     useEffect(() => {
         if (order.order.status != OrderStatus.NotCompleted) {
             navigate(`/order/details/${order.order.id}`);
         }
     }, [order]);
-
-
-    const plans = [
-        {
-            name: 'Startup',
-            ram: '12GB',
-            cpus: '6 CPUs',
-            disk: '160 GB SSD disk',
-        },
-        {
-            name: 'Business',
-            ram: '16GB',
-            cpus: '8 CPUs',
-            disk: '512 GB SSD disk',
-        },
-        {
-            name: 'Enterprise',
-            ram: '32GB',
-            cpus: '12 CPUs',
-            disk: '1024 GB SSD disk',
-        },
-    ];
 
     return <main className="flex flex-col items-start md:flex-row gap-2 mt-2 mx-1">
         <Panel className="col-span-2 flex-1 ">
@@ -97,59 +87,61 @@ const OrderCheckoutPage: React.FC = () => {
                                 <RadioGroup value={selected} onChange={setSelected}>
                                     <RadioGroup.Label className="sr-only">Server size</RadioGroup.Label>
                                     <div className="space-y-2">
-                                        {plans.map((plan) => (
-                                            <RadioGroup.Option
-                                                key={plan.name}
-                                                value={plan}
-                                                className={({active, checked}) =>
-                                                    `${
-                                                        active
-                                                            ? 'ring-2 ring-white ring-opacity-60 ring-offset-2 ring-offset-sky-300'
-                                                            : ''
-                                                    }
+                                        {
+                                            data?.paymentMethods &&
+                                            data?.paymentMethods.map((method) => (
+                                                <RadioGroup.Option
+                                                    key={method?.name}
+                                                    value={method}
+                                                    className={({active, checked}) =>
+                                                        `${
+                                                            active
+                                                                ? 'ring-2 ring-white ring-opacity-60 ring-offset-2 ring-offset-sky-300'
+                                                                : ''
+                                                        }
                   ${
-                                                        checked ? 'bg-sky-900 bg-opacity-75 text-white' : 'bg-white'
-                                                    }
+                                                            checked ? 'bg-secondary bg-opacity-75 text-white' : 'bg-white'
+                                                        }
                     relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none`
-                                                }
-                                            >
-                                                {({active, checked}) => (
-                                                    <>
-                                                        <div className="flex w-full items-center justify-between">
-                                                            <div className="flex items-center">
-                                                                <div className="text-sm">
-                                                                    <RadioGroup.Label
-                                                                        as="p"
-                                                                        className={`font-medium  ${
-                                                                            checked ? 'text-white' : 'text-gray-900'
-                                                                        }`}
-                                                                    >
-                                                                        {plan.name}
-                                                                    </RadioGroup.Label>
-                                                                    <RadioGroup.Description
-                                                                        as="span"
-                                                                        className={`inline ${
-                                                                            checked ? 'text-sky-100' : 'text-gray-500'
-                                                                        }`}
-                                                                    >
-                            <span>
-                              {plan.ram}/{plan.cpus}
-                            </span>{' '}
-                                                                        <span aria-hidden="true">&middot;</span>{' '}
-                                                                        <span>{plan.disk}</span>
-                                                                    </RadioGroup.Description>
+                                                    }
+                                                >
+                                                    {({active, checked}) => (
+                                                        <>
+                                                            <div className="flex w-full items-center justify-between">
+                                                                <div className="flex items-center">
+                                                                    <div className="text-sm">
+                                                                        <RadioGroup.Label
+                                                                            as="p"
+                                                                            className={`font-medium  ${
+                                                                                checked ? 'text-white' : 'text-gray-900'
+                                                                            }`}
+                                                                        >
+                                                                            {method?.name}
+                                                                        </RadioGroup.Label>
+                                                                        <RadioGroup.Description
+                                                                            as="span"
+                                                                            className={`inline ${
+                                                                                checked ? 'text-sky-100' : 'text-gray-500'
+                                                                            }`}
+                                                                        >
+                                                                            <ul>
+                                                                                <li>{method?.receiver}</li>
+                                                                                <li> {method?.bank_name} </li>
+                                                                                <li> {method?.iban} </li>
+                                                                            </ul>
+                                                                        </RadioGroup.Description>
+                                                                    </div>
                                                                 </div>
+                                                                {checked && (
+                                                                    <div className="shrink-0 text-white">
+                                                                        <FontAwesomeIcon icon={faCheck}/>
+                                                                    </div>
+                                                                )}
                                                             </div>
-                                                            {checked && (
-                                                                <div className="shrink-0 text-white">
-                                                                    <FontAwesomeIcon icon={faCheck}/>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </>
-                                                )}
-                                            </RadioGroup.Option>
-                                        ))}
+                                                        </>
+                                                    )}
+                                                </RadioGroup.Option>
+                                            ))}
                                     </div>
                                 </RadioGroup>
                             </Disclosure.Panel>
@@ -174,7 +166,21 @@ const OrderCheckoutPage: React.FC = () => {
                 {Currency.defaultFormat(order.order.priceAmountTotal, order.order.currency.iso_code)}
             </span>
             </div>
-            <Button buttonType="primary" className="w-full mt-4">
+            <Button buttonType="primary" className="w-full mt-4" onClick={ () => {
+                if ( !selected ) {
+                    toastr.error( "Non è stato selezionato alcun metodo di pagamento." );
+                    return;
+                }
+
+                mutate( {
+                    variables: {
+                        orderId: order.order.id,
+                        methodCode: selected.code,
+                    }
+                } ).then( () => {
+                    navigate( `/order/details/${order.order.id}` );
+                } );
+            } }>
                 Conferma ordine
             </Button>
         </Panel>

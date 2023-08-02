@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/friendsofgo/errors"
+	"github.com/volatiletech/null/v8"
 	"pillowww/titw/graph/model"
 	"pillowww/titw/internal/currency"
 	"pillowww/titw/internal/domain/product"
@@ -149,7 +150,25 @@ func (s *service) updateOrderPrice(ctx context.Context) {
 
 }
 
-func (s *service) updateOrderStatus(ctx context.Context, order *models.Order, newStatus model.OrderStatus) error {
+func (s *service) PayOrder(ctx context.Context, o *models.Order, p *models.Payment) error {
+	o.PaymentID = null.Int64From(p.ID)
+
+	err := s.orderDao.Save(ctx, o)
+
+	if err != nil {
+		return err
+	}
+
+	err = s.UpdateOrderStatus(ctx, o, model.OrderStatusNew)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *service) UpdateOrderStatus(ctx context.Context, order *models.Order, newStatus model.OrderStatus) error {
 	if !newStatus.IsValid() {
 		return errors.New("Invalid status prompted")
 	}
@@ -164,7 +183,7 @@ func (s *service) updateOrderStatus(ctx context.Context, order *models.Order, ne
 
 	order.Status = newStatus.String()
 
-	err := s.orderDao.Insert(ctx, order)
+	err := s.orderDao.Save(ctx, order)
 
 	if err != nil {
 		return err

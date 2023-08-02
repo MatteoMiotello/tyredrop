@@ -29,6 +29,8 @@ type Order {
     taxID: ID!
     userBilling: UserBilling!
     userBillingID: ID!
+    paymentID: ID
+    payment: Payment
     status: OrderStatus!
     priceAmount: Float!
     taxesAmount: Float!

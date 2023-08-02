@@ -1,3 +1,5 @@
 extend type Mutation {
     orderSupport( orderID: ID! message: String! ): Order! @userConfirmed
+
+    payOrder( orderID: ID!, paymentMethodCode: String! ): Order! @userConfirmed
 }
