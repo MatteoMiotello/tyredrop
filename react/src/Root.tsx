@@ -24,7 +24,12 @@ import Moment from "react-moment";
 import 'moment/locale/it';
 import {adminRoutes} from "./modules/admin/routes";
 import ContactsPage from "./common/pages/ContactsPage";
+import CommonTemplate from "./CommonTemplate";
 import GeneralTermsPage from "./common/pages/GeneralTermsPage";
+import AboutPage from "./common/pages/AboutPage";
+import FaqPage from "./common/pages/FaqPage";
+import LegalMentionsPage from "./common/pages/LegalMentionsPage";
+import PrivacyPage from "./common/pages/PrivacyPage";
 
 Moment.globalMoment = moment;
 Moment.globalLocale = 'it';
@@ -43,20 +48,6 @@ const router = createBrowserRouter([
             crumb: () => <Link className="link" to="/"> Home </Link>
         },
         children: [
-            {
-                path: 'contacts',
-                handle: {
-                    crumb: () => <span> Contatti </span>
-                },
-                Component: ContactsPage
-            },
-            {
-                path: 'general-terms',
-                handle: {
-                    crumb: () => <span> Condizioni generali di vendita </span>
-                },
-                Component: GeneralTermsPage,
-            },
             billingRoute,
             productRoute,
             cartRoute,
@@ -77,6 +68,54 @@ const router = createBrowserRouter([
     {
         path: '/not_confirmed',
         element: <NotConfirmedPage/>
+    },
+    {
+        path: '/',
+        element: <CommonTemplate/>,
+        children: [
+            {
+                path: 'general-terms',
+                handle: {
+                    crumb: () => <span> Condizioni generali di vendita </span>
+                },
+                Component: GeneralTermsPage,
+            },
+            {
+                path: 'contacts',
+                handle: {
+                    crumb: () => <span> Contatti </span>
+                },
+                Component: ContactsPage
+            },
+            {
+                path: 'about',
+                handle: {
+                    crumb: () => <span> A proposito di Tyres in the world </span>
+                },
+                Component: AboutPage
+            },
+            {
+                path: 'privacy',
+                handle: {
+                    crumb: () => <span> Dichiarazione sulla privacy </span>
+                },
+                Component: PrivacyPage
+            },
+            {
+                path: 'faq',
+                handle: {
+                    crumb: () => <span> FAQ </span>
+                },
+                Component: FaqPage,
+            },
+            {
+                path: 'legal-mentions',
+                handle: {
+                    crumb: () => <span> Menzioni legali </span>
+                },
+                Component: LegalMentionsPage,
+            }
+        ]
     },
     authRoutes
 ]);

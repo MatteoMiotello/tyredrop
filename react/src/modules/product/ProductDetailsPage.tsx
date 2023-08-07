@@ -119,7 +119,7 @@ const ProductDetailsPage: React.FC = () => {
                 </Panel>
                 <div className="bg-secondary text-base-100 mt-4 rounded-box p-4">
                     <p className="my-2"><FontAwesomeIcon icon={faTruckFast}/> Consenga in 4-5 giorni lavorativi</p>
-                    <p className="my-2"><FontAwesomeIcon icon={faMoneyBill}/> Pagamento SEPA</p>
+                    <p className="my-2"><FontAwesomeIcon icon={faMoneyBill}/> Pagamento SEPA o Bonifico Bancario</p>
                 </div>
             </div>
             {

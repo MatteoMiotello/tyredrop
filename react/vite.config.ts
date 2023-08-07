@@ -8,6 +8,7 @@ export default defineConfig({
       react(),
       viteSvgr(),
   ],
+    assetsInclude: ['**/*.md'],
     resolve: {
         mainFields: []
     },

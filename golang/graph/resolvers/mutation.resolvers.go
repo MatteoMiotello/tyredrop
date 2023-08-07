@@ -9,6 +9,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"pillowww/titw/graph"
 	"pillowww/titw/graph/aggregators"
 	"pillowww/titw/graph/converters"
@@ -134,10 +135,31 @@ func (r *mutationResolver) AddItemToCart(ctx context.Context, itemID int64, quan
 
 // EditCart is the resolver for the editCart field.
 func (r *mutationResolver) EditCart(ctx context.Context, cartID int64, quantity int) (*model.CartResponse, error) {
-	c, err := r.CartDao.FindOneById(ctx, cartID)
+	c, err := r.CartDao.
+		Load(qm.Rels(
+			models.CartRels.ProductItemPrice,
+			models.ProductItemPriceRels.ProductItem,
+		)).
+		FindOneById(ctx, cartID)
 
 	if err != nil {
 		return nil, err
+	}
+
+	price := c.R.ProductItemPrice
+
+	if price == nil {
+		return nil, graphErrors.NewGraphError(ctx, errors.New("Price not found for cart"), "PRICE_NOT_FOUND")
+	}
+
+	item := price.R.ProductItem
+
+	if item == nil {
+		return nil, graphErrors.NewGraphError(ctx, errors.New("Item not found for cart"), "ITEM_NOT_FOUND")
+	}
+
+	if quantity > item.SupplierQuantity {
+		return nil, graphErrors.NewGraphError(ctx, errors.New("Quantity not available"), "QUANTITY_NOT_AVAILABLE")
 	}
 
 	if quantity < 0 {
