@@ -148,7 +148,7 @@ const CheckoutPanel: React.FC = () => {
                 </>
             }
             <div className="divider"></div>
-            <div className="flex justify-between"><span>Totale IVA:</span> {getTaxesPrices()} </div>
+            <div className="flex justify-between"><span>Totale IVA (22%):</span> {getTaxesPrices()} </div>
         </div>
         <div className="ml-auto mt-10 flex flex-col text-secondary text-sm">
             {t("cart.total_price")}

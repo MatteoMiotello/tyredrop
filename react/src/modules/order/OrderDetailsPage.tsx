@@ -46,7 +46,7 @@ const OrderDetailsPage: React.FC = () => {
             )}</div>
             <div className="text-sm mt-4">
                 <div>
-                    Totale IVA: {Currency.defaultFormat(order.order.taxesAmount, order.order.currency.iso_code)}
+                    Totale IVA (22%): {Currency.defaultFormat(order.order.taxesAmount, order.order.currency.iso_code)}
                 </div>
                 <div>
                     Totale senza IVA: {Currency.defaultFormat(order.order.priceAmount, order.order.currency.iso_code)}
