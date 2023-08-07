@@ -12,7 +12,7 @@ const MarkdownPage  = memo( ({path}: MarkdownPageProps ) => {
     const [loading, setLoading] = useState(false);
 
     useEffect( () => {
-        import(`./${path}.md`).then(res => {
+        import(`./../../assets/pages/${path}.md`).then(res => {
             setLoading(true);
 
             fetch(res.default)

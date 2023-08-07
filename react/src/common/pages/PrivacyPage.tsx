@@ -5,7 +5,7 @@ import MarkdownPage from "../components/MarkdownPage";
 const PrivacyPage: React.FC = () => {
     return <main>
         <Panel className="px-8">
-            <MarkdownPage path="../../assets/pages/privacy"/>
+            <MarkdownPage path="privacy"/>
         </Panel>
     </main>;
 };

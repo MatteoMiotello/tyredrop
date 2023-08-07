@@ -5,7 +5,7 @@ import MarkdownPage from "../components/MarkdownPage";
 const LegalMentionsPage: React.FC = () => {
     return <main>
         <Panel>
-            <MarkdownPage path="../../assets/pages/legal-mentions"/>
+            <MarkdownPage path="legal-mentions"/>
         </Panel>
     </main>;
 };

@@ -5,7 +5,7 @@ import MarkdownPage from "../components/MarkdownPage";
 const TyresInTheWorld = () => {
     return (
         <Panel className="px-8">
-            <MarkdownPage path="../../assets/pages/about"/>
+            <MarkdownPage path="about"/>
         </Panel>
     );
 };

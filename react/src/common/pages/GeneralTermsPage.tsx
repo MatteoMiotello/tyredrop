@@ -6,7 +6,7 @@ import Markdown from "../components/MarkdownPage";
 const GeneralTermsPage: React.FC = () => {
     return <main className="flex items-center">
         <Panel className="px-8">
-            <Markdown path="../../assets/pages/termsÀ"/>
+            <Markdown path="terms"/>
         </Panel>
     </main>;
 };
