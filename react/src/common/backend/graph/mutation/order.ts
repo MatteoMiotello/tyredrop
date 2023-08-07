@@ -8,3 +8,11 @@ export const NEW_ORDER = gql(`
         }
     }
 `);
+
+export const PAY_ORDER = gql(`
+    mutation payOrder( $orderId: ID!, $methodCode: String! ) {
+        payOrder(orderID: $orderId, paymentMethodCode: $methodCode) {
+            id
+        }
+    }
+`);

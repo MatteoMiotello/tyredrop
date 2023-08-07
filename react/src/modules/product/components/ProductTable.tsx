@@ -90,6 +90,7 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
         },
         {
             accessorKey: "supplier_quantity",
+            size: 200,
             cell: (props: CellContext<ProductRowItemData, any>) => <AvailabilityBadge quantity={props.getValue()}/>
         },
         {

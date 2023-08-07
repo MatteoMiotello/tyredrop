@@ -100,6 +100,15 @@ type PaginationInput struct {
 	Offset int `json:"offset"`
 }
 
+type PaymentMethod struct {
+	ID       int64   `json:"id"`
+	Code     string  `json:"code"`
+	Name     string  `json:"name"`
+	Receiver *string `json:"receiver,omitempty"`
+	BankName *string `json:"bank_name,omitempty"`
+	Iban     *string `json:"iban,omitempty"`
+}
+
 type ProductItemPaginate struct {
 	Pagination   *Pagination    `json:"pagination,omitempty"`
 	ProductItems []*ProductItem `json:"productItems,omitempty"`
@@ -181,15 +190,17 @@ type VehicleType struct {
 type OrderStatus string
 
 const (
-	OrderStatusNew       OrderStatus = "NEW"
-	OrderStatusConfirmed OrderStatus = "CONFIRMED"
-	OrderStatusCanceled  OrderStatus = "CANCELED"
-	OrderStatusRejected  OrderStatus = "REJECTED"
-	OrderStatusDelivered OrderStatus = "DELIVERED"
-	OrderStatusReturned  OrderStatus = "RETURNED"
+	OrderStatusNotCompleted OrderStatus = "NOT_COMPLETED"
+	OrderStatusNew          OrderStatus = "NEW"
+	OrderStatusConfirmed    OrderStatus = "CONFIRMED"
+	OrderStatusCanceled     OrderStatus = "CANCELED"
+	OrderStatusRejected     OrderStatus = "REJECTED"
+	OrderStatusDelivered    OrderStatus = "DELIVERED"
+	OrderStatusReturned     OrderStatus = "RETURNED"
 )
 
 var AllOrderStatus = []OrderStatus{
+	OrderStatusNotCompleted,
 	OrderStatusNew,
 	OrderStatusConfirmed,
 	OrderStatusCanceled,
@@ -200,7 +211,7 @@ var AllOrderStatus = []OrderStatus{
 
 func (e OrderStatus) IsValid() bool {
 	switch e {
-	case OrderStatusNew, OrderStatusConfirmed, OrderStatusCanceled, OrderStatusRejected, OrderStatusDelivered, OrderStatusReturned:
+	case OrderStatusNotCompleted, OrderStatusNew, OrderStatusConfirmed, OrderStatusCanceled, OrderStatusRejected, OrderStatusDelivered, OrderStatusReturned:
 		return true
 	}
 	return false

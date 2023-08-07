@@ -7,6 +7,7 @@ import (
 	"pillowww/titw/internal/domain/cart"
 	"pillowww/titw/internal/domain/legal_entity"
 	"pillowww/titw/internal/domain/order"
+	"pillowww/titw/internal/domain/payment"
 	"pillowww/titw/internal/domain/product"
 	"pillowww/titw/internal/domain/supplier"
 	"pillowww/titw/internal/domain/user"
@@ -34,6 +35,7 @@ type Resolver struct {
 	LegalEntityDao               *legal_entity.Dao
 	CartDao                      *cart.Dao
 	OrderDao                     *order.Dao
+	PaymentDao                   *payment.Dao
 }
 
 func NewResolver(exec boil.ContextExecutor) *Resolver {
@@ -54,5 +56,6 @@ func NewResolver(exec boil.ContextExecutor) *Resolver {
 		UserAddressDao:               user.NewAddressDao(exec),
 		OrderDao:                     order.NewDao(exec),
 		ProductItemPriceDao:          product.NewItemPriceDao(exec),
+		PaymentDao:                   payment.NewDao(exec),
 	}
 }

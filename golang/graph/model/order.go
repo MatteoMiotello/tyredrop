@@ -12,6 +12,7 @@ type Order struct {
 	TaxID            int64       `json:"taxID"`
 	UserBillingID    int64       `json:"userBillingID"`
 	Status           OrderStatus `json:"status,omitempty"`
+	PaymentID        *int64      `json:"paymentId,omitempty"`
 	PriceAmount      float64     `json:"priceAmount"`
 	PriceAmountTotal float64     `json:"priceAmountTotal"`
 	TaxesAmount      float64     `json:"taxesAmount"`
@@ -38,8 +39,10 @@ type OrderRow struct {
 
 func (o OrderStatus) IsValidForOrder(order *models.Order) bool {
 	switch o {
-	case OrderStatusNew:
+	case OrderStatusNotCompleted:
 		return false
+	case OrderStatusNew:
+		return order.Status == OrderStatusNotCompleted.String()
 	case OrderStatusConfirmed, OrderStatusRejected, OrderStatusCanceled:
 		return order.Status == OrderStatusNew.String()
 	case OrderStatusDelivered:

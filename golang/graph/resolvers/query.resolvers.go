@@ -437,6 +437,23 @@ func (r *queryResolver) UserOrders(ctx context.Context, userID int64, pagination
 	}, nil
 }
 
+// PaymentMethods is the resolver for the paymentMethods field.
+func (r *queryResolver) PaymentMethods(ctx context.Context) ([]*model.PaymentMethod, error) {
+	methods, err := r.PaymentDao.FindAllPaymentMethods(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var graphModels []*model.PaymentMethod
+
+	for _, method := range methods {
+		graphModels = append(graphModels, converters.PaymentMethodToGraphQL(method))
+	}
+
+	return graphModels, err
+}
+
 // Query returns graph.QueryResolver implementation.
 func (r *Resolver) Query() graph.QueryResolver { return &queryResolver{r} }
 

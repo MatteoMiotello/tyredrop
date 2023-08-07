@@ -22,6 +22,19 @@ export const FETCH_ORDER = gql `
             postalCode
             status
             createdAt
+            payment {
+                id
+                amount
+                userPaymentMethod {
+                    id
+                    paymentMethod {
+                        name
+                        iban
+                        bank_name
+                        receiver
+                    }
+                }
+            }
             userBilling {
                 id
                 name

@@ -6,6 +6,7 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 	"pillowww/titw/graph"
 	"pillowww/titw/graph/aggregators"
 	"pillowww/titw/graph/converters"
@@ -45,6 +46,30 @@ func (r *orderResolver) UserBilling(ctx context.Context, obj *model.Order) (*mod
 	}
 
 	return converters.UserBillingToGraphQL(billingModel), nil
+}
+
+// PaymentID is the resolver for the paymentID field.
+func (r *orderResolver) PaymentID(ctx context.Context, obj *model.Order) (*int64, error) {
+	panic(fmt.Errorf("not implemented: PaymentID - paymentID"))
+}
+
+// Payment is the resolver for the payment field.
+func (r *orderResolver) Payment(ctx context.Context, obj *model.Order) (*model.Payment, error) {
+	if obj.PaymentID == nil {
+		return nil, nil
+	}
+
+	p, err := r.PaymentDao.
+		Load(
+			models.PaymentRels.Currency,
+		).
+		FindOneById(ctx, *obj.PaymentID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return converters.PaymentToGraphQL(p)
 }
 
 // OrderRows is the resolver for the orderRows field.

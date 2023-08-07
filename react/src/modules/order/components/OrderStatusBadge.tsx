@@ -8,6 +8,10 @@ type OrderStatusBadgeProps = {
 }
 
 export const badgeConfig: { [key in OrderStatus]: { title: string, color: string } } = {
+    NOT_COMPLETED: {
+        title: "Da completare",
+        color: "#A0A0A0"
+    },
     CANCELED: {
         title: "Cancellato",
         color: "#FF6666"
@@ -26,7 +30,7 @@ export const badgeConfig: { [key in OrderStatus]: { title: string, color: string
     },
     REJECTED: {
         title: "Rifiutato",
-        color: "#A0A0A0"
+        color: "#313131"
     },
     RETURNED: {
         title: "Rimborsato",

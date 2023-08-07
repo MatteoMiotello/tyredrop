@@ -1,15 +1,14 @@
-import {faShoppingCart} from "@fortawesome/free-solid-svg-icons";
+import {faMinus, faPlus, faShoppingCart} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import React, {useState} from "react";
 import {useTranslation} from "react-i18next";
 import {useDispatch} from "react-redux";
 import {ThunkDispatch} from "redux-thunk";
-import Button from "../../../common/components-library/Button";
 import LoadingSpinner from "../../../common/components-library/LoadingSpinner";
 
 import {addCartItem} from "../../cart/store/cart-slice";
 import {useToast} from "../../../store/toast";
-import {Input} from "../../../common/components/shelly-ui";
+import {Button, Input, Join} from "../../../common/components/shelly-ui";
 
 type AddItemToCartButton = {
     itemId: string,
@@ -18,37 +17,51 @@ type AddItemToCartButton = {
 
 const AddItemToCartButton: React.FC<AddItemToCartButton> = (props) => {
     const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
-    const [quantity, setQuantity] = useState(1);
+    const [quantity, setQuantity] = useState<number>(1);
     const {success, error} = useToast();
     const {t} = useTranslation();
     const [loading, setLoading] = useState<boolean>(false);
 
     return <div className="flex">
-        <Input.FormControl>
-            <Input
-                min={0}
-                className="!w-16"
-                defaultValue={quantity}
-                type="number"
-                name="quantity"
-                placeholder="1"
-                onValueChange={setQuantity}
-                validators={[(value) => {
-                    if (Number(value) > props.quantity) {
-                        return 'La quantità selezionata non è disponibile';
-                    }
+        <Join>
+            <Button className="join-item" disabled={quantity == 0} onClick={() => {
+                if (quantity <= 0) {
+                    return;
+                }
+                setQuantity(quantity - 1);
+            }}><FontAwesomeIcon icon={faMinus}/></Button>
+            <Input.FormControl className="join-item">
+                <Input
+                    min={0}
+                    bordered={false}
+                    className="!w-14 !outline-none input-ghost text-center"
+                    value={String( quantity )}
+                    type="number"
+                    name="quantity"
+                    placeholder="1"
+                    onValueChange={ (val) => {
+                        setQuantity(Number(val));
+                    }}
+                    validators={[(value) => {
+                        if (Number(value) > props.quantity) {
+                            return 'La quantità selezionata non è disponibile';
+                        }
 
-                    return null;
-                }]}
-            />
-        </Input.FormControl>
+                        return null;
+                    }]}
+                />
+            </Input.FormControl>
+            <Button className="join-item" onClick={() => {
+                setQuantity(quantity + 1);
+            }}><FontAwesomeIcon icon={faPlus}/></Button>
+        </Join>
         {props.quantity >= 4 &&
             <Button
                 className="mx-2 aspect-square"
-                type={"primary"}
+                buttonType="primary"
                 onClick={() => {
                     if (quantity <= 0) {
-                        error( 'Selezionare una quantità valida' );
+                        error('Selezionare una quantità valida');
                         return;
                     }
 

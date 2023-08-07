@@ -24,103 +24,116 @@ import (
 
 // UserPaymentMethod is an object representing the database table.
 type UserPaymentMethod struct {
-	ID          int64     `boil:"id" json:"id" toml:"id" yaml:"id"`
-	UserID      int64     `boil:"user_id" json:"user_id" toml:"user_id" yaml:"user_id"`
-	Type        string    `boil:"type" json:"type" toml:"type" yaml:"type"`
-	Name        string    `boil:"name" json:"name" toml:"name" yaml:"name"`
-	Value       string    `boil:"value" json:"value" toml:"value" yaml:"value"`
-	TypePrimary bool      `boil:"type_primary" json:"type_primary" toml:"type_primary" yaml:"type_primary"`
-	DeletedAt   null.Time `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
-	UpdatedAt   time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
-	CreatedAt   time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	ID              int64       `boil:"id" json:"id" toml:"id" yaml:"id"`
+	UserID          int64       `boil:"user_id" json:"user_id" toml:"user_id" yaml:"user_id"`
+	Name            string      `boil:"name" json:"name" toml:"name" yaml:"name"`
+	Value           null.String `boil:"value" json:"value,omitempty" toml:"value" yaml:"value,omitempty"`
+	TypePrimary     bool        `boil:"type_primary" json:"type_primary" toml:"type_primary" yaml:"type_primary"`
+	DeletedAt       null.Time   `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
+	UpdatedAt       time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	CreatedAt       time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	PaymentMethodID int64       `boil:"payment_method_id" json:"payment_method_id" toml:"payment_method_id" yaml:"payment_method_id"`
 
 	R *userPaymentMethodR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L userPaymentMethodL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var UserPaymentMethodColumns = struct {
-	ID          string
-	UserID      string
-	Type        string
-	Name        string
-	Value       string
-	TypePrimary string
-	DeletedAt   string
-	UpdatedAt   string
-	CreatedAt   string
+	ID              string
+	UserID          string
+	Name            string
+	Value           string
+	TypePrimary     string
+	DeletedAt       string
+	UpdatedAt       string
+	CreatedAt       string
+	PaymentMethodID string
 }{
-	ID:          "id",
-	UserID:      "user_id",
-	Type:        "type",
-	Name:        "name",
-	Value:       "value",
-	TypePrimary: "type_primary",
-	DeletedAt:   "deleted_at",
-	UpdatedAt:   "updated_at",
-	CreatedAt:   "created_at",
+	ID:              "id",
+	UserID:          "user_id",
+	Name:            "name",
+	Value:           "value",
+	TypePrimary:     "type_primary",
+	DeletedAt:       "deleted_at",
+	UpdatedAt:       "updated_at",
+	CreatedAt:       "created_at",
+	PaymentMethodID: "payment_method_id",
 }
 
 var UserPaymentMethodTableColumns = struct {
-	ID          string
-	UserID      string
-	Type        string
-	Name        string
-	Value       string
-	TypePrimary string
-	DeletedAt   string
-	UpdatedAt   string
-	CreatedAt   string
+	ID              string
+	UserID          string
+	Name            string
+	Value           string
+	TypePrimary     string
+	DeletedAt       string
+	UpdatedAt       string
+	CreatedAt       string
+	PaymentMethodID string
 }{
-	ID:          "user_payment_methods.id",
-	UserID:      "user_payment_methods.user_id",
-	Type:        "user_payment_methods.type",
-	Name:        "user_payment_methods.name",
-	Value:       "user_payment_methods.value",
-	TypePrimary: "user_payment_methods.type_primary",
-	DeletedAt:   "user_payment_methods.deleted_at",
-	UpdatedAt:   "user_payment_methods.updated_at",
-	CreatedAt:   "user_payment_methods.created_at",
+	ID:              "user_payment_methods.id",
+	UserID:          "user_payment_methods.user_id",
+	Name:            "user_payment_methods.name",
+	Value:           "user_payment_methods.value",
+	TypePrimary:     "user_payment_methods.type_primary",
+	DeletedAt:       "user_payment_methods.deleted_at",
+	UpdatedAt:       "user_payment_methods.updated_at",
+	CreatedAt:       "user_payment_methods.created_at",
+	PaymentMethodID: "user_payment_methods.payment_method_id",
 }
 
 // Generated where
 
 var UserPaymentMethodWhere = struct {
-	ID          whereHelperint64
-	UserID      whereHelperint64
-	Type        whereHelperstring
-	Name        whereHelperstring
-	Value       whereHelperstring
-	TypePrimary whereHelperbool
-	DeletedAt   whereHelpernull_Time
-	UpdatedAt   whereHelpertime_Time
-	CreatedAt   whereHelpertime_Time
+	ID              whereHelperint64
+	UserID          whereHelperint64
+	Name            whereHelperstring
+	Value           whereHelpernull_String
+	TypePrimary     whereHelperbool
+	DeletedAt       whereHelpernull_Time
+	UpdatedAt       whereHelpertime_Time
+	CreatedAt       whereHelpertime_Time
+	PaymentMethodID whereHelperint64
 }{
-	ID:          whereHelperint64{field: "\"user_payment_methods\".\"id\""},
-	UserID:      whereHelperint64{field: "\"user_payment_methods\".\"user_id\""},
-	Type:        whereHelperstring{field: "\"user_payment_methods\".\"type\""},
-	Name:        whereHelperstring{field: "\"user_payment_methods\".\"name\""},
-	Value:       whereHelperstring{field: "\"user_payment_methods\".\"value\""},
-	TypePrimary: whereHelperbool{field: "\"user_payment_methods\".\"type_primary\""},
-	DeletedAt:   whereHelpernull_Time{field: "\"user_payment_methods\".\"deleted_at\""},
-	UpdatedAt:   whereHelpertime_Time{field: "\"user_payment_methods\".\"updated_at\""},
-	CreatedAt:   whereHelpertime_Time{field: "\"user_payment_methods\".\"created_at\""},
+	ID:              whereHelperint64{field: "\"user_payment_methods\".\"id\""},
+	UserID:          whereHelperint64{field: "\"user_payment_methods\".\"user_id\""},
+	Name:            whereHelperstring{field: "\"user_payment_methods\".\"name\""},
+	Value:           whereHelpernull_String{field: "\"user_payment_methods\".\"value\""},
+	TypePrimary:     whereHelperbool{field: "\"user_payment_methods\".\"type_primary\""},
+	DeletedAt:       whereHelpernull_Time{field: "\"user_payment_methods\".\"deleted_at\""},
+	UpdatedAt:       whereHelpertime_Time{field: "\"user_payment_methods\".\"updated_at\""},
+	CreatedAt:       whereHelpertime_Time{field: "\"user_payment_methods\".\"created_at\""},
+	PaymentMethodID: whereHelperint64{field: "\"user_payment_methods\".\"payment_method_id\""},
 }
 
 // UserPaymentMethodRels is where relationship names are stored.
 var UserPaymentMethodRels = struct {
-	User string
+	PaymentMethod string
+	User          string
+	Payments      string
 }{
-	User: "User",
+	PaymentMethod: "PaymentMethod",
+	User:          "User",
+	Payments:      "Payments",
 }
 
 // userPaymentMethodR is where relationships are stored.
 type userPaymentMethodR struct {
-	User *User `boil:"User" json:"User" toml:"User" yaml:"User"`
+	PaymentMethod *PaymentMethod `boil:"PaymentMethod" json:"PaymentMethod" toml:"PaymentMethod" yaml:"PaymentMethod"`
+	User          *User          `boil:"User" json:"User" toml:"User" yaml:"User"`
+	Payments      PaymentSlice   `boil:"Payments" json:"Payments" toml:"Payments" yaml:"Payments"`
 }
 
 // NewStruct creates a new relationship struct
 func (*userPaymentMethodR) NewStruct() *userPaymentMethodR {
 	return &userPaymentMethodR{}
+}
+
+func (r *userPaymentMethodR) GetPaymentMethod() *PaymentMethod {
+	if r == nil {
+		return nil
+	}
+	return r.PaymentMethod
 }
 
 func (r *userPaymentMethodR) GetUser() *User {
@@ -130,13 +143,20 @@ func (r *userPaymentMethodR) GetUser() *User {
 	return r.User
 }
 
+func (r *userPaymentMethodR) GetPayments() PaymentSlice {
+	if r == nil {
+		return nil
+	}
+	return r.Payments
+}
+
 // userPaymentMethodL is where Load methods for each relationship are stored.
 type userPaymentMethodL struct{}
 
 var (
-	userPaymentMethodAllColumns            = []string{"id", "user_id", "type", "name", "value", "type_primary", "deleted_at", "updated_at", "created_at"}
-	userPaymentMethodColumnsWithoutDefault = []string{"user_id", "type", "name", "value", "type_primary"}
-	userPaymentMethodColumnsWithDefault    = []string{"id", "deleted_at", "updated_at", "created_at"}
+	userPaymentMethodAllColumns            = []string{"id", "user_id", "name", "value", "type_primary", "deleted_at", "updated_at", "created_at", "payment_method_id"}
+	userPaymentMethodColumnsWithoutDefault = []string{"user_id", "name", "type_primary", "payment_method_id"}
+	userPaymentMethodColumnsWithDefault    = []string{"id", "value", "deleted_at", "updated_at", "created_at"}
 	userPaymentMethodPrimaryKeyColumns     = []string{"id"}
 	userPaymentMethodGeneratedColumns      = []string{}
 )
@@ -419,6 +439,17 @@ func (q userPaymentMethodQuery) Exists(ctx context.Context, exec boil.ContextExe
 	return count > 0, nil
 }
 
+// PaymentMethod pointed to by the foreign key.
+func (o *UserPaymentMethod) PaymentMethod(mods ...qm.QueryMod) paymentMethodQuery {
+	queryMods := []qm.QueryMod{
+		qm.Where("\"id\" = ?", o.PaymentMethodID),
+	}
+
+	queryMods = append(queryMods, mods...)
+
+	return PaymentMethods(queryMods...)
+}
+
 // User pointed to by the foreign key.
 func (o *UserPaymentMethod) User(mods ...qm.QueryMod) userQuery {
 	queryMods := []qm.QueryMod{
@@ -428,6 +459,141 @@ func (o *UserPaymentMethod) User(mods ...qm.QueryMod) userQuery {
 	queryMods = append(queryMods, mods...)
 
 	return Users(queryMods...)
+}
+
+// Payments retrieves all the payment's Payments with an executor.
+func (o *UserPaymentMethod) Payments(mods ...qm.QueryMod) paymentQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("\"payments\".\"user_payment_method_id\"=?", o.ID),
+	)
+
+	return Payments(queryMods...)
+}
+
+// LoadPaymentMethod allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for an N-1 relationship.
+func (userPaymentMethodL) LoadPaymentMethod(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUserPaymentMethod interface{}, mods queries.Applicator) error {
+	var slice []*UserPaymentMethod
+	var object *UserPaymentMethod
+
+	if singular {
+		var ok bool
+		object, ok = maybeUserPaymentMethod.(*UserPaymentMethod)
+		if !ok {
+			object = new(UserPaymentMethod)
+			ok = queries.SetFromEmbeddedStruct(&object, &maybeUserPaymentMethod)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", object, maybeUserPaymentMethod))
+			}
+		}
+	} else {
+		s, ok := maybeUserPaymentMethod.(*[]*UserPaymentMethod)
+		if ok {
+			slice = *s
+		} else {
+			ok = queries.SetFromEmbeddedStruct(&slice, maybeUserPaymentMethod)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", slice, maybeUserPaymentMethod))
+			}
+		}
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &userPaymentMethodR{}
+		}
+		args = append(args, object.PaymentMethodID)
+
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &userPaymentMethodR{}
+			}
+
+			for _, a := range args {
+				if a == obj.PaymentMethodID {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.PaymentMethodID)
+
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`payment_methods`),
+		qm.WhereIn(`payment_methods.id in ?`, args...),
+		qmhelper.WhereIsNull(`payment_methods.deleted_at`),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load PaymentMethod")
+	}
+
+	var resultSlice []*PaymentMethod
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice PaymentMethod")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results of eager load for payment_methods")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for payment_methods")
+	}
+
+	if len(paymentMethodAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
+				return err
+			}
+		}
+	}
+
+	if len(resultSlice) == 0 {
+		return nil
+	}
+
+	if singular {
+		foreign := resultSlice[0]
+		object.R.PaymentMethod = foreign
+		if foreign.R == nil {
+			foreign.R = &paymentMethodR{}
+		}
+		foreign.R.UserPaymentMethods = append(foreign.R.UserPaymentMethods, object)
+		return nil
+	}
+
+	for _, local := range slice {
+		for _, foreign := range resultSlice {
+			if local.PaymentMethodID == foreign.ID {
+				local.R.PaymentMethod = foreign
+				if foreign.R == nil {
+					foreign.R = &paymentMethodR{}
+				}
+				foreign.R.UserPaymentMethods = append(foreign.R.UserPaymentMethods, local)
+				break
+			}
+		}
+	}
+
+	return nil
 }
 
 // LoadUser allows an eager lookup of values, cached into the
@@ -551,6 +717,167 @@ func (userPaymentMethodL) LoadUser(ctx context.Context, e boil.ContextExecutor, 
 	return nil
 }
 
+// LoadPayments allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (userPaymentMethodL) LoadPayments(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUserPaymentMethod interface{}, mods queries.Applicator) error {
+	var slice []*UserPaymentMethod
+	var object *UserPaymentMethod
+
+	if singular {
+		var ok bool
+		object, ok = maybeUserPaymentMethod.(*UserPaymentMethod)
+		if !ok {
+			object = new(UserPaymentMethod)
+			ok = queries.SetFromEmbeddedStruct(&object, &maybeUserPaymentMethod)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", object, maybeUserPaymentMethod))
+			}
+		}
+	} else {
+		s, ok := maybeUserPaymentMethod.(*[]*UserPaymentMethod)
+		if ok {
+			slice = *s
+		} else {
+			ok = queries.SetFromEmbeddedStruct(&slice, maybeUserPaymentMethod)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", slice, maybeUserPaymentMethod))
+			}
+		}
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &userPaymentMethodR{}
+		}
+		args = append(args, object.ID)
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &userPaymentMethodR{}
+			}
+
+			for _, a := range args {
+				if a == obj.ID {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.ID)
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`payments`),
+		qm.WhereIn(`payments.user_payment_method_id in ?`, args...),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load payments")
+	}
+
+	var resultSlice []*Payment
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice payments")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on payments")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for payments")
+	}
+
+	if len(paymentAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
+				return err
+			}
+		}
+	}
+	if singular {
+		object.R.Payments = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &paymentR{}
+			}
+			foreign.R.UserPaymentMethod = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if local.ID == foreign.UserPaymentMethodID {
+				local.R.Payments = append(local.R.Payments, foreign)
+				if foreign.R == nil {
+					foreign.R = &paymentR{}
+				}
+				foreign.R.UserPaymentMethod = local
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
+// SetPaymentMethod of the userPaymentMethod to the related item.
+// Sets o.R.PaymentMethod to related.
+// Adds o to related.R.UserPaymentMethods.
+func (o *UserPaymentMethod) SetPaymentMethod(ctx context.Context, exec boil.ContextExecutor, insert bool, related *PaymentMethod) error {
+	var err error
+	if insert {
+		if err = related.Insert(ctx, exec, boil.Infer()); err != nil {
+			return errors.Wrap(err, "failed to insert into foreign table")
+		}
+	}
+
+	updateQuery := fmt.Sprintf(
+		"UPDATE \"user_payment_methods\" SET %s WHERE %s",
+		strmangle.SetParamNames("\"", "\"", 1, []string{"payment_method_id"}),
+		strmangle.WhereClause("\"", "\"", 2, userPaymentMethodPrimaryKeyColumns),
+	)
+	values := []interface{}{related.ID, o.ID}
+
+	if boil.IsDebug(ctx) {
+		writer := boil.DebugWriterFrom(ctx)
+		fmt.Fprintln(writer, updateQuery)
+		fmt.Fprintln(writer, values)
+	}
+	if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+		return errors.Wrap(err, "failed to update local table")
+	}
+
+	o.PaymentMethodID = related.ID
+	if o.R == nil {
+		o.R = &userPaymentMethodR{
+			PaymentMethod: related,
+		}
+	} else {
+		o.R.PaymentMethod = related
+	}
+
+	if related.R == nil {
+		related.R = &paymentMethodR{
+			UserPaymentMethods: UserPaymentMethodSlice{o},
+		}
+	} else {
+		related.R.UserPaymentMethods = append(related.R.UserPaymentMethods, o)
+	}
+
+	return nil
+}
+
 // SetUser of the userPaymentMethod to the related item.
 // Sets o.R.User to related.
 // Adds o to related.R.UserPaymentMethods.
@@ -595,6 +922,59 @@ func (o *UserPaymentMethod) SetUser(ctx context.Context, exec boil.ContextExecut
 		related.R.UserPaymentMethods = append(related.R.UserPaymentMethods, o)
 	}
 
+	return nil
+}
+
+// AddPayments adds the given related objects to the existing relationships
+// of the user_payment_method, optionally inserting them as new records.
+// Appends related to o.R.Payments.
+// Sets related.R.UserPaymentMethod appropriately.
+func (o *UserPaymentMethod) AddPayments(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Payment) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			rel.UserPaymentMethodID = o.ID
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE \"payments\" SET %s WHERE %s",
+				strmangle.SetParamNames("\"", "\"", 1, []string{"user_payment_method_id"}),
+				strmangle.WhereClause("\"", "\"", 2, paymentPrimaryKeyColumns),
+			)
+			values := []interface{}{o.ID, rel.ID}
+
+			if boil.IsDebug(ctx) {
+				writer := boil.DebugWriterFrom(ctx)
+				fmt.Fprintln(writer, updateQuery)
+				fmt.Fprintln(writer, values)
+			}
+			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			rel.UserPaymentMethodID = o.ID
+		}
+	}
+
+	if o.R == nil {
+		o.R = &userPaymentMethodR{
+			Payments: related,
+		}
+	} else {
+		o.R.Payments = append(o.R.Payments, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &paymentR{
+				UserPaymentMethod: o,
+			}
+		} else {
+			rel.R.UserPaymentMethod = o
+		}
+	}
 	return nil
 }
 

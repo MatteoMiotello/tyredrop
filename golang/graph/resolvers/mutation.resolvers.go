@@ -86,8 +86,14 @@ func (r *mutationResolver) CreateUserBilling(ctx context.Context, billingInput m
 			paymentMethod.Name += " " + *billingInput.Surname
 		}
 
-		paymentMethod.Type = constants.PAYMENT_METHOD_SEPA
-		paymentMethod.Value = billingInput.Iban
+		method, err := r.PaymentDao.FindPaymentMethodByCode(ctx, constants.PAYMENT_METHOD_SEPA)
+
+		if err != nil {
+			return err
+		}
+
+		paymentMethod.PaymentMethodID = method.ID
+		paymentMethod.Value = null.StringFrom(billingInput.Iban)
 		paymentMethod.TypePrimary = true
 
 		err = userDao.Insert(ctx, paymentMethod)
