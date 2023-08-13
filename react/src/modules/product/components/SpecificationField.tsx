@@ -23,7 +23,7 @@ const SpecificationField: React.FC<SpecificationFieldProps> = ({specificationCod
                 }
             });
 
-            return res.data?.searchSpecificationValue ? res.data?.searchSpecificationValue?.map((value: any): AutocompleteOption<string> => ({
+            return res.data?.searchSpecificationValue ? res.data?.searchSpecificationValue?.sort( (vala, valb) => String( vala?.value ) - String( valb.value )  ).map((value: any): AutocompleteOption<string> => ({
                 value: value.value,
                 title: value.value
             })) : [];

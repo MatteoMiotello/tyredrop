@@ -37,7 +37,6 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
         }
     }, [props.defaultValue]);
 
-
     const performQuery = () => {
         const options = props.getOptions(query);
 

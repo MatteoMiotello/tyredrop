@@ -10,7 +10,7 @@ type InputComponentProps = {
     bordered?: boolean,
 } & InputProps & InputHTMLAttributes<HTMLInputElement>
 
-const Input = forwardRef<HTMLInputElement, InputComponentProps>( ( {className, validators, bordered, inputSize, error, onValueChange, ...props}: InputComponentProps, ref ) => {	
+const Input = forwardRef<HTMLInputElement, InputComponentProps>( ( {className, validators, bordered, inputSize, error, onValueChange, ...props}: InputComponentProps, ref ) => {
 	const [err, setError] = useState<string | boolean>( false );
 
 	useEffect( () => {

@@ -24,8 +24,8 @@ const Searchbar: React.FC = () => {
         },
     ];
 
-    return <div className="bg-primary w-full min-h-64 rounded-box">
-        <div className="h-full flex md:flex-row flex-col lg:px-24 px-4 py-5 justify-around">
+    return <div className="bg-primary w-full min-h-64 rounded-box flex justify-center">
+        <div className="h-full flex md:flex-row flex-col max-w-3xl px-4 py-5 justify-around">
             <TyreSearchForm
                 onSubmit={onSubmit}
             />

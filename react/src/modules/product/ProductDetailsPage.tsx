@@ -5,8 +5,8 @@ import {useLoaderData} from "react-router-dom";
 import {ProductItemQuery, ProductSpecificationValue} from "../../__generated__/graphql";
 import tyrePlaceholder from "../../assets/placeholder-tyre.jpg";
 import Button from "../../common/components-library/Button";
-import Field from "../../common/components-library/Input";
 import Panel from "../../common/components-library/Panel";
+import {Input, Join} from "../../common/components/shelly-ui";
 import Spinner from "../../common/components/Spinner";
 import {Currency} from "../../common/utilities/currency";
 import CompleteProductSpecificationsGroup from "./components/CompleteProductSpecificationsGroup";
@@ -18,7 +18,7 @@ import {addCartItem} from "../cart/store/cart-slice";
 import {ThunkDispatch} from "redux-thunk";
 import AvailabilityBadge from "./components/AvailabilityBadge";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faMoneyBill, faTruckFast} from "@fortawesome/free-solid-svg-icons";
+import {faMinus, faMoneyBill, faPlus, faTruckFast} from "@fortawesome/free-solid-svg-icons";
 import {useToast} from "../../store/toast";
 
 const loadingPlaceholder = <main>
@@ -87,23 +87,51 @@ const ProductDetailsPage: React.FC = () => {
             <div>
                 <Panel>
                     <div className="rounded-box md:mt-0 mt-4">
-                        <div>
+                        <div className="flex flex-col gap-4">
                             <div>
                                 Totale
                             </div>
                             <span className="text-primary text-5xl font-semibold">
-                        {Currency.defaultFormat(data?.productItem?.price[0]?.value as number, data?.productItem?.price[0]?.currency.iso_code as string)}</span>
+                                {Currency.defaultFormat(data?.productItem?.price[0]?.value as number, data?.productItem?.price[0]?.currency.iso_code as string)}</span>
                             {data?.productItem && <AvailabilityBadge quantity={data?.productItem?.supplierQuantity}/>}
-                            <div className="mt-10 flex flex-col">
-                                <div className="">
-                                    <Field.FormControl className="">
-                                        <Field.Input type="number" name="quantity" placeholder={"4"}
-                                                     onValueChange={setQuantity}
-                                                     labelText="Quantità"
-                                                     value={quantity}/>
-                                    </Field.FormControl>
+                            <div className="mt-10 flex items-center gap-2">
+                                <div className="ml-auto">
+                                    <Join>
+                                        <Button className="join-item" disabled={quantity == 0} onClick={() => {
+                                            if (quantity <= 0) {
+                                                return;
+                                            }
+                                            setQuantity(quantity - 1);
+                                        }}><FontAwesomeIcon icon={faMinus}/></Button>
+                                        <Input.FormControl className="join-item">
+                                            <Input
+                                                min={0}
+                                                bordered={false}
+                                                className="!w-14 !outline-none input-ghost text-center"
+                                                value={String( quantity )}
+                                                type="number"
+                                                name="quantity"
+                                                placeholder="1"
+                                                onValueChange={ (val) => {
+                                                    setQuantity(Number(val));
+                                                }}
+                                                validators={[(value) => {
+                                                    console.log( 'ciao' );
+
+                                                    if (Number(value) > quantity) {
+                                                        return 'La quantità selezionata non è disponibile';
+                                                    }
+
+                                                    return null;
+                                                }]}
+                                            />
+                                        </Input.FormControl>
+                                        <Button className="join-item" onClick={() => {
+                                            setQuantity(quantity + 1);
+                                        }}><FontAwesomeIcon icon={faPlus}/></Button>
+                                    </Join>
                                 </div>
-                                <Button className="ml-auto mt-4" type="primary" onClick={() => {
+                                <Button className="" type="primary" onClick={() => {
                                     if (data?.productItem) {
                                         dispatch(addCartItem({
                                             itemId: data.productItem.id,

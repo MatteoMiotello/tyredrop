@@ -137,7 +137,7 @@ func (r *queryResolver) SearchBrands(ctx context.Context, name string) ([]*model
 	var graphModels []*model.Brand
 
 	if len(name) < 2 {
-		all, err := r.BrandDao.Paginate(10, 0).FindAll(ctx)
+		all, err := r.BrandDao.FindAll(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -320,7 +320,7 @@ func (r *queryResolver) Specifications(ctx context.Context) ([]*model.ProductSpe
 
 // SearchSpecificationValue is the resolver for the searchSpecificationValue field.
 func (r *queryResolver) SearchSpecificationValue(ctx context.Context, code string, value *string, vehicleCode *string) ([]*model.ProductSpecificationValue, error) {
-	values, err := r.ProductSpecificationValueDao.Paginate(10, 0).SearchBySpecificationAndValue(ctx, code, value, vehicleCode)
+	values, err := r.ProductSpecificationValueDao.SearchBySpecificationAndValue(ctx, code, value, vehicleCode)
 	if err != nil {
 		return nil, err
 	}
