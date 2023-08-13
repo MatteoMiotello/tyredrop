@@ -9,7 +9,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"pillowww/titw/graph"
 	"pillowww/titw/graph/aggregators"
 	"pillowww/titw/graph/converters"
@@ -27,6 +26,7 @@ import (
 
 	"github.com/vektah/gqlparser/v2/gqlerror"
 	null "github.com/volatiletech/null/v8"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 // CreateAdminUser is the resolver for the createAdminUser field.
@@ -122,9 +122,18 @@ func (r *mutationResolver) AddItemToCart(ctx context.Context, itemID int64, quan
 		return nil, gqlerror.Errorf("User not found in context")
 	}
 
-	s := cart.NewCartService(r.CartDao, r.ProductItemPriceDao)
+	if quantity == nil {
+		*quantity = 0
+	}
 
-	_, err = s.AddOrUpdateCart(ctx, u, itemID, quantity)
+	item, err := r.ProductItemDao.FindProductItemById(ctx, itemID)
+
+	if *quantity > item.SupplierQuantity {
+		return nil, graphErrors.NewGraphError(ctx, errors.New("Quantity not available"), "QUANTITY_NOT_AVAILABLE")
+	}
+
+	s := cart.NewCartService(r.CartDao, r.ProductItemPriceDao)
+	_, err = s.AddCart(ctx, u, itemID, quantity)
 
 	if err != nil {
 		return nil, err

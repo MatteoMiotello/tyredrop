@@ -191,3 +191,13 @@ func (s *service) UpdateOrderStatus(ctx context.Context, order *models.Order, ne
 
 	return nil
 }
+
+func (s *service) ConfirmOrder(ctx context.Context, order *models.Order) error {
+	err := s.UpdateOrderStatus(ctx, order, model.OrderStatusNew)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

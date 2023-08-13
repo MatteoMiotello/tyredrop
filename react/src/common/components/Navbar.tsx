@@ -15,7 +15,12 @@ const Navbar: React.FC = () => {
 
     return <div className="navbar rounded-box bg-base-100">
         <div className="navbar-start">
-            <MainLogo width={100}/>
+            <Link to='/'>
+                <MainLogo width={120}/>
+            </Link>
+            <h2 className="text-xl font-bold uppercase ml-4 font-slogan hidden lg:block text-neutral-500">
+                Massimo stock <br/> minimo prezzo
+            </h2>
         </div>
         <div className="navbar-center flex gap-4 hidden md:block">
             <Link to="/" className="uppercase btn btn-ghost"> Home </Link>

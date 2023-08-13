@@ -21,6 +21,7 @@ const documents = {
     "\n    \n    mutation empty {\n        emptyCart {\n            ...CartItems\n        }\n    }\n": types.EmptyDocument,
     "\n    mutation CreateUserBilling( $input: CreateUserBilling! ) {\n        createUserBilling( billingInput: $input ) {\n            id\n            name\n            surname\n        }\n    }\n": types.CreateUserBillingDocument,
     "\n    mutation createNewOrder( $userId: ID!, $userAddressId: ID! ) {\n        newOrder(userId: $userId, userAddressId: $userAddressId) {\n            id\n        }\n    }\n": types.CreateNewOrderDocument,
+    "\n    mutation confirmOrder( $orderId: ID!) {\n        confirmOrder(orderID: $orderId) {\n            id\n        }\n    }\n": types.ConfirmOrderDocument,
     "\n    mutation payOrder( $orderId: ID!, $methodCode: String! ) {\n        payOrder(orderID: $orderId, paymentMethodCode: $methodCode) {\n            id\n        }\n    }\n": types.PayOrderDocument,
     "\n    \n    mutation addAddress( $input: UserAddressInput! ) {\n        createUserAddress(userAddress: $input) {\n            ...UserAddressCollection\n        }\n    }\n": types.AddAddressDocument,
     "\n    \n    mutation editAddress( $id: ID!, $input: UserAddressInput! ) {\n        editUserAddress(id: $id, userAddress: $input) {\n            ...UserAddressCollection\n        }\n    }\n": types.EditAddressDocument,
@@ -89,6 +90,10 @@ export function gql(source: "\n    mutation CreateUserBilling( $input: CreateUse
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n    mutation createNewOrder( $userId: ID!, $userAddressId: ID! ) {\n        newOrder(userId: $userId, userAddressId: $userAddressId) {\n            id\n        }\n    }\n"): (typeof documents)["\n    mutation createNewOrder( $userId: ID!, $userAddressId: ID! ) {\n        newOrder(userId: $userId, userAddressId: $userAddressId) {\n            id\n        }\n    }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n    mutation confirmOrder( $orderId: ID!) {\n        confirmOrder(orderID: $orderId) {\n            id\n        }\n    }\n"): (typeof documents)["\n    mutation confirmOrder( $orderId: ID!) {\n        confirmOrder(orderID: $orderId) {\n            id\n        }\n    }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

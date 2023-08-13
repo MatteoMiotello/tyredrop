@@ -110,6 +110,7 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		AddItemToCart     func(childComplexity int, itemID int64, quantity *int) int
+		ConfirmOrder      func(childComplexity int, orderID int64) int
 		CreateAdminUser   func(childComplexity int, userInput model.CreateAdminUserInput) int
 		CreateUserAddress func(childComplexity int, userAddress model.UserAddressInput) int
 		CreateUserBilling func(childComplexity int, billingInput model.CreateUserBilling) int
@@ -417,6 +418,7 @@ type MutationResolver interface {
 	DeleteUserAddress(ctx context.Context, id int64) ([]*model.UserAddress, error)
 	NewOrder(ctx context.Context, userID int64, userAddressID int64) (*model.Order, error)
 	OrderSupport(ctx context.Context, orderID int64, message string) (*model.Order, error)
+	ConfirmOrder(ctx context.Context, orderID int64) (*model.Order, error)
 	PayOrder(ctx context.Context, orderID int64, paymentMethodCode string) (*model.Order, error)
 	UpdateUserStatus(ctx context.Context, userID int64, confirmed *bool, rejected *bool) (*model.User, error)
 }
@@ -425,7 +427,6 @@ type OrderResolver interface {
 
 	UserBilling(ctx context.Context, obj *model.Order) (*model.UserBilling, error)
 
-	PaymentID(ctx context.Context, obj *model.Order) (*int64, error)
 	Payment(ctx context.Context, obj *model.Order) (*model.Payment, error)
 
 	OrderRows(ctx context.Context, obj *model.Order) ([]*model.OrderRow, error)
@@ -705,6 +706,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.AddItemToCart(childComplexity, args["itemId"].(int64), args["quantity"].(*int)), true
+
+	case "Mutation.confirmOrder":
+		if e.complexity.Mutation.ConfirmOrder == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_confirmOrder_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.ConfirmOrder(childComplexity, args["orderID"].(int64)), true
 
 	case "Mutation.createAdminUser":
 		if e.complexity.Mutation.CreateAdminUser == nil {
@@ -2415,6 +2428,21 @@ func (ec *executionContext) field_Mutation_addItemToCart_args(ctx context.Contex
 		}
 	}
 	args["quantity"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_confirmOrder_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["orderID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderID"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["orderID"] = arg0
 	return args, nil
 }
 
@@ -5004,6 +5032,127 @@ func (ec *executionContext) fieldContext_Mutation_orderSupport(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_confirmOrder(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_confirmOrder(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().ConfirmOrder(rctx, fc.Args["orderID"].(int64))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.UserConfirmed == nil {
+				return nil, errors.New("directive userConfirmed is not implemented")
+			}
+			return ec.directives.UserConfirmed(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Order); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *pillowww/titw/graph/model.Order`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Order)
+	fc.Result = res
+	return ec.marshalNOrder2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐOrder(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_confirmOrder(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Order_id(ctx, field)
+			case "currency":
+				return ec.fieldContext_Order_currency(ctx, field)
+			case "currencyID":
+				return ec.fieldContext_Order_currencyID(ctx, field)
+			case "tax":
+				return ec.fieldContext_Order_tax(ctx, field)
+			case "taxID":
+				return ec.fieldContext_Order_taxID(ctx, field)
+			case "userBilling":
+				return ec.fieldContext_Order_userBilling(ctx, field)
+			case "userBillingID":
+				return ec.fieldContext_Order_userBillingID(ctx, field)
+			case "paymentID":
+				return ec.fieldContext_Order_paymentID(ctx, field)
+			case "payment":
+				return ec.fieldContext_Order_payment(ctx, field)
+			case "status":
+				return ec.fieldContext_Order_status(ctx, field)
+			case "priceAmount":
+				return ec.fieldContext_Order_priceAmount(ctx, field)
+			case "taxesAmount":
+				return ec.fieldContext_Order_taxesAmount(ctx, field)
+			case "priceAmountTotal":
+				return ec.fieldContext_Order_priceAmountTotal(ctx, field)
+			case "addressName":
+				return ec.fieldContext_Order_addressName(ctx, field)
+			case "addressLine1":
+				return ec.fieldContext_Order_addressLine1(ctx, field)
+			case "addressLine2":
+				return ec.fieldContext_Order_addressLine2(ctx, field)
+			case "city":
+				return ec.fieldContext_Order_city(ctx, field)
+			case "province":
+				return ec.fieldContext_Order_province(ctx, field)
+			case "postalCode":
+				return ec.fieldContext_Order_postalCode(ctx, field)
+			case "country":
+				return ec.fieldContext_Order_country(ctx, field)
+			case "orderRows":
+				return ec.fieldContext_Order_orderRows(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Order_createdAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Order", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_confirmOrder_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_payOrder(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_payOrder(ctx, field)
 	if err != nil {
@@ -5602,7 +5751,7 @@ func (ec *executionContext) _Order_paymentID(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Order().PaymentID(rctx, obj)
+		return obj.PaymentID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5620,8 +5769,8 @@ func (ec *executionContext) fieldContext_Order_paymentID(ctx context.Context, fi
 	fc = &graphql.FieldContext{
 		Object:     "Order",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
 		},
@@ -18207,6 +18356,15 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "confirmOrder":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_confirmOrder(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "payOrder":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -18322,22 +18480,9 @@ func (ec *executionContext) _Order(ctx context.Context, sel ast.SelectionSet, ob
 				atomic.AddUint32(&invalids, 1)
 			}
 		case "paymentID":
-			field := field
 
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Order_paymentID(ctx, field, obj)
-				return res
-			}
+			out.Values[i] = ec._Order_paymentID(ctx, field, obj)
 
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
 		case "payment":
 			field := field
 

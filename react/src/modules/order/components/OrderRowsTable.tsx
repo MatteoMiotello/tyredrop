@@ -1,8 +1,8 @@
 import React from "react";
 import {CellContext, ColumnDef} from "@tanstack/react-table";
-import Table from "../../../common/components-library/Table";
 import {FetchOrderQuery, OrderRow} from "../../../__generated__/graphql";
 import {Currency} from "../../../common/utilities/currency";
+import {BasicTable, useTable} from "../../../common/components/shelly-ui";
 
 type OrderRowsTableProps = {
     order: FetchOrderQuery
@@ -43,7 +43,12 @@ const OrderRowsTable: React.FC<OrderRowsTableProps> = (props) => {
         }
     ];
 
-    return <Table data={props.order.order.orderRows} columns={columns} hidePagination={true}/>;
+    const {table} = useTable<OrderRow>( {
+        data: props.order.order.orderRows as OrderRow[],
+        columns: columns
+    } );
+
+    return <BasicTable table={table}/>;
 };
 
 export default OrderRowsTable;

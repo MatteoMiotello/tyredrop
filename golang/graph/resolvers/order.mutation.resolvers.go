@@ -7,8 +7,8 @@ package resolvers
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
-	"github.com/friendsofgo/errors"
 	"pillowww/titw/graph/converters"
 	"pillowww/titw/graph/graphErrors"
 	"pillowww/titw/graph/model"
@@ -24,6 +24,35 @@ import (
 // OrderSupport is the resolver for the orderSupport field.
 func (r *mutationResolver) OrderSupport(ctx context.Context, orderID int64, message string) (*model.Order, error) {
 	panic(fmt.Errorf("not implemented: OrderSupport - orderSupport"))
+}
+
+// ConfirmOrder is the resolver for the confirmOrder field.
+func (r *mutationResolver) ConfirmOrder(ctx context.Context, orderID int64) (*model.Order, error) {
+	o, err := r.OrderDao.
+		Load(
+			models.OrderRels.Currency,
+		).
+		FindOneById(ctx, orderID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	policy := policies.NewOrderPolicy(o, r.OrderDao)
+
+	if !policy.CanConfirm(ctx) {
+		return nil, graphErrors.NewGraphError(ctx, errors.New("Order can't be confirmed"), "UNABLE_TO_PAY_ORDER")
+	}
+
+	s := order.NewService(r.OrderDao, r.CurrencyDao, r.ProductItemDao, r.ProductItemPriceDao)
+
+	err = s.ConfirmOrder(ctx, o)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return converters.OrderToGraphQL(o)
 }
 
 // PayOrder is the resolver for the payOrder field.

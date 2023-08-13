@@ -1,4 +1,4 @@
-import {gql} from "../../../../__generated__";
+import {gql} from "@apollo/client";
 
 
 export const NEW_ORDER = gql(`
@@ -8,6 +8,14 @@ export const NEW_ORDER = gql(`
         }
     }
 `);
+
+export const CONFIRM_ORDER = gql(`
+    mutation confirmOrder( $orderId: ID!) {
+        confirmOrder(orderID: $orderId) {
+            id
+        }
+    }
+` );
 
 export const PAY_ORDER = gql(`
     mutation payOrder( $orderId: ID!, $methodCode: String! ) {

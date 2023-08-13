@@ -4,8 +4,7 @@ import {CellContext, ColumnDef} from "@tanstack/react-table";
 import React, {useEffect, useState} from "react";
 import {Img} from "react-image";
 import {Link} from "react-router-dom";
-import {SearchQuery} from "../../../__generated__/graphql";
-import tyrePlaceholder from "../../../assets/placeholder-tyre.jpg";
+import {Product, SearchQuery} from "../../../__generated__/graphql";
 import Table from "../../../common/components-library/Table";
 import {Currency} from "../../../common/utilities/currency";
 import {
@@ -19,6 +18,7 @@ import ProductSpecificationsGroup from "./ProductSpecificationsGroup";
 import ProductTitle from "./ProductTitle";
 import ProductQualityBadge from "./ProductQualityBadge";
 import AvailabilityBadge from "./AvailabilityBadge";
+import ProductImage from "./ProductImage";
 
 
 type ProductTableProps = {
@@ -39,6 +39,7 @@ export type ProductRowItemData = {
     code: string,
     price: string,
     specifications: (ProductSpecificationDefinition | null)[]
+    product: Product
 }
 
 const ProductTable: React.FC<ProductTableProps> = (props) => {
@@ -51,32 +52,20 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
             size: 15,
             cell: (props: CellContext<ProductRowItemData, any>) => {
                 return <div className="w-24">
-                    <Img src={[
-                        (new ProdapiService()).getProductImageUrl(props.row.original.code, ProductCategorySet.TYRE),
-                        tyrePlaceholder,
-                    ]}
-                         onErrorCapture={(e) => e.preventDefault()}
+                    <ProductImage product={props.row.original.product}/>
+                    <Img src={(new ProdapiService()).getBrandImageUrl(props.row.original.brand.code)}
                          loading="lazy"
-                         className="h-24 mx-auto"
-                         alt={props.row.original.name}/>
+                         className="my-auto"
+                         unloader={<span
+                             className="text-xl uppercase text-neutral font-semibold">{props.row.original.brand.name}</span>}
+                         onErrorCapture={(e) => e.preventDefault()}
+                    />
                 </div>;
             }
         },
         {
-            accessorKey: "brand",
-            size: 15,
-            cell: (props) => <div className="w-24">
-                <Img src={(new ProdapiService()).getBrandImageUrl(props.row.original.brand.code)}
-                     loading="lazy"
-                     className="my-auto"
-                     unloader={<span
-                         className="text-xl uppercase text-neutral font-semibold">{props.row.original.brand.name}</span>}
-                     onErrorCapture={(e) => e.preventDefault()}
-                /></div>
-        },
-        {
             accessorKey: "content",
-            size: 200,
+            size: 250,
             cell: (props: CellContext<ProductRowItemData, any>) => <ProductTitle showBrand={true}
                                                                                  data={props.row.original}/>
         },
@@ -147,6 +136,7 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
                 supplier_quantity: product.supplierQuantity,
                 name: product.product.name as string,
                 code: product.product.code,
+                product: product.product as Product,
                 price: Currency.defaultFormat(product.price[0]?.value, product.price[0]?.currency.iso_code),
                 specifications: product.product.productSpecificationValues.map((value) => {
                     const icon = ProductSpecifications.getSpecificationIcon(ProductCategorySet.TYRE, value?.specification.code as string);

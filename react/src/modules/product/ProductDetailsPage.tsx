@@ -2,8 +2,7 @@ import React, {useEffect, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {Img} from "react-image";
 import {useLoaderData} from "react-router-dom";
-import {ProductItemQuery, ProductSpecificationValue} from "../../__generated__/graphql";
-import tyrePlaceholder from "../../assets/placeholder-tyre.jpg";
+import {Product, ProductItemQuery, ProductSpecificationValue} from "../../__generated__/graphql";
 import Button from "../../common/components-library/Button";
 import Panel from "../../common/components-library/Panel";
 import {Input, Join} from "../../common/components/shelly-ui";
@@ -11,7 +10,6 @@ import Spinner from "../../common/components/Spinner";
 import {Currency} from "../../common/utilities/currency";
 import CompleteProductSpecificationsGroup from "./components/CompleteProductSpecificationsGroup";
 import ProductTitle from "./components/ProductTitle";
-import {ProductCategorySet} from "./enums/product-specifications-set";
 import ProdapiService from "./services/prodapi/prodapi-service";
 import {useDispatch} from "react-redux";
 import {addCartItem} from "../cart/store/cart-slice";
@@ -20,6 +18,9 @@ import AvailabilityBadge from "./components/AvailabilityBadge";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faMinus, faMoneyBill, faPlus, faTruckFast} from "@fortawesome/free-solid-svg-icons";
 import {useToast} from "../../store/toast";
+import {Simulate} from "react-dom/test-utils";
+import error = Simulate.error;
+import ProductImage from "./components/ProductImage";
 
 const loadingPlaceholder = <main>
     <Spinner/>
@@ -32,7 +33,7 @@ const ProductDetailsPage: React.FC = () => {
     const res = useLoaderData() as { data: ProductItemQuery, loading: boolean };
     const {t} = useTranslation();
     const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
-    const {success} = useToast();
+    const {success, error} = useToast();
 
     useEffect(() => {
         if (res.data) {
@@ -49,14 +50,7 @@ const ProductDetailsPage: React.FC = () => {
     return <main className="lg:px-24 p-4">
         <div className="grid md:grid-cols-4 gap-4 w-full">
             <Panel className="flex flex-col justify-center items-center">
-                <Img src={[
-                    (new ProdapiService()).getProductImageUrl(data?.productItem?.product.code as string, ProductCategorySet.TYRE),
-                    tyrePlaceholder,
-                ]}
-                     onErrorCapture={(e) => e.preventDefault()}
-                     loading="lazy"
-                     className="w-fit"
-                />
+                <ProductImage product={data?.productItem?.product as Product}/>
             </Panel>
             <Panel className="col-span-2 row-span-2">
                 <div>
@@ -116,8 +110,6 @@ const ProductDetailsPage: React.FC = () => {
                                                     setQuantity(Number(val));
                                                 }}
                                                 validators={[(value) => {
-                                                    console.log( 'ciao' );
-
                                                     if (Number(value) > quantity) {
                                                         return 'La quantità selezionata non è disponibile';
                                                     }
@@ -136,7 +128,9 @@ const ProductDetailsPage: React.FC = () => {
                                         dispatch(addCartItem({
                                             itemId: data.productItem.id,
                                             quantity: quantity
-                                        })).then(() => success('Elemento aggiunto a carrello'));
+                                        })).unwrap()
+                                            .then(() => success('Elemento aggiunto a carrello'))
+                                            .catch( () => error( 'Quantità non disponibile' ) );
                                     }
                                 }}>
                                     {t('product_details.order_button')}

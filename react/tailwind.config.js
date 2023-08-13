@@ -8,6 +8,11 @@ export default {
     "node_modules/react-daisyui/dist/**/*.js"
   ],
   theme: {
+    extend: {
+      fontFamily: {
+        "slogan": "Race Sport"
+      }
+    }
   },
   plugins: [
       daisyui,

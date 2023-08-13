@@ -65,7 +65,7 @@ const Table: React.FC<ReactTableProps> = <T extends object>(props: ReactTablePro
                             }
                             <tbody>
                             {table.getRowModel().rows.map((row) => (
-                                <tr key={row.id}>
+                                <tr className="border-b border-neutral" key={row.id}>
                                     {row.getVisibleCells().map((cell) => (
                                         <td key={cell.id} style={{
                                             width: cell.column.getSize()
@@ -80,7 +80,7 @@ const Table: React.FC<ReactTableProps> = <T extends object>(props: ReactTablePro
                     </div>
                     {
                       !props.hidePagination &&
-                        <div className="w-full flex justify-center btn-group">
+                        <div className="w-full flex justify-center btn-group mt-4">
                             <Button type="secondary" onClick={table.previousPage}
                                     className={table.getCanPreviousPage() ? '' : 'btn-disabled'}><FontAwesomeIcon
                                 icon={faAngleLeft}/></Button>
