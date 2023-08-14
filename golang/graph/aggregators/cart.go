@@ -104,7 +104,7 @@ func GetAllCartsByUserId(ctx context.Context, cartDao *cart.Dao, userId int64) (
 		Items: graphModels,
 		TotalPrice: &model.TotalPrice{
 			Value:           *amountTotal,
-			TotalValue:      *amountTotal + taxValue,
+			TotalValue:      *amountTotal + taxValue + totalAdditions,
 			TaxesValue:      taxValue,
 			AdditionsValues: additionValues,
 			Currency:        converters.CurrencyToGraphQL(defaultCur),
