@@ -10,7 +10,7 @@ type InputComponentProps = {
     bordered?: boolean,
 } & InputProps & InputHTMLAttributes<HTMLInputElement>
 
-const Input = forwardRef<HTMLInputElement, InputComponentProps>( ( {className, validators, bordered, inputSize, error, onValueChange, ...props}: InputComponentProps, ref ) => {
+const Input = forwardRef<HTMLInputElement, InputComponentProps>( ( {className, validators, bordered, inputSize, error, onValueChange, value, ...props}: InputComponentProps, ref ) => {
 	const [err, setError] = useState<string | boolean>( false );
 
 	useEffect( () => {
@@ -37,12 +37,10 @@ const Input = forwardRef<HTMLInputElement, InputComponentProps>( ( {className, v
 			} )
 		)
 	);
-    
-	const onChange = ( event: ChangeEvent<HTMLInputElement>  ) => {
-		const value = event.target.value;
 
+	const change = (val: any) => {
 		if ( onValueChange ) {
-			onValueChange( value );
+			onValueChange( val );
 		}
 
 		if ( !validators?.length ) {
@@ -53,8 +51,8 @@ const Input = forwardRef<HTMLInputElement, InputComponentProps>( ( {className, v
 			if ( !validator ) {
 				return true;
 			}
-			
-			const validationError = validator( value );
+
+			const validationError = validator( val );
 
 			setError( validationError ?? false );
 
@@ -66,8 +64,19 @@ const Input = forwardRef<HTMLInputElement, InputComponentProps>( ( {className, v
 		} );
 	};
 
+	useEffect(() => {
+		change(value);
+	}, [value]);
+
+	const onChange = ( event: ChangeEvent<HTMLInputElement>  ) => {
+		const value = event.target.value;
+
+		change(value);
+	};
+
 	return <>
-		<input 
+		<input
+			value={value}
 			className={classNames}
 			onChange={onChange}
 			{...props}

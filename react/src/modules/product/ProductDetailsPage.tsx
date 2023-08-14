@@ -110,7 +110,7 @@ const ProductDetailsPage: React.FC = () => {
                                                     setQuantity(Number(val));
                                                 }}
                                                 validators={[(value) => {
-                                                    if (Number(value) > quantity) {
+                                                    if (Number(value) > (data?.productItem?.supplierQuantity ?? 0)) {
                                                         return 'La quantità selezionata non è disponibile';
                                                     }
 
