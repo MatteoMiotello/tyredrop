@@ -81,8 +81,6 @@ func GetAllCartsByUserId(ctx context.Context, cartDao *cart.Dao, userId int64) (
 		return nil, err
 	}
 
-	taxValue := float64(tax.MarkupPercentage) / 100 * (*amountTotal)
-
 	var additionValues []*model.AdditionValue
 	var totalAdditions float64
 
@@ -100,11 +98,13 @@ func GetAllCartsByUserId(ctx context.Context, cartDao *cart.Dao, userId int64) (
 		})
 	}
 
+	taxValue := float64(tax.MarkupPercentage) / 100 * (*amountTotal + totalAdditions)
+
 	return &model.CartResponse{
 		Items: graphModels,
 		TotalPrice: &model.TotalPrice{
 			Value:           *amountTotal,
-			TotalValue:      *amountTotal + taxValue + totalAdditions,
+			TotalValue:      *amountTotal + taxValue,
 			TaxesValue:      taxValue,
 			AdditionsValues: additionValues,
 			Currency:        converters.CurrencyToGraphQL(defaultCur),
