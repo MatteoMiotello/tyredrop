@@ -1,6 +1,6 @@
 import React from "react";
 import {OrderStatus} from "../../../__generated__/graphql";
-import Badge from "../../../common/components-library/Badge";
+import {Badge} from "../../../common/components/shelly-ui";
 
 type OrderStatusBadgeProps = {
     status: OrderStatus

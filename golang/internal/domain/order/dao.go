@@ -2,6 +2,7 @@ package order
 
 import (
 	"context"
+	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"pillowww/titw/graph/model"
@@ -83,13 +84,8 @@ func (d Dao) FindAll(ctx context.Context, from *string, to *string, number *stri
 
 	if number != nil && len(*number) > 0 {
 		sanitizedNumber := strings.TrimLeft(*number, "#")
-		id, err := strconv.Atoi(sanitizedNumber)
 
-		if err != nil {
-			return nil, err
-		}
-
-		mods = append(mods, models.OrderWhere.ID.EQ(int64(id)))
+		mods = append(mods, models.OrderWhere.OrderNumber.EQ(null.StringFrom(sanitizedNumber)))
 	}
 
 	if status != nil {

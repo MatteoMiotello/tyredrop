@@ -2,7 +2,7 @@ import {CellContext, ColumnDef} from "@tanstack/react-table";
 import React, {useEffect, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {Cart} from "../../../__generated__/graphql";
-import Table from "../../../common/components-library/Table";
+import {BasicTable, useTable} from "../../../common/components/shelly-ui";
 import {Currency} from "../../../common/utilities/currency";
 import CartQuantityButtons from "./CartQuantityButtons";
 import Button from "../../../common/components-library/Button";
@@ -119,7 +119,12 @@ const CartTable: React.FC<CartTableProps> = (props) => {
         }
     ];
 
-    return <Table data={dataTable} columns={columns} hidePagination={true}/>;
+    const {table} = useTable<CartDataTable>({
+        data: dataTable,
+        columns: columns,
+    });
+
+    return <BasicTable table={table}/>;
 };
 
 export default CartTable;

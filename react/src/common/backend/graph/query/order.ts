@@ -13,6 +13,7 @@ export const FETCH_ORDER = gql `
             priceAmount
             priceAmountTotal
             taxesAmount
+            orderNumber
             addressName
             addressLine1
             addressLine2
@@ -49,6 +50,7 @@ export const FETCH_ORDER = gql `
                 id
                 amount
                 quantity
+                additionsAmount
                 productItemPrice {
                     value
                     currency {
@@ -78,6 +80,7 @@ export const FETCH_USER_ORDERS = gql`
                     iso_code
                 }
                 status
+                orderNumber
                 addressName
                 addressLine1    
                 addressLine2
@@ -111,6 +114,7 @@ export const FETCH_ALL_ORDERS = gql`
                 priceAmount
                 priceAmountTotal
                 taxesAmount
+                orderNumber
                 createdAt
                 status
                 currency {

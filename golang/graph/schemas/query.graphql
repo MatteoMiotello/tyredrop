@@ -16,23 +16,6 @@ input PaginationInput {
     offset: Int!
 }
 
-type ProductPaginate {
-    pagination: Pagination
-    products: [Product]
-}
-
-type ProductItemPaginate {
-    pagination: Pagination
-    productItems: [ProductItem]
-}
-
-input ProductSearchInput {
-    brand: String
-    name: String
-    code: String
-    vehicleCode: String
-    specifications: [ProductSpecificationInput]
-}
 
 type OrdersPaginator {
     data: [Order]!
@@ -70,15 +53,6 @@ type Query {
     carts: CartResponse @userConfirmed
 
     legalEntityTypes: [LegalEntityType]
-
-    productCategories: [ProductCategory]
-    productsItemsByCode( code: String! ): ProductItem
-    productItems( pagination: PaginationInput, productSearchInput: ProductSearchInput ): ProductItemPaginate
-    productItem( id: ID! ): ProductItem
-    products( pagination: PaginationInput, productSearchInput: ProductSearchInput ): ProductPaginate
-
-    specifications: [ProductSpecification]
-    searchSpecificationValue( code: String!, value: String, vehicleCode: String, ): [ProductSpecificationValue]
 
     currency( id: ID! ): Currency
     currencies: [Currency]

@@ -32,3 +32,21 @@ func (u *userPolicy) CanRead(ctx context.Context) bool {
 
 	return currentUser.ID == u.model.ID
 }
+
+func (u *userPolicy) CanUpdateAvatar(ctx context.Context) bool {
+	currentUser, err := auth.CurrentUser(ctx)
+
+	if err != nil {
+		return false
+	}
+
+	if currentUser.R.UserRole.Admin {
+		return true
+	}
+
+	if currentUser.ID != u.model.ID {
+		return false
+	}
+
+	return true
+}

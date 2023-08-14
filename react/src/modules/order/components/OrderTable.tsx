@@ -20,7 +20,7 @@ const OrderTable: React.FC<OrderTableProps> = (props) => {
     const [selectedOrder, setSelectedOrder] = useState<Order | undefined>();
     const columns: ColumnDef<Order>[] = [
         {
-            accessorKey: "id",
+            accessorKey: "orderNumber",
             size: 10,
             header: "ID",
             cell: (props: CellContext<Order, any>) => <span>#{props.getValue()}</span>

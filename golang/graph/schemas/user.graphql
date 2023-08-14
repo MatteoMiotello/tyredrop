@@ -63,6 +63,8 @@ type User {
     userRoleId: ID!
     userRole: UserRole!
     userBilling: UserBilling
+    avatarUrl: String
+    avatarPath: String
 }
 
 input CreateUserBilling {

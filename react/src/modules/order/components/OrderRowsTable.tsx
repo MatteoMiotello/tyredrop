@@ -23,11 +23,11 @@ const OrderRowsTable: React.FC<OrderRowsTableProps> = (props) => {
         {
             accessorKey: "quantity",
             header: "Quantità",
-            size: 10,
         },
         {
             id: "unit_price",
             header: "Prezzo Unitario",
+            size:100,
             cell: (p: CellContext<OrderRow, any>) => {
                 if ( !p.row.original.productItemPrice ) {
                     return null;
@@ -39,6 +39,13 @@ const OrderRowsTable: React.FC<OrderRowsTableProps> = (props) => {
         {
             accessorKey: "amount",
             header: "Prezzo",
+            size:100,
+            cell: (p: CellContext<OrderRow, any>) => <span> {Currency.defaultFormat( p.getValue(), props.order.order.currency.iso_code )} </span>
+        },
+        {
+            accessorKey: "additionsAmount",
+            header: "Tasse",
+            size:100,
             cell: (p: CellContext<OrderRow, any>) => <span> {Currency.defaultFormat( p.getValue(), props.order.order.currency.iso_code )} </span>
         }
     ];

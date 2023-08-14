@@ -15,6 +15,7 @@ export type UserState = {
     email: string
     name?: string
     surname?: string
+    avatarUrl?: string
     role: {
         name: string
         code: string

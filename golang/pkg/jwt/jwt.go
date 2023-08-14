@@ -9,6 +9,7 @@ import (
 	"pillowww/titw/internal/db"
 	"pillowww/titw/internal/domain/language"
 	"pillowww/titw/internal/domain/user"
+	"pillowww/titw/internal/fs/fshandlers"
 	"pillowww/titw/models"
 	"time"
 )
@@ -35,6 +36,7 @@ type UserJwtClaims struct {
 	LanguageCode string      `json:"language_code"`
 	Role         RoleClaims  `json:"role"`
 	Status       UserStatus  `json:"status"`
+	AvatarUrl    *string     `json:"avatarUrl"`
 }
 
 type RefreshTokenClaims struct {
@@ -78,6 +80,13 @@ func CreateAccessTokenFromUser(ctx context.Context, userModel models.User) (stri
 		status = USER_REGISTERING
 	}
 
+	var avatarUrl string
+
+	if !userModel.AvatarPath.IsZero() {
+		fs := fshandlers.NewUserAvatar()
+		avatarUrl = fs.GetPublicUrl(userModel.AvatarPath.String)
+	}
+
 	userClaims := UserJwtClaims{
 		UserID:       userModel.ID,
 		Email:        userModel.Email,
@@ -93,7 +102,8 @@ func CreateAccessTokenFromUser(ctx context.Context, userModel models.User) (stri
 			Name: rLang.Name,
 			Code: uRole.RoleCode,
 		},
-		Status: status,
+		AvatarUrl: &avatarUrl,
+		Status:    status,
 	}
 
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, userClaims)

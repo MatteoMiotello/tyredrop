@@ -1,4 +1,5 @@
 import React from "react";
+import {Img} from "react-image";
 import {useDispatch} from "react-redux";
 import {Link} from "react-router-dom";
 import {logout} from "../../modules/auth/store/auth-slice";
@@ -39,8 +40,12 @@ const Navbar: React.FC = () => {
             <div className="flex-none gap-2">
                 <div className="dropdown dropdown-end z-50">
                     <Menu.Dropdown label={<div className="avatar placeholder h-full p-1">
-                        <div className="bg-neutral-focus text-neutral-content rounded-full">
-                            <span className="text-xl"> <FontAwesomeIcon icon={faUser}/> </span>
+                        <div className="text-neutral-content rounded-full" >
+                            {
+                               auth.user?.user?.avatarUrl ?
+                                   <Img className="bg-base-100 !object-contain" src={auth.user.user.avatarUrl}/> :
+                                   <span className="text-xl bg-neutral-focus"> <FontAwesomeIcon className="w-36" icon={faUser}/> </span>
+                            }
                         </div>
                     </div>}>
                         <Menu.Item>

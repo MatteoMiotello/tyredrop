@@ -56,6 +56,7 @@ export const USER = gql`
             email
             confirmed
             rejected
+            avatarUrl
             userRole {
                 isAdmin
                 name

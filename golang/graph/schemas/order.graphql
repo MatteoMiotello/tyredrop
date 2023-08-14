@@ -31,6 +31,7 @@ type Order {
     userBillingID: ID!
     paymentID: ID
     payment: Payment
+    orderNumber: String
     status: OrderStatus!
     priceAmount: Float!
     taxesAmount: Float!

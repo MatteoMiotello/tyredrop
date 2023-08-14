@@ -29,7 +29,7 @@ const OrderDetailsPage: React.FC = () => {
         </div>
         <div className="col-span-12 text-center my-10">
             <h1 className=" text-3xl ">
-                Ordine n. #{order.order.id}
+                Ordine n. #{order.order.orderNumber}
             </h1>
             <Moment className="text-neutral">{order.order.createdAt}</Moment>
         </div>
@@ -101,7 +101,7 @@ const OrderDetailsPage: React.FC = () => {
                     }
                     {
                         order.order.payment.userPaymentMethod.paymentMethod.receiver &&
-                        <li> Causale: <Badge>titw_order_#{order.order.id}</Badge> </li>
+                        <li> Causale: <Badge>titw_order_#{order.order.orderNumber}</Badge> </li>
                     }
                 </ul>
             </Panel>

@@ -16,6 +16,7 @@ func UserToGraphQL(user *models.User) *model.User {
 		Name:       &user.Name,
 		Surname:    user.Surname.Ptr(),
 		UserRoleID: user.UserRoleID,
+		AvatarPath: user.AvatarPath.Ptr(),
 	}
 }
 

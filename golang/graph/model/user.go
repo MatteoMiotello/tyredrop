@@ -9,6 +9,7 @@ type User struct {
 	Name       *string `json:"name"`
 	Surname    *string `json:"surname"`
 	UserRoleID int64   `json:"userRoleId"`
+	AvatarPath *string `json:"avatarPath"`
 }
 
 type UserBilling struct {

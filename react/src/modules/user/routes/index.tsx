@@ -17,14 +17,15 @@ export const userLoader: LoaderFunction = async ({params}) => {
 };
 
 const userRoutes: RouteObject = {
-    path: 'user',
+    path: 'user/:id',
     Component: UserTemplatePage,
+    loader: userLoader,
     handle: {
       crumb: () => <span> Utente </span>
     },
     children: [
         {
-            path: ':id',
+            path: '',
             Component: UserPage,
             loader: userLoader,
             handle: {
@@ -34,7 +35,7 @@ const userRoutes: RouteObject = {
             },
         },
         {
-            path: ':id/address',
+            path: 'address',
             loader: userLoader,
             Component: UserAddressPage,
             handle: {
@@ -42,7 +43,7 @@ const userRoutes: RouteObject = {
             }
         },
         {
-            path: ':id/orders',
+            path: 'orders',
             loader: userLoader,
             Component: UserOrdersPage,
             handle: {

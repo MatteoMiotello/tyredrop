@@ -9,6 +9,8 @@ import (
 	"pillowww/titw/internal/currency"
 	"pillowww/titw/internal/domain/product"
 	"pillowww/titw/models"
+	"strconv"
+	"strings"
 )
 
 type service struct {
@@ -131,10 +133,11 @@ func (s *service) CreateNewOrder(ctx context.Context, userBilling *models.UserBi
 		priceWithAdditions = priceWithAdditions + (row.AdditionsAmount + row.Amount)
 	}
 
-	taxAmountFloat := (float64(defaultTax.MarkupPercentage) / 100) * float64(orderAmount)
+	taxAmountFloat := (float64(defaultTax.MarkupPercentage) / 100) * float64(priceWithAdditions)
 	newOrder.PriceAmount = priceWithAdditions
 	newOrder.TaxesAmount = int(taxAmountFloat)
 	newOrder.PriceAmountTotal = newOrder.PriceAmount + newOrder.TaxesAmount
+	newOrder.OrderNumber = null.StringFrom("TITW" + strings.ToUpper(strconv.FormatInt(newOrder.ID+120000, 16)))
 
 	err = s.orderDao.
 		Update(ctx, newOrder)
