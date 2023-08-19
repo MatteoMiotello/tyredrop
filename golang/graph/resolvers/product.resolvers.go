@@ -10,6 +10,7 @@ import (
 	"pillowww/titw/graph/converters"
 	"pillowww/titw/graph/model"
 	"pillowww/titw/internal/auth"
+	"pillowww/titw/internal/currency"
 	"pillowww/titw/models"
 
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -161,6 +162,23 @@ func (r *productItemResolver) Supplier(ctx context.Context, obj *model.ProductIt
 	}
 
 	return converters.SupplierToGraphQL(sup), nil
+}
+
+// SupplierPrice is the resolver for the supplierPrice field.
+func (r *productItemResolver) SupplierPrice(ctx context.Context, obj *model.ProductItem) (float64, error) {
+	curr, err := r.CurrencyDao.FindDefault(ctx)
+
+	if err != nil {
+		return 0, err
+	}
+
+	i, err := r.ProductItemDao.FindProductItemById(ctx, obj.ID)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return currency.ToFloat(i.SupplierPrice, curr.IsoCode)
 }
 
 // ProductItem is the resolver for the productItem field.

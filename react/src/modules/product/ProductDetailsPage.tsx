@@ -47,7 +47,7 @@ const ProductDetailsPage: React.FC = () => {
         return loadingPlaceholder;
     }
 
-    return <main className="lg:px-24 p-4">
+    return <main className="p-1">
         <div className="grid md:grid-cols-4 gap-4 w-full">
             <Panel className="flex flex-col justify-center items-center">
                 <ProductImage product={data?.productItem?.product as Product}/>
@@ -88,8 +88,8 @@ const ProductDetailsPage: React.FC = () => {
                             <span className="text-primary text-5xl font-semibold">
                                 {Currency.defaultFormat(data?.productItem?.price[0]?.value as number, data?.productItem?.price[0]?.currency.iso_code as string)}</span>
                             {data?.productItem && <AvailabilityBadge quantity={data?.productItem?.supplierQuantity}/>}
-                            <div className="mt-10 flex items-center gap-2">
-                                <div className="ml-auto">
+                            <div className="mt-10 flex flex-col xl:flex-row items-center gap-2">
+                                <div className="">
                                     <Join>
                                         <Button className="join-item" disabled={quantity == 0} onClick={() => {
                                             if (quantity <= 0) {

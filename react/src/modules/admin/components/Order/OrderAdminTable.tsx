@@ -1,21 +1,23 @@
 import React from "react";
 import {QueryResult} from "@apollo/client";
-import {AllOrdersQuery, AllOrdersQueryVariables, Order, OrderStatus} from "../../../../__generated__/graphql";
-import {FilteredTable, Input, Select, useForm} from "../../../../common/components/shelly-ui";
+import {AllOrdersQuery, AllOrdersQueryVariables, Order} from "../../../../__generated__/graphql";
+import {FilteredTable, Input, TableButtons, useForm} from "../../../../common/components/shelly-ui";
 import {useGraphTable} from "../../../../hooks/useGraphTable";
 import {CellContext, ColumnDef} from "@tanstack/react-table";
 import {Currency} from "../../../../common/utilities/currency";
 import {Link} from "react-router-dom";
 import Moment from "react-moment";
 import OrderStatusBadge from "../../../order/components/OrderStatusBadge";
+import OrderStatusSelect from "../../../order/components/OrderStatusSelect";
 
 type OrderTableProps = {
     query: QueryResult<AllOrdersQuery, AllOrdersQueryVariables>
 }
+
 const OrderAdminTable: React.FC<OrderTableProps> = ({query}) => {
     const columns: ColumnDef<Order>[] = [
         {
-            accessorKey: 'id',
+            accessorKey: 'orderNumber',
             header: "ID",
             size: 10,
             cell: (props: CellContext<Order, any>) => <span> #{props.getValue()} </span>
@@ -46,6 +48,13 @@ const OrderAdminTable: React.FC<OrderTableProps> = ({query}) => {
             header: "Totale",
             cell: (props) =>
                 <span> {Currency.defaultFormat(props.row.original.priceAmount, props.row.original.currency.iso_code)} </span>
+        },
+        {
+            id: 'actions',
+            header: "",
+            cell: ( props ) => <TableButtons>
+                    <TableButtons.Info to={`/admin/order/${props.row.original.id}`}/>
+                </TableButtons>
         }
     ];
 
@@ -59,13 +68,13 @@ const OrderAdminTable: React.FC<OrderTableProps> = ({query}) => {
     const form = useForm({type: 'filter'});
 
     return <FilteredTable table={table}>
-        <FilteredTable.FilterForm form={form} updateAsyncFilters={( data ) => {
-            return query.refetch( {
+        <FilteredTable.FilterForm form={form} updateAsyncFilters={(data) => {
+            return query.refetch({
                 filter: {
                     ...data,
                     status: data.status || null
                 }
-            } );
+            });
         }}>
             <FilteredTable.FilterField>
                 <Input.Label>
@@ -89,10 +98,7 @@ const OrderAdminTable: React.FC<OrderTableProps> = ({query}) => {
                 <Input.Label>
                     Stato
                 </Input.Label>
-                <Select
-                    options={ Object.values( OrderStatus ).map( ( val ) => ({value: val, title: val}) ) }
-                    displayFn={ ( opt ) => <OrderStatusBadge status={opt.value}/> }
-                    {...form.registerInput({name: 'status'})}/>
+                <OrderStatusSelect {...form.registerInput({name: 'status'})}/>
             </FilteredTable.FilterField>
         </FilteredTable.FilterForm>
     </FilteredTable>;

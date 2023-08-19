@@ -45,6 +45,10 @@ export const FETCH_ORDER = gql `
                 legalEntityType {
                     name
                 }
+                user {
+                    id
+                    email
+                }
             }
             orderRows {
                 id
@@ -136,6 +140,44 @@ export const FETCH_ALL_ORDERS = gql`
             pagination {
                 ...PaginationInfo
             }
+        }
+    }
+`;
+
+export const POSSIBLE_ORDER_STATUSES = gql`
+    query possibleOrderStatuses( $orderId: ID! ) {
+        possibleOrderStatuses(orderId: $orderId)
+    }
+`;
+
+export const ORDER_ROWS = gql`
+    query orderRows( $orderId: ID! ) {
+        orderRows( orderId: $orderId ) {
+            id
+            productItemPrice {
+                id
+                currency {
+                    iso_code
+                }
+                value
+                productItem {
+                    id
+                    product {
+                        id
+                        name
+                        code
+                    }
+                    supplier {
+                        id
+                        name
+                        code
+                    }
+                    supplierPrice
+                }
+            }
+            amount
+            additionsAmount
+            quantity
         }
     }
 `;

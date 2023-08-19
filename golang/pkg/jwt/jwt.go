@@ -37,6 +37,7 @@ type UserJwtClaims struct {
 	Role         RoleClaims  `json:"role"`
 	Status       UserStatus  `json:"status"`
 	AvatarUrl    *string     `json:"avatarUrl"`
+	UserCode     *string     `json:"userCode"`
 }
 
 type RefreshTokenClaims struct {
@@ -94,6 +95,7 @@ func CreateAccessTokenFromUser(ctx context.Context, userModel models.User) (stri
 		Name:         null.StringFrom(userModel.Name),
 		Surname:      userModel.Surname,
 		LanguageCode: uLanguage.IsoCode,
+		UserCode:     userModel.UserCode.Ptr(),
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: expiration,
 			Issuer:    viper.GetString("security.jwt.issuer"),

@@ -38,6 +38,7 @@ type User struct {
 	Confirmed         bool        `boil:"confirmed" json:"confirmed" toml:"confirmed" yaml:"confirmed"`
 	Rejected          bool        `boil:"rejected" json:"rejected" toml:"rejected" yaml:"rejected"`
 	AvatarPath        null.String `boil:"avatar_path" json:"avatar_path,omitempty" toml:"avatar_path" yaml:"avatar_path,omitempty"`
+	UserCode          null.String `boil:"user_code" json:"user_code,omitempty" toml:"user_code" yaml:"user_code,omitempty"`
 
 	R *userR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L userL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -58,6 +59,7 @@ var UserColumns = struct {
 	Confirmed         string
 	Rejected          string
 	AvatarPath        string
+	UserCode          string
 }{
 	ID:                "id",
 	UserRoleID:        "user_role_id",
@@ -73,6 +75,7 @@ var UserColumns = struct {
 	Confirmed:         "confirmed",
 	Rejected:          "rejected",
 	AvatarPath:        "avatar_path",
+	UserCode:          "user_code",
 }
 
 var UserTableColumns = struct {
@@ -90,6 +93,7 @@ var UserTableColumns = struct {
 	Confirmed         string
 	Rejected          string
 	AvatarPath        string
+	UserCode          string
 }{
 	ID:                "users.id",
 	UserRoleID:        "users.user_role_id",
@@ -105,6 +109,7 @@ var UserTableColumns = struct {
 	Confirmed:         "users.confirmed",
 	Rejected:          "users.rejected",
 	AvatarPath:        "users.avatar_path",
+	UserCode:          "users.user_code",
 }
 
 // Generated where
@@ -124,6 +129,7 @@ var UserWhere = struct {
 	Confirmed         whereHelperbool
 	Rejected          whereHelperbool
 	AvatarPath        whereHelpernull_String
+	UserCode          whereHelpernull_String
 }{
 	ID:                whereHelperint64{field: "\"users\".\"id\""},
 	UserRoleID:        whereHelperint64{field: "\"users\".\"user_role_id\""},
@@ -139,6 +145,7 @@ var UserWhere = struct {
 	Confirmed:         whereHelperbool{field: "\"users\".\"confirmed\""},
 	Rejected:          whereHelperbool{field: "\"users\".\"rejected\""},
 	AvatarPath:        whereHelpernull_String{field: "\"users\".\"avatar_path\""},
+	UserCode:          whereHelpernull_String{field: "\"users\".\"user_code\""},
 }
 
 // UserRels is where relationship names are stored.
@@ -229,9 +236,9 @@ func (r *userR) GetUserPaymentMethods() UserPaymentMethodSlice {
 type userL struct{}
 
 var (
-	userAllColumns            = []string{"id", "user_role_id", "default_language_id", "email", "username", "password", "name", "surname", "deleted_at", "updated_at", "created_at", "confirmed", "rejected", "avatar_path"}
+	userAllColumns            = []string{"id", "user_role_id", "default_language_id", "email", "username", "password", "name", "surname", "deleted_at", "updated_at", "created_at", "confirmed", "rejected", "avatar_path", "user_code"}
 	userColumnsWithoutDefault = []string{"user_role_id", "default_language_id", "email", "password", "name"}
-	userColumnsWithDefault    = []string{"id", "username", "surname", "deleted_at", "updated_at", "created_at", "confirmed", "rejected", "avatar_path"}
+	userColumnsWithDefault    = []string{"id", "username", "surname", "deleted_at", "updated_at", "created_at", "confirmed", "rejected", "avatar_path", "user_code"}
 	userPrimaryKeyColumns     = []string{"id"}
 	userGeneratedColumns      = []string{}
 )

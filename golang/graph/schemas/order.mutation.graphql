@@ -2,5 +2,7 @@ extend type Mutation {
     orderSupport( orderID: ID! message: String! ): Order! @userConfirmed
 
     confirmOrder( orderID: ID! ): Order! @userConfirmed
-    payOrder( orderID: ID!, paymentMethodCode: String! ): Order! @userConfirmed
+
+    payOrder( orderID: ID!, paymentMethodCode: String! ): Order! @isAdmin
+    updateOrderStatus( orderID: ID!, newStatus: OrderStatus! ): Order! @isAdmin
 }

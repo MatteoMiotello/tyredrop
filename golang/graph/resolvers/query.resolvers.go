@@ -227,19 +227,6 @@ func (r *queryResolver) Currencies(ctx context.Context) ([]*model.Currency, erro
 	return cAll, nil
 }
 
-// Order is the resolver for the order field.
-func (r *queryResolver) Order(ctx context.Context, id int64) (*model.Order, error) {
-	orderModel, err := r.OrderDao.
-		Load(models.OrderRels.Currency).
-		FindOneById(ctx, id)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return converters.OrderToGraphQL(orderModel)
-}
-
 // UserOrders is the resolver for the userOrders field.
 func (r *queryResolver) UserOrders(ctx context.Context, userID int64, pagination *model.PaginationInput, filter *model.OrderFilterInput, ordering []*model.OrderingInput) (*model.OrdersPaginator, error) {
 	user, err := r.UserDao.FindOneById(ctx, userID)

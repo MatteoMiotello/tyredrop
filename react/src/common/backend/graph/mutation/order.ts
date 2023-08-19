@@ -24,3 +24,11 @@ export const PAY_ORDER = gql(`
         }
     }
 `);
+
+export const UPDATE_ORDER_STATUS = gql( /* GraphQL */ `
+    mutation updateOrderStatus( $orderId: ID!, $newStatus: OrderStatus! ) {
+        updateOrderStatus( orderID: $orderId, newStatus: $newStatus ) {
+            id
+        }
+    }
+` );

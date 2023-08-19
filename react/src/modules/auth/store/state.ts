@@ -16,6 +16,7 @@ export type UserState = {
     name?: string
     surname?: string
     avatarUrl?: string
+    userCode?: string
     role: {
         name: string
         code: string

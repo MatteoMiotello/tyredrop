@@ -13,7 +13,7 @@ const OrderRowsTable: React.FC<OrderRowsTableProps> = (props) => {
             accessorKey: 'id',
             size: 10,
             header: "Numero",
-            cell: (props) => <span> #{props.row.original.id} </span>
+            cell: (p) => <span> #{`${props.order.order.orderNumber}_${p.row.original?.id}`}</span>
         },
         {
             accessorKey: "productItem",

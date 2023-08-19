@@ -6,5 +6,8 @@ input OrdersFilterInput {
 }
 
 extend type Query {
+    order( id: ID! ): Order! @userConfirmed
     allOrders( pagination: PaginationInput, filter: OrdersFilterInput, ordering: [OrderingInput] ): OrdersPaginator! @isAdmin
+    possibleOrderStatuses( orderId: ID! ): [OrderStatus!]! @isAdmin
+    orderRows( orderId: ID! ): [OrderRow!]! @isAdmin
 }

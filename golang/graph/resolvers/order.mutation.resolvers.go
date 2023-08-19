@@ -114,3 +114,31 @@ func (r *mutationResolver) PayOrder(ctx context.Context, orderID int64, paymentM
 
 	return converters.OrderToGraphQL(o)
 }
+
+// UpdateOrderStatus is the resolver for the updateOrderStatus field.
+func (r *mutationResolver) UpdateOrderStatus(ctx context.Context, orderID int64, newStatus model.OrderStatus) (*model.Order, error) {
+	oService := order.NewService(
+		r.OrderDao,
+		r.CurrencyDao,
+		r.ProductItemDao,
+		r.ProductItemPriceDao,
+	)
+
+	o, err := r.OrderDao.
+		Load(
+			models.OrderRels.Currency,
+		).
+		FindOneById(ctx, orderID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = oService.UpdateOrderStatus(ctx, o, newStatus)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return converters.OrderToGraphQL(o)
+}

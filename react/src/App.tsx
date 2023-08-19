@@ -61,12 +61,14 @@ function App() {
 
     return (
         <>
-            <div className="p-1">
-                <Navbar></Navbar>
-            </div>
-            <Breadcrumbs></Breadcrumbs>
-            <div className="min-h-screen">
-                <Outlet/>
+            <div className="lg:px-36">
+                <div className="p-1">
+                    <Navbar></Navbar>
+                </div>
+                <Breadcrumbs></Breadcrumbs>
+                <div className="min-h-screen">
+                    <Outlet/>
+                </div>
             </div>
             <CustomFooter/>
         </>

@@ -57,8 +57,6 @@ type Query {
     currency( id: ID! ): Currency
     currencies: [Currency]
 
-    order( id: ID! ): Order! @userConfirmed
     userOrders( userId: ID!, pagination: PaginationInput, filter: OrderFilterInput, ordering: [OrderingInput] ): OrdersPaginator @userConfirmed
-
     paymentMethods: [PaymentMethod]!
 }

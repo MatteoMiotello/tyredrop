@@ -38,6 +38,18 @@ type OrderRow struct {
 	DeliveredAt        *time.Time `json:"deliveredAt,omitempty"`
 }
 
+func GetValidStatusForOrder(order *models.Order) []OrderStatus {
+	switch order.Status {
+	case OrderStatusNotCompleted.String():
+		return []OrderStatus{OrderStatusRejected}
+	case OrderStatusNew.String():
+		return []OrderStatus{OrderStatusConfirmed, OrderStatusRejected, OrderStatusCanceled}
+	case OrderStatusConfirmed.String():
+		return []OrderStatus{OrderStatusDelivered}
+	}
+	return []OrderStatus{}
+}
+
 func (o OrderStatus) IsValidForOrder(order *models.Order) bool {
 	switch o {
 	case OrderStatusNotCompleted:

@@ -14,7 +14,7 @@ export const badgeConfig: { [key in OrderStatus]: { title: string, color: string
     },
     CANCELED: {
         title: "Cancellato",
-        color: "#FF6666"
+        color: "#676767"
     },
     CONFIRMED: {
         title: "Confermato",
@@ -30,7 +30,7 @@ export const badgeConfig: { [key in OrderStatus]: { title: string, color: string
     },
     REJECTED: {
         title: "Rifiutato",
-        color: "#313131"
+        color: "#cc0000"
     },
     RETURNED: {
         title: "Rimborsato",

@@ -33,13 +33,13 @@ const Navbar: React.FC = () => {
                 auth.user?.user &&
                 <div className="mx-4 flex flex-col uppercase font-semibold text-sm">
                     <Link className="link-primary" to={`/user/${auth.user.user.userID}`}> { auth.user.user.email } </Link>
-                    <span> Codice utente: #{ String( auth.user?.user?.userID ).padStart( 5, '0' ) } </span>
+                    <span> Codice utente: #{ String( auth.user?.user?.userCode ).padStart( 5, '0' ) } </span>
                 </div>
             }
             <CartButton/>
             <div className="flex-none gap-2">
                 <div className="dropdown dropdown-end z-50">
-                    <Menu.Dropdown label={<div className="avatar placeholder h-full p-1">
+                    <Menu.Dropdown label={<div className="avatar ring-base-300 ring-2 rounded-full placeholder h-full p-1">
                         <div className="text-neutral-content rounded-full" >
                             {
                                auth.user?.user?.avatarUrl ?

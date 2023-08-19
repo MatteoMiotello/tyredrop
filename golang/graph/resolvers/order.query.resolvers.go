@@ -12,6 +12,19 @@ import (
 	"pillowww/titw/models"
 )
 
+// Order is the resolver for the order field.
+func (r *queryResolver) Order(ctx context.Context, id int64) (*model.Order, error) {
+	orderModel, err := r.OrderDao.
+		Load(models.OrderRels.Currency).
+		FindOneById(ctx, id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return converters.OrderToGraphQL(orderModel)
+}
+
 // AllOrders is the resolver for the allOrders field.
 func (r *queryResolver) AllOrders(ctx context.Context, pagination *model.PaginationInput, filter *model.OrdersFilterInput, ordering []*model.OrderingInput) (*model.OrdersPaginator, error) {
 	orderDao := r.OrderDao.
@@ -53,4 +66,29 @@ func (r *queryResolver) AllOrders(ctx context.Context, pagination *model.Paginat
 		Data:       graphOrders,
 		Pagination: converters.PaginationToGraphql(pagination, totalCount),
 	}, nil
+}
+
+// PossibleOrderStatuses is the resolver for the possibleOrderStatuses field.
+func (r *queryResolver) PossibleOrderStatuses(ctx context.Context, orderID int64) ([]model.OrderStatus, error) {
+	o, err := r.OrderDao.FindOneById(ctx, orderID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return model.GetValidStatusForOrder(o), err
+}
+
+// OrderRows is the resolver for the orderRows field.
+func (r *queryResolver) OrderRows(ctx context.Context, orderID int64) ([]*model.OrderRow, error) {
+	o, err := r.OrderDao.
+		Load(models.OrderRels.OrderRows).
+		Load(models.OrderRels.Currency).
+		FindOneById(ctx, orderID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return aggregators.RowsFromOrderModel(o), nil
 }

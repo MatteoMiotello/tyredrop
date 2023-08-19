@@ -4,6 +4,7 @@ type User struct {
 	ID         int64   `json:"id"`
 	Email      string  `json:"email"`
 	Username   *string `json:"username"`
+	UserCode   *string `json:"userCode"`
 	Confirmed  bool    `json:"confirmed"`
 	Rejected   bool    `json:"rejected"`
 	Name       *string `json:"name"`

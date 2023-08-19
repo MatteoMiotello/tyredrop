@@ -7,8 +7,6 @@ import {useAuth} from "./modules/auth/hooks/useAuth";
 const CommonTemplate: React.FC = () => {
     const auth = useAuth();
 
-
-
     return <div>
         <div className="navbar w-full">
             <Logo className="navbar-start w-24"/>
@@ -18,7 +16,7 @@ const CommonTemplate: React.FC = () => {
                 }
             </div>
         </div>
-        <div className="p-4 md:p-24">
+        <div className="p-4 md:p-24 md:px-56">
             <Outlet/>
         </div>
         <CustomFooter/>

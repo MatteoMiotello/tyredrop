@@ -43,7 +43,6 @@ const BrandField: React.FC<BrandFieldProps> = (props) => {
     };
 
     return <Autocomplete
-        labelText={t('searchbar.brand_field_label')}
         className={props.className}
         placeholder={t('searchbar.brand_field_label') as string}
         name={props.name}

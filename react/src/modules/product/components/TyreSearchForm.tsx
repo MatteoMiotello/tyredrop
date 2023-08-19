@@ -87,7 +87,7 @@ const TyreSearchForm: React.FC<TypeSpecificSearchFormProps> = (props) => {
             </div>
         </div>
         <Field.FormControl className="col-span-3">
-            <Field.Label>
+            <Field.Label className="text-base-100">
                 {t('searchbar.width_field_label')}
             </Field.Label>
             <SpecificationField
@@ -98,7 +98,7 @@ const TyreSearchForm: React.FC<TypeSpecificSearchFormProps> = (props) => {
             />
         </Field.FormControl>
         <Field.FormControl className="col-span-3">
-            <Field.Label>
+            <Field.Label className="text-base-100">
                 {t('searchbar.height_field_label')}
             </Field.Label>
             <SpecificationField
@@ -109,7 +109,7 @@ const TyreSearchForm: React.FC<TypeSpecificSearchFormProps> = (props) => {
             />
         </Field.FormControl>
         <Field.FormControl className="col-span-3">
-            <Field.Label>
+            <Field.Label className="!text-base-100">
                 {t('searchbar.rim_field_label')}
             </Field.Label>
             <SpecificationField
@@ -120,7 +120,7 @@ const TyreSearchForm: React.FC<TypeSpecificSearchFormProps> = (props) => {
             />
         </Field.FormControl>
         <Field.FormControl className="col-span-3">
-            <Field.Label>
+            <Field.Label className="text-base-100">
                 {t('searchbar.season_field_label')}
             </Field.Label>
             <SpecificationField
@@ -131,26 +131,34 @@ const TyreSearchForm: React.FC<TypeSpecificSearchFormProps> = (props) => {
             />
         </Field.FormControl>
         <Field.FormControl className="col-span-4">
+            <Field.Label className="!text-base-100">
+                {t('searchbar.code_field_label')}
+            </Field.Label>
             <Field.Input
                 type="text"
                 name="tyre_code"
                 placeholder={t('searchbar.code_field_label')}
-                labelText={t('searchbar.code_field_label')}
             />
         </Field.FormControl>
         <Field.FormControl className="col-span-4">
+            <Field.Label className="!text-base-100">
+                {t('searchbar.name_field_label')}
+            </Field.Label>
             <Field.Input
                 type="text"
                 name="tyre_name"
                 placeholder={t('searchbar.name_field_label')}
-                labelText={t('searchbar.name_field_label')}
             />
         </Field.FormControl>
-        <BrandField
-            className="col-span-4"
-            name="brand"
-        />
-        <Button className="col-start-6 col-span-2 btn-outline"
+        <Field.FormControl className="col-span-4">
+            <Field.Label className="!text-base-100">
+                {t('searchbar.brand_field_label')}
+            </Field.Label>
+            <BrandField
+                name="brand"
+            />
+        </Field.FormControl>
+        <Button className="col-start-6 col-span-2 btn-outline "
                 size="sm"
                 type="ghost">
             <FontAwesomeIcon icon={faSearch}/>

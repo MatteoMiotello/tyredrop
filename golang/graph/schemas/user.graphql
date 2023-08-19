@@ -54,6 +54,7 @@ type UserAddress {
 
 type User {
     id: ID!
+    userCode: String
     email: String!
     confirmed: Boolean!
     rejected: Boolean!
