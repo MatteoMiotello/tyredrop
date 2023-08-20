@@ -18,10 +18,15 @@ const OrderRowsTable: React.FC<OrderRowsTableProps> = (props) => {
         {
             accessorKey: "productItem",
             header: "Prodotto",
-            cell: (props: CellContext<OrderRow, any>) => <span> {props.row.original.productItemPrice.productItem.product.name} </span>
+            cell: (props: CellContext<OrderRow, any>) => <div className="text-sm flex flex-col">
+                <span> {props.row.original.productItemPrice.productItem.product.brand.name} </span>
+                <span className="my-2"> {props.row.original.productItemPrice.productItem.product.name} </span>
+                <span className="text-neutral-400"> EAN: {props.row.original.productItemPrice.productItem.product.code} </span>
+            </div>
         },
         {
             accessorKey: "quantity",
+            size: 10,
             header: "Quantità",
         },
         {

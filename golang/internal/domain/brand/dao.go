@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
+	"pillowww/titw/graph/model"
 	"pillowww/titw/internal/db"
 	"pillowww/titw/models"
+	"time"
 )
 
 type Dao struct {
@@ -72,4 +74,21 @@ func (d *Dao) FindAll(ctx context.Context) (models.BrandSlice, error) {
 			qm.OrderBy(models.BrandColumns.Quality+" DESC"),
 		)...,
 	).All(ctx, d.Db)
+}
+
+func (d *Dao) BestBrand(ctx context.Context, from time.Time, to time.Time) (*models.Brand, error) {
+	return models.Brands(
+		d.GetMods(
+			qm.LeftOuterJoin("products on products.brand_id = brands.id"),
+			qm.LeftOuterJoin("product_items on product_items.product_id = products.id"),
+			qm.LeftOuterJoin("product_item_prices on product_item_prices.product_item_id = product_items.id"),
+			qm.LeftOuterJoin("order_rows on order_rows.product_item_price_id = product_item_prices.id"),
+			qm.LeftOuterJoin("orders on order_rows.order_id = orders.id"),
+			models.OrderWhere.CreatedAt.GTE(from),
+			models.OrderWhere.CreatedAt.LTE(to),
+			models.OrderWhere.Status.IN(model.OrderProcessedStatusCollection),
+			qm.GroupBy("brands.id"),
+			qm.OrderBy("count( order_rows.id ) DESC"),
+		)...,
+	).One(ctx, d.Db)
 }

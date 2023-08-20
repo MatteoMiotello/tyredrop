@@ -22,8 +22,11 @@ const orderLoader: LoaderFunction = async ({params}) => {
 
 export const adminRoutes: RouteObject = {
     path: '',
-    Component: HomePage,
     children: [
+        {
+            path: '',
+            Component: HomePage,
+        },
         {
             path: 'user',
             Component: UserAdminTemplatePage,

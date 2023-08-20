@@ -51,15 +51,12 @@ func (p orderPolicy) CanPay(ctx context.Context) bool {
 	}
 
 	billing, err := p.orderDao.GetUserBilling(ctx, p.model)
+
 	if err != nil {
 		return false
 	}
 
 	if !p.model.PaymentID.IsZero() {
-		return false
-	}
-
-	if p.model.Status != model.OrderStatusNew.String() {
 		return false
 	}
 

@@ -132,6 +132,12 @@ type ProductSpecificationInput struct {
 	Value string `json:"value"`
 }
 
+type StatResponse struct {
+	TotalUsers  int     `json:"totalUsers"`
+	TotalOrders float64 `json:"totalOrders"`
+	BestBrand   *Brand  `json:"bestBrand"`
+}
+
 type Supplier struct {
 	ID   int64  `json:"id"`
 	Name string `json:"name"`

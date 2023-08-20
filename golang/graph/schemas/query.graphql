@@ -39,6 +39,12 @@ type UserPaginator {
     pagination: Pagination!
 }
 
+type StatResponse {
+    totalUsers: Int!
+    totalOrders: Float!
+    bestBrand: Brand!
+}
+
 type Query {
     user(ID: ID!): User
     users( pagination: PaginationInput, filter: UserFilterInput ): UserPaginator @isAdmin
@@ -59,4 +65,6 @@ type Query {
 
     userOrders( userId: ID!, pagination: PaginationInput, filter: OrderFilterInput, ordering: [OrderingInput] ): OrdersPaginator @userConfirmed
     paymentMethods: [PaymentMethod]!
+
+    stats: StatResponse! @isAdmin
 }

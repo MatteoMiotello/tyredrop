@@ -66,6 +66,11 @@ export const FETCH_ORDER = gql `
                         product {
                             id
                             name
+                            code
+                            brand {
+                                id
+                                name
+                            }
                         }
                     }
                 }
@@ -166,6 +171,10 @@ export const ORDER_ROWS = gql`
                         id
                         name
                         code
+                        brand {
+                            id
+                            name
+                        }
                     }
                     supplier {
                         id

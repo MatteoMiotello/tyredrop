@@ -130,3 +130,12 @@ func (d Dao) FindAll(ctx context.Context, email *string, name *string, confirmed
 		)...,
 	).All(ctx, d.Db)
 }
+
+func (d Dao) TotalUsers(ctx context.Context) (int64, error) {
+	return models.Users(
+		d.GetMods(
+			models.UserWhere.Confirmed.EQ(true),
+			qm.WhereIn(models.UserColumns.UserRoleID+" IN ( SELECT id FROM public.user_roles WHERE role_code = ? )", "USER"),
+		)...,
+	).Count(ctx, d.Db)
+}

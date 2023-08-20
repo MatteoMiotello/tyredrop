@@ -159,3 +159,26 @@ func (d Dao) FindDefaultTax(ctx context.Context) (*models.Taxis, error) {
 func (d Dao) GetUserBilling(ctx context.Context, order *models.Order) (*models.UserBilling, error) {
 	return order.UserBilling(d.GetMods()...).One(ctx, d.Db)
 }
+
+type TotalOrders struct {
+	TotalPrice int `boil:"price_amount"`
+}
+
+func (d Dao) TotalOrders(ctx context.Context, from time.Time, to time.Time) (*TotalOrders, error) {
+	tp := new(TotalOrders)
+
+	err := models.Orders(
+		d.GetMods(
+			qm.Select("SUM( price_amount ) as price_amount"),
+			models.OrderWhere.CreatedAt.GTE(from),
+			models.OrderWhere.CreatedAt.LTE(to),
+			models.OrderWhere.Status.IN(model.OrderProcessedStatusCollection),
+		)...,
+	).Bind(ctx, d.Db, tp)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return tp, nil
+}

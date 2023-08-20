@@ -162,12 +162,6 @@ func (s *service) PayOrder(ctx context.Context, o *models.Order, p *models.Payme
 		return err
 	}
 
-	err = s.UpdateOrderStatus(ctx, o, model.OrderStatusNew)
-
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 

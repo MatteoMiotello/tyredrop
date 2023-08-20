@@ -38,7 +38,7 @@ export function OrderAddressPanel(props: { order: FetchOrderQuery, className: st
 }
 
 export function OrderTotalPanel(props: { order: FetchOrderQuery, className: string }) {
-    return <Panel className={props.className + ' flex flex-col'} >
+    return <Panel className={props.className + ' flex flex-col'}>
         <h3 className="font-semibold">Totale Ordine</h3>
         <div
             className="w-full my-auto text-center text-6xl font-bold text-primary">{Currency.defaultFormat(
@@ -112,25 +112,28 @@ const OrderDetailsPage: React.FC = () => {
             </h1>
             <Moment className="text-neutral">{order.order.createdAt}</Moment>
         </div>
-        <Panel className="col-span-8 row-span-2">
-            <h3 className="font-semibold">Prodotti acquistati</h3>
-            <OrderRowsTable order={order}></OrderRowsTable>
-        </Panel>
-        <OrderTotalPanel order={order} className="col-span-4"/>
-        <Panel className="col-span-4 flex flex-col">
+
+        <Panel className="col-span-6 flex flex-col">
             <h3 className="font-semibold">Stato dell'ordine</h3>
             <span className="font-bold text-secondary mx-auto text-4xl"><OrderStatusBadge className="badge-lg"
                                                                                           status={order.order.status}/></span>
         </Panel>
-        <OrderBillingPanel order={order} className="col-span-6"/>
-        <OrderAddressPanel order={order} className="col-span-6"/>
-        {
-            order.order?.payment &&
-            <Panel className="col-span-6">
-                <h3 className="font-semibold">Dati del pagamento</h3>
-                <OrderPaymentDetails order={order}/>
-            </Panel>
-        }
+        <OrderTotalPanel order={order} className="col-span-6"/>
+        <div className="flex col-span-12 gap-4">
+            <OrderBillingPanel order={order} className="flex-1"/>
+            <OrderAddressPanel order={order} className="flex-1"/>
+            {
+                order.order?.payment &&
+                <Panel className="flex-1">
+                    <h3 className="font-semibold">Dati del pagamento</h3>
+                    <OrderPaymentDetails order={order}/>
+                </Panel>
+            }
+        </div>
+        <Panel className="col-span-12">
+            <h3 className="font-semibold">Prodotti acquistati</h3>
+            <OrderRowsTable order={order}></OrderRowsTable>
+        </Panel>
     </main>;
 };
 

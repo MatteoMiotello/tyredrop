@@ -56,12 +56,19 @@ func (o OrderStatus) IsValidForOrder(order *models.Order) bool {
 		return false
 	case OrderStatusNew:
 		return order.Status == OrderStatusNotCompleted.String()
-	case OrderStatusConfirmed, OrderStatusRejected, OrderStatusCanceled:
+	case OrderStatusConfirmed, OrderStatusCanceled:
 		return order.Status == OrderStatusNew.String()
+	case OrderStatusRejected:
+		return order.Status == OrderStatusNew.String() || order.Status == OrderStatusNotCompleted.String()
 	case OrderStatusDelivered:
 		return order.Status == OrderStatusConfirmed.String()
 	case OrderStatusReturned:
 		return order.Status == OrderStatusConfirmed.String() || order.Status == OrderStatusNew.String()
 	}
 	return false
+}
+
+var OrderProcessedStatusCollection = []string{
+	OrderStatusConfirmed.String(),
+	OrderStatusDelivered.String(),
 }

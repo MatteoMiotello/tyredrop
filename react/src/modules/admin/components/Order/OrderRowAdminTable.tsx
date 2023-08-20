@@ -19,10 +19,15 @@ const OrderRowAdminTable: React.FC<OrderRowAdminTableProps> = ({query, order}) =
         },
         {
             accessorKey: "productItem",
-            header: "Prodotto",
+            header: "Brand",
             size: 250,
             cell: (props: CellContext<OrderRow, any>) =>
                 <span> {props.row.original.productItemPrice.productItem.product.name} </span>
+        },
+        {
+            accessorKey: "productItem.product.brand.name",
+            header: "Prodotto",
+            cell: (props: CellContext<OrderRow, any>) => <span> {props.row.original.productItemPrice.productItem.product.brand.name} </span>
         },
         {
             id: 'ean',
