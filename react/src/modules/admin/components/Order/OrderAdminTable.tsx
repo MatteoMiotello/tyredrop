@@ -52,6 +52,7 @@ const OrderAdminTable: React.FC<OrderTableProps> = ({query}) => {
         {
             id: 'actions',
             header: "",
+            size: 10,
             cell: ( props ) => <TableButtons>
                     <TableButtons.Info to={`/admin/order/${props.row.original.id}`}/>
                 </TableButtons>
