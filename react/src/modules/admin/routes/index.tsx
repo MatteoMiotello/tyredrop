@@ -1,6 +1,7 @@
 import {Link, LoaderFunction, RouteObject} from "react-router-dom";
 import {FETCH_ORDER} from "../../../common/backend/graph/query/order";
 import apolloClientContext from "../../../common/contexts/apollo-client-context";
+import HomePage from "../pages/HomePage";
 import OrderAdminDetailsPage from "../pages/OrderAdminDetailsPage";
 import UserPage from "../pages/UserPage";
 import {userLoader} from "../../user/routes";
@@ -21,6 +22,7 @@ const orderLoader: LoaderFunction = async ({params}) => {
 
 export const adminRoutes: RouteObject = {
     path: '',
+    Component: HomePage,
     children: [
         {
             path: 'user',
