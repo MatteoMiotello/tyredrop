@@ -28,7 +28,7 @@ const HomePage: React.FC = () => {
     });
 
     return <main>
-        <div className=" p-4 lg:p-24 flex flex-col lg:flex-row justify-around gap-4">
+        <div className=" p-4 lg:p-24 flex flex-col lg:flex-row justify-around gap-4 relative">
             {
                 statsQuery.loading && <Spinner/>
             }

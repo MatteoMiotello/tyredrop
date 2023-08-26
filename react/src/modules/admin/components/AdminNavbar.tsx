@@ -2,7 +2,6 @@ import { faRightFromBracket, faUser} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import React from "react";
 import {useDispatch} from "react-redux";
-import {Link} from "react-router-dom";
 import Menu from "../../../common/components-library/Menu";
 import MainLogo from "../../../common/components/Logo";
 import {logout} from "../../auth/store/auth-slice";
@@ -25,11 +24,6 @@ const AdminNavbar: React.FC = () => {
                             <span className="text-xl"> <FontAwesomeIcon icon={faUser}/> </span>
                         </div>
                     </div>}>
-                        <Menu.Item>
-                            <Link to="/user">
-                                <FontAwesomeIcon icon={faUser}/> Principale
-                            </Link>
-                        </Menu.Item>
                         <Menu.Item>
                             <a onClick={() => dispatch(logout())}>
                                 <FontAwesomeIcon icon={faRightFromBracket}/> Esci
