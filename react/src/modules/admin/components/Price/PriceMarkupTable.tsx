@@ -6,8 +6,9 @@ import {BasicTable, TableButtons, useTable} from "../../../../common/components/
 
 type PriceMarkupTableProps = {
     query: QueryResult<PriceMarkupsQuery, PriceMarkupsQueryVariables>
+    setMarkupToEdit: ( markup: ProductPriceMarkup | undefined ) => void
 }
-const PriceMarkupTable: React.FC<PriceMarkupTableProps> = ( {query} ) => {
+const PriceMarkupTable: React.FC<PriceMarkupTableProps> = ( {query, setMarkupToEdit} ) => {
     const columns: ColumnDef<ProductPriceMarkup>[] = [
         {
             id: 'element',
@@ -36,9 +37,8 @@ const PriceMarkupTable: React.FC<PriceMarkupTableProps> = ( {query} ) => {
         },
         {
             id: 'actions',
-            cell: () => <TableButtons>
-                <TableButtons.Delete/>
-                <TableButtons.Edit/>
+            cell: (p) => <TableButtons>
+                <TableButtons.Edit onClick={()=> setMarkupToEdit( p.row.original )}/>
             </TableButtons>
         }
     ];

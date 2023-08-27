@@ -67,6 +67,4 @@ type Query {
     paymentMethods: [PaymentMethod]!
 
     stats: StatResponse! @isAdmin
-
-    priceMarkups: [ProductPriceMarkup]
 }

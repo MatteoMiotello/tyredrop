@@ -25,6 +25,7 @@ const documents = {
     "\n    mutation payOrder( $orderId: ID!, $methodCode: String! ) {\n        payOrder(orderID: $orderId, paymentMethodCode: $methodCode) {\n            id\n        }\n    }\n": types.PayOrderDocument,
     "\n    mutation updateOrderStatus( $orderId: ID!, $newStatus: OrderStatus! ) {\n        updateOrderStatus( orderID: $orderId, newStatus: $newStatus ) {\n            id\n        }\n    }\n": types.UpdateOrderStatusDocument,
     "\n    mutation updateOrderRow( $rowId: ID!, $input: OrderRowInput! ) {\n        updateOrderRow(input: $input, rowID: $rowId) {\n            id\n        }\n    }\n": types.UpdateOrderRowDocument,
+    "\n    mutation updateMarkup( $id: ID!, $markupPercentage: Int! ) {\n        updatePriceMarkup(id: $id, markupPercentage: $markupPercentage) {\n            id\n        }   \n    }\n": types.UpdateMarkupDocument,
     "\n    \n    mutation addAddress( $input: UserAddressInput! ) {\n        createUserAddress(userAddress: $input) {\n            ...UserAddressCollection\n        }\n    }\n": types.AddAddressDocument,
     "\n    \n    mutation editAddress( $id: ID!, $input: UserAddressInput! ) {\n        editUserAddress(id: $id, userAddress: $input) {\n            ...UserAddressCollection\n        }\n    }\n": types.EditAddressDocument,
     "\n    \n    mutation deleteAddress( $id: ID! ) {\n        deleteUserAddress(id: $id) {\n            ...UserAddressCollection\n        }\n    }\n": types.DeleteAddressDocument,
@@ -113,6 +114,10 @@ export function gql(source: "\n    mutation updateOrderStatus( $orderId: ID!, $n
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n    mutation updateOrderRow( $rowId: ID!, $input: OrderRowInput! ) {\n        updateOrderRow(input: $input, rowID: $rowId) {\n            id\n        }\n    }\n"): (typeof documents)["\n    mutation updateOrderRow( $rowId: ID!, $input: OrderRowInput! ) {\n        updateOrderRow(input: $input, rowID: $rowId) {\n            id\n        }\n    }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n    mutation updateMarkup( $id: ID!, $markupPercentage: Int! ) {\n        updatePriceMarkup(id: $id, markupPercentage: $markupPercentage) {\n            id\n        }   \n    }\n"): (typeof documents)["\n    mutation updateMarkup( $id: ID!, $markupPercentage: Int! ) {\n        updatePriceMarkup(id: $id, markupPercentage: $markupPercentage) {\n            id\n        }   \n    }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

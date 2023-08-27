@@ -339,23 +339,6 @@ func (r *queryResolver) Stats(ctx context.Context) (*model.StatResponse, error) 
 	}, nil
 }
 
-// PriceMarkups is the resolver for the priceMarkups field.
-func (r *queryResolver) PriceMarkups(ctx context.Context) ([]*model.ProductPriceMarkup, error) {
-	pms, err := r.PriceMarkupDao.FindAll(ctx)
-
-	if err != nil {
-		return nil, err
-	}
-
-	var markups []*model.ProductPriceMarkup
-
-	for _, pm := range pms {
-		markups = append(markups, converters.PriceMarkupToGraphQL(pm))
-	}
-
-	return markups, nil
-}
-
 // Query returns graph.QueryResolver implementation.
 func (r *Resolver) Query() graph.QueryResolver { return &queryResolver{r} }
 

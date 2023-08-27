@@ -1,0 +1,3 @@
+extend type Mutation {
+    updatePriceMarkup( id: ID!, markupPercentage: Int! ): ProductPriceMarkup! @isAdmin
+}

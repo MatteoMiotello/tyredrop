@@ -75,3 +75,11 @@ func (d *PriceMarkupDao) FindAll(ctx context.Context) (models.ProductPriceMarkup
 		d.GetMods()...,
 	).All(ctx, d.Db)
 }
+
+func (d PriceMarkupDao) FindOneById(ctx context.Context, id int64) (*models.ProductPriceMarkup, error) {
+	return models.ProductPriceMarkups(
+		d.GetMods(
+			models.ProductPriceMarkupWhere.ID.EQ(id),
+		)...,
+	).One(ctx, d.Db)
+}

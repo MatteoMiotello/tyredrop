@@ -2,11 +2,15 @@ package product
 
 import (
 	"context"
+	"database/sql"
 	"github.com/friendsofgo/errors"
 	"pillowww/titw/internal/currency"
+	"pillowww/titw/internal/db"
 	"pillowww/titw/internal/domain/product/pdtos"
 	"pillowww/titw/models"
+	"pillowww/titw/pkg/log"
 	"strconv"
+	"sync"
 )
 
 type PriceService struct {
@@ -160,6 +164,95 @@ func (p PriceService) CalculatePriceAdditions(ctx context.Context, pi *models.Pr
 				return err
 			}
 		}
+	}
+
+	return nil
+}
+
+func (p PriceService) UpdateMarkup(ctx context.Context, markup *models.ProductPriceMarkup, markupPercentage int) error {
+	var products models.ProductSlice
+	var err error
+
+	if markup.MarkupPercentage == markupPercentage {
+		return nil
+	}
+
+	dao := p.ProductDao.Load(models.ProductRels.ProductItems)
+
+	if !markup.ProductID.IsZero() {
+		p, err := dao.FindOneById(ctx, markup.ProductID.Int64)
+
+		if err != nil {
+			return err
+		}
+
+		products = append(products, p)
+	}
+
+	if !markup.ProductCategoryID.IsZero() {
+		products, err = dao.FindByCategoryId(ctx, markup.ProductCategoryID.Int64)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	if !markup.BrandID.IsZero() {
+		products, err = dao.FindByBrandId(ctx, markup.BrandID.Int64)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	if markup.BrandID.IsZero() && markup.ProductID.IsZero() && markup.ProductCategoryID.IsZero() {
+		products, err = dao.FindAll(ctx)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	err = db.WithTx(ctx, func(tx *sql.Tx) error {
+		p.ProductItemPriceDao.Db = tx
+
+		markup.MarkupPercentage = markupPercentage
+		err := p.ProductItemPriceDao.Save(ctx, markup)
+
+		errChan := make(chan error)
+		wg := sync.WaitGroup{}
+
+		for _, pr := range products {
+			for _, pi := range pr.R.ProductItems {
+				pi := pi
+				wg.Add(1)
+				go func(pi *models.ProductItem) {
+					defer wg.Done()
+					calcErr := p.CalculateAndStoreProductPrices(ctx, pi)
+
+					if calcErr != nil {
+						errChan <- calcErr
+						log.Error("Price not updated for item: " + strconv.Itoa(int(pi.ID)))
+					}
+
+				}(pi)
+
+			}
+		}
+
+		for er := range errChan {
+			if er != nil {
+				return er
+			}
+		}
+
+		wg.Wait()
+
+		return err
+	})
+
+	if err != nil {
+		return err
 	}
 
 	return nil

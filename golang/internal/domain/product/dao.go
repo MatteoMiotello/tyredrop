@@ -156,3 +156,19 @@ func (d Dao) Search(ctx context.Context, input *model.ProductSearchInput, curren
 		)...,
 	).All(ctx, d.Db)
 }
+
+func (d Dao) FindByCategoryId(ctx context.Context, id int64) (models.ProductSlice, error) {
+	return models.Products(
+		d.GetMods(
+			models.ProductWhere.ProductCategoryID.EQ(id),
+		)...,
+	).All(ctx, d.Db)
+}
+
+func (d Dao) FindByBrandId(ctx context.Context, id int64) (models.ProductSlice, error) {
+	return models.Products(
+		d.GetMods(
+			models.ProductWhere.BrandID.EQ(id),
+		)...,
+	).All(ctx, d.Db)
+}

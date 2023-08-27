@@ -125,6 +125,7 @@ type ComplexityRoot struct {
 		UpdateAvatar      func(childComplexity int, userID int64, file graphql.Upload) int
 		UpdateOrderRow    func(childComplexity int, rowID int64, input model.OrderRowInput) int
 		UpdateOrderStatus func(childComplexity int, orderID int64, newStatus model.OrderStatus) int
+		UpdatePriceMarkup func(childComplexity int, id int64, markupPercentage int) int
 		UpdateUserStatus  func(childComplexity int, userID int64, confirmed *bool, rejected *bool) int
 	}
 
@@ -451,6 +452,7 @@ type MutationResolver interface {
 	PayOrder(ctx context.Context, orderID int64, paymentMethodCode string) (*model.Order, error)
 	UpdateOrderStatus(ctx context.Context, orderID int64, newStatus model.OrderStatus) (*model.Order, error)
 	UpdateOrderRow(ctx context.Context, rowID int64, input model.OrderRowInput) (*model.OrderRow, error)
+	UpdatePriceMarkup(ctx context.Context, id int64, markupPercentage int) (*model.ProductPriceMarkup, error)
 	UpdateUserStatus(ctx context.Context, userID int64, confirmed *bool, rejected *bool) (*model.User, error)
 	UpdateAvatar(ctx context.Context, userID int64, file graphql.Upload) (*model.User, error)
 }
@@ -533,11 +535,11 @@ type QueryResolver interface {
 	UserOrders(ctx context.Context, userID int64, pagination *model.PaginationInput, filter *model.OrderFilterInput, ordering []*model.OrderingInput) (*model.OrdersPaginator, error)
 	PaymentMethods(ctx context.Context) ([]*model.PaymentMethod, error)
 	Stats(ctx context.Context) (*model.StatResponse, error)
-	PriceMarkups(ctx context.Context) ([]*model.ProductPriceMarkup, error)
 	Order(ctx context.Context, id int64) (*model.Order, error)
 	AllOrders(ctx context.Context, pagination *model.PaginationInput, filter *model.OrdersFilterInput, ordering []*model.OrderingInput) (*model.OrdersPaginator, error)
 	PossibleOrderStatuses(ctx context.Context, orderID int64) ([]model.OrderStatus, error)
 	OrderRows(ctx context.Context, orderID int64) ([]*model.OrderRow, error)
+	PriceMarkups(ctx context.Context) ([]*model.ProductPriceMarkup, error)
 	ProductCategories(ctx context.Context) ([]*model.ProductCategory, error)
 	ProductsItemsByCode(ctx context.Context, code string) (*model.ProductItem, error)
 	ProductItems(ctx context.Context, pagination *model.PaginationInput, productSearchInput *model.ProductSearchInput) (*model.ProductItemPaginate, error)
@@ -914,6 +916,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateOrderStatus(childComplexity, args["orderID"].(int64), args["newStatus"].(model.OrderStatus)), true
+
+	case "Mutation.updatePriceMarkup":
+		if e.complexity.Mutation.UpdatePriceMarkup == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updatePriceMarkup_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdatePriceMarkup(childComplexity, args["id"].(int64), args["markupPercentage"].(int)), true
 
 	case "Mutation.updateUserStatus":
 		if e.complexity.Mutation.UpdateUserStatus == nil {
@@ -2597,7 +2611,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(parsedSchema, parsedSchema.Types[name]), nil
 }
 
-//go:embed "schemas/cart.graphql" "schemas/currency.graphql" "schemas/directives.graphql" "schemas/mutation.graphql" "schemas/order.graphql" "schemas/order.mutation.graphql" "schemas/order.query.graphql" "schemas/payment.graphql" "schemas/price_additions.graphql" "schemas/product.graphql" "schemas/product.query.graphql" "schemas/product_specification.graphql" "schemas/query.graphql" "schemas/scalars.graphql" "schemas/user.graphql" "schemas/user.mutation.graphql" "schemas/vehicle.graphql"
+//go:embed "schemas/cart.graphql" "schemas/currency.graphql" "schemas/directives.graphql" "schemas/mutation.graphql" "schemas/order.graphql" "schemas/order.mutation.graphql" "schemas/order.query.graphql" "schemas/payment.graphql" "schemas/price.mutation.graphql" "schemas/price.query.graphql" "schemas/price_additions.graphql" "schemas/product.graphql" "schemas/product.query.graphql" "schemas/product_specification.graphql" "schemas/query.graphql" "schemas/scalars.graphql" "schemas/user.graphql" "schemas/user.mutation.graphql" "schemas/vehicle.graphql"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -2617,6 +2631,8 @@ var sources = []*ast.Source{
 	{Name: "schemas/order.mutation.graphql", Input: sourceData("schemas/order.mutation.graphql"), BuiltIn: false},
 	{Name: "schemas/order.query.graphql", Input: sourceData("schemas/order.query.graphql"), BuiltIn: false},
 	{Name: "schemas/payment.graphql", Input: sourceData("schemas/payment.graphql"), BuiltIn: false},
+	{Name: "schemas/price.mutation.graphql", Input: sourceData("schemas/price.mutation.graphql"), BuiltIn: false},
+	{Name: "schemas/price.query.graphql", Input: sourceData("schemas/price.query.graphql"), BuiltIn: false},
 	{Name: "schemas/price_additions.graphql", Input: sourceData("schemas/price_additions.graphql"), BuiltIn: false},
 	{Name: "schemas/product.graphql", Input: sourceData("schemas/product.graphql"), BuiltIn: false},
 	{Name: "schemas/product.query.graphql", Input: sourceData("schemas/product.query.graphql"), BuiltIn: false},
@@ -2921,6 +2937,30 @@ func (ec *executionContext) field_Mutation_updateOrderStatus_args(ctx context.Co
 		}
 	}
 	args["newStatus"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updatePriceMarkup_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	var arg1 int
+	if tmp, ok := rawArgs["markupPercentage"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("markupPercentage"))
+		arg1, err = ec.unmarshalNInt2int(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["markupPercentage"] = arg1
 	return args, nil
 }
 
@@ -5836,6 +5876,79 @@ func (ec *executionContext) fieldContext_Mutation_updateOrderRow(ctx context.Con
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_updateOrderRow_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updatePriceMarkup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updatePriceMarkup(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdatePriceMarkup(rctx, fc.Args["id"].(int64), fc.Args["markupPercentage"].(int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.ProductPriceMarkup)
+	fc.Result = res
+	return ec.marshalNProductPriceMarkup2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductPriceMarkup(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updatePriceMarkup(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ProductPriceMarkup_id(ctx, field)
+			case "markupPercentage":
+				return ec.fieldContext_ProductPriceMarkup_markupPercentage(ctx, field)
+			case "productCategoryID":
+				return ec.fieldContext_ProductPriceMarkup_productCategoryID(ctx, field)
+			case "productCategory":
+				return ec.fieldContext_ProductPriceMarkup_productCategory(ctx, field)
+			case "brandID":
+				return ec.fieldContext_ProductPriceMarkup_brandID(ctx, field)
+			case "brand":
+				return ec.fieldContext_ProductPriceMarkup_brand(ctx, field)
+			case "productID":
+				return ec.fieldContext_ProductPriceMarkup_productID(ctx, field)
+			case "product":
+				return ec.fieldContext_ProductPriceMarkup_product(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ProductPriceMarkup", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updatePriceMarkup_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -12711,65 +12824,6 @@ func (ec *executionContext) fieldContext_Query_stats(ctx context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_priceMarkups(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_priceMarkups(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().PriceMarkups(rctx)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*model.ProductPriceMarkup)
-	fc.Result = res
-	return ec.marshalOProductPriceMarkup2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductPriceMarkup(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_priceMarkups(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_ProductPriceMarkup_id(ctx, field)
-			case "markupPercentage":
-				return ec.fieldContext_ProductPriceMarkup_markupPercentage(ctx, field)
-			case "productCategoryID":
-				return ec.fieldContext_ProductPriceMarkup_productCategoryID(ctx, field)
-			case "productCategory":
-				return ec.fieldContext_ProductPriceMarkup_productCategory(ctx, field)
-			case "brandID":
-				return ec.fieldContext_ProductPriceMarkup_brandID(ctx, field)
-			case "brand":
-				return ec.fieldContext_ProductPriceMarkup_brand(ctx, field)
-			case "productID":
-				return ec.fieldContext_ProductPriceMarkup_productID(ctx, field)
-			case "product":
-				return ec.fieldContext_ProductPriceMarkup_product(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ProductPriceMarkup", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Query_order(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_order(ctx, field)
 	if err != nil {
@@ -13142,6 +13196,65 @@ func (ec *executionContext) fieldContext_Query_orderRows(ctx context.Context, fi
 	if fc.Args, err = ec.field_Query_orderRows_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_priceMarkups(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_priceMarkups(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().PriceMarkups(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.ProductPriceMarkup)
+	fc.Result = res
+	return ec.marshalOProductPriceMarkup2ᚕᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductPriceMarkup(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_priceMarkups(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ProductPriceMarkup_id(ctx, field)
+			case "markupPercentage":
+				return ec.fieldContext_ProductPriceMarkup_markupPercentage(ctx, field)
+			case "productCategoryID":
+				return ec.fieldContext_ProductPriceMarkup_productCategoryID(ctx, field)
+			case "productCategory":
+				return ec.fieldContext_ProductPriceMarkup_productCategory(ctx, field)
+			case "brandID":
+				return ec.fieldContext_ProductPriceMarkup_brandID(ctx, field)
+			case "brand":
+				return ec.fieldContext_ProductPriceMarkup_brand(ctx, field)
+			case "productID":
+				return ec.fieldContext_ProductPriceMarkup_productID(ctx, field)
+			case "product":
+				return ec.fieldContext_ProductPriceMarkup_product(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ProductPriceMarkup", field.Name)
+		},
 	}
 	return fc, nil
 }
@@ -20116,6 +20229,15 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "updatePriceMarkup":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updatePriceMarkup(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "updateUserStatus":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -21914,26 +22036,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "priceMarkups":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_priceMarkups(ctx, field)
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return rrm(innerCtx)
-			})
 		case "order":
 			field := field
 
@@ -22016,6 +22118,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "priceMarkups":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_priceMarkups(ctx, field)
 				return res
 			}
 
@@ -23882,6 +24004,20 @@ func (ec *executionContext) marshalNProductItemPriceAddition2ᚕᚖpillowwwᚋti
 	wg.Wait()
 
 	return ret
+}
+
+func (ec *executionContext) marshalNProductPriceMarkup2pillowwwᚋtitwᚋgraphᚋmodelᚐProductPriceMarkup(ctx context.Context, sel ast.SelectionSet, v model.ProductPriceMarkup) graphql.Marshaler {
+	return ec._ProductPriceMarkup(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNProductPriceMarkup2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductPriceMarkup(ctx context.Context, sel ast.SelectionSet, v *model.ProductPriceMarkup) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ProductPriceMarkup(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNProductSpecification2pillowwwᚋtitwᚋgraphᚋmodelᚐProductSpecification(ctx context.Context, sel ast.SelectionSet, v model.ProductSpecification) graphql.Marshaler {

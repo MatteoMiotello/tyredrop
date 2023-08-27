@@ -1,19 +1,40 @@
-import React from "react";
-import {useQuery} from "../../../common/backend/graph/hooks";
+import React, {useEffect, useState} from "react";
+import {ProductPriceMarkup} from "../../../__generated__/graphql";
+import { useQuery} from "../../../common/backend/graph/hooks";
 import {PRICE_MARKUPS} from "../../../common/backend/graph/query/products";
 import Panel from "../../../common/components-library/Panel";
 import {Button, Modal, useForm, useModal} from "../../../common/components/shelly-ui";
+import PriceMarkupForm from "../components/Price/PriceMarkupForm";
 import PriceMarkupTable from "../components/Price/PriceMarkupTable";
 
 const PriceMarkupPage: React.FC = () => {
     const query = useQuery(PRICE_MARKUPS);
-    const modal = useModal();
-    const form = useForm();
+    const modal = useModal({
+        onClose: () => setMarkupToEdit(undefined)
+    });
+    const form = useForm({
+        onSuccess: () => {
+            modal.close();
+            query.refetch();
+        }
+    });
+
+    const [markupToEdit, setMarkupToEdit] = useState<ProductPriceMarkup|undefined>();
+
+    useEffect(() => {
+        if ( !markupToEdit ) {
+            return;
+        }
+
+        modal.open();
+    }, [markupToEdit]);
+
     return <main>
         <Modal modal={modal}>
             <Modal.Title>
                 Modifica un prezzo
             </Modal.Title>
+            <PriceMarkupForm form={form} markup={markupToEdit}/>
             <Modal.Actions>
                 <Button onClick={modal.close}>
                     Annulla
@@ -29,7 +50,7 @@ const PriceMarkupPage: React.FC = () => {
             </Panel.Title>
             {
                 query.data &&
-                <PriceMarkupTable query={query}/>
+                <PriceMarkupTable query={query} setMarkupToEdit={setMarkupToEdit}/>
             }
         </Panel>
     </main>;
