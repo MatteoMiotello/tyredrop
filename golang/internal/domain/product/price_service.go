@@ -228,7 +228,7 @@ func (p PriceService) UpdateMarkup(ctx context.Context, markup *models.ProductPr
 				calcErr := p.CalculateAndStoreProductPrices(ctx, pi)
 
 				if calcErr != nil {
-					log.Error("Price not updated for item: " + strconv.Itoa(int(pi.ID)))
+					log.Error("Price not updated for item: "+strconv.Itoa(int(pi.ID)), calcErr)
 					return calcErr
 				}
 			}
