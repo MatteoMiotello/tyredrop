@@ -10,7 +10,6 @@ import (
 	"pillowww/titw/models"
 	"pillowww/titw/pkg/log"
 	"strconv"
-	"sync"
 )
 
 type PriceService struct {
@@ -219,34 +218,21 @@ func (p PriceService) UpdateMarkup(ctx context.Context, markup *models.ProductPr
 		markup.MarkupPercentage = markupPercentage
 		err := p.ProductItemPriceDao.Save(ctx, markup)
 
-		errChan := make(chan error)
-		wg := sync.WaitGroup{}
+		if err != nil {
+			return err
+		}
 
 		for _, pr := range products {
 			for _, pi := range pr.R.ProductItems {
 				pi := pi
-				wg.Add(1)
-				go func(pi *models.ProductItem) {
-					defer wg.Done()
-					calcErr := p.CalculateAndStoreProductPrices(ctx, pi)
+				calcErr := p.CalculateAndStoreProductPrices(ctx, pi)
 
-					if calcErr != nil {
-						errChan <- calcErr
-						log.Error("Price not updated for item: " + strconv.Itoa(int(pi.ID)))
-					}
-
-				}(pi)
-
+				if calcErr != nil {
+					log.Error("Price not updated for item: " + strconv.Itoa(int(pi.ID)))
+					return calcErr
+				}
 			}
 		}
-
-		for er := range errChan {
-			if er != nil {
-				return er
-			}
-		}
-
-		wg.Wait()
 
 		return err
 	})

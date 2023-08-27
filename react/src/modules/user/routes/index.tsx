@@ -12,7 +12,8 @@ export const userLoader: LoaderFunction = async ({params}) => {
         query: USER,
         variables: {
             userId: params.id
-        }
+        },
+        fetchPolicy: 'no-cache'
     });
 };
 
