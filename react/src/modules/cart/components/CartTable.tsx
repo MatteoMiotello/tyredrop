@@ -124,7 +124,7 @@ const CartTable: React.FC<CartTableProps> = (props) => {
         columns: columns,
     });
 
-    return <BasicTable table={table}/>;
+    return <BasicTable table={table} zebra={false}/>;
 };
 
 export default CartTable;

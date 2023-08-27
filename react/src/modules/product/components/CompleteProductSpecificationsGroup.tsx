@@ -1,7 +1,7 @@
 import {ColumnDef} from "@tanstack/react-table";
 import React from "react";
 import {ProductSpecificationValue} from "../../../__generated__/graphql";
-import Table from "../../../common/components-library/Table";
+import {BasicTable, useTable} from "../../../common/components/shelly-ui";
 
 type CompleteProductSpecificationsGroupProps = {
     specifications: ProductSpecificationValue[]
@@ -19,8 +19,13 @@ const CompleteProductSpecificationsGroup: React.FC<CompleteProductSpecifications
             header: "Valore"
         }
     ];
+
+    const {table} = useTable({
+        data: props.specifications,
+        columns: columns,
+    });
     
-    return <Table data={props.specifications} columns={columns} hidePagination={true} hideHeader={false}/>;
+    return <BasicTable table={table}/>;
 };
 
 export default CompleteProductSpecificationsGroup;

@@ -32,3 +32,11 @@ export const UPDATE_ORDER_STATUS = gql( /* GraphQL */ `
         }
     }
 ` );
+
+export const UPDATE_ORDER_ROW = gql( /* GraphQL */`
+    mutation updateOrderRow( $rowId: ID!, $input: OrderRowInput! ) {
+        updateOrderRow(input: $input, rowID: $rowId) {
+            id
+        }
+    }
+` );

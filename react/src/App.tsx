@@ -61,7 +61,7 @@ function App() {
 
     return (
         <>
-            <div className="lg:px-36">
+            <div className="xl:px-56">
                 <div className="p-1">
                     <Navbar></Navbar>
                 </div>

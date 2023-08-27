@@ -1,6 +1,7 @@
-import {faCopyright, faEuro, faUser} from "@fortawesome/free-solid-svg-icons";
+import { faEuro, faPerson, faUser} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import React from "react";
+import {Link} from "react-router-dom";
 import Panel from "../../../common/components-library/Panel";
 import {Stat} from "../../../common/components/shelly-ui";
 import {useQuery} from "../../../common/backend/graph/hooks";
@@ -37,16 +38,18 @@ const HomePage: React.FC = () => {
                 <>
                     <Stat>
                         <Stat.Figure className="text-secondary">
-                            <FontAwesomeIcon icon={faCopyright}/>
+                            <FontAwesomeIcon icon={faPerson}/>
                         </Stat.Figure>
                         <Stat.Title>
-                            Brand
+                            Cliente
                         </Stat.Title>
                         <Stat.Value>
-                            {statsQuery.data.stats.bestBrand.name}
+                            <Link to={`/admin/user/${statsQuery.data.stats.bestUser.user.id}`}>
+                                {statsQuery.data.stats.bestUser.name} {statsQuery.data.stats.bestUser.surname}
+                            </Link>
                         </Stat.Value>
                         <Stat.Desc>
-                            Il brand con più prodotti venduti
+                            Il cliente con il maggior fatturato
                         </Stat.Desc>
                     </Stat>
                     <Stat>
@@ -60,7 +63,7 @@ const HomePage: React.FC = () => {
                             {statsQuery.data.stats.totalOrders}
                         </Stat.Value>
                         <Stat.Desc>
-                            Totale ordini evasi nell'ultimo mese
+                            Totale ordini del migliore cliente
                         </Stat.Desc>
                     </Stat>
                     <Stat>

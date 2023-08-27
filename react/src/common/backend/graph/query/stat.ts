@@ -5,9 +5,14 @@ export const STATS = gql(/* GraphQL */`
         stats {
             totalOrders
             totalUsers
-            bestBrand {
+            bestUser {
                 id
                 name
+                surname
+                user {
+                    id
+                    email
+                }
             }
         }
     }

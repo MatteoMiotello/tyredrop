@@ -42,12 +42,12 @@ const Table: React.FC<ReactTableProps> = <T extends object>(props: ReactTablePro
     return (
         <div className="flex flex-col">
             <div className="overflow-x-auto">
-                <div className="inline-block min-w-full py-4 sm:px-6 lg:px-8">
+                <div className="inline-block min-w-full">
                     <div className="overflow-hidden">
                         <table className="table w-full">
                             {
                                 props.hideHeader ? '' :
-                                    <thead>
+                                    <thead className="bg-neutral text-base-100 uppercase">
                                     {table.getHeaderGroups().map((headerGroup) => (
                                         <tr key={headerGroup.id}>
                                             {headerGroup.headers.map((header) => (

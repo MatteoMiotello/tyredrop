@@ -69,3 +69,9 @@ func (d *PriceMarkupDao) FindPriceMarkupDefault(ctx context.Context) (*models.Pr
 		)...,
 	).One(ctx, d.Db)
 }
+
+func (d *PriceMarkupDao) FindAll(ctx context.Context) (models.ProductPriceMarkupSlice, error) {
+	return models.ProductPriceMarkups(
+		d.GetMods()...,
+	).All(ctx, d.Db)
+}

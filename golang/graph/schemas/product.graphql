@@ -52,3 +52,14 @@ type ProductItem {
     supplierPrice: Float!
     supplierQuantity: Int!
 }
+
+type ProductPriceMarkup {
+    id: ID!
+    markupPercentage: Int!
+    productCategoryID: ID
+    productCategory: ProductCategory
+    brandID: ID
+    brand: Brand
+    productID: ID
+    product: Product
+}

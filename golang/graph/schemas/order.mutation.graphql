@@ -1,3 +1,7 @@
+input OrderRowInput {
+    trackingNumber: String
+}
+
 extend type Mutation {
     orderSupport( orderID: ID! message: String! ): Order! @userConfirmed
 
@@ -5,4 +9,5 @@ extend type Mutation {
 
     payOrder( orderID: ID!, paymentMethodCode: String! ): Order! @isAdmin
     updateOrderStatus( orderID: ID!, newStatus: OrderStatus! ): Order! @isAdmin
+    updateOrderRow( rowID: ID!, input: OrderRowInput! ): OrderRow! @isAdmin
 }

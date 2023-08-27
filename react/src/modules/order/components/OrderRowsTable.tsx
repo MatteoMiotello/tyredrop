@@ -49,9 +49,19 @@ const OrderRowsTable: React.FC<OrderRowsTableProps> = (props) => {
         },
         {
             accessorKey: "additionsAmount",
-            header: "Tasse",
+            header: "PFU",
             size:100,
             cell: (p: CellContext<OrderRow, any>) => <span> {Currency.defaultFormat( p.getValue(), props.order.order.currency.iso_code )} </span>
+        },
+        {
+            accessorKey: 'trackingNumber',
+            header: 'Tracking',
+            cell: (props) => <>
+                {
+                    props.getValue() &&
+                    <a href={props.getValue() as string} className="link-accent"> {props.getValue() as string} </a>
+                }
+            </>
         }
     ];
 

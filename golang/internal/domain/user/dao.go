@@ -1,12 +1,15 @@
 package user
 
 import (
+	context2 "context"
 	"fmt"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"golang.org/x/net/context"
+	"pillowww/titw/graph/model"
 	"pillowww/titw/internal/db"
 	"pillowww/titw/models"
+	"time"
 )
 
 type RoleSet string
@@ -138,4 +141,17 @@ func (d Dao) TotalUsers(ctx context.Context) (int64, error) {
 			qm.WhereIn(models.UserColumns.UserRoleID+" IN ( SELECT id FROM public.user_roles WHERE role_code = ? )", "USER"),
 		)...,
 	).Count(ctx, d.Db)
+}
+
+func (d Dao) BestUserBilling(ctx context2.Context, from time.Time, to time.Time) (*models.UserBilling, error) {
+	return models.UserBillings(
+		d.GetMods(
+			qm.LeftOuterJoin("orders on orders.user_billing_id = user_billings.id"),
+			models.OrderWhere.CreatedAt.GTE(from),
+			models.OrderWhere.CreatedAt.LTE(to),
+			models.OrderWhere.Status.IN(model.OrderProcessedStatusCollection),
+			qm.GroupBy("user_billings.id"),
+			qm.OrderBy("sum( orders.price_amount ) DESC"),
+		)...,
+	).One(ctx, d.Db)
 }

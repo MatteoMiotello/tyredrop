@@ -1,4 +1,4 @@
-import {faBoxesStacked, faHome, faUsers} from "@fortawesome/free-solid-svg-icons";
+import {faBoxesStacked, faEuro, faHome, faUsers} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import React from "react";
 import {Link} from "react-router-dom";
@@ -18,8 +18,12 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ( {className} ) => {
 
     return <div className={classNames}>
         <Menu>
+
             <Menu.Item>
                 <Link to={'/admin'}> <FontAwesomeIcon icon={faHome}/> Home </Link>
+            </Menu.Item>
+            <Menu.Item>
+                <Link to={'/admin/price'}> <FontAwesomeIcon icon={faEuro}/> Prezzi </Link>
             </Menu.Item>
             <Menu.Item>
                 <Link to={'/admin/user'}> <FontAwesomeIcon icon={faUsers}/> Utenti </Link>

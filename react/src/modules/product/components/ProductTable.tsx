@@ -48,6 +48,7 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
     const colums: ColumnDef<ProductRowItemData>[] = [
         {
             accessorKey: "image",
+            header: "Brand",
             enableResizing: true,
             size: 15,
             cell: (props: CellContext<ProductRowItemData, any>) => {
@@ -65,12 +66,14 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
         },
         {
             accessorKey: "content",
+            header: "Misura",
             size: 250,
             cell: (props: CellContext<ProductRowItemData, any>) => <ProductTitle showBrand={true}
                                                                                  data={props.row.original}/>
         },
         {
             accessorKey: "specifications",
+            header: "Qualita`",
             cell: (props: CellContext<ProductRowItemData, any>) => <div className="flex justify-center items-center">
                 <ProductQualityBadge quality={props.row.original.brand.quality}/>
                 <ProductSpecificationsGroup
@@ -79,11 +82,13 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
         },
         {
             accessorKey: "supplier_quantity",
+            header: "Stock",
             size: 200,
             cell: (props: CellContext<ProductRowItemData, any>) => <AvailabilityBadge quantity={props.getValue()}/>
         },
         {
             accessorKey: "price",
+            header: "Prezzo d'acquisto",
             size: 10,
             cell: (props) => {
                 return <div className="w-full flex flex-col justify-center items-center">
@@ -99,6 +104,7 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
         },
         {
             accessorKey: "button",
+            header: "Quantita`",
             size: 10,
             cell: (props: CellContext<ProductRowItemData, any>) => <div className="flex justify-center items-center">
                 <AddItemToCartButton itemId={props.row.original.id} quantity={props.row.original.supplier_quantity}/>
@@ -158,7 +164,6 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
     }, [props.products]);
 
     return <Table
-        hideHeader={true}
         data={data}
         columns={colums}
         pageCount={props.pageCount}

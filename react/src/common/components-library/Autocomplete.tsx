@@ -6,10 +6,10 @@ import {useTranslation} from "react-i18next";
 import {PropsWithValidators, ValidationHandler} from "../validation/validators";
 import _ from "lodash";
 
-export type AutocompleteQueryHandler = (query: string) => Promise<AutocompleteOption[] | null>
+export type AutocompleteQueryHandler = (query: string) => Promise<AutocompleteOption[] | null> | undefined
 
 interface AutocompleteProps<T = any> extends PropsWithValidators {
-    getOptions: AutocompleteQueryHandler;
+    getOptions: AutocompleteQueryHandler | undefined;
     initialOptions: AutocompleteOption<T>[];
     className?: string;
     name: string;
@@ -38,7 +38,15 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
     }, [props.defaultValue]);
 
     const performQuery = () => {
+        if ( !props.getOptions ) {
+            return;
+        }
+
         const options = props.getOptions(query);
+
+        if ( !options ) {
+            return;
+        }
 
         options.then(res => {
             let options: AutocompleteOption[] = [];

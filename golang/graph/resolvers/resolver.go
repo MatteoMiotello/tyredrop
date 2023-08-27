@@ -36,6 +36,7 @@ type Resolver struct {
 	CartDao                      *cart.Dao
 	OrderDao                     *order.Dao
 	PaymentDao                   *payment.Dao
+	PriceMarkupDao               *product.PriceMarkupDao
 }
 
 func NewResolver(exec boil.ContextExecutor) *Resolver {
@@ -57,5 +58,6 @@ func NewResolver(exec boil.ContextExecutor) *Resolver {
 		OrderDao:                     order.NewDao(exec),
 		ProductItemPriceDao:          product.NewItemPriceDao(exec),
 		PaymentDao:                   payment.NewDao(exec),
+		PriceMarkupDao:               product.NewPriceMarkupDao(exec),
 	}
 }

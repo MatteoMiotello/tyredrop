@@ -70,6 +70,10 @@ type OrderFilterInput struct {
 	Number   *string `json:"number,omitempty"`
 }
 
+type OrderRowInput struct {
+	TrackingNumber *string `json:"trackingNumber,omitempty"`
+}
+
 type OrderingInput struct {
 	Column string `json:"column"`
 	Desc   *bool  `json:"desc,omitempty"`
@@ -133,9 +137,9 @@ type ProductSpecificationInput struct {
 }
 
 type StatResponse struct {
-	TotalUsers  int     `json:"totalUsers"`
-	TotalOrders float64 `json:"totalOrders"`
-	BestBrand   *Brand  `json:"bestBrand"`
+	TotalUsers  int          `json:"totalUsers"`
+	TotalOrders float64      `json:"totalOrders"`
+	BestUser    *UserBilling `json:"bestUser"`
 }
 
 type Supplier struct {

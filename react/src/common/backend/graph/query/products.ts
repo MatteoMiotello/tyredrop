@@ -108,3 +108,25 @@ export const SEARCH_PRODUCT_SPECIFICATION_VALUES = gql(`
         }
     }
 `);
+
+export const PRICE_MARKUPS = gql( /* GraphQL */ `
+    query priceMarkups {
+        priceMarkups {
+            id
+            markupPercentage
+            productCategory {
+                id
+                name
+            }
+            product {
+                id
+                name
+            }
+            brand {
+                id
+                code
+                name
+            }
+        }
+    }
+` );

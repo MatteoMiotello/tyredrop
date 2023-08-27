@@ -10,13 +10,12 @@ import {UserAddress} from "../../__generated__/graphql";
 import {USER_ADDRESSES} from "../../common/backend/graph/query/users";
 import Button from "../../common/components-library/Button";
 import Panel from "../../common/components-library/Panel";
-import Table from "../../common/components-library/Table";
 import Spinner from "../../common/components/Spinner";
-import ConfirmDeleteModal from "./components/ConfirmDeleteModal";
+import ConfirmModal from "./components/ConfirmModal";
 import {deleteUserAddress} from "./store/user-slice";
 import {ThunkDispatch} from "redux-thunk";
 import {useToast} from "../../store/toast";
-import { useModal} from "../../common/components/shelly-ui";
+import {BasicTable, useModal, useTable} from "../../common/components/shelly-ui";
 import UserAddressModal from "./components/UserAddressModal";
 
 type UserAddressRowData = UserAddress
@@ -37,9 +36,6 @@ const UserAddressPage: React.FC = () => {
     const [selectedAddressToDelete, setSelectedAddressToDelete] = useState<UserAddress | undefined>();
     const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
 
-    if (loading) {
-        return <Spinner/>;
-    }
 
     const columns: ColumnDef<UserAddressRowData>[] = [
         {
@@ -77,13 +73,13 @@ const UserAddressPage: React.FC = () => {
                 return <div className="flex">
                     <Button className="mx-1"
                             onClick={() => {
-                                setSelectedAddress( props.row.original );
+                                setSelectedAddress(props.row.original);
                                 userAddressModal.open();
                             }}>
                         <FontAwesomeIcon icon={faPencil}/>
                     </Button>
                     <Button className="mx-1" type="error" onClick={() => {
-                        setSelectedAddressToDelete( props.row.original );
+                        setSelectedAddressToDelete(props.row.original);
                         confirmDeleteModal.open();
                     }}>
                         <FontAwesomeIcon icon={faTimes}/>
@@ -93,10 +89,19 @@ const UserAddressPage: React.FC = () => {
         }
     ];
 
+    const {table} = useTable({
+        data: data?.userAddress,
+        columns: columns,
+    });
+
+    if (loading) {
+        return <Spinner/>;
+    }
+
     return <main className="h-full">
         <UserAddressModal modal={userAddressModal} address={selectedAddress}/>
-        <ConfirmDeleteModal modal={confirmDeleteModal} onConfirm={() => {
-            if ( !selectedAddressToDelete ) {
+        <ConfirmModal modal={confirmDeleteModal} onConfirm={() => {
+            if (!selectedAddressToDelete) {
                 return;
             }
 
@@ -113,12 +118,15 @@ const UserAddressPage: React.FC = () => {
         <Panel>
             <div className="flex w-full justify-between">
                 <h3 className="text-xl">{t('user_address.title_page')}</h3>
-                <Button onClick={ () => {
+                <Button onClick={() => {
                     setSelectedAddress(undefined);
                     userAddressModal.open();
-                } } type="primary"> <FontAwesomeIcon icon={faPlus}/> </Button>
+                }} type="primary"> <FontAwesomeIcon icon={faPlus}/> </Button>
             </div>
-            <Table data={data.userAddress} columns={columns} hidePagination={true}/>
+            {
+                data &&
+                <BasicTable table={table}/>
+            }
         </Panel>
     </main>;
 };

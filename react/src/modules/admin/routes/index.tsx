@@ -3,6 +3,7 @@ import {FETCH_ORDER} from "../../../common/backend/graph/query/order";
 import apolloClientContext from "../../../common/contexts/apollo-client-context";
 import HomePage from "../pages/HomePage";
 import OrderAdminDetailsPage from "../pages/OrderAdminDetailsPage";
+import PriceMarkupPage from "../pages/PriceMarkupPage";
 import UserPage from "../pages/UserPage";
 import {userLoader} from "../../user/routes";
 import UserDetailsPage from "../pages/UserDetailsPage";
@@ -28,6 +29,10 @@ export const adminRoutes: RouteObject = {
             Component: HomePage,
         },
         {
+            path: 'price',
+            Component: PriceMarkupPage,
+        },
+        {
             path: 'user',
             Component: UserAdminTemplatePage,
             handle: {
@@ -42,7 +47,7 @@ export const adminRoutes: RouteObject = {
                     path: ':id',
                     loader: userLoader,
                     handle: {
-                        crumb: ({data}: {data: {user: User}}) => <span> {data.user.email} </span>
+                        crumb: ({data}: { data: { user: User } }) => <span> {data.user.email} </span>
                     },
                     Component: UserDetailsPage,
                 }

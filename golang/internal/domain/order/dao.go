@@ -8,7 +8,6 @@ import (
 	"pillowww/titw/graph/model"
 	"pillowww/titw/internal/db"
 	"pillowww/titw/models"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -107,6 +106,14 @@ func (d Dao) FindAllOrderRowsByOrderId(ctx context.Context, id int64) (models.Or
 	).All(ctx, d.Db)
 }
 
+func (d Dao) FindOrderRowById(ctx context.Context, id int64) (*models.OrderRow, error) {
+	return models.OrderRows(
+		d.GetMods(
+			models.OrderRowWhere.ID.EQ(id),
+		)...,
+	).One(ctx, d.Db)
+}
+
 func (d Dao) FindAllByBillingId(ctx context.Context, id int64, from *string, to *string, number *string) (models.OrderSlice, error) {
 	var mods []qm.QueryMod
 
@@ -132,13 +139,8 @@ func (d Dao) FindAllByBillingId(ctx context.Context, id int64, from *string, to 
 
 	if number != nil && len(*number) > 0 {
 		sanitizedNumber := strings.TrimLeft(*number, "#")
-		id, err := strconv.Atoi(sanitizedNumber)
 
-		if err != nil {
-			return nil, err
-		}
-
-		mods = append(mods, models.OrderWhere.ID.EQ(int64(id)))
+		mods = append(mods, models.OrderWhere.OrderNumber.EQ(null.StringFrom(sanitizedNumber)))
 	}
 
 	mods = append(mods, models.OrderWhere.UserBillingID.EQ(id))
@@ -164,12 +166,13 @@ type TotalOrders struct {
 	TotalPrice int `boil:"price_amount"`
 }
 
-func (d Dao) TotalOrders(ctx context.Context, from time.Time, to time.Time) (*TotalOrders, error) {
+func (d Dao) UserTotalOrders(ctx context.Context, billing *models.UserBilling, from time.Time, to time.Time) (*TotalOrders, error) {
 	tp := new(TotalOrders)
 
 	err := models.Orders(
 		d.GetMods(
 			qm.Select("SUM( price_amount ) as price_amount"),
+			models.OrderWhere.UserBillingID.EQ(billing.ID),
 			models.OrderWhere.CreatedAt.GTE(from),
 			models.OrderWhere.CreatedAt.LTE(to),
 			models.OrderWhere.Status.IN(model.OrderProcessedStatusCollection),

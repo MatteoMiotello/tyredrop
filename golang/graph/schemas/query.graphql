@@ -42,7 +42,7 @@ type UserPaginator {
 type StatResponse {
     totalUsers: Int!
     totalOrders: Float!
-    bestBrand: Brand!
+    bestUser: UserBilling!
 }
 
 type Query {
@@ -67,4 +67,6 @@ type Query {
     paymentMethods: [PaymentMethod]!
 
     stats: StatResponse! @isAdmin
+
+    priceMarkups: [ProductPriceMarkup]
 }

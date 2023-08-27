@@ -55,6 +55,7 @@ export const FETCH_ORDER = gql `
                 amount
                 quantity
                 additionsAmount
+                trackingNumber
                 productItemPrice {
                     value
                     currency {
@@ -187,6 +188,7 @@ export const ORDER_ROWS = gql`
             amount
             additionsAmount
             quantity
+            trackingNumber
         }
     }
 `;
