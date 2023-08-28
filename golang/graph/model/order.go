@@ -43,9 +43,11 @@ func GetValidStatusForOrder(order *models.Order) []OrderStatus {
 	case OrderStatusNotCompleted.String():
 		return []OrderStatus{OrderStatusRejected}
 	case OrderStatusNew.String():
-		return []OrderStatus{OrderStatusConfirmed, OrderStatusRejected, OrderStatusCanceled}
+		return []OrderStatus{OrderStatusConfirmed, OrderStatusRejected, OrderStatusCanceled, OrderStatusToPay}
+	case OrderStatusToPay.String():
+		return []OrderStatus{OrderStatusConfirmed, OrderStatusRejected}
 	case OrderStatusConfirmed.String():
-		return []OrderStatus{OrderStatusDelivered}
+		return []OrderStatus{OrderStatusDelivered, OrderStatusToPay}
 	}
 	return []OrderStatus{}
 }
@@ -56,10 +58,12 @@ func (o OrderStatus) IsValidForOrder(order *models.Order) bool {
 		return false
 	case OrderStatusNew:
 		return order.Status == OrderStatusNotCompleted.String()
+	case OrderStatusToPay:
+		return order.Status == OrderStatusNew.String() || order.Status == OrderStatusConfirmed.String()
 	case OrderStatusConfirmed, OrderStatusCanceled:
-		return order.Status == OrderStatusNew.String()
+		return order.Status == OrderStatusNew.String() || order.Status == OrderStatusToPay.String()
 	case OrderStatusRejected:
-		return order.Status == OrderStatusNew.String() || order.Status == OrderStatusNotCompleted.String()
+		return order.Status == OrderStatusNew.String() || order.Status == OrderStatusNotCompleted.String() || order.Status == OrderStatusToPay.String()
 	case OrderStatusDelivered:
 		return order.Status == OrderStatusConfirmed.String()
 	case OrderStatusReturned:

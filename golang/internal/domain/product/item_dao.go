@@ -124,6 +124,7 @@ func (d *ItemDao) FindProductItems(ctx context.Context, input *model.ProductSear
 	mods = append(mods, qm.LeftOuterJoin("product_item_prices ON product_item_prices.product_item_id = product_items.id AND product_item_prices.price = pi.min_price"))
 	mods = append(mods, qm.LeftOuterJoin("brands on brands.id = products.brand_id"))
 	mods = append(mods, models.ProductItemPriceWhere.CurrencyID.EQ(currency.ID))
+	mods = append(mods, models.ProductItemPriceWhere.DeletedAt.IsNull())
 	mods = append(mods, qm.GroupBy("product_items.id, product_item_prices.id"))
 	mods = append(mods, models.ProductItemWhere.SupplierQuantity.GTE(4))
 

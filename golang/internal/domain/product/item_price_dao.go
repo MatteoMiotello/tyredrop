@@ -18,6 +18,10 @@ func NewItemPriceDao(executor boil.ContextExecutor) *ItemPriceDao {
 	}
 }
 
+func (d ItemPriceDao) WithDeletes() *ItemPriceDao {
+	return db.WithDeletes(d)
+}
+
 func (d ItemPriceDao) Load(relationship string, mods ...qm.QueryMod) *ItemPriceDao {
 	return db.Load(d, relationship, mods...)
 }

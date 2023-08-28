@@ -79,7 +79,7 @@ const OrderTable: React.FC<OrderTableProps> = (props) => {
                     props.row.original.orderRows.map((row, key) => <li key={key}
                                                                        className="text-xs flex justify-between">
                         <span
-                            className="text-neutral-500">#{`${props.row.original.orderNumber}_${row?.id}`}</span> {row && Currency.defaultFormat(row.amount, props.row.original.currency.iso_code)}
+                            className="text-neutral-500">{`${ row && row.productItemPrice.productItem.product.code}`}</span> {row && row.quantity}
                     </li>)
                 }
             </ul>

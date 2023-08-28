@@ -111,6 +111,12 @@ func (g Gun) matchRecords(pRecord *pdtos.Tyre, index int, slice string) error {
 		if err == nil {
 			pRecord.Quantity = int(f)
 		}
+	case 22:
+		if slice == "1" {
+			pRecord.RunFlat = true
+		} else {
+			pRecord.RunFlat = false
+		}
 
 	case 42:
 		pRecord.EprelID = extractEprelIDFromLink(slice)

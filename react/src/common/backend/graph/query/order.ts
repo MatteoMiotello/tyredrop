@@ -106,6 +106,13 @@ export const FETCH_USER_ORDERS = gql`
                     id
                     amount
                     quantity
+                    productItemPrice {
+                        productItem {
+                            product {
+                                code
+                            }
+                        }
+                    }
                 }
             }
             pagination {

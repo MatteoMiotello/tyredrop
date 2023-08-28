@@ -26,6 +26,7 @@ export type TyreSearchFormRequest = {
     brand?: string
     speed?: string
     load?: string
+    runflat?: string
     matchcode?: MatchcodeResponse
 }
 
@@ -62,6 +63,10 @@ export const toSearchDataType = (req: TyreSearchFormRequest, vehicleCode?: strin
             {
                 code: ProductSpecificationsSet.TYRE.LOAD,
                 value: req.load ? req.load.toString() : null
+            },
+            {
+                code: ProductSpecificationsSet.TYRE.RUNFLAT,
+                value: req.runflat ? req.runflat.toString() : null,
             }
         ]
     };
@@ -198,7 +203,7 @@ const TyreSearchForm: React.FC<TypeSpecificSearchFormProps> = (props) => {
             />
         </Field.FormControl>
 
-        <Field.FormControl className="col-span-6">
+        <Field.FormControl className="col-span-4">
             <Field.Label className="text-base-100">
                 {t('Indice di carico')}
             </Field.Label>
@@ -209,17 +214,28 @@ const TyreSearchForm: React.FC<TypeSpecificSearchFormProps> = (props) => {
                 placeholder={t('Indice di carico') as string}
             />
         </Field.FormControl>
-        <Field.FormControl className="col-span-6">
-        <Field.Label className="text-base-100">
-            {t('Indice velocita`')}
-        </Field.Label>
-        <SpecificationField
-            name="speed"
-            specificationCode={ProductSpecificationsSet.TYRE.SPEED}
-            vehicleCode={vehicle}
-            placeholder={t('Indice velocita`') as string}
-        />
-    </Field.FormControl>
+        <Field.FormControl className="col-span-4">
+            <Field.Label className="text-base-100">
+                {t('Indice velocita`')}
+            </Field.Label>
+            <SpecificationField
+                name="speed"
+                specificationCode={ProductSpecificationsSet.TYRE.SPEED}
+                vehicleCode={vehicle}
+                placeholder={t('Indice velocita`') as string}
+            />
+        </Field.FormControl>
+        <Field.FormControl className="col-span-4">
+            <Field.Label className="text-base-100">
+                {t('Runflat')}
+            </Field.Label>
+            <SpecificationField
+                name="runflat"
+                specificationCode={ProductSpecificationsSet.TYRE.RUNFLAT}
+                vehicleCode={vehicle}
+                placeholder={t('Runflat') as string}
+            />
+        </Field.FormControl>
 
         <Button className="col-start-6 col-span-2 btn-outline "
                 size="sm"

@@ -65,20 +65,17 @@ func (p PriceService) findPriceMarkup(ctx context.Context, pi *models.ProductIte
 	return markup, nil
 }
 
-func (p PriceService) CalculateAndStoreProductPrices(ctx context.Context, pi *models.ProductItem) error {
+func (p PriceService) calcPrices(ctx context.Context, pi *models.ProductItem, markup *models.ProductPriceMarkup) error {
 	defCur, err := p.CurrencyDao.FindDefault(ctx)
 
 	if defCur == nil {
 		return errors.WithMessage(err, "currency not found")
 	}
 
-	markup, err := p.findPriceMarkup(ctx, pi)
+	price, _ := p.ProductDao.
+		Load(models.ProductItemPriceRels.ProductItemPriceAdditions).
+		FindPriceForProductItemAndCurrency(ctx, pi, defCur)
 
-	if err != nil {
-		return errors.WithMessage(err, "Price markup not found")
-	}
-
-	price, _ := p.ProductDao.FindPriceForProductItemAndCurrency(ctx, pi, defCur)
 	charge := pi.SupplierPrice * markup.MarkupPercentage / 100
 	priceValue := pi.SupplierPrice + charge
 
@@ -106,7 +103,28 @@ func (p PriceService) CalculateAndStoreProductPrices(ctx context.Context, pi *mo
 		return errors.WithMessage(err, "Error inserting new price with value: "+strconv.Itoa(newPrice.Price))
 	}
 
+	if price != nil {
+		for _, a := range price.R.ProductItemPriceAdditions {
+			a.ProductItemPriceID = newPrice.ID
+			err := p.ProductDao.Save(ctx, a)
+
+			if err != nil {
+				return err
+			}
+		}
+	}
+
 	return nil
+}
+
+func (p PriceService) CalculateAndStoreProductPrices(ctx context.Context, pi *models.ProductItem) error {
+	markup, err := p.findPriceMarkup(ctx, pi)
+
+	if err != nil {
+		return errors.WithMessage(err, "Price markup not found")
+	}
+
+	return p.calcPrices(ctx, pi, markup)
 }
 
 func (p PriceService) UpdatePricesByCategory(ctx context.Context, category *models.ProductCategory) error {
@@ -228,7 +246,7 @@ func (p PriceService) UpdateMarkup(ctx context.Context, markup *models.ProductPr
 				wg.Add(1)
 				go func(pi *models.ProductItem) {
 					defer wg.Done()
-					calcErr := p.CalculateAndStoreProductPrices(ctx, pi)
+					calcErr := p.calcPrices(ctx, pi, markup)
 
 					if calcErr != nil {
 						errChan <- calcErr

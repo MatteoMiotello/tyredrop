@@ -5895,8 +5895,28 @@ func (ec *executionContext) _Mutation_updatePriceMarkup(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdatePriceMarkup(rctx, fc.Args["id"].(int64), fc.Args["markupPercentage"].(int))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdatePriceMarkup(rctx, fc.Args["id"].(int64), fc.Args["markupPercentage"].(int))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAdmin == nil {
+				return nil, errors.New("directive isAdmin is not implemented")
+			}
+			return ec.directives.IsAdmin(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.ProductPriceMarkup); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *pillowww/titw/graph/model.ProductPriceMarkup`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)

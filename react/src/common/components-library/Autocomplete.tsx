@@ -19,7 +19,7 @@ interface AutocompleteProps<T = any> extends PropsWithValidators {
 }
 
 export type AutocompleteOption<T = any> = {
-    title: string,
+    title: ReactNode,
     content?: ReactNode
     value: T
 }

@@ -101,9 +101,12 @@ export const PRODUCT_ITEM = gql(`
 }
 `);
 
-export const SEARCH_PRODUCT_SPECIFICATION_VALUES = gql(`
+export const SEARCH_PRODUCT_SPECIFICATION_VALUES = gql( /*GraphQL*/`
     query searchValues( $code: String!, $value: String, $vehicleCode: String) {
         searchSpecificationValue( code: $code, value: $value, vehicleCode: $vehicleCode ) {
+            specification {
+                code 
+            }
             value
         }
     }

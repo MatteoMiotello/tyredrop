@@ -15,6 +15,7 @@ type Tyre struct {
 	Price       string
 	EprelID     string
 	Quantity    int
+	RunFlat     bool
 	VehicleType constants.VehicleType
 	TyreDimension
 }
@@ -57,6 +58,7 @@ func (t *Tyre) GetSpecifications() map[constants.ProductSpecification]string {
 		constants.TYRE_SPEC_ASPECT_RATIO: strconv.Itoa(t.AspectRatio),
 		constants.TYRE_SPEC_CONSTRUCTION: t.Construction,
 		constants.TYRE_SPEC_RIM:          strconv.FormatFloat(t.Rim, 'f', 0, 64),
+		constants.TYRE_RUNFLAT:           strconv.FormatBool(t.RunFlat),
 		constants.TYRE_SPEC_LOAD:         strconv.Itoa(t.Load),
 		constants.TYRE_SPEC_SPEED:        t.Speed,
 		constants.TYRE_SPEC_SEASON:       t.Season,
@@ -95,6 +97,38 @@ func (t *Tyre) Validate() bool {
 
 	if len(t.EANCode) == 0 {
 		return false
+	}
+
+	if t.VehicleType == constants.VEHICLE_CAR {
+		if t.Width < 205 {
+			return false
+		}
+
+		if t.AspectRatio < 55 {
+			return false
+		}
+
+		if t.Rim < 16 {
+
+		}
+
+		if t.Load < 91 {
+			return false
+		}
+	}
+
+	if t.VehicleType == constants.VEHICLE_MOTO {
+		if t.Width < 120 {
+			return false
+		}
+
+		if int(t.AspectRatio) < 70 {
+			return false
+		}
+
+		if int(t.Rim) < 17 {
+			return false
+		}
 	}
 
 	return true

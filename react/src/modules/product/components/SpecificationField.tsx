@@ -2,6 +2,7 @@ import {useLazyQuery} from "@apollo/client";
 import React from "react";
 import {SEARCH_PRODUCT_SPECIFICATION_VALUES} from "../../../common/backend/graph/query/products";
 import Autocomplete, {AutocompleteOption} from "../../../common/components-library/Autocomplete";
+import {specificationProvider} from "../specifications/provider";
 
 type SpecificationFieldProps = {
     specificationCode: string
@@ -27,7 +28,8 @@ const SpecificationField: React.FC<SpecificationFieldProps> = ({specificationCod
             // @ts-ignore
             return res.data?.searchSpecificationValue ? res.data?.searchSpecificationValue?.sort( (vala, valb) => String(vala?.value) - String(valb?.value) ).map((value: any): AutocompleteOption<string> => ({
                 value: value.value,
-                title: value.value
+                title: specificationProvider(value)?.title,
+                content: specificationProvider( value )?.content,
             })) : [];
 
         }} initialOptions={[]} name={name}></Autocomplete>;

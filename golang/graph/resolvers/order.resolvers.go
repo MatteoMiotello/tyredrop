@@ -104,6 +104,7 @@ func (r *orderRowResolver) ProductItemPrice(ctx context.Context, obj *model.Orde
 	lang := auth2.CurrentLanguage(ctx)
 
 	dbModel, err := r.ProductItemPriceDao.
+		WithDeletes().
 		Load(
 			qm.Rels(
 				models.ProductItemPriceRels.Currency,

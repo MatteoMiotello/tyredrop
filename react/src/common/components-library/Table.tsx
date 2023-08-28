@@ -49,7 +49,7 @@ const Table: React.FC<ReactTableProps> = <T extends object>(props: ReactTablePro
                                 props.hideHeader ? '' :
                                     <thead className="bg-neutral text-base-100 uppercase">
                                     {table.getHeaderGroups().map((headerGroup) => (
-                                        <tr key={headerGroup.id}>
+                                        <tr key={headerGroup.id} className="text-center">
                                             {headerGroup.headers.map((header) => (
                                                 <th key={header.id}
                                                     colSpan={header.colSpan}

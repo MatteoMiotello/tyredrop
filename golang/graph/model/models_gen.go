@@ -202,6 +202,7 @@ type OrderStatus string
 const (
 	OrderStatusNotCompleted OrderStatus = "NOT_COMPLETED"
 	OrderStatusNew          OrderStatus = "NEW"
+	OrderStatusToPay        OrderStatus = "TO_PAY"
 	OrderStatusConfirmed    OrderStatus = "CONFIRMED"
 	OrderStatusCanceled     OrderStatus = "CANCELED"
 	OrderStatusRejected     OrderStatus = "REJECTED"
@@ -212,6 +213,7 @@ const (
 var AllOrderStatus = []OrderStatus{
 	OrderStatusNotCompleted,
 	OrderStatusNew,
+	OrderStatusToPay,
 	OrderStatusConfirmed,
 	OrderStatusCanceled,
 	OrderStatusRejected,
@@ -221,7 +223,7 @@ var AllOrderStatus = []OrderStatus{
 
 func (e OrderStatus) IsValid() bool {
 	switch e {
-	case OrderStatusNotCompleted, OrderStatusNew, OrderStatusConfirmed, OrderStatusCanceled, OrderStatusRejected, OrderStatusDelivered, OrderStatusReturned:
+	case OrderStatusNotCompleted, OrderStatusNew, OrderStatusToPay, OrderStatusConfirmed, OrderStatusCanceled, OrderStatusRejected, OrderStatusDelivered, OrderStatusReturned:
 		return true
 	}
 	return false

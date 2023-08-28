@@ -27,7 +27,7 @@ export const orderRoutes: RouteObject = {
             Component: OrderDetailsPage,
             handle: {
                 crumb: ({order}: { order: Order }) => <Link to={`/order/details/${order.id}`}> Ordine:
-                    #{order.id} </Link>
+                    #{order.orderNumber} </Link>
             }
         },
         {

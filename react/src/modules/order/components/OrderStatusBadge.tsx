@@ -24,6 +24,10 @@ export const badgeConfig: { [key in OrderStatus]: { title: string, color: string
         title: "Spedito",
         color: "#6666FF"
     },
+    TO_PAY: {
+        title: "In attesa di pagamento",
+        color: "#f33939",
+    },
     NEW: {
         title: "Nuovo",
         color: "#FFC266"

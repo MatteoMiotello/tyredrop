@@ -132,6 +132,8 @@ func (s Service) UpdateSpecifications(ctx context.Context, product *models.Produ
 		}
 
 		pValue, _ := s.SpecificationValueDao.FindByProductAndCode(ctx, product, spec.SpecificationCode)
+		specInserted++
+
 		if pValue != nil {
 			continue
 		}
@@ -153,7 +155,6 @@ func (s Service) UpdateSpecifications(ctx context.Context, product *models.Produ
 			return err
 		}
 
-		specInserted++
 	}
 
 	mandatories, err := s.SpecificationDao.FindMandatoryByProduct(ctx, product)
