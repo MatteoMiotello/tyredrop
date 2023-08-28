@@ -113,6 +113,7 @@ type ComplexityRoot struct {
 		AddItemToCart     func(childComplexity int, itemID int64, quantity *int) int
 		ConfirmOrder      func(childComplexity int, orderID int64) int
 		CreateAdminUser   func(childComplexity int, userInput model.CreateAdminUserInput) int
+		CreatePriceMarkup func(childComplexity int, input model.PriceMarkupInput) int
 		CreateUserAddress func(childComplexity int, userAddress model.UserAddressInput) int
 		CreateUserBilling func(childComplexity int, billingInput model.CreateUserBilling) int
 		DeleteUserAddress func(childComplexity int, id int64) int
@@ -125,7 +126,7 @@ type ComplexityRoot struct {
 		UpdateAvatar      func(childComplexity int, userID int64, file graphql.Upload) int
 		UpdateOrderRow    func(childComplexity int, rowID int64, input model.OrderRowInput) int
 		UpdateOrderStatus func(childComplexity int, orderID int64, newStatus model.OrderStatus) int
-		UpdatePriceMarkup func(childComplexity int, id int64, markupPercentage int) int
+		UpdatePriceMarkup func(childComplexity int, id int64, input model.PriceMarkupInput) int
 		UpdateUserStatus  func(childComplexity int, userID int64, confirmed *bool, rejected *bool) int
 	}
 
@@ -270,14 +271,16 @@ type ComplexityRoot struct {
 	}
 
 	ProductPriceMarkup struct {
-		Brand             func(childComplexity int) int
-		BrandID           func(childComplexity int) int
-		ID                func(childComplexity int) int
-		MarkupPercentage  func(childComplexity int) int
-		Product           func(childComplexity int) int
-		ProductCategory   func(childComplexity int) int
-		ProductCategoryID func(childComplexity int) int
-		ProductID         func(childComplexity int) int
+		Brand                       func(childComplexity int) int
+		BrandID                     func(childComplexity int) int
+		ID                          func(childComplexity int) int
+		MarkupPercentage            func(childComplexity int) int
+		Product                     func(childComplexity int) int
+		ProductCategory             func(childComplexity int) int
+		ProductCategoryID           func(childComplexity int) int
+		ProductID                   func(childComplexity int) int
+		ProductSpecificationValue   func(childComplexity int) int
+		ProductSpecificationValueID func(childComplexity int) int
 	}
 
 	ProductSpecification struct {
@@ -452,7 +455,8 @@ type MutationResolver interface {
 	PayOrder(ctx context.Context, orderID int64, paymentMethodCode string) (*model.Order, error)
 	UpdateOrderStatus(ctx context.Context, orderID int64, newStatus model.OrderStatus) (*model.Order, error)
 	UpdateOrderRow(ctx context.Context, rowID int64, input model.OrderRowInput) (*model.OrderRow, error)
-	UpdatePriceMarkup(ctx context.Context, id int64, markupPercentage int) (*model.ProductPriceMarkup, error)
+	CreatePriceMarkup(ctx context.Context, input model.PriceMarkupInput) (*model.ProductPriceMarkup, error)
+	UpdatePriceMarkup(ctx context.Context, id int64, input model.PriceMarkupInput) (*model.ProductPriceMarkup, error)
 	UpdateUserStatus(ctx context.Context, userID int64, confirmed *bool, rejected *bool) (*model.User, error)
 	UpdateAvatar(ctx context.Context, userID int64, file graphql.Upload) (*model.User, error)
 }
@@ -511,6 +515,8 @@ type ProductPriceMarkupResolver interface {
 	Brand(ctx context.Context, obj *model.ProductPriceMarkup) (*model.Brand, error)
 
 	Product(ctx context.Context, obj *model.ProductPriceMarkup) (*model.Product, error)
+
+	ProductSpecificationValue(ctx context.Context, obj *model.ProductPriceMarkup) (*model.ProductSpecificationValue, error)
 }
 type ProductSpecificationResolver interface {
 	ProductCategory(ctx context.Context, obj *model.ProductSpecification) (*model.ProductCategory, error)
@@ -778,6 +784,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateAdminUser(childComplexity, args["userInput"].(model.CreateAdminUserInput)), true
 
+	case "Mutation.createPriceMarkup":
+		if e.complexity.Mutation.CreatePriceMarkup == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createPriceMarkup_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreatePriceMarkup(childComplexity, args["input"].(model.PriceMarkupInput)), true
+
 	case "Mutation.createUserAddress":
 		if e.complexity.Mutation.CreateUserAddress == nil {
 			break
@@ -927,7 +945,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdatePriceMarkup(childComplexity, args["id"].(int64), args["markupPercentage"].(int)), true
+		return e.complexity.Mutation.UpdatePriceMarkup(childComplexity, args["id"].(int64), args["input"].(model.PriceMarkupInput)), true
 
 	case "Mutation.updateUserStatus":
 		if e.complexity.Mutation.UpdateUserStatus == nil {
@@ -1682,6 +1700,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ProductPriceMarkup.ProductID(childComplexity), true
+
+	case "ProductPriceMarkup.productSpecificationValue":
+		if e.complexity.ProductPriceMarkup.ProductSpecificationValue == nil {
+			break
+		}
+
+		return e.complexity.ProductPriceMarkup.ProductSpecificationValue(childComplexity), true
+
+	case "ProductPriceMarkup.productSpecificationValueID":
+		if e.complexity.ProductPriceMarkup.ProductSpecificationValueID == nil {
+			break
+		}
+
+		return e.complexity.ProductPriceMarkup.ProductSpecificationValueID(childComplexity), true
 
 	case "ProductSpecification.code":
 		if e.complexity.ProductSpecification.Code == nil {
@@ -2548,6 +2580,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputOrderingInput,
 		ec.unmarshalInputOrdersFilterInput,
 		ec.unmarshalInputPaginationInput,
+		ec.unmarshalInputPriceMarkupInput,
 		ec.unmarshalInputProductSearchInput,
 		ec.unmarshalInputProductSpecificationInput,
 		ec.unmarshalInputUserAddressInput,
@@ -2700,6 +2733,21 @@ func (ec *executionContext) field_Mutation_createAdminUser_args(ctx context.Cont
 		}
 	}
 	args["userInput"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createPriceMarkup_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.PriceMarkupInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNPriceMarkupInput2pillowwwᚋtitwᚋgraphᚋmodelᚐPriceMarkupInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -2952,15 +3000,15 @@ func (ec *executionContext) field_Mutation_updatePriceMarkup_args(ctx context.Co
 		}
 	}
 	args["id"] = arg0
-	var arg1 int
-	if tmp, ok := rawArgs["markupPercentage"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("markupPercentage"))
-		arg1, err = ec.unmarshalNInt2int(ctx, tmp)
+	var arg1 model.PriceMarkupInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg1, err = ec.unmarshalNPriceMarkupInput2pillowwwᚋtitwᚋgraphᚋmodelᚐPriceMarkupInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["markupPercentage"] = arg1
+	args["input"] = arg1
 	return args, nil
 }
 
@@ -5882,6 +5930,103 @@ func (ec *executionContext) fieldContext_Mutation_updateOrderRow(ctx context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_createPriceMarkup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createPriceMarkup(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreatePriceMarkup(rctx, fc.Args["input"].(model.PriceMarkupInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAdmin == nil {
+				return nil, errors.New("directive isAdmin is not implemented")
+			}
+			return ec.directives.IsAdmin(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.ProductPriceMarkup); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *pillowww/titw/graph/model.ProductPriceMarkup`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.ProductPriceMarkup)
+	fc.Result = res
+	return ec.marshalNProductPriceMarkup2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductPriceMarkup(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createPriceMarkup(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ProductPriceMarkup_id(ctx, field)
+			case "markupPercentage":
+				return ec.fieldContext_ProductPriceMarkup_markupPercentage(ctx, field)
+			case "productCategoryID":
+				return ec.fieldContext_ProductPriceMarkup_productCategoryID(ctx, field)
+			case "productCategory":
+				return ec.fieldContext_ProductPriceMarkup_productCategory(ctx, field)
+			case "brandID":
+				return ec.fieldContext_ProductPriceMarkup_brandID(ctx, field)
+			case "brand":
+				return ec.fieldContext_ProductPriceMarkup_brand(ctx, field)
+			case "productID":
+				return ec.fieldContext_ProductPriceMarkup_productID(ctx, field)
+			case "product":
+				return ec.fieldContext_ProductPriceMarkup_product(ctx, field)
+			case "productSpecificationValueID":
+				return ec.fieldContext_ProductPriceMarkup_productSpecificationValueID(ctx, field)
+			case "productSpecificationValue":
+				return ec.fieldContext_ProductPriceMarkup_productSpecificationValue(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ProductPriceMarkup", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createPriceMarkup_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_updatePriceMarkup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_updatePriceMarkup(ctx, field)
 	if err != nil {
@@ -5897,7 +6042,7 @@ func (ec *executionContext) _Mutation_updatePriceMarkup(ctx context.Context, fie
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().UpdatePriceMarkup(rctx, fc.Args["id"].(int64), fc.Args["markupPercentage"].(int))
+			return ec.resolvers.Mutation().UpdatePriceMarkup(rctx, fc.Args["id"].(int64), fc.Args["input"].(model.PriceMarkupInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.IsAdmin == nil {
@@ -5957,6 +6102,10 @@ func (ec *executionContext) fieldContext_Mutation_updatePriceMarkup(ctx context.
 				return ec.fieldContext_ProductPriceMarkup_productID(ctx, field)
 			case "product":
 				return ec.fieldContext_ProductPriceMarkup_product(ctx, field)
+			case "productSpecificationValueID":
+				return ec.fieldContext_ProductPriceMarkup_productSpecificationValueID(ctx, field)
+			case "productSpecificationValue":
+				return ec.fieldContext_ProductPriceMarkup_productSpecificationValue(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ProductPriceMarkup", field.Name)
 		},
@@ -11310,6 +11459,98 @@ func (ec *executionContext) fieldContext_ProductPriceMarkup_product(ctx context.
 	return fc, nil
 }
 
+func (ec *executionContext) _ProductPriceMarkup_productSpecificationValueID(ctx context.Context, field graphql.CollectedField, obj *model.ProductPriceMarkup) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductPriceMarkup_productSpecificationValueID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ProductSpecificationValueID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int64)
+	fc.Result = res
+	return ec.marshalOID2ᚖint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductPriceMarkup_productSpecificationValueID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductPriceMarkup",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductPriceMarkup_productSpecificationValue(ctx context.Context, field graphql.CollectedField, obj *model.ProductPriceMarkup) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductPriceMarkup_productSpecificationValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ProductPriceMarkup().ProductSpecificationValue(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.ProductSpecificationValue)
+	fc.Result = res
+	return ec.marshalOProductSpecificationValue2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐProductSpecificationValue(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductPriceMarkup_productSpecificationValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductPriceMarkup",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ProductSpecificationValue_id(ctx, field)
+			case "value":
+				return ec.fieldContext_ProductSpecificationValue_value(ctx, field)
+			case "specificationId":
+				return ec.fieldContext_ProductSpecificationValue_specificationId(ctx, field)
+			case "specification":
+				return ec.fieldContext_ProductSpecificationValue_specification(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ProductSpecificationValue", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ProductSpecification_id(ctx context.Context, field graphql.CollectedField, obj *model.ProductSpecification) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ProductSpecification_id(ctx, field)
 	if err != nil {
@@ -13272,6 +13513,10 @@ func (ec *executionContext) fieldContext_Query_priceMarkups(ctx context.Context,
 				return ec.fieldContext_ProductPriceMarkup_productID(ctx, field)
 			case "product":
 				return ec.fieldContext_ProductPriceMarkup_product(ctx, field)
+			case "productSpecificationValueID":
+				return ec.fieldContext_ProductPriceMarkup_productSpecificationValueID(ctx, field)
+			case "productSpecificationValue":
+				return ec.fieldContext_ProductPriceMarkup_productSpecificationValue(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type ProductPriceMarkup", field.Name)
 		},
@@ -19458,6 +19703,82 @@ func (ec *executionContext) unmarshalInputPaginationInput(ctx context.Context, o
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputPriceMarkupInput(ctx context.Context, obj interface{}) (model.PriceMarkupInput, error) {
+	var it model.PriceMarkupInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"brandId", "specificationValueId", "markupPercentage"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "brandId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("brandId"))
+			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalOID2ᚖint64(ctx, v) }
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				if ec.directives.EmptyStringToNull == nil {
+					return nil, errors.New("directive emptyStringToNull is not implemented")
+				}
+				return ec.directives.EmptyStringToNull(ctx, obj, directive0)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*int64); ok {
+				it.BrandID = data
+			} else if tmp == nil {
+				it.BrandID = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *int64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+		case "specificationValueId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("specificationValueId"))
+			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalOID2ᚖint64(ctx, v) }
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				if ec.directives.EmptyStringToNull == nil {
+					return nil, errors.New("directive emptyStringToNull is not implemented")
+				}
+				return ec.directives.EmptyStringToNull(ctx, obj, directive0)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*int64); ok {
+				it.SpecificationValueID = data
+			} else if tmp == nil {
+				it.SpecificationValueID = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *int64`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+		case "markupPercentage":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("markupPercentage"))
+			it.MarkupPercentage, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputProductSearchInput(ctx context.Context, obj interface{}) (model.ProductSearchInput, error) {
 	var it model.ProductSearchInput
 	asMap := map[string]interface{}{}
@@ -20244,6 +20565,15 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_updateOrderRow(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "createPriceMarkup":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createPriceMarkup(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
@@ -21570,6 +21900,27 @@ func (ec *executionContext) _ProductPriceMarkup(ctx context.Context, sel ast.Sel
 					}
 				}()
 				res = ec._ProductPriceMarkup_product(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "productSpecificationValueID":
+
+			out.Values[i] = ec._ProductPriceMarkup_productSpecificationValueID(ctx, field, obj)
+
+		case "productSpecificationValue":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ProductPriceMarkup_productSpecificationValue(ctx, field, obj)
 				return res
 			}
 
@@ -23892,6 +24243,11 @@ func (ec *executionContext) marshalNPriceAdditionType2ᚖpillowwwᚋtitwᚋgraph
 		return graphql.Null
 	}
 	return ec._PriceAdditionType(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNPriceMarkupInput2pillowwwᚋtitwᚋgraphᚋmodelᚐPriceMarkupInput(ctx context.Context, v interface{}) (model.PriceMarkupInput, error) {
+	res, err := ec.unmarshalInputPriceMarkupInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNProduct2pillowwwᚋtitwᚋgraphᚋmodelᚐProduct(ctx context.Context, sel ast.SelectionSet, v model.Product) graphql.Marshaler {

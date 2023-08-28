@@ -165,10 +165,23 @@ func (d Dao) FindByCategoryId(ctx context.Context, id int64) (models.ProductSlic
 	).All(ctx, d.Db)
 }
 
-func (d Dao) FindByBrandId(ctx context.Context, id int64) (models.ProductSlice, error) {
+func (d Dao) FindBrandOrSpecificationId(ctx context.Context, id *int64, valueId *int64) (models.ProductSlice, error) {
+	var mods []qm.QueryMod
+
+	if id != nil {
+		mods = append(mods, models.ProductWhere.BrandID.EQ(*id))
+	}
+
+	if valueId != nil {
+		mods = append(mods, qm.WhereIn("products.id IN ( SELECT product_id "+
+			"FROM product_product_specification_values "+
+			"WHERE product_specification_value_id = ?  )", *valueId),
+		)
+	}
+
 	return models.Products(
 		d.GetMods(
-			models.ProductWhere.BrandID.EQ(id),
+			mods...,
 		)...,
 	).All(ctx, d.Db)
 }

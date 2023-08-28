@@ -86,7 +86,7 @@ func (d *SpecificationValueDao) SearchBySpecificationAndValue(ctx context.Contex
 		mods = append(mods, qm.Where(models.ProductSpecificationValueColumns.SpecificationValue+" ILIKE ?", `%`+*value+`%`))
 	}
 
-	if vehicleCode != nil || len(*vehicleCode) > 0 {
+	if vehicleCode != nil && len(*vehicleCode) > 0 {
 		mods = append(mods, qm.LeftOuterJoin("products on product_product_specification_values.product_id = products.id"))
 		mods = append(mods, qm.LeftOuterJoin("vehicle_types on products.vehicle_type_id = vehicle_types.id"))
 		mods = append(mods, models.VehicleTypeWhere.Code.EQ(*vehicleCode))
@@ -97,4 +97,12 @@ func (d *SpecificationValueDao) SearchBySpecificationAndValue(ctx context.Contex
 			mods...,
 		)...,
 	).All(ctx, d.Db)
+}
+
+func (d SpecificationValueDao) FindOneById(ctx context.Context, id int64) (*models.ProductSpecificationValue, error) {
+	return models.ProductSpecificationValues(
+		d.GetMods(
+			models.ProductSpecificationValueWhere.ID.EQ(id),
+		)...,
+	).One(ctx, d.Db)
 }

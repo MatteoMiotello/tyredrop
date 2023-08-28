@@ -190,44 +190,12 @@ func (p PriceService) UpdateMarkup(ctx context.Context, markup *models.ProductPr
 	var products models.ProductSlice
 	var err error
 
-	if markup.MarkupPercentage == markupPercentage {
-		return nil
-	}
-
 	dao := p.ProductDao.Load(models.ProductRels.ProductItems)
 
-	if !markup.ProductID.IsZero() {
-		p, err := dao.FindOneById(ctx, markup.ProductID.Int64)
+	products, err = dao.FindBrandOrSpecificationId(ctx, markup.BrandID.Ptr(), markup.ProductSpecificationValueID.Ptr())
 
-		if err != nil {
-			return err
-		}
-
-		products = append(products, p)
-	}
-
-	if !markup.ProductCategoryID.IsZero() {
-		products, err = dao.FindByCategoryId(ctx, markup.ProductCategoryID.Int64)
-
-		if err != nil {
-			return err
-		}
-	}
-
-	if !markup.BrandID.IsZero() {
-		products, err = dao.FindByBrandId(ctx, markup.BrandID.Int64)
-
-		if err != nil {
-			return err
-		}
-	}
-
-	if markup.BrandID.IsZero() && markup.ProductID.IsZero() && markup.ProductCategoryID.IsZero() {
-		products, err = dao.FindAll(ctx)
-
-		if err != nil {
-			return err
-		}
+	if err != nil {
+		return err
 	}
 
 	err = db.WithTx(ctx, func(tx *sql.Tx) error {

@@ -17,9 +17,10 @@ type PriceAdditionType struct {
 }
 
 type ProductPriceMarkup struct {
-	ID                int64  `json:"id"`
-	MarkupPercentage  int    `json:"markupPercentage"`
-	ProductCategoryID *int64 `json:"productCategoryID,omitempty"`
-	BrandID           *int64 `json:"brandID,omitempty"`
-	ProductID         *int64 `json:"productID,omitempty"`
+	ID                          int64  `json:"id"`
+	MarkupPercentage            int    `json:"markupPercentage"`
+	ProductCategoryID           *int64 `json:"productCategoryID,omitempty"`
+	BrandID                     *int64 `json:"brandID,omitempty"`
+	ProductID                   *int64 `json:"productID,omitempty"`
+	ProductSpecificationValueID *int64 `json:"productSpecificationValueID,omitempty"`
 }

@@ -1,3 +1,5 @@
+import {faPlus} from "@fortawesome/free-solid-svg-icons";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import React, {useEffect, useState} from "react";
 import {ProductPriceMarkup} from "../../../__generated__/graphql";
 import { useQuery} from "../../../common/backend/graph/hooks";
@@ -10,7 +12,9 @@ import PriceMarkupTable from "../components/Price/PriceMarkupTable";
 const PriceMarkupPage: React.FC = () => {
     const query = useQuery(PRICE_MARKUPS);
     const modal = useModal({
-        onClose: () => setMarkupToEdit(undefined)
+        onClose: () => {
+            setMarkupToEdit(undefined);
+        }
     });
     const form = useForm({
         onSuccess: () => {
@@ -47,6 +51,11 @@ const PriceMarkupPage: React.FC = () => {
         <Panel>
             <Panel.Title>
                 Tutti i prezzi
+                <Button buttonType="ghost" onClick={()=>{
+                    modal.open();
+                }}>
+                    <FontAwesomeIcon icon={faPlus}/>
+                </Button>
             </Panel.Title>
             {
                 query.data &&

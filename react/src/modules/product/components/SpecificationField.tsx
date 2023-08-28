@@ -9,8 +9,9 @@ type SpecificationFieldProps = {
     name: string
     placeholder?: string
     vehicleCode?: string
+    toId?: boolean
 }
-const SpecificationField: React.FC<SpecificationFieldProps> = ({specificationCode, name, placeholder, vehicleCode}) => {
+const SpecificationField: React.FC<SpecificationFieldProps> = ({specificationCode, name, placeholder, vehicleCode, toId}) => {
     const [load, query] = useLazyQuery(SEARCH_PRODUCT_SPECIFICATION_VALUES);
 
     return <Autocomplete
@@ -27,7 +28,7 @@ const SpecificationField: React.FC<SpecificationFieldProps> = ({specificationCod
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             return res.data?.searchSpecificationValue ? res.data?.searchSpecificationValue?.sort( (vala, valb) => String(vala?.value) - String(valb?.value) ).map((value: any): AutocompleteOption<string> => ({
-                value: value.value,
+                value: toId ? value.id : value.value,
                 title: specificationProvider(value)?.title,
                 content: specificationProvider( value )?.content,
             })) : [];

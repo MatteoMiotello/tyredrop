@@ -62,4 +62,6 @@ type ProductPriceMarkup {
     brand: Brand
     productID: ID
     product: Product
+    productSpecificationValueID: ID
+    productSpecificationValue: ProductSpecificationValue
 }

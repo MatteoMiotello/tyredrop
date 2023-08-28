@@ -83,3 +83,23 @@ func (d PriceMarkupDao) FindOneById(ctx context.Context, id int64) (*models.Prod
 		)...,
 	).One(ctx, d.Db)
 }
+
+func (d PriceMarkupDao) FindByBrandOrSpecificationId(ctx context.Context, brandId *int64, valueId *int64) (*models.ProductPriceMarkup, error) {
+	var mods []qm.QueryMod
+
+	if brandId != nil {
+		mods = append(mods, models.ProductPriceMarkupWhere.BrandID.EQ(null.Int64FromPtr(brandId)))
+	} else {
+		mods = append(mods, models.ProductPriceMarkupWhere.BrandID.IsNull())
+	}
+
+	if valueId != nil {
+		mods = append(mods, models.ProductPriceMarkupWhere.ProductSpecificationValueID.EQ(null.Int64FromPtr(valueId)))
+	} else {
+		mods = append(mods, models.ProductPriceMarkupWhere.ProductSpecificationValueID.IsNull())
+	}
+
+	return models.ProductPriceMarkups(d.GetMods(
+		mods...,
+	)...).One(ctx, d.Db)
+}

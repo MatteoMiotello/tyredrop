@@ -32,10 +32,11 @@ func ProductItemPriceToGraphQL(price *models.ProductItemPrice) (*model.ProductIt
 
 func PriceMarkupToGraphQL(markup *models.ProductPriceMarkup) *model.ProductPriceMarkup {
 	return &model.ProductPriceMarkup{
-		ID:                markup.ID,
-		MarkupPercentage:  markup.MarkupPercentage,
-		ProductID:         markup.ProductID.Ptr(),
-		ProductCategoryID: markup.ProductCategoryID.Ptr(),
-		BrandID:           markup.BrandID.Ptr(),
+		ID:                          markup.ID,
+		MarkupPercentage:            markup.MarkupPercentage,
+		ProductID:                   markup.ProductID.Ptr(),
+		ProductCategoryID:           markup.ProductCategoryID.Ptr(),
+		BrandID:                     markup.BrandID.Ptr(),
+		ProductSpecificationValueID: markup.ProductSpecificationValueID.Ptr(),
 	}
 }

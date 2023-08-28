@@ -265,6 +265,21 @@ func (r *productPriceMarkupResolver) Product(ctx context.Context, obj *model.Pro
 	return converters.ProductToGraphQL(p), err
 }
 
+// ProductSpecificationValue is the resolver for the productSpecificationValue field.
+func (r *productPriceMarkupResolver) ProductSpecificationValue(ctx context.Context, obj *model.ProductPriceMarkup) (*model.ProductSpecificationValue, error) {
+	if obj.ProductSpecificationValueID == nil {
+		return nil, nil
+	}
+
+	v, err := r.ProductSpecificationValueDao.FindOneById(ctx, *obj.ProductSpecificationValueID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return converters.ProductSpecificationValueToGraphQL(v), nil
+}
+
 // Product returns graph.ProductResolver implementation.
 func (r *Resolver) Product() graph.ProductResolver { return &productResolver{r} }
 

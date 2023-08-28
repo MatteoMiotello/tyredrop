@@ -5,13 +5,15 @@ import {useLazyQuery} from "@apollo/client";
 import {SEARCH_BRANDS} from "../backend/graph/query/brands";
 import {useTranslation} from "react-i18next";
 import {useToast} from "../../store/toast";
+import {InputProps} from "./shelly-ui/Form";
 
 type BrandFieldProps = {
     name: string
     className?: string
-}
+    toId?: boolean
+} & InputProps
 
-const BrandField: React.FC<BrandFieldProps> = (props) => {
+const BrandField: React.FC<BrandFieldProps> = ({className, name, toId, ...props}) => {
     const {t} = useTranslation();
     const [loadBrands, {error}] = useLazyQuery(SEARCH_BRANDS);
     const toast = useToast();
@@ -37,17 +39,18 @@ const BrandField: React.FC<BrandFieldProps> = (props) => {
             return {
                 title: brand?.name,
                 content: <span><ProductQualityBadge small quality={brand?.quality}/> {brand?.name} </span>,
-                value: brand?.code
+                value: toId ? brand?.id : brand?.code
             } as AutocompleteOption;
         });
     };
 
     return <Autocomplete
-        className={props.className}
+        className={className}
         placeholder={t('searchbar.brand_field_label') as string}
-        name={props.name}
+        name={name}
         getOptions={getOptions}
         initialOptions={[]}
+        {...props}
     />;
 };
 

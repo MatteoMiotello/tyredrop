@@ -113,6 +113,12 @@ type PaymentMethod struct {
 	Iban     *string `json:"iban,omitempty"`
 }
 
+type PriceMarkupInput struct {
+	BrandID              *int64 `json:"brandId,omitempty"`
+	SpecificationValueID *int64 `json:"specificationValueId,omitempty"`
+	MarkupPercentage     int    `json:"markupPercentage"`
+}
+
 type ProductItemPaginate struct {
 	Pagination   *Pagination    `json:"pagination,omitempty"`
 	ProductItems []*ProductItem `json:"productItems,omitempty"`

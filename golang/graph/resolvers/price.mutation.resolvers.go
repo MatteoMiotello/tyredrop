@@ -11,10 +11,60 @@ import (
 	"pillowww/titw/graph/graphErrors"
 	"pillowww/titw/graph/model"
 	"pillowww/titw/internal/domain/product"
+	"pillowww/titw/models"
+
+	null "github.com/volatiletech/null/v8"
 )
 
+// CreatePriceMarkup is the resolver for the createPriceMarkup field.
+func (r *mutationResolver) CreatePriceMarkup(ctx context.Context, input model.PriceMarkupInput) (*model.ProductPriceMarkup, error) {
+	valueId := input.SpecificationValueID
+
+	if *valueId == 0 {
+		valueId = nil
+	}
+
+	brandId := input.BrandID
+
+	if *brandId == 0 {
+		brandId = nil
+	}
+
+	markup, _ := r.PriceMarkupDao.FindByBrandOrSpecificationId(ctx, brandId, valueId)
+	if markup != nil {
+		return nil, graphErrors.NewGraphError(ctx, errors.New("markup already exists"), "MARKUP_ALREADY_EXISTS")
+	}
+
+	markup = &models.ProductPriceMarkup{
+		ProductSpecificationValueID: null.Int64FromPtr(valueId),
+		BrandID:                     null.Int64FromPtr(brandId),
+		MarkupPercentage:            input.MarkupPercentage,
+	}
+
+	err := r.PriceMarkupDao.Save(ctx, markup)
+
+	if err != nil {
+		return nil, err
+	}
+
+	ps := product.NewPriceService(
+		r.ProductDao,
+		r.ProductItemDao,
+		r.PriceMarkupDao,
+		r.CurrencyDao,
+		r.ProductItemPriceDao,
+	)
+
+	err = ps.UpdateMarkup(ctx, markup, input.MarkupPercentage)
+	if err != nil {
+		return nil, err
+	}
+
+	return converters.PriceMarkupToGraphQL(markup), nil
+}
+
 // UpdatePriceMarkup is the resolver for the updatePriceMarkup field.
-func (r *mutationResolver) UpdatePriceMarkup(ctx context.Context, id int64, markupPercentage int) (*model.ProductPriceMarkup, error) {
+func (r *mutationResolver) UpdatePriceMarkup(ctx context.Context, id int64, input model.PriceMarkupInput) (*model.ProductPriceMarkup, error) {
 	ps := product.NewPriceService(
 		r.ProductDao,
 		r.ProductItemDao,
@@ -29,11 +79,7 @@ func (r *mutationResolver) UpdatePriceMarkup(ctx context.Context, id int64, mark
 		return nil, err
 	}
 
-	if markupPercentage < 0 {
-		return nil, graphErrors.NewGraphError(ctx, errors.New("markup percentage must be positive"), "NEGATIVE_PERCENTAGE")
-	}
-
-	err = ps.UpdateMarkup(ctx, markup, markupPercentage)
+	err = ps.UpdateMarkup(ctx, markup, input.MarkupPercentage)
 
 	if err != nil {
 		return nil, err

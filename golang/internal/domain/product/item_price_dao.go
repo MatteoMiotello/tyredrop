@@ -47,6 +47,7 @@ func (d *ItemPriceDao) FindOneByProductItemIdAndCurrencyId(ctx context.Context, 
 		d.GetMods(
 			models.ProductItemPriceWhere.ProductItemID.EQ(itemId),
 			models.ProductItemPriceWhere.CurrencyID.EQ(currId),
+			models.ProductItemPriceWhere.DeletedAt.IsNull(),
 		)...,
 	).One(ctx, d.Db)
 }

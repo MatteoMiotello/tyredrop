@@ -26,6 +26,7 @@ func GetAllCartsByUserId(ctx context.Context, cartDao *cart.Dao, userId int64) (
 				models.CartRels.ProductItemPrice,
 			),
 			models.ProductItemPriceWhere.CurrencyID.EQ(defaultCur.ID),
+			models.ProductItemPriceWhere.DeletedAt.IsNull(),
 		).
 		FindAllByUserId(ctx, userId)
 

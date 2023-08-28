@@ -13,7 +13,7 @@ const PriceMarkupTable: React.FC<PriceMarkupTableProps> = ( {query, setMarkupToE
         {
             id: 'element',
             header: 'Riferimento',
-            cell: ( p ) => <div>
+            cell: ( p ) => <div className="flex flex-col">
                 {
                     p.row.original.brand && <span> Brand: { p.row.original.brand.name} </span>
                 }
@@ -22,6 +22,9 @@ const PriceMarkupTable: React.FC<PriceMarkupTableProps> = ( {query, setMarkupToE
                 }
                 {
                     p.row.original.product && <span> Prodotto: { p.row.original.product.name} </span>
+                }
+                {
+                    p.row.original.productSpecificationValue && <span> Raggio: { p.row.original.productSpecificationValue.value} </span>
                 }
                 {
                     ( !p.row.original.brand &&

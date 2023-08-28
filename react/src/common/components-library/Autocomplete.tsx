@@ -16,6 +16,7 @@ interface AutocompleteProps<T = any> extends PropsWithValidators {
     placeholder?: string | undefined;
     labelText?: string | undefined | null;
     defaultValue?: T
+    disable?: boolean
 }
 
 export type AutocompleteOption<T = any> = {
@@ -105,7 +106,7 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
         });
     };
 
-    return <Combobox value={selectedValue} onChange={setSelectedValue} name={props.name}>
+    return <Combobox value={selectedValue} onChange={setSelectedValue} name={props.name} disabled={props.disable}>
         <div className={"relative " + props.className}>
             {props.labelText &&
                 <label className="label">
