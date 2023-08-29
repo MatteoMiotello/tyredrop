@@ -43,8 +43,8 @@ func (d *SpecificationValueDao) FindByProductAndCode(ctx context.Context, produc
 		d.GetMods(
 			qm.LeftOuterJoin("product_product_specification_values on product_product_specification_values.product_specification_value_id = product_specification_values.id"),
 			qm.LeftOuterJoin("product_specifications on product_specifications.id = product_specification_values.product_specification_id"),
+			qm.Where("product_specifications.specification_code = ?", specificationCode),
 			models.ProductProductSpecificationValueWhere.ProductID.EQ(product.ID),
-			models.ProductSpecificationWhere.SpecificationCode.EQ(specificationCode),
 		)...,
 	).One(ctx, d.Db)
 }

@@ -18,15 +18,17 @@ import (
 
 // CreatePriceMarkup is the resolver for the createPriceMarkup field.
 func (r *mutationResolver) CreatePriceMarkup(ctx context.Context, input model.PriceMarkupInput) (*model.ProductPriceMarkup, error) {
-	valueId := input.SpecificationValueID
+	var valueId *int64
+	var brandId *int64
+	valueId = input.SpecificationValueID
 
-	if *valueId == 0 {
+	if valueId != nil && *valueId == 0 {
 		valueId = nil
 	}
 
-	brandId := input.BrandID
+	brandId = input.BrandID
 
-	if *brandId == 0 {
+	if brandId != nil && *brandId == 0 {
 		brandId = nil
 	}
 

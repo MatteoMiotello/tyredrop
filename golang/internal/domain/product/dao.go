@@ -185,3 +185,14 @@ func (d Dao) FindBrandOrSpecificationId(ctx context.Context, id *int64, valueId 
 		)...,
 	).All(ctx, d.Db)
 }
+
+func (d Dao) GetAllSpecificationValues(ctx context.Context, product *models.Product) (models.ProductSpecificationValueSlice, error) {
+	return models.ProductSpecificationValues(
+		d.GetMods(
+			qm.WhereIn("id IN "+
+				"( SELECT product_specification_value_id "+
+				"FROM product_product_specification_values "+
+				"WHERE product_id = ? ) ", product.ID),
+		)...,
+	).All(ctx, d.Db)
+}

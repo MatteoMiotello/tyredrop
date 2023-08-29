@@ -2,13 +2,11 @@ package product
 
 import (
 	"context"
-	"database/sql"
+	"fmt"
 	"github.com/friendsofgo/errors"
 	"pillowww/titw/internal/currency"
-	"pillowww/titw/internal/db"
 	"pillowww/titw/internal/domain/product/pdtos"
 	"pillowww/titw/models"
-	"pillowww/titw/pkg/log"
 	"strconv"
 )
 
@@ -31,35 +29,50 @@ func NewPriceService(productDao *Dao, itemDao *ItemDao, markupDao *PriceMarkupDa
 }
 
 func (p PriceService) findPriceMarkup(ctx context.Context, pi *models.ProductItem) (*models.ProductPriceMarkup, error) {
-	product, err := p.ProductDao.FindOneById(ctx, pi.ProductID)
+	product, err := p.ProductDao.
+		Load(models.ProductRels.Brand).
+		FindOneById(ctx, pi.ProductID)
 
 	if err != nil {
 		return nil, err
 	}
 
-	markup, _ := p.PriceMarkupDao.FindPriceMarkupByProductId(ctx, product)
+	values, err := p.ProductDao.GetAllSpecificationValues(ctx, product)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, v := range values {
+		markup, _ := p.PriceMarkupDao.FindByBrandAndSpecificationValue(ctx, product.R.Brand, v)
+
+		if markup != nil {
+			fmt.Println("v+b: ", pi.ID)
+			return markup, nil
+		}
+
+		markup, _ = p.PriceMarkupDao.FindBySpecificationValue(ctx, v)
+
+		if markup != nil {
+			fmt.Println("v: ", pi.ID)
+			return markup, nil
+		}
+	}
+
+	markup, _ := p.PriceMarkupDao.FindPriceMarkupByBrandId(ctx, product.BrandID)
 
 	if markup != nil {
+		fmt.Println("b: ", pi.ID)
 		return markup, nil
 	}
 
-	markup, _ = p.PriceMarkupDao.FindPriceMarkupByBrandId(ctx, product.BrandID)
-
-	if markup != nil {
-		return markup, nil
-	}
-
-	markup, _ = p.PriceMarkupDao.FindPriceMarkupByProductCategoryId(ctx, product.ProductCategoryID)
-
-	if markup != nil {
-		return markup, nil
-	}
-
-	markup, _ = p.PriceMarkupDao.FindPriceMarkupDefault(ctx)
+	markup, err = p.PriceMarkupDao.FindPriceMarkupDefault(ctx)
 
 	if markup == nil {
-		return nil, errors.New("markup default not found")
+		return nil, errors.WithMessage(err, "markup default not found")
 	}
+
+	fmt.Println("d: ", pi.ID, markup.MarkupPercentage)
 
 	return markup, nil
 }
@@ -71,9 +84,13 @@ func (p PriceService) calcPrices(ctx context.Context, pi *models.ProductItem, ma
 		return errors.WithMessage(err, "currency not found")
 	}
 
-	price, _ := p.ProductDao.
+	price, err := p.ProductDao.
 		Load(models.ProductItemPriceRels.ProductItemPriceAdditions).
 		FindPriceForProductItemAndCurrency(ctx, pi, defCur)
+
+	if err != nil {
+		fmt.Println("Error fetching price", err)
+	}
 
 	charge := pi.SupplierPrice * markup.MarkupPercentage / 100
 	priceValue := pi.SupplierPrice + charge
@@ -88,6 +105,8 @@ func (p PriceService) calcPrices(ctx context.Context, pi *models.ProductItem, ma
 		if err != nil {
 			return errors.WithMessage(err, "Error deleting old price")
 		}
+	} else {
+		fmt.Println("price not found")
 	}
 
 	newPrice := &models.ProductItemPrice{
@@ -100,17 +119,6 @@ func (p PriceService) calcPrices(ctx context.Context, pi *models.ProductItem, ma
 
 	if err != nil {
 		return errors.WithMessage(err, "Error inserting new price with value: "+strconv.Itoa(newPrice.Price))
-	}
-
-	if price != nil {
-		for _, a := range price.R.ProductItemPriceAdditions {
-			a.ProductItemPriceID = newPrice.ID
-			err := p.ProductDao.Save(ctx, a)
-
-			if err != nil {
-				return err
-			}
-		}
 	}
 
 	return nil
@@ -126,27 +134,11 @@ func (p PriceService) CalculateAndStoreProductPrices(ctx context.Context, pi *mo
 	return p.calcPrices(ctx, pi, markup)
 }
 
-func (p PriceService) UpdatePricesByCategory(ctx context.Context, category *models.ProductCategory) error {
-	pItems, _ := p.ProductItemDao.FindByCategory(ctx, category)
-	if pItems == nil {
-		return nil
-	}
-
-	for _, pi := range pItems {
-		err := p.CalculateAndStoreProductPrices(ctx, pi)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (p PriceService) CalculatePriceAdditions(ctx context.Context, pi *models.ProductItem, record pdtos.ProductDto) error {
-	prices, err := p.ProductItemDao.ProductItemPrices(ctx, pi)
+	prices, _ := p.ProductItemDao.ProductItemPrices(ctx, pi)
 
-	if err != nil {
-		return err
+	if prices == nil {
+		return nil
 	}
 
 	for _, price := range prices {
@@ -187,42 +179,8 @@ func (p PriceService) CalculatePriceAdditions(ctx context.Context, pi *models.Pr
 }
 
 func (p PriceService) UpdateMarkup(ctx context.Context, markup *models.ProductPriceMarkup, markupPercentage int) error {
-	var products models.ProductSlice
-	var err error
-
-	dao := p.ProductDao.Load(models.ProductRels.ProductItems)
-
-	products, err = dao.FindBrandOrSpecificationId(ctx, markup.BrandID.Ptr(), markup.ProductSpecificationValueID.Ptr())
-
-	if err != nil {
-		return err
-	}
-
-	err = db.WithTx(ctx, func(tx *sql.Tx) error {
-		p.ProductItemPriceDao.Db = tx
-
-		markup.MarkupPercentage = markupPercentage
-		err := p.ProductItemPriceDao.Save(ctx, markup)
-
-		if err != nil {
-			return err
-		}
-
-		for _, pr := range products {
-			for _, pi := range pr.R.ProductItems {
-				pi := pi
-
-				calcErr := p.calcPrices(ctx, pi, markup)
-
-				if calcErr != nil {
-					log.Error("Price not updated for item: "+strconv.Itoa(int(pi.ID)), calcErr)
-					return calcErr
-				}
-			}
-		}
-
-		return err
-	})
+	markup.MarkupPercentage = markupPercentage
+	err := p.ProductItemPriceDao.Save(ctx, markup)
 
 	if err != nil {
 		return err

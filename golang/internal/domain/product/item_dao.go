@@ -168,3 +168,18 @@ func (d *ItemDao) FindProductItems(ctx context.Context, input *model.ProductSear
 		)...,
 	).All(ctx, d.Db)
 }
+
+func (d ItemDao) RemoveOldItems(ctx context.Context, sup *models.Supplier, codes []string) error {
+	_, err := models.ProductItems(
+		d.GetMods(
+			qm.WhereIn("product_items.product_id IN (SELECT id FROM products WHERE code NOT IN ? )", codes),
+			models.ProductItemWhere.SupplierID.EQ(sup.ID),
+		)...,
+	).DeleteAll(ctx, d.Db, false)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

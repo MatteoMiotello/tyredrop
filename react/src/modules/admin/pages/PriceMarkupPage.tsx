@@ -58,7 +58,7 @@ const PriceMarkupPage: React.FC = () => {
                 </Button>
             </Panel.Title>
             {
-                query.data &&
+                query.data?.priceMarkups &&
                 <PriceMarkupTable query={query} setMarkupToEdit={setMarkupToEdit}/>
             }
         </Panel>
