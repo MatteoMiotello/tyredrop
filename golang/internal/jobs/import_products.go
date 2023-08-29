@@ -153,10 +153,8 @@ func storeBrands(ctx context.Context, records []pdtos.ProductDto) {
 }
 
 func storeRecords(ctx context.Context, sup *models.Supplier, records []pdtos.ProductDto) error {
-	fmt.Println(sup.Code, len(records))
-
 	rChan := make(chan pdtos.ProductDto)
-	chanWorker := task.NewChannelWorker[pdtos.ProductDto](25, rChan)
+	chanWorker := task.NewChannelWorker[pdtos.ProductDto](50, rChan)
 
 	chanWorker.Run(func(record pdtos.ProductDto) {
 		importNextRecord(ctx, sup, record)
@@ -184,6 +182,7 @@ func storeRecords(ctx context.Context, sup *models.Supplier, records []pdtos.Pro
 }
 
 func importNextRecord(ctx context.Context, sup *models.Supplier, record pdtos.ProductDto) {
+
 	if !record.Validate() {
 		return
 	}
@@ -208,10 +207,6 @@ func importNextRecord(ctx context.Context, sup *models.Supplier, record pdtos.Pr
 			currency2.NewDao(tx),
 			product.NewItemPriceDao(tx),
 		)
-
-		if record.GetProductCode() == "4063021212117" {
-			fmt.Println("ciao")
-		}
 
 		p, err := pService.FindOrCreateProduct(ctx, record)
 		if err != nil {

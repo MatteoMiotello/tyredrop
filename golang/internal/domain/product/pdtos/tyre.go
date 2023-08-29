@@ -99,38 +99,6 @@ func (t *Tyre) Validate() bool {
 		return false
 	}
 
-	if t.VehicleType == constants.VEHICLE_CAR {
-		if t.Width < 205 {
-			return false
-		}
-
-		if t.AspectRatio < 55 {
-			return false
-		}
-
-		if t.Rim < 16 {
-
-		}
-
-		if t.Load < 91 {
-			return false
-		}
-	}
-
-	if t.VehicleType == constants.VEHICLE_MOTO {
-		if t.Width < 120 {
-			return false
-		}
-
-		if int(t.AspectRatio) < 70 {
-			return false
-		}
-
-		if int(t.Rim) < 17 {
-			return false
-		}
-	}
-
 	return true
 }
 
