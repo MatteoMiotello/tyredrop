@@ -160,7 +160,7 @@ func (d Dao) FindUserBillings(ctx context.Context, name *string) (models.UserBil
 
 	if name != nil && len(*name) > 0 {
 		mods = append(mods,
-			qm.Where("( name || ' ' || surname ILIKE ? ) ", fmt.Sprintf("%%%s%%", *name)),
+			qm.Where("(COALESCE(name, '') || ' ' || COALESCE(surname, '')) ILIKE ? ", fmt.Sprintf("%%%s%%", *name)),
 			qm.Or("vat_number ILIKE ?", fmt.Sprintf("%%%s%%", *name)),
 			qm.Or("fiscal_code ILIKE ?", fmt.Sprintf("%%%s%%", *name)),
 		)
