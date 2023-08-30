@@ -38,5 +38,6 @@ func registerRoutes(router *gin.Engine) {
 	assets.Static("/img", "./assets/images")
 
 	pAssets := router.Group("/private", middlewares.InjectAuth, middlewares.IsAuthenticated)
+	pAssets.Static("/invoices", "./assets/invoices")
 	pAssets.Static("/avatar", "./assets/avatar")
 }

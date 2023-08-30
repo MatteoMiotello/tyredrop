@@ -13,102 +13,11 @@ import (
 	"pillowww/titw/graph/converters"
 	"pillowww/titw/graph/graphErrors"
 	"pillowww/titw/graph/model"
-	"pillowww/titw/graph/policies"
 	"pillowww/titw/internal/auth"
 	"pillowww/titw/internal/currency"
 	"pillowww/titw/models"
 	"time"
 )
-
-// User is the resolver for the user field.
-func (r *queryResolver) User(ctx context.Context, id int64) (*model.User, error) {
-	user, err := r.UserDao.FindOneById(ctx, id)
-
-	if err != nil {
-		return nil, err
-	}
-
-	policy := policies.NewUserPolicy(user, r.UserDao)
-
-	if !policy.CanRead(ctx) {
-		return nil, graphErrors.NewNotAuthorizedError(ctx)
-	}
-
-	return converters.UserToGraphQL(user), nil
-}
-
-// Users is the resolver for the users field.
-func (r *queryResolver) Users(ctx context.Context, pagination *model.PaginationInput, filter *model.UserFilterInput) (*model.UserPaginator, error) {
-	userDao := r.UserDao
-
-	if pagination != nil {
-		userDao = userDao.Paginate(pagination.Limit, pagination.Offset)
-	}
-
-	var users models.UserSlice
-	var allUsers models.UserSlice
-	var err error
-
-	if filter != nil {
-		users, err = userDao.FindAll(ctx, filter.Email, filter.Name, filter.Confirmed)
-		allUsers, _ = r.UserDao.FindAll(ctx, filter.Email, filter.Name, filter.Confirmed)
-	} else {
-		users, err = userDao.FindAll(ctx, nil, nil, nil)
-		allUsers, _ = r.UserDao.FindAll(ctx, nil, nil, nil)
-	}
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.UserPaginator{
-		Data: aggregators.UsersToGraphql(users),
-		Pagination: converters.PaginationToGraphql(
-			pagination,
-			len(allUsers),
-		),
-	}, nil
-}
-
-// UserAddress is the resolver for the userAddress field.
-func (r *queryResolver) UserAddress(ctx context.Context, userID int64) ([]*model.UserAddress, error) {
-	u, err := r.UserDao.FindOneById(ctx, userID)
-
-	if err != nil {
-		return nil, graphErrors.NewGraphError(ctx, errors.New("User not found in context"), "4004")
-	}
-
-	policy := policies.NewUserPolicy(u, r.UserDao)
-
-	if !policy.CanRead(ctx) {
-		return nil, graphErrors.NewNotAuthorizedError(ctx)
-	}
-
-	return aggregators.NewUserAggregator(r.UserAddressDao).GetAllAddressesByUser(ctx, u.ID)
-}
-
-// UserBilling is the resolver for the userBilling field.
-func (r *queryResolver) UserBilling(ctx context.Context, userID int64) (*model.UserBilling, error) {
-	user, err := r.UserDao.FindOneById(ctx, userID)
-
-	if err != nil {
-		return nil, graphErrors.NewUserNotFoundError(ctx, err)
-	}
-
-	policy := policies.NewUserPolicy(user, r.UserDao)
-
-	if !policy.CanRead(ctx) {
-		return nil, graphErrors.NewNotAuthorizedError(ctx)
-	}
-
-	billing, err := r.UserDao.GetUserBilling(ctx, user)
-
-	if err != nil {
-		return nil, graphErrors.NewGraphError(ctx, err, "Billing not found")
-	}
-
-	return converters.UserBillingToGraphQL(billing), err
-}
 
 // TaxRates is the resolver for the taxRates field.
 func (r *queryResolver) TaxRates(ctx context.Context) ([]*model.Tax, error) {

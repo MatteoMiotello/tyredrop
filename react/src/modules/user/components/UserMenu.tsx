@@ -1,4 +1,4 @@
-import {faBagShopping, faLocationDot, faUser} from "@fortawesome/free-solid-svg-icons";
+import {faBagShopping, faFileInvoice, faLocationDot, faUser} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import React from "react";
 import {Link, useParams} from "react-router-dom";
@@ -21,6 +21,11 @@ const UserMenu: React.FC = () => {
         <Menu.Item>
             <Link to={`/user/${params.id}/orders`}>
                 <FontAwesomeIcon icon={faBagShopping}/>I miei ordini
+            </Link>
+        </Menu.Item>
+        <Menu.Item>
+            <Link to={`/user/${params.id}/invoices`}>
+                <FontAwesomeIcon icon={faFileInvoice}/> Le mie fatture
             </Link>
         </Menu.Item>
     </Menu>;

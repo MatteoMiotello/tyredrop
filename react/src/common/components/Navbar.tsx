@@ -7,7 +7,13 @@ import Menu from "../components-library/Menu";
 import CartButton from "./CartButton";
 import MainLogo from "./Logo";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faBagShopping, faLocationDot, faRightFromBracket, faUser} from "@fortawesome/free-solid-svg-icons";
+import {
+    faBagShopping,
+    faFileInvoice,
+    faLocationDot,
+    faRightFromBracket,
+    faUser
+} from "@fortawesome/free-solid-svg-icons";
 import {useAuth} from "../../modules/auth/hooks/useAuth";
 
 const Navbar: React.FC = () => {
@@ -61,6 +67,11 @@ const Navbar: React.FC = () => {
                         <Menu.Item>
                             <Link to={`/user/${auth.user?.user?.userID}/orders`}>
                                 <FontAwesomeIcon icon={faBagShopping}/>I miei ordini
+                            </Link>
+                        </Menu.Item>
+                        <Menu.Item>
+                            <Link to={`/user/${auth.user?.user?.userID}/invoices`}>
+                                <FontAwesomeIcon icon={faFileInvoice}/>Le mie fatture
                             </Link>
                         </Menu.Item>
                         <Menu.Item>

@@ -18,6 +18,7 @@ services:
     restart: always
     volumes:
       - ./golang:/app
+      - ./assets:/app/assets
       - ./import:/import
       - ./logs:/app/logs
     depends_on:

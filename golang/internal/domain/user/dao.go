@@ -1,7 +1,6 @@
 package user
 
 import (
-	context2 "context"
 	"fmt"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -143,7 +142,7 @@ func (d Dao) TotalUsers(ctx context.Context) (int64, error) {
 	).Count(ctx, d.Db)
 }
 
-func (d Dao) BestUserBilling(ctx context2.Context, from time.Time, to time.Time) (*models.UserBilling, error) {
+func (d Dao) BestUserBilling(ctx context.Context, from time.Time, to time.Time) (*models.UserBilling, error) {
 	return models.UserBillings(
 		d.GetMods(
 			qm.LeftOuterJoin("orders on orders.user_billing_id = user_billings.id"),
@@ -154,4 +153,22 @@ func (d Dao) BestUserBilling(ctx context2.Context, from time.Time, to time.Time)
 			qm.OrderBy("sum( orders.price_amount ) DESC"),
 		)...,
 	).One(ctx, d.Db)
+}
+
+func (d Dao) FindUserBillings(ctx context.Context, name *string) (models.UserBillingSlice, error) {
+	var mods []qm.QueryMod
+
+	if name != nil && len(*name) > 0 {
+		mods = append(mods,
+			qm.Where("( name || ' ' || surname ILIKE ? ) ", fmt.Sprintf("%%%s%%", *name)),
+			qm.Or("vat_number ILIKE ?", fmt.Sprintf("%%%s%%", *name)),
+			qm.Or("fiscal_code ILIKE ?", fmt.Sprintf("%%%s%%", *name)),
+		)
+	}
+
+	return models.UserBillings(
+		d.GetMods(
+			mods...,
+		)...,
+	).All(ctx, d.Db)
 }

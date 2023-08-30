@@ -2,6 +2,7 @@ import {Link, LoaderFunction, RouteObject} from "react-router-dom";
 import {FETCH_ORDER} from "../../../common/backend/graph/query/order";
 import apolloClientContext from "../../../common/contexts/apollo-client-context";
 import HomePage from "../pages/HomePage";
+import InvoicesPage from "../pages/InvoicesPage";
 import OrderAdminDetailsPage from "../pages/OrderAdminDetailsPage";
 import PriceMarkupPage from "../pages/PriceMarkupPage";
 import UserPage from "../pages/UserPage";
@@ -72,6 +73,10 @@ export const adminRoutes: RouteObject = {
                     Component: OrderAdminDetailsPage
                 }
             ]
+        },
+        {
+            path: 'invoice',
+            Component: InvoicesPage,
         }
     ]
 };

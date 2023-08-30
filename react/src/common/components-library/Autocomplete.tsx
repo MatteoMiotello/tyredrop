@@ -17,6 +17,7 @@ interface AutocompleteProps<T = any> extends PropsWithValidators {
     labelText?: string | undefined | null;
     defaultValue?: T
     disable?: boolean
+    small?: boolean
 }
 
 export type AutocompleteOption<T = any> = {
@@ -116,10 +117,10 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
                 </label>
             }
             <div
-                className={`select select-bordered relative w-full cursor-default overflow-hidden p-0 ${error ? 'select-error' : ''}`}>
+                className={`select ${props.small && "select-sm text-sm"} select-bordered relative w-full cursor-default overflow-hidden p-0 ${error ? 'select-error' : ''}`}>
                 <Combobox.Input
                     autoComplete="off"
-                    className={"input w-full border-none p-4 font-normal"}
+                    className={`input w-full border-none h-full font-normal flex items-center ${props.small && 'text-sm'} `}
                     displayValue={(value: any) => {
                         const option = findOption(value);
                         return option ? option.title : value;
@@ -163,7 +164,7 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
                                 {({selected, active}) => (
                                     <>
                         <span
-                            className={`block truncate ml-8 ${
+                            className={`block truncate ml-8 ${props.small && 'text-sm'} ${
                                 selected ? 'font-medium' : 'font-normal'
                             }`}
                         >
@@ -171,7 +172,7 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
                         </span>
                                         {selected ? (
                                             <span
-                                                className={`absolute inset-y-0 left-0 flex items-center text-primary ml-2 ${
+                                                className={`absolute ${props.small && 'text-sm'} inset-y-0 left-0 flex items-center text-primary ml-2 ${
                                                     active ? 'text-primary' : 'text-grey-600'
                                                 }`}
                                             >

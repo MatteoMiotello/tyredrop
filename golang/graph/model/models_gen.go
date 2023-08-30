@@ -58,6 +58,18 @@ type Currency struct {
 	Name    string `json:"name"`
 }
 
+type InvoiceFilter struct {
+	UserBillingID *int64  `json:"userBillingId,omitempty"`
+	Number        *string `json:"number,omitempty"`
+	From          *string `json:"from,omitempty"`
+	To            *string `json:"to,omitempty"`
+}
+
+type InvoicePaginator struct {
+	Data       []*Invoice  `json:"data"`
+	Pagination *Pagination `json:"pagination"`
+}
+
 type LegalEntityType struct {
 	ID       int64  `json:"id"`
 	Name     string `json:"name"`

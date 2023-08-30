@@ -3,6 +3,7 @@ import {FetchUserQuery} from "../../../__generated__/graphql";
 import {USER} from "../../../common/backend/graph/query/users";
 import apolloClientContext from "../../../common/contexts/apollo-client-context";
 import UserAddressPage from "../UserAddressPage";
+import UserInvoicesPage from "../UserInvoicesPage";
 import UserPage from "../UserPage";
 import UserTemplatePage from "../UserTemplatePage";
 import UserOrdersPage from "../UserOrdersPage";
@@ -49,6 +50,14 @@ const userRoutes: RouteObject = {
             Component: UserOrdersPage,
             handle: {
                 crumb: () => <span> Ordini </span>
+            }
+        },
+        {
+            path: 'invoices',
+            loader: userLoader,
+            Component: UserInvoicesPage,
+            handle: {
+                crumb: () => <span> Fatture </span>
             }
         }
     ]

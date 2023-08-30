@@ -84,7 +84,7 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
             accessorKey: "supplier_quantity",
             header: "Stock",
             size: 200,
-            cell: (props: CellContext<ProductRowItemData, any>) => <AvailabilityBadge quantity={props.getValue()}/>
+            cell: (props: CellContext<ProductRowItemData, any>) => <div className="text-center"><AvailabilityBadge quantity={props.getValue()}/></div>
         },
         {
             accessorKey: "price",
@@ -104,8 +104,7 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
         },
         {
             accessorKey: "button",
-            header: "Quantita`",
-            size: 10,
+            header: () => <div className="mr-[5.5rem] text-center"> Quantita` </div>,
             cell: (props: CellContext<ProductRowItemData, any>) => <div className="flex justify-center items-center">
                 <AddItemToCartButton itemId={props.row.original.id} quantity={props.row.original.supplier_quantity}/>
                 <Link

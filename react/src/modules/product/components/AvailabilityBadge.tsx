@@ -28,7 +28,7 @@ const AvailabilityBadge: React.FC<AvailabilityBadgeProps> = ({quantity}) => {
         };
     }
 
-    return <span className={'text-sm font-medium inline-block ' } style={{color: config.textColor}}> <FontAwesomeIcon icon={faDotCircle}/> {config.message} <br/> {quantity > 20 ? '(+20)' : `(${quantity})`} </span>;
+    return <span className={'text-sm font-medium inline-block' } style={{color: config.textColor}}> <FontAwesomeIcon icon={faDotCircle}/> {config.message} <br/> {quantity > 20 ? '(+20)' : `(${quantity})`} </span>;
 };
 
 export default AvailabilityBadge;
