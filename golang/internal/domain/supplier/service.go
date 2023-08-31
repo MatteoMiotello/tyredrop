@@ -15,6 +15,8 @@ func GetFactory(supplier *models.Supplier) supplier_factory.Importer {
 		return &supplier_factory.Seng{S: supplier}
 	case TYRE_WORLD:
 		return &supplier_factory.TyreWorld{S: supplier}
+	case TYRE_24:
+		return &supplier_factory.Tyre24{S: supplier}
 	}
 	return nil
 }
