@@ -4,10 +4,13 @@ import (
 	"context"
 	"fmt"
 	"github.com/friendsofgo/errors"
+	"github.com/volatiletech/null/v8"
 	"pillowww/titw/graph/model"
 	"pillowww/titw/internal/currency"
 	"pillowww/titw/internal/domain/product"
 	"pillowww/titw/models"
+	"strconv"
+	"strings"
 )
 
 type service struct {
@@ -107,7 +110,7 @@ func (s *service) CreateNewOrder(ctx context.Context, userBilling *models.UserBi
 		PostalCode:    address.PostalCode,
 		Province:      address.Province,
 		Country:       address.Country,
-		Status:        model.OrderStatusNew.String(),
+		Status:        model.OrderStatusNotCompleted.String(),
 	}
 
 	err = s.orderDao.Insert(ctx, newOrder)
@@ -130,10 +133,11 @@ func (s *service) CreateNewOrder(ctx context.Context, userBilling *models.UserBi
 		priceWithAdditions = priceWithAdditions + (row.AdditionsAmount + row.Amount)
 	}
 
-	taxAmountFloat := (float64(defaultTax.MarkupPercentage) / 100) * float64(orderAmount)
+	taxAmountFloat := (float64(defaultTax.MarkupPercentage) / 100) * float64(priceWithAdditions)
 	newOrder.PriceAmount = priceWithAdditions
 	newOrder.TaxesAmount = int(taxAmountFloat)
 	newOrder.PriceAmountTotal = newOrder.PriceAmount + newOrder.TaxesAmount
+	newOrder.OrderNumber = null.StringFrom("TITW" + strings.ToUpper(strconv.FormatInt(newOrder.ID+120000, 16)))
 
 	err = s.orderDao.
 		Update(ctx, newOrder)
@@ -149,7 +153,19 @@ func (s *service) updateOrderPrice(ctx context.Context) {
 
 }
 
-func (s *service) updateOrderStatus(ctx context.Context, order *models.Order, newStatus model.OrderStatus) error {
+func (s *service) PayOrder(ctx context.Context, o *models.Order, p *models.Payment) error {
+	o.PaymentID = null.Int64From(p.ID)
+
+	err := s.orderDao.Save(ctx, o)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *service) UpdateOrderStatus(ctx context.Context, order *models.Order, newStatus model.OrderStatus) error {
 	if !newStatus.IsValid() {
 		return errors.New("Invalid status prompted")
 	}
@@ -164,7 +180,17 @@ func (s *service) updateOrderStatus(ctx context.Context, order *models.Order, ne
 
 	order.Status = newStatus.String()
 
-	err := s.orderDao.Insert(ctx, order)
+	err := s.orderDao.Save(ctx, order)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *service) ConfirmOrder(ctx context.Context, order *models.Order) error {
+	err := s.UpdateOrderStatus(ctx, order, model.OrderStatusNew)
 
 	if err != nil {
 		return err

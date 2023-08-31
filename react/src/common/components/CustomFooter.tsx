@@ -17,6 +17,26 @@ const CustomFooter: React.FC = () => {
                     Condizioni generali di vendita
                 </Link>
             </Footer.Element>
+            <Footer.Element>
+                <Link to="/about">
+                    A proposito di Tyres in The World
+                </Link>
+            </Footer.Element>
+            <Footer.Element>
+                <Link to="/privacy">
+                    Dichiarazione sulla privacy
+                </Link>
+            </Footer.Element>
+            <Footer.Element>
+                <Link to="/faq">
+                    Domande e risposte
+                </Link>
+            </Footer.Element>
+            <Footer.Element>
+                <Link to="/legal-mentions">
+                    Menzioni legali
+                </Link>
+            </Footer.Element>
         </Footer.Column>
         <Footer.Column>
         </Footer.Column>

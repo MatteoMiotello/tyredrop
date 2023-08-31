@@ -20,7 +20,7 @@ func NewCartService(dao *Dao, itemPriceDao *product.ItemPriceDao) *service {
 	}
 }
 
-func (s service) AddOrUpdateCart(ctx context.Context, user *models.User, productItemId int64, quantity *int) (*models.Cart, error) {
+func (s service) AddCart(ctx context.Context, user *models.User, productItemId int64, quantity *int) (*models.Cart, error) {
 	if quantity == nil {
 		q := 1
 		quantity = &q
@@ -58,4 +58,8 @@ func (s service) AddOrUpdateCart(ctx context.Context, user *models.User, product
 	}
 
 	return cart, nil
+}
+
+func (s service) UpdateCart() {
+
 }

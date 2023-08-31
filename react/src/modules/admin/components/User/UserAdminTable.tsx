@@ -13,7 +13,7 @@ type UserAdminTableProps = {
 const UserAdminTable: React.FC<UserAdminTableProps> = ({query}) => {
     const columns: ColumnDef<User>[] = [
         {
-            accessorKey: 'id',
+            accessorKey: 'userCode',
             header: "ID",
             size: 10
         },

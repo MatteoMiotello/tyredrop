@@ -43,8 +43,8 @@ func (d *SpecificationValueDao) FindByProductAndCode(ctx context.Context, produc
 		d.GetMods(
 			qm.LeftOuterJoin("product_product_specification_values on product_product_specification_values.product_specification_value_id = product_specification_values.id"),
 			qm.LeftOuterJoin("product_specifications on product_specifications.id = product_specification_values.product_specification_id"),
+			qm.Where("product_specifications.specification_code = ?", specificationCode),
 			models.ProductProductSpecificationValueWhere.ProductID.EQ(product.ID),
-			models.ProductSpecificationWhere.SpecificationCode.EQ(specificationCode),
 		)...,
 	).One(ctx, d.Db)
 }
@@ -80,14 +80,13 @@ func (d *SpecificationValueDao) SearchBySpecificationAndValue(ctx context.Contex
 	mods = append(mods, qm.LeftOuterJoin("product_specifications on product_specifications.id = product_specification_values.product_specification_id"))
 	mods = append(mods, qm.LeftOuterJoin("product_product_specification_values on product_specification_values.id = product_product_specification_values.product_specification_value_id"))
 	mods = append(mods, models.ProductSpecificationWhere.SpecificationCode.EQ(code))
-	mods = append(mods, qm.OrderBy(" count( product_product_specification_values.id ) DESC"))
 	mods = append(mods, qm.GroupBy("product_specification_values.specification_value, product_specification_values.id"))
 
 	if value != nil {
 		mods = append(mods, qm.Where(models.ProductSpecificationValueColumns.SpecificationValue+" ILIKE ?", `%`+*value+`%`))
 	}
 
-	if vehicleCode != nil || len(*vehicleCode) > 0 {
+	if vehicleCode != nil && len(*vehicleCode) > 0 {
 		mods = append(mods, qm.LeftOuterJoin("products on product_product_specification_values.product_id = products.id"))
 		mods = append(mods, qm.LeftOuterJoin("vehicle_types on products.vehicle_type_id = vehicle_types.id"))
 		mods = append(mods, models.VehicleTypeWhere.Code.EQ(*vehicleCode))
@@ -98,4 +97,12 @@ func (d *SpecificationValueDao) SearchBySpecificationAndValue(ctx context.Contex
 			mods...,
 		)...,
 	).All(ctx, d.Db)
+}
+
+func (d SpecificationValueDao) FindOneById(ctx context.Context, id int64) (*models.ProductSpecificationValue, error) {
+	return models.ProductSpecificationValues(
+		d.GetMods(
+			models.ProductSpecificationValueWhere.ID.EQ(id),
+		)...,
+	).One(ctx, d.Db)
 }

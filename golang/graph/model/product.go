@@ -17,11 +17,10 @@ type ProductCategory struct {
 }
 
 type ProductItem struct {
-	ID               int64   `json:"id"`
-	SupplierQuantity int     `json:"supplier_quantity"`
-	ProductID        int64   `json:"product_id"`
-	SupplierID       int64   `json:"supplier_id"`
-	SupplierPrice    float64 `json:"supplier_price"`
+	ID               int64 `json:"id"`
+	SupplierQuantity int   `json:"supplier_quantity"`
+	ProductID        int64 `json:"product_id"`
+	SupplierID       int64 `json:"supplier_id"`
 }
 
 type ProductSpecification struct {

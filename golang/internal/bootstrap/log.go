@@ -7,7 +7,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"io"
-	log2 "log"
 	"pillowww/titw/pkg/log"
 	"time"
 )
@@ -24,12 +23,9 @@ func InitLog(applicationName string) {
 		rotatelogs.WithRotationTime(time.Hour*24*time.Duration(viper.GetInt("log.rotation-time-in-days"))),
 	)
 
-	if viper.GetString("APPLICATION_ENV") == "test" {
-		writer = log2.Writer()
-	}
-
 	if err != nil {
 		panic(err.Error())
+		return
 	}
 
 	log.Log.SetOutput(writer)

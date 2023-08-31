@@ -1,6 +1,6 @@
 import React from "react";
 import {OrderStatus} from "../../../__generated__/graphql";
-import Badge from "../../../common/components-library/Badge";
+import {Badge} from "../../../common/components/shelly-ui";
 
 type OrderStatusBadgeProps = {
     status: OrderStatus
@@ -8,9 +8,13 @@ type OrderStatusBadgeProps = {
 }
 
 export const badgeConfig: { [key in OrderStatus]: { title: string, color: string } } = {
+    NOT_COMPLETED: {
+        title: "Da completare",
+        color: "#A0A0A0"
+    },
     CANCELED: {
         title: "Cancellato",
-        color: "#FF6666"
+        color: "#676767"
     },
     CONFIRMED: {
         title: "Confermato",
@@ -20,13 +24,17 @@ export const badgeConfig: { [key in OrderStatus]: { title: string, color: string
         title: "Spedito",
         color: "#6666FF"
     },
+    TO_PAY: {
+        title: "In attesa di pagamento",
+        color: "#f33939",
+    },
     NEW: {
         title: "Nuovo",
         color: "#FFC266"
     },
     REJECTED: {
         title: "Rifiutato",
-        color: "#A0A0A0"
+        color: "#cc0000"
     },
     RETURNED: {
         title: "Rimborsato",

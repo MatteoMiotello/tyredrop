@@ -9,7 +9,8 @@ import (
 const rootPath = "./assets"
 
 type fsHandler struct {
-	BasePath string
+	BasePath   string
+	PublicPath string
 }
 
 func clean(path string) string {
@@ -38,8 +39,24 @@ func (h fsHandler) ReadFile(fileName string) ([]byte, error) {
 	return os.ReadFile(h.GetFilePath(fileName))
 }
 
+func (h fsHandler) WriteFile(fileName string, buffer []byte) error {
+	err := os.Mkdir(h.GetBasePath(), os.ModePerm)
+	if err != nil {
+		if !strings.Contains(err.Error(), "file exists") {
+			return err
+		}
+	}
+
+	err = os.WriteFile(h.GetFilePath(fileName), buffer, os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (h fsHandler) GetPublicUrl(fileName string) string {
 	pubUrl := viper.GetString("APPLICATION_URL")
 
-	return concat(pubUrl, h.GetFilePath(fileName))
+	return concat(pubUrl, h.PublicPath, fileName)
 }

@@ -70,7 +70,7 @@ export const useMutation = <TData = any, TVariables = OperationVariables, TConte
                 options.onError(data, opt);
             }
 
-            let message = options?.successMessage;
+            let message = options?.errorMessage;
 
             if (!message) {
                 message = t('common.mutation_error_message') as string;

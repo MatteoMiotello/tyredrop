@@ -4,8 +4,7 @@ import {CellContext, ColumnDef} from "@tanstack/react-table";
 import React, {useEffect, useState} from "react";
 import {Img} from "react-image";
 import {Link} from "react-router-dom";
-import {SearchQuery} from "../../../__generated__/graphql";
-import tyrePlaceholder from "../../../assets/placeholder-tyre.jpg";
+import {Product, SearchQuery} from "../../../__generated__/graphql";
 import Table from "../../../common/components-library/Table";
 import {Currency} from "../../../common/utilities/currency";
 import {
@@ -19,6 +18,7 @@ import ProductSpecificationsGroup from "./ProductSpecificationsGroup";
 import ProductTitle from "./ProductTitle";
 import ProductQualityBadge from "./ProductQualityBadge";
 import AvailabilityBadge from "./AvailabilityBadge";
+import ProductImage from "./ProductImage";
 
 
 type ProductTableProps = {
@@ -39,6 +39,7 @@ export type ProductRowItemData = {
     code: string,
     price: string,
     specifications: (ProductSpecificationDefinition | null)[]
+    product: Product
 }
 
 const ProductTable: React.FC<ProductTableProps> = (props) => {
@@ -47,41 +48,32 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
     const colums: ColumnDef<ProductRowItemData>[] = [
         {
             accessorKey: "image",
+            header: "Brand",
             enableResizing: true,
             size: 15,
             cell: (props: CellContext<ProductRowItemData, any>) => {
                 return <div className="w-24">
-                    <Img src={[
-                        (new ProdapiService()).getProductImageUrl(props.row.original.code, ProductCategorySet.TYRE),
-                        tyrePlaceholder,
-                    ]}
-                         onErrorCapture={(e) => e.preventDefault()}
+                    <ProductImage product={props.row.original.product}/>
+                    <Img src={(new ProdapiService()).getBrandImageUrl(props.row.original.brand.code)}
                          loading="lazy"
-                         className="h-24 mx-auto"
-                         alt={props.row.original.name}/>
+                         className="my-auto"
+                         unloader={<span
+                             className="text-xl uppercase text-neutral font-semibold">{props.row.original.brand.name}</span>}
+                         onErrorCapture={(e) => e.preventDefault()}
+                    />
                 </div>;
             }
         },
         {
-            accessorKey: "brand",
-            size: 15,
-            cell: (props) => <div className="w-24">
-                <Img src={(new ProdapiService()).getBrandImageUrl(props.row.original.brand.code)}
-                     loading="lazy"
-                     className="my-auto"
-                     unloader={<span
-                         className="text-xl uppercase text-neutral font-semibold">{props.row.original.brand.name}</span>}
-                     onErrorCapture={(e) => e.preventDefault()}
-                /></div>
-        },
-        {
             accessorKey: "content",
-            size: 200,
+            header: "Misura",
+            size: 250,
             cell: (props: CellContext<ProductRowItemData, any>) => <ProductTitle showBrand={true}
                                                                                  data={props.row.original}/>
         },
         {
             accessorKey: "specifications",
+            header: "Qualita`",
             cell: (props: CellContext<ProductRowItemData, any>) => <div className="flex justify-center items-center">
                 <ProductQualityBadge quality={props.row.original.brand.quality}/>
                 <ProductSpecificationsGroup
@@ -90,10 +82,13 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
         },
         {
             accessorKey: "supplier_quantity",
-            cell: (props: CellContext<ProductRowItemData, any>) => <AvailabilityBadge quantity={props.getValue()}/>
+            header: "Stock",
+            size: 200,
+            cell: (props: CellContext<ProductRowItemData, any>) => <div className="text-center"><AvailabilityBadge quantity={props.getValue()}/></div>
         },
         {
             accessorKey: "price",
+            header: "Prezzo d'acquisto",
             size: 10,
             cell: (props) => {
                 return <div className="w-full flex flex-col justify-center items-center">
@@ -109,7 +104,7 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
         },
         {
             accessorKey: "button",
-            size: 10,
+            header: () => <div className="mr-[5.5rem] text-center"> Quantita` </div>,
             cell: (props: CellContext<ProductRowItemData, any>) => <div className="flex justify-center items-center">
                 <AddItemToCartButton itemId={props.row.original.id} quantity={props.row.original.supplier_quantity}/>
                 <Link
@@ -146,6 +141,7 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
                 supplier_quantity: product.supplierQuantity,
                 name: product.product.name as string,
                 code: product.product.code,
+                product: product.product as Product,
                 price: Currency.defaultFormat(product.price[0]?.value, product.price[0]?.currency.iso_code),
                 specifications: product.product.productSpecificationValues.map((value) => {
                     const icon = ProductSpecifications.getSpecificationIcon(ProductCategorySet.TYRE, value?.specification.code as string);
@@ -167,7 +163,6 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
     }, [props.products]);
 
     return <Table
-        hideHeader={true}
         data={data}
         columns={colums}
         pageCount={props.pageCount}

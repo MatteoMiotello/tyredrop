@@ -5,6 +5,7 @@ import {faArrowDown, faArrowUp} from "@fortawesome/free-solid-svg-icons";
 
 type BasicTableProps<T = any> = {
     table: Table<T>
+	zebra?: boolean
 }
 
 type SortingToggleProps = {
@@ -19,9 +20,9 @@ const SortingToggle = memo<SortingToggleProps>( ({order}: SortingToggleProps) =>
 
 SortingToggle.displayName = 'SortingToggle';
 
-const BasicTable: React.FC<BasicTableProps> = ( {table, ...props} ) => {
+const BasicTable: React.FC<BasicTableProps> = ( {table, zebra, ...props} ) => {
 	return <div className="overflow-x-auto">
-		<table className="table table-zebra">
+		<table className={`table ${ zebra === false ? '' : 'table-zebra'}`}>
 			<thead>
 				{table.getHeaderGroups().map(headerGroup => (
 					<tr key={headerGroup.id}>

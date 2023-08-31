@@ -6,7 +6,7 @@ import {useForm} from "../components/shelly-ui";
 const ContactsPage: React.FC = () => {
     const form = useForm();
 
-    return <main className="md:p-24 p-4 flex items-center">
+    return <main className="flex items-center">
         <Panel className="w-full">
             <Panel.Title>
                 Contatti

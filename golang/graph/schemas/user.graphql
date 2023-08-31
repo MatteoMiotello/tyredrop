@@ -54,6 +54,7 @@ type UserAddress {
 
 type User {
     id: ID!
+    userCode: String
     email: String!
     confirmed: Boolean!
     rejected: Boolean!
@@ -63,6 +64,8 @@ type User {
     userRoleId: ID!
     userRole: UserRole!
     userBilling: UserBilling
+    avatarUrl: String
+    avatarPath: String
 }
 
 input CreateUserBilling {

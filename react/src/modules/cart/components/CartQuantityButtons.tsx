@@ -12,6 +12,7 @@ import {useToast} from "../../../store/toast";
 
 type CartQuantityButtonsProps = {
     cartId: string
+    supplierQuantity: number
 }
 
 const CartQuantityButtons: React.FC<CartQuantityButtonsProps> = (props) => {
@@ -30,7 +31,7 @@ const CartQuantityButtons: React.FC<CartQuantityButtonsProps> = (props) => {
         dispatch(editCartItem({itemId: cart.id, quantity: quantity}))
             .unwrap()
             .catch(() => {
-                error(t("cart.item_quantity_edit_error"));
+                error( 'Quantità non disponibile');
             })
             .finally(() => setLoading(false));
     };

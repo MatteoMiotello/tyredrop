@@ -10,12 +10,14 @@ func UserToGraphQL(user *models.User) *model.User {
 	return &model.User{
 		ID:         user.ID,
 		Email:      user.Email,
+		UserCode:   user.UserCode.Ptr(),
 		Username:   &user.Username.String,
 		Confirmed:  user.Confirmed,
 		Rejected:   user.Rejected,
 		Name:       &user.Name,
 		Surname:    user.Surname.Ptr(),
 		UserRoleID: user.UserRoleID,
+		AvatarPath: user.AvatarPath.Ptr(),
 	}
 }
 

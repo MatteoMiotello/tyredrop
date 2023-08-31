@@ -144,7 +144,7 @@ const FormButtons: React.FC<FormButtonsProps> = ({children, align}) => {
 		'ml-auto',
 		'max-w-fit',
 		'grid grid-flow-col gap-2',
-		'mt-1',
+		'mt-2',
 		clsx(
 			align && swtc( align, {
 				left: 'text-left',

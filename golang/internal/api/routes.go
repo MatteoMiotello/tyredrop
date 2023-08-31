@@ -35,6 +35,10 @@ func registerRoutes(router *gin.Engine) {
 	router.GET("/playground", middlewares.TestEnv, graphController.Playground)
 
 	//assets
-	group := router.Group("/assets")
-	group.Static("/img", "./assets/images")
+	assets := router.Group("/assets")
+	assets.Static("/img", "./assets/images")
+
+	pAssets := router.Group("/private", middlewares.InjectAuth, middlewares.IsAuthenticated)
+	pAssets.Static("/invoices", "./assets/invoices")
+	pAssets.Static("/avatar", "./assets/avatar")
 }

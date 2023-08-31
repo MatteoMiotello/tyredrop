@@ -13,6 +13,7 @@ export const FETCH_ORDER = gql `
             priceAmount
             priceAmountTotal
             taxesAmount
+            orderNumber
             addressName
             addressLine1
             addressLine2
@@ -22,6 +23,19 @@ export const FETCH_ORDER = gql `
             postalCode
             status
             createdAt
+            payment {
+                id
+                amount
+                userPaymentMethod {
+                    id
+                    paymentMethod {
+                        name
+                        iban
+                        bank_name
+                        receiver
+                    }
+                }
+            }
             userBilling {
                 id
                 name
@@ -31,11 +45,17 @@ export const FETCH_ORDER = gql `
                 legalEntityType {
                     name
                 }
+                user {
+                    id
+                    email
+                }
             }
             orderRows {
                 id
                 amount
                 quantity
+                additionsAmount
+                trackingNumber
                 productItemPrice {
                     value
                     currency {
@@ -47,6 +67,11 @@ export const FETCH_ORDER = gql `
                         product {
                             id
                             name
+                            code
+                            brand {
+                                id
+                                name
+                            }
                         }
                     }
                 }
@@ -65,6 +90,7 @@ export const FETCH_USER_ORDERS = gql`
                     iso_code
                 }
                 status
+                orderNumber
                 addressName
                 addressLine1    
                 addressLine2
@@ -80,6 +106,13 @@ export const FETCH_USER_ORDERS = gql`
                     id
                     amount
                     quantity
+                    productItemPrice {
+                        productItem {
+                            product {
+                                code
+                            }
+                        }
+                    }
                 }
             }
             pagination {
@@ -98,6 +131,7 @@ export const FETCH_ALL_ORDERS = gql`
                 priceAmount
                 priceAmountTotal
                 taxesAmount
+                orderNumber
                 createdAt
                 status
                 currency {
@@ -119,6 +153,49 @@ export const FETCH_ALL_ORDERS = gql`
             pagination {
                 ...PaginationInfo
             }
+        }
+    }
+`;
+
+export const POSSIBLE_ORDER_STATUSES = gql`
+    query possibleOrderStatuses( $orderId: ID! ) {
+        possibleOrderStatuses(orderId: $orderId)
+    }
+`;
+
+export const ORDER_ROWS = gql`
+    query orderRows( $orderId: ID! ) {
+        orderRows( orderId: $orderId ) {
+            id
+            productItemPrice {
+                id
+                currency {
+                    iso_code
+                }
+                value
+                productItem {
+                    id
+                    product {
+                        id
+                        name
+                        code
+                        brand {
+                            id
+                            name
+                        }
+                    }
+                    supplier {
+                        id
+                        name
+                        code
+                    }
+                    supplierPrice
+                }
+            }
+            amount
+            additionsAmount
+            quantity
+            trackingNumber
         }
     }
 `;

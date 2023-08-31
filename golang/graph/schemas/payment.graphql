@@ -1,0 +1,26 @@
+type PaymentMethod {
+    id: ID!
+    code: String!
+    name: String!
+    receiver: String
+    bank_name: String
+    iban: String
+}
+
+type UserPaymentMethod {
+    id: ID!
+    paymentMethodId: ID!
+    paymentMethod: PaymentMethod!
+    name: String!
+    value: String
+    typePrimary: Boolean!
+}
+
+type Payment {
+    id: ID!
+    userPaymentMethodID: ID!
+    userPaymentMethod: UserPaymentMethod!
+    currencyID: ID!
+    currency: Currency
+    amount: Float!
+}
