@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"crypto/rand"
 	"github.com/gin-gonic/gin"
 	"github.com/volatiletech/null/v8"
 	"net/http"
@@ -8,9 +9,11 @@ import (
 	"pillowww/titw/internal/db"
 	"pillowww/titw/internal/domain/rt"
 	"pillowww/titw/internal/domain/user"
+	"pillowww/titw/internal/email/mailer"
 	"pillowww/titw/models"
 	"pillowww/titw/pkg/api/responses"
 	"pillowww/titw/pkg/jwt"
+	"pillowww/titw/pkg/log"
 	"pillowww/titw/pkg/security"
 	"pillowww/titw/pkg/utils"
 	"time"
@@ -50,6 +53,10 @@ type RefreshTokenPayload struct {
 type RefreshTokenResponse struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token,omitempty"`
+}
+
+type ResetPasswordPayload struct {
+	Email string `json:"email" binding:"required" validate:"email"`
 }
 
 func (a AuthController) createTokens(ctx *gin.Context, uModel *models.User) {
@@ -195,4 +202,54 @@ func (a AuthController) RefreshToken(ctx *gin.Context) {
 
 	cookie.StoreAccessToken(ctx, token)
 	ctx.JSON(http.StatusOK, response)
+}
+
+func (a AuthController) IssueResetPassword(ctx *gin.Context) {
+	var payload ResetPasswordPayload
+
+	uDao := user.NewDao(db.DB)
+	err := ctx.BindJSON(payload)
+
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusNotFound, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	u, err := uDao.FindOneByEmail(ctx, payload.Email)
+
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusNotFound, responses.ErrorResponse{Error: "user not found" + err.Error()})
+		return
+	}
+
+	key := make([]byte, 64)
+	_, err = rand.Read(key)
+	if err != nil {
+		log.Error("Error generating key for reset password: ", err)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	rp := &models.ResetPassword{
+		UserID:   u.ID,
+		Token:    string(key),
+		IssuedAt: time.Now(),
+		ExpiryAt: time.Now().Add(time.Minute * 5),
+	}
+
+	err = uDao.Save(ctx, rp)
+	if err != nil {
+		log.Error("Error saving reset password", err)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	m := mailer.NewResetPasswordMailer(rp)
+	err = m.SendResetEmail(u)
+
+	if err != nil {
+		log.Error("Error sending reset password email", err)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
 }

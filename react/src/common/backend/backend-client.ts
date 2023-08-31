@@ -40,4 +40,8 @@ class Backend implements BackendClient {
     refreshToken(refreshToken: string): Promise<AxiosResponse<RefreshTokenResponse>> {
         return this.makePostRequest<RefreshTokenResponse>( '/refresh_token', {refresh_token: refreshToken} );
     }
+
+    resetPassword( email: string ): Promise<AxiosResponse> {
+        return this.makePostRequest( '/reset_password', {email: email} );
+    }
 }

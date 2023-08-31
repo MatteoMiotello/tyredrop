@@ -18,7 +18,7 @@ const LoginPage: React.FC = () => {
 
     return <>
             <div className="flex flex-col justify-center items-center my-auto">
-                <h1 className="my-10">{t('login.page_title')}</h1>
+                <h1 className="my-10 text-2xl font-semibold">{t('login.page_title')}</h1>
                 <LoginForm login={login}/>
                 <a className="link link-neutral link-hover text-secondary font-bold mt-5" href={"/auth/register"}> {t('login.register_label')} </a>
             </div>

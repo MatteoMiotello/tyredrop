@@ -27,6 +27,7 @@ func registerRoutes(router *gin.Engine) {
 	router.POST("/login", authController.Login)
 	router.POST("/register", authController.SignUp)
 	router.POST("/refresh_token", authController.RefreshToken)
+	router.POST("/reset_password", authController.IssueResetPassword)
 
 	//graphql
 	graphController := new(controllers.GraphqlController)
