@@ -1,4 +1,5 @@
 import React, {ChangeEventHandler, InputHTMLAttributes, PropsWithChildren, useRef, useState} from "react";
+import {twMerge} from "tailwind-merge";
 import {PropsWithValidators, ValidationHandler} from "../validation/validators";
 
 interface FormControlProps extends PropsWithChildren {
@@ -119,11 +120,18 @@ const Input: React.FC<InputProps> = (props) => {
     </>;
 };
 
-type LabelProps = PropsWithChildren
+type LabelProps = {
+    className?: string
+} & PropsWithChildren
 
-const Label: React.FC<LabelProps> = ({children}) => {
+const Label: React.FC<LabelProps> = ({children, className}) => {
+    const classNames = twMerge(
+        'label-text',
+        className
+    );
+
     return <label className="label">
-        <div className="label-text">
+        <div className={classNames}>
             {children}
         </div>
     </label>;

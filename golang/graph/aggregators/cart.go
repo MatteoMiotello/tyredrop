@@ -26,6 +26,7 @@ func GetAllCartsByUserId(ctx context.Context, cartDao *cart.Dao, userId int64) (
 				models.CartRels.ProductItemPrice,
 			),
 			models.ProductItemPriceWhere.CurrencyID.EQ(defaultCur.ID),
+			models.ProductItemPriceWhere.DeletedAt.IsNull(),
 		).
 		FindAllByUserId(ctx, userId)
 
@@ -81,8 +82,6 @@ func GetAllCartsByUserId(ctx context.Context, cartDao *cart.Dao, userId int64) (
 		return nil, err
 	}
 
-	taxValue := float64(tax.MarkupPercentage) / 100 * (*amountTotal)
-
 	var additionValues []*model.AdditionValue
 	var totalAdditions float64
 
@@ -99,6 +98,8 @@ func GetAllCartsByUserId(ctx context.Context, cartDao *cart.Dao, userId int64) (
 			Value:        floatVal,
 		})
 	}
+
+	taxValue := float64(tax.MarkupPercentage) / 100 * (*amountTotal + totalAdditions)
 
 	return &model.CartResponse{
 		Items: graphModels,

@@ -51,11 +51,32 @@ func (p orderPolicy) CanPay(ctx context.Context) bool {
 	}
 
 	billing, err := p.orderDao.GetUserBilling(ctx, p.model)
+
 	if err != nil {
 		return false
 	}
 
 	if !p.model.PaymentID.IsZero() {
+		return false
+	}
+
+	return billing.UserID == user.ID
+}
+
+func (p orderPolicy) CanConfirm(ctx context.Context) bool {
+	user, err := auth2.CurrentUser(ctx)
+
+	if err != nil {
+		return false
+	}
+
+	if user.R.UserRole.Admin {
+		return true
+	}
+
+	billing, err := p.orderDao.GetUserBilling(ctx, p.model)
+
+	if err != nil {
 		return false
 	}
 

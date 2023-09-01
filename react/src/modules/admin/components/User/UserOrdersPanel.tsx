@@ -29,7 +29,7 @@ const UserOrdersPanel: React.FC<UserOrdersPanelProps> = ({user}) => {
         <Panel.Title>
             Ordini
         </Panel.Title>
-        {orderQuery.data?.userOrders && <OrderTable query={orderQuery}/>}
+        {orderQuery.data?.userOrders && <OrderTable admin query={orderQuery}/>}
     </Panel>;
 };
 

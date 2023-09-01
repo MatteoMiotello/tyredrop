@@ -1,0 +1,26 @@
+{{- /*gotype: pillowww/titw/internal/controllers.SupportEmailPayload*/ -}}
+{{define "content"}}
+    <h1>Richiesta di Assistenza da un Cliente</h1>
+    <p>Una nuova richiesta di assistenza è stata inviata da un cliente:</p>
+
+    <h2>Dettagli del Cliente:</h2>
+    <table border="1" cellpadding="5">
+        <tr>
+            <th>Nome</th>
+            <td>{{.Name}}</td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td>{{.Email}}</td>
+        </tr>
+        <tr>
+            <th>Telefono</th>
+            <td>{{.Phone}}</td>
+        </tr>
+    </table>
+
+    <h2>Messaggio del Cliente:</h2>
+    <p>{{.Message}}</p>
+
+    <p>Grazie!</p>
+{{end}}

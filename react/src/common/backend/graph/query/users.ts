@@ -56,6 +56,7 @@ export const USER = gql`
             email
             confirmed
             rejected
+            avatarUrl
             userRole {
                 isAdmin
                 name
@@ -93,6 +94,8 @@ export const ALL_USERS = gql`
                 email
                 confirmed
                 rejected
+                userCode
+                createdAt
                 userRole {
                     id
                     roleCode
@@ -105,3 +108,15 @@ export const ALL_USERS = gql`
         }
     } 
 `;
+
+export const USER_BILLINGS = gql(/*GraphQL*/`
+    query userBillings( $name: String ) {
+        userBillings(name: $name) {
+            id
+            name
+            surname
+            vatNumber
+            fiscalCode
+        }
+    } 
+`);

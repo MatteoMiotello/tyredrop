@@ -23,7 +23,7 @@ const UserPage: React.FC = () => {
         </main>;
     }
 
-    return <main className="flex flex-wrap gap-4 w-full">
+    return <main className="flex flex-wrap gap-2 w-full">
         <Panel className="flex-auto w-1/2">
             <Panel.Title>
                 Dati dell'utente

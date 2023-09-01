@@ -6,6 +6,8 @@ import (
 	"pillowww/titw/internal/domain/language"
 	"pillowww/titw/models"
 	"pillowww/titw/pkg/security"
+	"strconv"
+	"strings"
 )
 
 type CreateUserPayload struct {
@@ -58,6 +60,13 @@ func (s Service) CreateUserFromPayload(ctx context.Context, payload CreateUserPa
 	}
 
 	err = s.UDao.Insert(ctx, &newUser)
+	if err != nil {
+		return nil, err
+	}
+
+	newUser.UserCode = null.StringFrom("USR" + strings.ToUpper(strconv.FormatInt(newUser.ID+120000, 16)))
+
+	err = s.UDao.Save(ctx, &newUser)
 	if err != nil {
 		return nil, err
 	}

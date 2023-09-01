@@ -37,6 +37,8 @@ type User struct {
 	CreatedAt         time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 	Confirmed         bool        `boil:"confirmed" json:"confirmed" toml:"confirmed" yaml:"confirmed"`
 	Rejected          bool        `boil:"rejected" json:"rejected" toml:"rejected" yaml:"rejected"`
+	AvatarPath        null.String `boil:"avatar_path" json:"avatar_path,omitempty" toml:"avatar_path" yaml:"avatar_path,omitempty"`
+	UserCode          null.String `boil:"user_code" json:"user_code,omitempty" toml:"user_code" yaml:"user_code,omitempty"`
 
 	R *userR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L userL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -56,6 +58,8 @@ var UserColumns = struct {
 	CreatedAt         string
 	Confirmed         string
 	Rejected          string
+	AvatarPath        string
+	UserCode          string
 }{
 	ID:                "id",
 	UserRoleID:        "user_role_id",
@@ -70,6 +74,8 @@ var UserColumns = struct {
 	CreatedAt:         "created_at",
 	Confirmed:         "confirmed",
 	Rejected:          "rejected",
+	AvatarPath:        "avatar_path",
+	UserCode:          "user_code",
 }
 
 var UserTableColumns = struct {
@@ -86,6 +92,8 @@ var UserTableColumns = struct {
 	CreatedAt         string
 	Confirmed         string
 	Rejected          string
+	AvatarPath        string
+	UserCode          string
 }{
 	ID:                "users.id",
 	UserRoleID:        "users.user_role_id",
@@ -100,6 +108,8 @@ var UserTableColumns = struct {
 	CreatedAt:         "users.created_at",
 	Confirmed:         "users.confirmed",
 	Rejected:          "users.rejected",
+	AvatarPath:        "users.avatar_path",
+	UserCode:          "users.user_code",
 }
 
 // Generated where
@@ -118,6 +128,8 @@ var UserWhere = struct {
 	CreatedAt         whereHelpertime_Time
 	Confirmed         whereHelperbool
 	Rejected          whereHelperbool
+	AvatarPath        whereHelpernull_String
+	UserCode          whereHelpernull_String
 }{
 	ID:                whereHelperint64{field: "\"users\".\"id\""},
 	UserRoleID:        whereHelperint64{field: "\"users\".\"user_role_id\""},
@@ -132,6 +144,8 @@ var UserWhere = struct {
 	CreatedAt:         whereHelpertime_Time{field: "\"users\".\"created_at\""},
 	Confirmed:         whereHelperbool{field: "\"users\".\"confirmed\""},
 	Rejected:          whereHelperbool{field: "\"users\".\"rejected\""},
+	AvatarPath:        whereHelpernull_String{field: "\"users\".\"avatar_path\""},
+	UserCode:          whereHelpernull_String{field: "\"users\".\"user_code\""},
 }
 
 // UserRels is where relationship names are stored.
@@ -140,6 +154,7 @@ var UserRels = struct {
 	UserRole           string
 	Carts              string
 	RefreshTokens      string
+	ResetPasswords     string
 	UserAddresses      string
 	UserBillings       string
 	UserPaymentMethods string
@@ -148,6 +163,7 @@ var UserRels = struct {
 	UserRole:           "UserRole",
 	Carts:              "Carts",
 	RefreshTokens:      "RefreshTokens",
+	ResetPasswords:     "ResetPasswords",
 	UserAddresses:      "UserAddresses",
 	UserBillings:       "UserBillings",
 	UserPaymentMethods: "UserPaymentMethods",
@@ -159,6 +175,7 @@ type userR struct {
 	UserRole           *UserRole              `boil:"UserRole" json:"UserRole" toml:"UserRole" yaml:"UserRole"`
 	Carts              CartSlice              `boil:"Carts" json:"Carts" toml:"Carts" yaml:"Carts"`
 	RefreshTokens      RefreshTokenSlice      `boil:"RefreshTokens" json:"RefreshTokens" toml:"RefreshTokens" yaml:"RefreshTokens"`
+	ResetPasswords     ResetPasswordSlice     `boil:"ResetPasswords" json:"ResetPasswords" toml:"ResetPasswords" yaml:"ResetPasswords"`
 	UserAddresses      UserAddressSlice       `boil:"UserAddresses" json:"UserAddresses" toml:"UserAddresses" yaml:"UserAddresses"`
 	UserBillings       UserBillingSlice       `boil:"UserBillings" json:"UserBillings" toml:"UserBillings" yaml:"UserBillings"`
 	UserPaymentMethods UserPaymentMethodSlice `boil:"UserPaymentMethods" json:"UserPaymentMethods" toml:"UserPaymentMethods" yaml:"UserPaymentMethods"`
@@ -197,6 +214,13 @@ func (r *userR) GetRefreshTokens() RefreshTokenSlice {
 	return r.RefreshTokens
 }
 
+func (r *userR) GetResetPasswords() ResetPasswordSlice {
+	if r == nil {
+		return nil
+	}
+	return r.ResetPasswords
+}
+
 func (r *userR) GetUserAddresses() UserAddressSlice {
 	if r == nil {
 		return nil
@@ -222,9 +246,9 @@ func (r *userR) GetUserPaymentMethods() UserPaymentMethodSlice {
 type userL struct{}
 
 var (
-	userAllColumns            = []string{"id", "user_role_id", "default_language_id", "email", "username", "password", "name", "surname", "deleted_at", "updated_at", "created_at", "confirmed", "rejected"}
+	userAllColumns            = []string{"id", "user_role_id", "default_language_id", "email", "username", "password", "name", "surname", "deleted_at", "updated_at", "created_at", "confirmed", "rejected", "avatar_path", "user_code"}
 	userColumnsWithoutDefault = []string{"user_role_id", "default_language_id", "email", "password", "name"}
-	userColumnsWithDefault    = []string{"id", "username", "surname", "deleted_at", "updated_at", "created_at", "confirmed", "rejected"}
+	userColumnsWithDefault    = []string{"id", "username", "surname", "deleted_at", "updated_at", "created_at", "confirmed", "rejected", "avatar_path", "user_code"}
 	userPrimaryKeyColumns     = []string{"id"}
 	userGeneratedColumns      = []string{}
 )
@@ -555,6 +579,20 @@ func (o *User) RefreshTokens(mods ...qm.QueryMod) refreshTokenQuery {
 	)
 
 	return RefreshTokens(queryMods...)
+}
+
+// ResetPasswords retrieves all the reset_password's ResetPasswords with an executor.
+func (o *User) ResetPasswords(mods ...qm.QueryMod) resetPasswordQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("\"reset_passwords\".\"user_id\"=?", o.ID),
+	)
+
+	return ResetPasswords(queryMods...)
 }
 
 // UserAddresses retrieves all the user_address's UserAddresses with an executor.
@@ -1059,6 +1097,121 @@ func (userL) LoadRefreshTokens(ctx context.Context, e boil.ContextExecutor, sing
 				local.R.RefreshTokens = append(local.R.RefreshTokens, foreign)
 				if foreign.R == nil {
 					foreign.R = &refreshTokenR{}
+				}
+				foreign.R.User = local
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
+// LoadResetPasswords allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (userL) LoadResetPasswords(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
+	var slice []*User
+	var object *User
+
+	if singular {
+		var ok bool
+		object, ok = maybeUser.(*User)
+		if !ok {
+			object = new(User)
+			ok = queries.SetFromEmbeddedStruct(&object, &maybeUser)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", object, maybeUser))
+			}
+		}
+	} else {
+		s, ok := maybeUser.(*[]*User)
+		if ok {
+			slice = *s
+		} else {
+			ok = queries.SetFromEmbeddedStruct(&slice, maybeUser)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", slice, maybeUser))
+			}
+		}
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &userR{}
+		}
+		args = append(args, object.ID)
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &userR{}
+			}
+
+			for _, a := range args {
+				if a == obj.ID {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.ID)
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`reset_passwords`),
+		qm.WhereIn(`reset_passwords.user_id in ?`, args...),
+		qmhelper.WhereIsNull(`reset_passwords.deleted_at`),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load reset_passwords")
+	}
+
+	var resultSlice []*ResetPassword
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice reset_passwords")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on reset_passwords")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for reset_passwords")
+	}
+
+	if len(resetPasswordAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
+				return err
+			}
+		}
+	}
+	if singular {
+		object.R.ResetPasswords = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &resetPasswordR{}
+			}
+			foreign.R.User = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if local.ID == foreign.UserID {
+				local.R.ResetPasswords = append(local.R.ResetPasswords, foreign)
+				if foreign.R == nil {
+					foreign.R = &resetPasswordR{}
 				}
 				foreign.R.User = local
 				break
@@ -1605,6 +1758,59 @@ func (o *User) AddRefreshTokens(ctx context.Context, exec boil.ContextExecutor, 
 	for _, rel := range related {
 		if rel.R == nil {
 			rel.R = &refreshTokenR{
+				User: o,
+			}
+		} else {
+			rel.R.User = o
+		}
+	}
+	return nil
+}
+
+// AddResetPasswords adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.ResetPasswords.
+// Sets related.R.User appropriately.
+func (o *User) AddResetPasswords(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*ResetPassword) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			rel.UserID = o.ID
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE \"reset_passwords\" SET %s WHERE %s",
+				strmangle.SetParamNames("\"", "\"", 1, []string{"user_id"}),
+				strmangle.WhereClause("\"", "\"", 2, resetPasswordPrimaryKeyColumns),
+			)
+			values := []interface{}{o.ID, rel.ID}
+
+			if boil.IsDebug(ctx) {
+				writer := boil.DebugWriterFrom(ctx)
+				fmt.Fprintln(writer, updateQuery)
+				fmt.Fprintln(writer, values)
+			}
+			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			rel.UserID = o.ID
+		}
+	}
+
+	if o.R == nil {
+		o.R = &userR{
+			ResetPasswords: related,
+		}
+	} else {
+		o.R.ResetPasswords = append(o.R.ResetPasswords, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &resetPasswordR{
 				User: o,
 			}
 		} else {

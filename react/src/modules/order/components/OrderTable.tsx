@@ -4,6 +4,7 @@ import {CellContext, ColumnDef} from "@tanstack/react-table";
 import {Link} from "react-router-dom";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faHeadset, faMagnifyingGlass} from "@fortawesome/free-solid-svg-icons";
+import admin from "../../../Admin";
 import OrderStatusBadge from "./OrderStatusBadge";
 import Moment from "react-moment";
 import {Button, FilteredTable, Input, TableButtons, useForm, useModal} from "../../../common/components/shelly-ui";
@@ -14,13 +15,14 @@ import OrderSupportModal from "./OrderSupportModal";
 
 type OrderTableProps = {
     query: QueryResult<FetchOrdersQuery>
+    admin?: boolean
 }
 
 const OrderTable: React.FC<OrderTableProps> = (props) => {
     const [selectedOrder, setSelectedOrder] = useState<Order | undefined>();
     const columns: ColumnDef<Order>[] = [
         {
-            accessorKey: "id",
+            accessorKey: "orderNumber",
             size: 10,
             header: "ID",
             cell: (props: CellContext<Order, any>) => <span>#{props.getValue()}</span>
@@ -74,8 +76,10 @@ const OrderTable: React.FC<OrderTableProps> = (props) => {
             header: "Pezzi",
             cell: props => <ul className="list-disc text-sm">
                 {
-                    props.row.original.orderRows.map((row, key) => <li key={key} className="text-xs">
-                        #{String(row?.id).padStart(6, '0')} {row && Currency.defaultFormat(row.amount, props.row.original.currency.iso_code)}
+                    props.row.original.orderRows.map((row, key) => <li key={key}
+                                                                       className="text-xs flex justify-between">
+                        <span
+                            className="text-neutral-500">{`${ row && row.productItemPrice.productItem.product.code}`}</span> {row && row.quantity}
                     </li>)
                 }
             </ul>
@@ -85,13 +89,17 @@ const OrderTable: React.FC<OrderTableProps> = (props) => {
             id: "btn",
             header: "",
             size: 5,
-            cell: (props: CellContext<Order, any>) => <TableButtons>
-                <Link to={'/order/details/' + props.getValue()} className="btn btn-secondary"> <FontAwesomeIcon
+            cell: (p: CellContext<Order, any>) => <TableButtons>
+                <Link to={props.admin ? `/admin/order/${p.getValue()}` : `/order/details/${p.getValue()}`}
+                      className="btn btn-secondary"> <FontAwesomeIcon
                     icon={faMagnifyingGlass}/> </Link>
-                <Button buttonType="warning" onClick={() => {
-                    setSelectedOrder( props.row.original );
-                    modal.open();
-                }}> <FontAwesomeIcon icon={faHeadset}/> </Button>
+                {
+                    !admin &&
+                    <Button buttonType="warning" onClick={() => {
+                        setSelectedOrder(p.row.original);
+                        modal.open();
+                    }}> <FontAwesomeIcon icon={faHeadset}/> </Button>
+                }
             </TableButtons>
         }
     ];

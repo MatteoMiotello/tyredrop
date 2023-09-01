@@ -1,0 +1,4 @@
+extend type Mutation {
+    createInvoice( userBillingId: ID!, number: String, file: Upload! ): Invoice! @isAdmin
+    deleteInvoice( id: ID! ): Invoice! @isAdmin
+}

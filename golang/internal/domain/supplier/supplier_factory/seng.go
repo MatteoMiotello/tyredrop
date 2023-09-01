@@ -115,6 +115,12 @@ func (s Seng) matchRecords(pRecord *pdtos.Tyre, i int, slice string) error {
 	case 16:
 		pRecord.Price = slice
 		break
+	case 29:
+		if slice == "1" {
+			pRecord.RunFlat = true
+		} else {
+			pRecord.RunFlat = false
+		}
 	case 32:
 		pRecord.EprelID = extractEprelIDFromLink(slice)
 		break

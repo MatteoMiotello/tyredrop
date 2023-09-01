@@ -39,7 +39,7 @@ const Admin: React.FC = () => {
         }
     }, [auth] );
 
-    return <>
+    return <div className="xl:px-56">
         <div className="m-1">
             <AdminNavbar/>
         </div>
@@ -50,7 +50,7 @@ const Admin: React.FC = () => {
                 <Outlet/>
             </div>
         </div>
-    </>;
+    </div>;
 };
 
 export default Admin;

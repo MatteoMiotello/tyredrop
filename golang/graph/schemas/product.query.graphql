@@ -1,0 +1,30 @@
+input ProductSearchInput {
+    brand: String
+    name: String
+    code: String
+    vehicleCode: String
+    specifications: [ProductSpecificationInput]
+}
+
+type ProductItemPaginate {
+    pagination: Pagination
+    productItems: [ProductItem]
+}
+
+
+type ProductPaginate {
+    pagination: Pagination
+    products: [Product]
+}
+
+
+extend type Query {
+    productCategories: [ProductCategory]
+    productsItemsByCode( code: String! ): ProductItem
+    productItems( pagination: PaginationInput, productSearchInput: ProductSearchInput ): ProductItemPaginate
+    productItem( id: ID! ): ProductItem
+    products( pagination: PaginationInput, productSearchInput: ProductSearchInput ): ProductPaginate
+
+    specifications: [ProductSpecification]
+    searchSpecificationValue( code: String!, value: String, vehicleCode: String, ): [ProductSpecificationValue]
+}

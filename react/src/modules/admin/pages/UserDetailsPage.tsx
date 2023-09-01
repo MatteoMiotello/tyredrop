@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {useLoaderData, useNavigate} from "react-router-dom";
 import Panel from "../../../common/components-library/Panel";
 import {
@@ -6,21 +6,55 @@ import {
     ChangeUserStatusMutationVariables,
     FetchUserQuery, User
 } from "../../../__generated__/graphql";
-import {Alert, Button} from "../../../common/components/shelly-ui";
+import {Alert, Button, useModal} from "../../../common/components/shelly-ui";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCheck, faTimes} from "@fortawesome/free-solid-svg-icons";
 import {useMutation} from "../../../common/backend/graph/hooks";
 import {UPDATE_USER_STATUS} from "../../../common/backend/graph/mutation/users";
+import ConfirmModal from "../../user/components/ConfirmModal";
 import UserOrdersPanel from "../components/User/UserOrdersPanel";
 
 const UserDetailsPage: React.FC = () => {
     const data = useLoaderData() as { data: FetchUserQuery };
-    const [mutate] = useMutation<ChangeUserStatusMutation, ChangeUserStatusMutationVariables>(UPDATE_USER_STATUS);
+    const [mutate, mutationQuery] = useMutation<ChangeUserStatusMutation, ChangeUserStatusMutationVariables>(UPDATE_USER_STATUS);
+    const [action, setAction] = useState<'reject' | 'confirm' | undefined>(undefined);
     const navigate = useNavigate();
+    const confirmModal = useModal({
+        onClose: () => setAction(undefined)
+    });
+
+    useEffect(() => {
+        if (action === undefined) {
+            return;
+        }
+
+        confirmModal.open();
+    }, [action]);
 
     return <main className="flex flex-wrap gap-2 w-full p-1">
+        <ConfirmModal modal={confirmModal} onConfirm={() => {
+            if (action === undefined) {
+                return false;
+            }
+
+            const variables: ChangeUserStatusMutationVariables = {
+                userID: data.data.user?.id as string,
+                confirmed: null,
+                rejected: null
+            };
+
+            if (action === 'confirm') {
+                variables.confirmed = true;
+            } else {
+                variables.rejected = true;
+            }
+
+            mutate({
+                variables: variables
+            }).then(() => navigate('.', {replace: true}));
+        }} modalTitle={  `Confermi di voler ${ action == 'confirm' ? 'approvare' : 'rifiutare' } l'utente ${data.data.user?.email} ?`}/>
         {
-            data.data.user?.rejected &&
+            data.data?.user?.rejected &&
             <Alert type="error">
                 Questo utente è stato disabilitato
             </Alert>
@@ -28,29 +62,25 @@ const UserDetailsPage: React.FC = () => {
         <Panel className="flex-auto w-1/2">
             <Panel.Title>
                 <span className="w-full"> Dati dell'utente </span>
-                {
-                    (!data.data.user?.rejected && !data.data.user?.confirmed) &&
-                    <div className="w-full flex justify-end gap-2">
-                        <Button size="sm" buttonType="error" onClick={() => mutate({
-                            variables: {
-                                userID: data.data.user?.id as string,
-                                rejected: true
-                            }
-                        }).then(() => navigate(0))}>
+                <div className="w-full flex justify-end gap-2">
+                    {
+                        (!data.data.user?.rejected && !data.data.user?.confirmed) &&
+                        <Button size="sm" buttonType="error" onClick={() => setAction('reject')}
+                                loading={(action === 'reject' && mutationQuery.loading)}>
                             <FontAwesomeIcon icon={faTimes}/>
                             Rifiuta
                         </Button>
-                        <Button size="sm" buttonType="success" onClick={() => mutate({
-                            variables: {
-                                userID: data.data.user?.id as string,
-                                confirmed: true,
-                            }
-                        }).then(() => navigate(0))}>
+
+                    }
+                    {
+                        !data.data.user?.confirmed &&
+                        <Button size="sm" buttonType="success" onClick={() => setAction('confirm')}
+                                loading={(action === 'confirm' && mutationQuery.loading)}>
                             <FontAwesomeIcon icon={faCheck}/>
                             Conferma
                         </Button>
-                    </div>
-                }
+                    }
+                </div>
 
             </Panel.Title>
             <ul>
@@ -93,7 +123,7 @@ const UserDetailsPage: React.FC = () => {
             </>
         }
         {
-            (data.data.user?.userBilling && !data.data.user.userRole.isAdmin ) &&
+            (data.data.user?.userBilling && !data.data.user.userRole.isAdmin) &&
             <UserOrdersPanel user={data.data.user as User}/>
         }
     </main>;

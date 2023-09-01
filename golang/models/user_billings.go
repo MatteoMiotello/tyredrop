@@ -173,10 +173,12 @@ var UserBillingWhere = struct {
 var UserBillingRels = struct {
 	LegalEntityType string
 	User            string
+	Invoices        string
 	Orders          string
 }{
 	LegalEntityType: "LegalEntityType",
 	User:            "User",
+	Invoices:        "Invoices",
 	Orders:          "Orders",
 }
 
@@ -184,6 +186,7 @@ var UserBillingRels = struct {
 type userBillingR struct {
 	LegalEntityType *LegalEntityType `boil:"LegalEntityType" json:"LegalEntityType" toml:"LegalEntityType" yaml:"LegalEntityType"`
 	User            *User            `boil:"User" json:"User" toml:"User" yaml:"User"`
+	Invoices        InvoiceSlice     `boil:"Invoices" json:"Invoices" toml:"Invoices" yaml:"Invoices"`
 	Orders          OrderSlice       `boil:"Orders" json:"Orders" toml:"Orders" yaml:"Orders"`
 }
 
@@ -204,6 +207,13 @@ func (r *userBillingR) GetUser() *User {
 		return nil
 	}
 	return r.User
+}
+
+func (r *userBillingR) GetInvoices() InvoiceSlice {
+	if r == nil {
+		return nil
+	}
+	return r.Invoices
 }
 
 func (r *userBillingR) GetOrders() OrderSlice {
@@ -524,6 +534,20 @@ func (o *UserBilling) User(mods ...qm.QueryMod) userQuery {
 	return Users(queryMods...)
 }
 
+// Invoices retrieves all the invoice's Invoices with an executor.
+func (o *UserBilling) Invoices(mods ...qm.QueryMod) invoiceQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("\"invoices\".\"user_billing_id\"=?", o.ID),
+	)
+
+	return Invoices(queryMods...)
+}
+
 // Orders retrieves all the order's Orders with an executor.
 func (o *UserBilling) Orders(mods ...qm.QueryMod) orderQuery {
 	var queryMods []qm.QueryMod
@@ -779,6 +803,121 @@ func (userBillingL) LoadUser(ctx context.Context, e boil.ContextExecutor, singul
 	return nil
 }
 
+// LoadInvoices allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (userBillingL) LoadInvoices(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUserBilling interface{}, mods queries.Applicator) error {
+	var slice []*UserBilling
+	var object *UserBilling
+
+	if singular {
+		var ok bool
+		object, ok = maybeUserBilling.(*UserBilling)
+		if !ok {
+			object = new(UserBilling)
+			ok = queries.SetFromEmbeddedStruct(&object, &maybeUserBilling)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", object, maybeUserBilling))
+			}
+		}
+	} else {
+		s, ok := maybeUserBilling.(*[]*UserBilling)
+		if ok {
+			slice = *s
+		} else {
+			ok = queries.SetFromEmbeddedStruct(&slice, maybeUserBilling)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", slice, maybeUserBilling))
+			}
+		}
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &userBillingR{}
+		}
+		args = append(args, object.ID)
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &userBillingR{}
+			}
+
+			for _, a := range args {
+				if a == obj.ID {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.ID)
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`invoices`),
+		qm.WhereIn(`invoices.user_billing_id in ?`, args...),
+		qmhelper.WhereIsNull(`invoices.deleted_at`),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load invoices")
+	}
+
+	var resultSlice []*Invoice
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice invoices")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on invoices")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for invoices")
+	}
+
+	if len(invoiceAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
+				return err
+			}
+		}
+	}
+	if singular {
+		object.R.Invoices = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &invoiceR{}
+			}
+			foreign.R.UserBilling = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if local.ID == foreign.UserBillingID {
+				local.R.Invoices = append(local.R.Invoices, foreign)
+				if foreign.R == nil {
+					foreign.R = &invoiceR{}
+				}
+				foreign.R.UserBilling = local
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
 // LoadOrders allows an eager lookup of values, cached into the
 // loaded structs of the objects. This is for a 1-M or N-M relationship.
 func (userBillingL) LoadOrders(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUserBilling interface{}, mods queries.Applicator) error {
@@ -984,6 +1123,59 @@ func (o *UserBilling) SetUser(ctx context.Context, exec boil.ContextExecutor, in
 		related.R.UserBillings = append(related.R.UserBillings, o)
 	}
 
+	return nil
+}
+
+// AddInvoices adds the given related objects to the existing relationships
+// of the user_billing, optionally inserting them as new records.
+// Appends related to o.R.Invoices.
+// Sets related.R.UserBilling appropriately.
+func (o *UserBilling) AddInvoices(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Invoice) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			rel.UserBillingID = o.ID
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE \"invoices\" SET %s WHERE %s",
+				strmangle.SetParamNames("\"", "\"", 1, []string{"user_billing_id"}),
+				strmangle.WhereClause("\"", "\"", 2, invoicePrimaryKeyColumns),
+			)
+			values := []interface{}{o.ID, rel.ID}
+
+			if boil.IsDebug(ctx) {
+				writer := boil.DebugWriterFrom(ctx)
+				fmt.Fprintln(writer, updateQuery)
+				fmt.Fprintln(writer, values)
+			}
+			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			rel.UserBillingID = o.ID
+		}
+	}
+
+	if o.R == nil {
+		o.R = &userBillingR{
+			Invoices: related,
+		}
+	} else {
+		o.R.Invoices = append(o.R.Invoices, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &invoiceR{
+				UserBilling: o,
+			}
+		} else {
+			rel.R.UserBilling = o
+		}
+	}
 	return nil
 }
 

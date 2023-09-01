@@ -155,6 +155,7 @@ func storeBrands(ctx context.Context, records []pdtos.ProductDto) {
 func storeRecords(ctx context.Context, sup *models.Supplier, records []pdtos.ProductDto) error {
 	rChan := make(chan pdtos.ProductDto)
 	chanWorker := task.NewChannelWorker[pdtos.ProductDto](50, rChan)
+
 	chanWorker.Run(func(record pdtos.ProductDto) {
 		importNextRecord(ctx, sup, record)
 	})
@@ -163,12 +164,25 @@ func storeRecords(ctx context.Context, sup *models.Supplier, records []pdtos.Pro
 		chanWorker.InsertToChannel(record)
 	}
 
-	close(rChan)
+	//
+	//var codes []string
+	//
+	//for _, r := range records {
+	//	codes = append(codes, r.GetProductCode())
+	//}
+	//
+	//dao := product.NewItemDao(db.DB)
+	//err := dao.RemoveOldItems(ctx, sup, codes)
+	//
+	//if err != nil {
+	//	return err
+	//}
 
 	return nil
 }
 
 func importNextRecord(ctx context.Context, sup *models.Supplier, record pdtos.ProductDto) {
+
 	if !record.Validate() {
 		return
 	}
@@ -223,6 +237,6 @@ func importNextRecord(ctx context.Context, sup *models.Supplier, record pdtos.Pr
 	})
 
 	if err != nil {
-		fmt.Println(err.Error())
+		fmt.Println("end of input", err.Error())
 	}
 }

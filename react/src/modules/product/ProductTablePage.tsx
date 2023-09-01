@@ -92,7 +92,7 @@ const ProductTablePage: React.FC = () => {
                 <Searchbar/>
             </div>
             <Panel className="m-1">
-                <div className="w-full m-0 lg:px-24 px-4 h-full flex flex-col min-h-screen">
+                <div className="w-full m-0 h-full flex flex-col min-h-screen">
                     {data?.productItems?.productItems ? <ProductTable
                         products={data}
                         handlePaginationChange={handlePaginationChange}

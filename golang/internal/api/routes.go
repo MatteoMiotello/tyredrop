@@ -27,6 +27,11 @@ func registerRoutes(router *gin.Engine) {
 	router.POST("/login", authController.Login)
 	router.POST("/register", authController.SignUp)
 	router.POST("/refresh_token", authController.RefreshToken)
+	router.POST("/reset_password", authController.IssueResetPassword)
+	router.POST("/change_password", authController.ChangePassword)
+
+	supportController := controllers.NewSupportController()
+	router.POST("/support_request", supportController.SendSupportEmail)
 
 	//graphql
 	graphController := new(controllers.GraphqlController)
@@ -34,6 +39,10 @@ func registerRoutes(router *gin.Engine) {
 	router.GET("/playground", middlewares.TestEnv, graphController.Playground)
 
 	//assets
-	group := router.Group("/assets")
-	group.Static("/img", "./assets/images")
+	assets := router.Group("/assets")
+	assets.Static("/img", "./assets/images")
+
+	pAssets := router.Group("/private", middlewares.InjectAuth, middlewares.IsAuthenticated)
+	pAssets.Static("/invoices", "./assets/invoices")
+	pAssets.Static("/avatar", "./assets/avatar")
 }

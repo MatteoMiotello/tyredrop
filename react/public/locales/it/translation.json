@@ -3,7 +3,7 @@
     "email_placeholder": "Email",
     "password_placeholder": "Password",
     "Submit": "Login",
-    "register_label": "Possiedi già un account? Registrati",
+    "register_label": "Non possiedi ancora un account? Registrati",
     "forgot_password": "Password dimenticata",
     "email_required": "L'email è richiesta",
     "password_required": "La password è richiesta",

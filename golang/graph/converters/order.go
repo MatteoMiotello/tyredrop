@@ -40,6 +40,7 @@ func OrderToGraphQL(order *models.Order) (*model.Order, error) {
 		PriceAmountTotal: amountTotalFloatValue,
 		TaxesAmount:      taxesFloatValue,
 		PaymentID:        order.PaymentID.Ptr(),
+		OrderNumber:      order.OrderNumber.Ptr(),
 		AddressName:      order.AddressName,
 		AddressLine1:     order.AddressLine1,
 		AddressLine2:     &order.AddressLine2.String,

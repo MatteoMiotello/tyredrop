@@ -1,0 +1,22 @@
+{{- /*gotype: pillowww/titw/internal/email/mailer.OrderSupportData*/ -}}
+{{define "content"}}
+    <h1>Richiesta di Assistenza per Ordine
+        {{.OrderNumber}}</h1>
+    <p>Una nuova richiesta di assistenza è stata inviata da un cliente riguardo all'ordine <a href="{{.OrderUrl}}"> #{{.OrderNumber}} </a></p>
+
+    <h2>Dettagli del Cliente:</h2>
+    <ul>
+        <li><strong>Email:</strong> {{.UserEmail}} </li>
+    </ul>
+
+    <h2>Dettagli dell'Ordine:</h2>
+    <ul>
+        <li><strong>Numero dell'Ordine:</strong> {{.OrderNumber}} </li>
+        <li><strong>Data dell'Ordine:</strong> {{.OrderDate}}</li>
+    </ul>
+
+    <h2>Messaggio del Cliente:</h2>
+    <p>{{.Message}}</p>
+
+    <p>Grazie!</p>
+{{end}}

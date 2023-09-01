@@ -15,6 +15,7 @@ type Tyre struct {
 	Price       string
 	EprelID     string
 	Quantity    int
+	RunFlat     bool
 	VehicleType constants.VehicleType
 	TyreDimension
 }
@@ -57,6 +58,7 @@ func (t *Tyre) GetSpecifications() map[constants.ProductSpecification]string {
 		constants.TYRE_SPEC_ASPECT_RATIO: strconv.Itoa(t.AspectRatio),
 		constants.TYRE_SPEC_CONSTRUCTION: t.Construction,
 		constants.TYRE_SPEC_RIM:          strconv.FormatFloat(t.Rim, 'f', 0, 64),
+		constants.TYRE_RUNFLAT:           strconv.FormatBool(t.RunFlat),
 		constants.TYRE_SPEC_LOAD:         strconv.Itoa(t.Load),
 		constants.TYRE_SPEC_SPEED:        t.Speed,
 		constants.TYRE_SPEC_SEASON:       t.Season,

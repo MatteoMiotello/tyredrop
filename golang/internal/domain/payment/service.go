@@ -22,7 +22,7 @@ func NewService(pDao *Dao, oDao *order.Dao) *Service {
 }
 
 func (s Service) CreatePayment(ctx context.Context, order *models.Order, method *models.PaymentMethod) (*models.Payment, error) {
-	if order.Status != model.OrderStatusNotCompleted.String() {
+	if order.Status != model.OrderStatusNew.String() && order.Status != model.OrderStatusConfirmed.String() {
 		return nil, errors.New("order cannot be payed in this status: " + order.Status)
 	}
 

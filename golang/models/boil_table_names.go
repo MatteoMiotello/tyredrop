@@ -9,6 +9,7 @@ var TableNames = struct {
 	Currencies                        string
 	CurrencyLanguages                 string
 	ImportJobs                        string
+	Invoices                          string
 	Languages                         string
 	LegalEntityTypes                  string
 	OrderRows                         string
@@ -29,6 +30,7 @@ var TableNames = struct {
 	ProductSpecifications             string
 	Products                          string
 	RefreshTokens                     string
+	ResetPasswords                    string
 	Suppliers                         string
 	Taxes                             string
 	UserAddress                       string
@@ -45,6 +47,7 @@ var TableNames = struct {
 	Currencies:                        "currencies",
 	CurrencyLanguages:                 "currency_languages",
 	ImportJobs:                        "import_jobs",
+	Invoices:                          "invoices",
 	Languages:                         "languages",
 	LegalEntityTypes:                  "legal_entity_types",
 	OrderRows:                         "order_rows",
@@ -65,6 +68,7 @@ var TableNames = struct {
 	ProductSpecifications:             "product_specifications",
 	Products:                          "products",
 	RefreshTokens:                     "refresh_tokens",
+	ResetPasswords:                    "reset_passwords",
 	Suppliers:                         "suppliers",
 	Taxes:                             "taxes",
 	UserAddress:                       "user_address",
