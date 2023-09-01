@@ -26,7 +26,7 @@ const ProductTitle: React.FC<TyreItemRowProps | null> = (props: TyreItemRowProps
         <div className="flex flex-col">
             {
                 props.showBrand &&
-                <span className="mb-2 text-lg font-semibold" > {props.data.brand.name} </span>
+                <span className="mb-2 font-semibold" > {props.data.brand.name} </span>
             }
             <Link to={"/products/details/" + data.id} className="break-words font-semibold text-xl"> {data.name} </Link>
             <span className="text-secondary font-semibold">
