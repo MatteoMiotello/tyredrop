@@ -199,3 +199,11 @@ export const ORDER_ROWS = gql`
         }
     }
 `;
+
+export const ORDER_SUPPORT = gql( /* GraphQL */ `
+    mutation orderSupport( $orderId: ID!, $message: String! ){
+        orderSupport(orderID: $orderId, message: $message) {
+            id
+        }
+    }
+` );

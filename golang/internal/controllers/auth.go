@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"crypto/rand"
+	"github.com/friendsofgo/errors"
 	"github.com/gin-gonic/gin"
 	"github.com/volatiletech/null/v8"
 	"net/http"
@@ -16,6 +16,7 @@ import (
 	"pillowww/titw/pkg/log"
 	"pillowww/titw/pkg/security"
 	"pillowww/titw/pkg/utils"
+	"strconv"
 	"time"
 )
 
@@ -57,6 +58,11 @@ type RefreshTokenResponse struct {
 
 type ResetPasswordPayload struct {
 	Email string `json:"email" binding:"required" validate:"email"`
+}
+
+type ChangePasswordPayload struct {
+	Password string `json:"password" binding:"required" validate:"min=8"`
+	Token    string `json:"token" binding:"required"`
 }
 
 func (a AuthController) createTokens(ctx *gin.Context, uModel *models.User) {
@@ -205,25 +211,25 @@ func (a AuthController) RefreshToken(ctx *gin.Context) {
 }
 
 func (a AuthController) IssueResetPassword(ctx *gin.Context) {
-	var payload ResetPasswordPayload
+	payload := new(ResetPasswordPayload)
 
 	uDao := user.NewDao(db.DB)
 	err := ctx.BindJSON(payload)
 
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusNotFound, responses.ErrorResponse{Error: err.Error()})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, responses.ErrorResponse{Error: err.Error()})
 		return
 	}
 
 	u, err := uDao.FindOneByEmail(ctx, payload.Email)
 
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusNotFound, responses.ErrorResponse{Error: "user not found" + err.Error()})
+		ctx.AbortWithStatusJSON(http.StatusNotFound, responses.ErrorResponse{Error: "user not found" + err.Error(), StatusCode: 4001})
 		return
 	}
 
-	key := make([]byte, 64)
-	_, err = rand.Read(key)
+	key, err := security.GenerateSecureKey(64)
+
 	if err != nil {
 		log.Error("Error generating key for reset password: ", err)
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
@@ -232,7 +238,7 @@ func (a AuthController) IssueResetPassword(ctx *gin.Context) {
 
 	rp := &models.ResetPassword{
 		UserID:   u.ID,
-		Token:    string(key),
+		Token:    key,
 		IssuedAt: time.Now(),
 		ExpiryAt: time.Now().Add(time.Minute * 5),
 	}
@@ -250,6 +256,48 @@ func (a AuthController) IssueResetPassword(ctx *gin.Context) {
 	if err != nil {
 		log.Error("Error sending reset password email", err)
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+}
+
+func (a AuthController) ChangePassword(ctx *gin.Context) {
+	payload := new(ChangePasswordPayload)
+	err := ctx.BindJSON(payload)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, responses.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	cpDao := user.NewResetPasswordDao(db.DB)
+	cp, err := cpDao.
+		Load(models.ResetPasswordRels.User).
+		FindValidByToken(ctx, payload.Token)
+
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, responses.ErrorResponse{Error: "Token not valid"})
+		return
+	}
+
+	u := cp.R.User
+	pass, err := security.HashPassword(payload.Password)
+
+	if err != nil {
+		log.Error(errors.WithMessage(err, "unable to hash password on change"))
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: "Internal error"})
+		return
+	}
+
+	u.Password = string(pass)
+	err = cpDao.Save(ctx, u)
+	if err != nil {
+		log.Error(errors.WithMessage(err, "Unable to save new password"))
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, responses.ErrorResponse{Error: "Internal error"})
+		return
+	}
+
+	err = cpDao.Delete(ctx, cp)
+	if err != nil {
+		log.Error(errors.WithMessage(err, "Unable to delete old reset password "+strconv.Itoa(int(cp.ID))))
 		return
 	}
 }

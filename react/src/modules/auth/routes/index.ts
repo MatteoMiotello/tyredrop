@@ -3,6 +3,7 @@ import AuthTemplate from "../AuthTemplate";
 import LoginPage from "../LoginPage";
 import RegisterPage from "../RegisterPage";
 import ResetPasswordPage from "../ResetPasswordPage";
+import ChangePasswordPage from "../ChangePasswordPage";
 
 export const authRoutes: RouteObject = {
     path: '/auth',
@@ -19,6 +20,10 @@ export const authRoutes: RouteObject = {
         {
             path: 'reset_password',
             Component: ResetPasswordPage
+        },
+        {
+            path: 'change_password/:token',
+            Component: ChangePasswordPage
         }
     ]
 };

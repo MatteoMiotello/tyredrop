@@ -32,7 +32,7 @@ func (r ResetPasswordMailer) SendResetEmail(u *models.User) error {
 	body, err := r.templater.Process("reset_password_email", templates.NewEmailParams(
 		subject,
 		ResetPassword{
-			Url: viper.GetString("APPLICATION_FRONTEND_URL") + "/reset_password/" + r.ResetPassword.Token,
+			Url: viper.GetString("APPLICATION_FRONTEND_URL") + "/auth/change_password/" + r.ResetPassword.Token,
 		},
 	))
 
@@ -41,16 +41,17 @@ func (r ResetPasswordMailer) SendResetEmail(u *models.User) error {
 	}
 
 	err = r.mailer.SendEmailTo(
-		email.From{
-			Email: "noreply@tyresintheworld.com",
-			Name:  "NoReply - Tyres in the world",
-		},
+		email.NewNoreplyFrom(),
 		[]string{
 			u.Email,
 		},
 		subject,
 		body.String(),
 	)
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

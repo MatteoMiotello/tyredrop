@@ -216,13 +216,13 @@ const TyreSearchForm: React.FC<TypeSpecificSearchFormProps> = (props) => {
         </Field.FormControl>
         <Field.FormControl className="col-span-4">
             <Field.Label className="text-base-100">
-                {t('Indice velocita`')}
+                {t('Indice velocità')}
             </Field.Label>
             <SpecificationField
                 name="speed"
                 specificationCode={ProductSpecificationsSet.TYRE.SPEED}
                 vehicleCode={vehicle}
-                placeholder={t('Indice velocita`') as string}
+                placeholder={t('Indice velocità') as string}
             />
         </Field.FormControl>
         <Field.FormControl className="col-span-4">

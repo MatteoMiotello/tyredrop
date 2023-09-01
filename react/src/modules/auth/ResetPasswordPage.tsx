@@ -6,10 +6,14 @@ import {useToast} from "../../store/toast";
 import {isRequired} from "../../common/validation/validators";
 import {isEmail} from "../../common/components/shelly-ui/Input";
 import {Link} from "react-router-dom";
+import {Simulate} from "react-dom/test-utils";
+import load = Simulate.load;
+import Spinner from "../../common/components/Spinner";
 
 const ResetPasswordPage: React.FC = () => {
     const form = useForm();
     const [email, setEmail] = useState<string | null>();
+    const [loading, setLoading] = useState(false);
     const toastr = useToast();
     const client = createBackendClient();
 
@@ -18,23 +22,30 @@ const ResetPasswordPage: React.FC = () => {
             return false;
         }
 
+        setLoading(true);
         return client.resetPassword(data.email)
             .then(() => {
-                setEmail(email);
+                setEmail(data.email);
                 toastr.success("Email inviata con successo");
             })
-            .catch(() => {
+            .catch((err) => {
                 setEmail(undefined);
+                if ( err.response.data.status_code == 4001 ) {
+                    toastr.error( "Utente non trovato" );
+                    return;
+                }
+
                 toastr.error("C'è stato un erore nel reset della password");
-            });
+            }).finally( () =>setLoading(false) );
     };
 
     return <>
         <div className="flex flex-col justify-center items-center my-auto ">
-            <Panel className="w-1/2">
+            {loading && <Spinner></Spinner>}
+            <Panel className="w-full md:w-1/2">
                 {
                     email ?
-                        <p>Una email è stata inviata a {email}</p>
+                        <p>Una email è stata inviata a {email} <Link className="link-accent" to="/auth/login"> Torna al login </Link></p>
                         :
                         <div>
                             <p className="my-4 text-lg">

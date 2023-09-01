@@ -8,17 +8,19 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"pillowww/titw/graph/converters"
 	"pillowww/titw/graph/graphErrors"
 	"pillowww/titw/graph/model"
 	"pillowww/titw/graph/policies"
+	"pillowww/titw/internal/auth"
 	"pillowww/titw/internal/currency"
 	"pillowww/titw/internal/db"
 	"pillowww/titw/internal/domain/order"
 	"pillowww/titw/internal/domain/payment"
 	"pillowww/titw/internal/domain/product"
+	"pillowww/titw/internal/email/mailer"
 	"pillowww/titw/models"
+	"pillowww/titw/pkg/log"
 
 	null "github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -26,7 +28,28 @@ import (
 
 // OrderSupport is the resolver for the orderSupport field.
 func (r *mutationResolver) OrderSupport(ctx context.Context, orderID int64, message string) (*model.Order, error) {
-	panic(fmt.Errorf("not implemented: OrderSupport - orderSupport"))
+	u, err := auth.CurrentUser(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	o, err := r.OrderDao.
+		Load(models.OrderRels.Currency).
+		FindOneById(ctx, orderID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	om := mailer.NewOrderMailer(o)
+	err = om.SendSupportEmail(u, message)
+	if err != nil {
+		log.Error("Error sending order support email", err)
+		return nil, graphErrors.NewGraphError(ctx, err, "ERROR_SENDING_EMAIL")
+	}
+
+	return converters.OrderToGraphQL(o)
 }
 
 // ConfirmOrder is the resolver for the confirmOrder field.

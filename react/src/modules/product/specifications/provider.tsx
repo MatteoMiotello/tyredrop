@@ -27,8 +27,8 @@ export const specificationProvider = (value: ProductSpecificationValue) => {
 export const runflatProvider: ProviderHandler = (value: ProductSpecificationValue) => {
     if (value.value == 'true') {
         return {
-            title: 'Si`',
-            content: 'Si`',
+            title: 'Sì',
+            content: 'Sì',
         };
     }
 

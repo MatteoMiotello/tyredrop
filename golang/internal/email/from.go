@@ -7,6 +7,13 @@ type From struct {
 	Name  string
 }
 
+func NewNoreplyFrom() From {
+	return From{
+		Email: "noreply@tyresintheworld.it",
+		Name:  "NoReply",
+	}
+}
+
 func (r From) String() string {
-	return fmt.Sprintln("%s <%s>", r.Name, r.Email)
+	return fmt.Sprintf("%s <%s>", r.Name, r.Email)
 }

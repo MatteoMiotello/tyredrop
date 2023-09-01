@@ -1,6 +1,7 @@
 package mailer
 
 import (
+	"github.com/spf13/viper"
 	"pillowww/titw/internal/email"
 	"pillowww/titw/internal/email/templates"
 	"pillowww/titw/models"
@@ -13,6 +14,14 @@ type OrderMailer struct {
 	templater *email.Templater
 }
 
+type OrderSupportData struct {
+	UserEmail   string
+	OrderNumber string
+	OrderDate   string
+	OrderUrl    string
+	Message     string
+}
+
 func NewOrderMailer(order *models.Order) *OrderMailer {
 	return &OrderMailer{
 		order:     order,
@@ -22,29 +31,31 @@ func NewOrderMailer(order *models.Order) *OrderMailer {
 }
 
 func (r OrderMailer) SendSupportEmail(userFrom *models.User, message string) error {
-	subject := "Richiesta di supporto per l'ordine n. #" + strconv.Itoa(int(r.order.ID))
+	subject := "Richiesta di supporto per l'ordine n. #" + r.order.OrderNumber.String
 
-	body, err := r.templater.Process("order_support_email", templates.NewEmailParams(
+	params := templates.NewEmailParams(
 		subject,
-		templates.OrderSupport{
-			OrderId:  r.order.ID,
-			UserName: userFrom.Email,
-			Message:  message,
-		}),
-	)
+		OrderSupportData{
+			OrderNumber: r.order.OrderNumber.String,
+			UserEmail:   userFrom.Email,
+			Message:     message,
+			OrderUrl:    viper.GetString("APPLICATION_FRONTEND_URL") + "/admin/order/" + strconv.Itoa(int(r.order.ID)),
+			OrderDate:   r.order.CreatedAt.Format("02/01/2006"),
+		})
+
+	body, err := r.templater.Process("order_support_email", params)
 
 	if err != nil {
 		return err
 	}
 
+	b := body.String()
+
 	err = r.mailer.SendEmailTo(
-		email.From{
-			Email: "support@tyresintheworld.com",
-			Name:  "Supporto",
-		},
-		[]string{"dev@pillowww.it"},
+		email.NewNoreplyFrom(),
+		[]string{viper.GetString("SUPPORT_EMAIL")},
 		subject,
-		body.String(),
+		b,
 	)
 
 	return nil

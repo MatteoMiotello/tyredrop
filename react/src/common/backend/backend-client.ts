@@ -4,6 +4,7 @@ import {RegisterRequest} from "./requests/register-request";
 import {LoginResponse} from "./responses/login-response";
 import {RefreshTokenResponse} from "./responses/refresh-token-response";
 import config from "../../config";
+import {SupportRequest} from "./requests/support-request";
 
 export interface BackendClient {
     login(request: LoginRequest): Promise<AxiosResponse<LoginResponse>>;
@@ -43,5 +44,13 @@ class Backend implements BackendClient {
 
     resetPassword( email: string ): Promise<AxiosResponse> {
         return this.makePostRequest( '/reset_password', {email: email} );
+    }
+
+    changePassword( token: string, password: string ): Promise<AxiosResponse> {
+        return this.makePostRequest( '/change_password', {token: token, password: password} );
+    }
+
+    supportEmail( request: SupportRequest ): Promise<AxiosResponse<void>> {
+        return this.makePostRequest( '/support_request', request );
     }
 }

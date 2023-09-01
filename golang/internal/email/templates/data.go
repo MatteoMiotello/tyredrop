@@ -1,24 +1,24 @@
 package templates
 
-import "github.com/spf13/viper"
+import (
+	"github.com/spf13/viper"
+	"pillowww/titw/internal/fs/fshandlers"
+)
 
 type EmailParams struct {
-	ApplicationUrl string
-	Content        any
-	Subject        string
+	ApplicationUrl  string
+	ApplicationLogo string
+	Content         any
+	Subject         string
 }
 
 func NewEmailParams(subject string, content any) *EmailParams {
-	return &EmailParams{
-		ApplicationUrl: viper.GetString("APPLICATION_URL"),
-		Content:        content,
-		Subject:        subject,
-	}
-}
+	fs := fshandlers.NewBrandLogoHandler()
 
-type OrderSupport struct {
-	EmailParams
-	UserName string
-	OrderId  int64
-	Message  string
+	return &EmailParams{
+		ApplicationUrl:  viper.GetString("APPLICATION_URL"),
+		ApplicationLogo: fs.GetPublicUrl("logo-transparent.png"),
+		Content:         content,
+		Subject:         subject,
+	}
 }
