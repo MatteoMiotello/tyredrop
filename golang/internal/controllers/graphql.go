@@ -84,6 +84,10 @@ func (g *GraphqlController) buildConfig() graph.Config {
 			return nil, graphErrors.NewNotAuthorizedError(ctx)
 		}
 
+		if u.Rejected {
+			return nil, graphErrors.NewNotAuthorizedError(ctx)
+		}
+
 		return next(ctx)
 	}
 

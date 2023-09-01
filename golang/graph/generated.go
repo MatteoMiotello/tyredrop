@@ -381,6 +381,7 @@ type ComplexityRoot struct {
 		AvatarPath  func(childComplexity int) int
 		AvatarURL   func(childComplexity int) int
 		Confirmed   func(childComplexity int) int
+		CreatedAt   func(childComplexity int) int
 		Email       func(childComplexity int) int
 		ID          func(childComplexity int) int
 		Name        func(childComplexity int) int
@@ -2327,6 +2328,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Confirmed(childComplexity), true
 
+	case "User.createdAt":
+		if e.complexity.User.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.User.CreatedAt(childComplexity), true
+
 	case "User.email":
 		if e.complexity.User.Email == nil {
 			break
@@ -4162,6 +4170,8 @@ func (ec *executionContext) fieldContext_Cart_user(ctx context.Context, field gr
 				return ec.fieldContext_User_avatarUrl(ctx, field)
 			case "avatarPath":
 				return ec.fieldContext_User_avatarPath(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -5281,6 +5291,8 @@ func (ec *executionContext) fieldContext_Mutation_createAdminUser(ctx context.Co
 				return ec.fieldContext_User_avatarUrl(ctx, field)
 			case "avatarPath":
 				return ec.fieldContext_User_avatarPath(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -7085,6 +7097,8 @@ func (ec *executionContext) fieldContext_Mutation_updateUserStatus(ctx context.C
 				return ec.fieldContext_User_avatarUrl(ctx, field)
 			case "avatarPath":
 				return ec.fieldContext_User_avatarPath(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -7188,6 +7202,8 @@ func (ec *executionContext) fieldContext_Mutation_updateAvatar(ctx context.Conte
 				return ec.fieldContext_User_avatarUrl(ctx, field)
 			case "avatarPath":
 				return ec.fieldContext_User_avatarPath(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -14629,6 +14645,8 @@ func (ec *executionContext) fieldContext_Query_user(ctx context.Context, field g
 				return ec.fieldContext_User_avatarUrl(ctx, field)
 			case "avatarPath":
 				return ec.fieldContext_User_avatarPath(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -16378,6 +16396,50 @@ func (ec *executionContext) fieldContext_User_avatarPath(ctx context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _User_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTimestamp2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Timestamp does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _UserAddress_ID(ctx context.Context, field graphql.CollectedField, obj *model.UserAddress) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_UserAddress_ID(ctx, field)
 	if err != nil {
@@ -16575,6 +16637,8 @@ func (ec *executionContext) fieldContext_UserAddress_user(ctx context.Context, f
 				return ec.fieldContext_User_avatarUrl(ctx, field)
 			case "avatarPath":
 				return ec.fieldContext_User_avatarPath(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -17534,6 +17598,8 @@ func (ec *executionContext) fieldContext_UserBilling_user(ctx context.Context, f
 				return ec.fieldContext_User_avatarUrl(ctx, field)
 			case "avatarPath":
 				return ec.fieldContext_User_avatarPath(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -17770,6 +17836,8 @@ func (ec *executionContext) fieldContext_UserPaginator_data(ctx context.Context,
 				return ec.fieldContext_User_avatarUrl(ctx, field)
 			case "avatarPath":
 				return ec.fieldContext_User_avatarPath(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -24318,6 +24386,13 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 
 			out.Values[i] = ec._User_avatarPath(ctx, field, obj)
 
+		case "createdAt":
+
+			out.Values[i] = ec._User_createdAt(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

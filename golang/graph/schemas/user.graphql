@@ -66,6 +66,7 @@ type User {
     userBilling: UserBilling
     avatarUrl: String
     avatarPath: String
+    createdAt: Timestamp!
 }
 
 input CreateUserBilling {

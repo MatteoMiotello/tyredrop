@@ -95,6 +95,7 @@ export const ALL_USERS = gql`
                 confirmed
                 rejected
                 userCode
+                createdAt
                 userRole {
                     id
                     roleCode

@@ -49,6 +49,8 @@ func (d Dao) FindOneById(ctx context.Context, id int64) (*models.Invoice, error)
 func (d Dao) FindAll(ctx context.Context, userBillingId *int64, from *string, to *string, number *string) (models.InvoiceSlice, error) {
 	var mods []qm.QueryMod
 
+	mods = append(mods, qm.OrderBy(models.InvoiceColumns.CreatedAt+" DESC"))
+
 	if userBillingId != nil {
 		mods = append(mods, models.InvoiceWhere.UserBillingID.EQ(*userBillingId))
 	}

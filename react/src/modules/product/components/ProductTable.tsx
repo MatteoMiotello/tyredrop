@@ -20,7 +20,6 @@ import ProductQualityBadge from "./ProductQualityBadge";
 import AvailabilityBadge from "./AvailabilityBadge";
 import ProductImage from "./ProductImage";
 
-
 type ProductTableProps = {
     products: SearchQuery
     handlePaginationChange: (index: number, size: number) => void

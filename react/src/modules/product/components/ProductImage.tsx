@@ -41,6 +41,7 @@ const ProductImage: React.FC<ProductImageProps> = ({product}) => {
         ]
     });
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return <Popover>
         <div className="relative" onMouseEnter={() => setDisplay(true)} onMouseLeave={() => setDisplay(false)}>
