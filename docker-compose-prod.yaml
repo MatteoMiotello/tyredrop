@@ -1,0 +1,78 @@
+version: '3.9'
+services:
+  app:
+    container_name: titw_go_server
+    build:
+      context: ./golang
+      dockerfile: Dockerfile.prod
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - DATABASE_HOST=${DB_HOST}
+      - DATABASE_PORT=${DB_PORT}
+      - TZ=GMT+1
+    tty: true
+    ports:
+      - 8080:8080
+    restart: always
+    volumes:
+      - ./storage:/app/storage
+      - ./import:/app/import
+      - ./logs:/app/logs
+    depends_on:
+      - goose
+      - postgresdb
+    networks:
+      - titw
+  
+  goose:
+    container_name: titw_go_goose
+    build:
+      context: ./golang
+      dockerfile: Dockerfile.goose
+    depends_on:
+      - postgresdb
+    networks:
+      - titw
+
+  cron:
+    container_name: titw_go_cron
+    build:
+      context: ./golang
+      dockerfile: Dockerfile.cron
+    environment:
+      - TZ=GMT+1
+    volumes:
+      - ./import:/app/import
+      - ./logs:/app/logs
+    depends_on:
+      - goose
+      - postgresdb
+    networks:
+      - titw
+
+  postgresdb:
+    image: postgres:latest
+    container_name: titw_postgres
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - DATABASE_HOST=${DB_HOST}
+      - TZ="Europe/Rome"
+    ports:
+      - '2345:5432'
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    command: postgres -c 'max_connections=1500'
+    networks:
+      - titw
+
+volumes:
+  pg_data:
+
+# Networks to be created to facilitate communication between containers
+networks:
+  titw:
+    driver: bridge

@@ -8,16 +8,17 @@ import {
     AllUserInvoicesQuery,
     AllUserInvoicesQueryVariables,
     Invoice,
-    InvoiceStatus
+    InvoiceStatus, UserBilling
 } from "../../../__generated__/graphql";
 import { FilteredTable, Input, TableButtons, useForm} from "../../../common/components/shelly-ui";
 import {useGraphTable} from "../../../hooks/useGraphTable";
 
 type InvoiceTableProps = {
     query: QueryResult<AllUserInvoicesQuery, AllUserInvoicesQueryVariables>
+    userBilling?: UserBilling
 }
 
-const InvoiceTable: React.FC<InvoiceTableProps> = ({query}) => {
+const InvoiceTable: React.FC<InvoiceTableProps> = ({query, userBilling}) => {
     const columns: ColumnDef<Invoice>[] = [
         {
             accessorKey: "number",
@@ -70,7 +71,8 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({query}) => {
             input: {
                 from: data.from,
                 to: data.to,
-                number: data.number
+                number: data.number,
+                userBillingId: userBilling?.id
             }
         } )}>
             <FilteredTable.FilterField>

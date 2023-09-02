@@ -97,8 +97,7 @@ const UserDetailsPage: React.FC = () => {
                         Dati di fatturazione
                     </Panel.Title>
                     <ul>
-                        <li><strong>Nome:</strong> {data.data.user.userBilling.name}</li>
-                        <li><strong>Cognome:</strong> {data.data.user.userBilling.surname}</li>
+                        <li><strong>Nome completo:</strong> {data.data.user.userBilling.name} {data.data.user.userBilling.surname}</li>
                         <li><strong>Indirizzo 1:</strong> {data.data.user.userBilling.addressLine1}</li>
                         {data.data.user.userBilling.addressLine2 &&
                             <li><strong>Indirizzo 2:</strong> {data.data.user.userBilling.addressLine2}</li>}
