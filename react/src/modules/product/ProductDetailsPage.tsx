@@ -48,11 +48,11 @@ const ProductDetailsPage: React.FC = () => {
     }
 
     return <main className="p-1">
-        <div className="grid md:grid-cols-4 gap-4 w-full">
-            <Panel className="flex flex-col justify-center items-center">
+        <div className="grid grid-cols-4 gap-4 w-full">
+            <Panel className="flex flex-col justify-center items-center col-span-4 lg:col-span-1">
                 <ProductImage product={data?.productItem?.product as Product}/>
             </Panel>
-            <Panel className="col-span-2 row-span-2">
+            <Panel className="lg:col-span-2 col-span-4 row-span-2">
                 <div>
                     <div className="flex justify-between mt-3 items-center">
                         <h2 className="text-2xl font-semibold uppercase"> {data?.productItem?.product.brand.name} </h2>
@@ -78,7 +78,7 @@ const ProductDetailsPage: React.FC = () => {
                     />
                 </div>
             </Panel>
-            <div>
+            <div className="col-span-4 lg:col-span-1">
                 <Panel>
                     <div className="rounded-box md:mt-0 mt-4">
                         <div className="flex flex-col gap-4">
@@ -88,7 +88,7 @@ const ProductDetailsPage: React.FC = () => {
                             <span className="text-primary text-5xl font-semibold">
                                 {Currency.defaultFormat(data?.productItem?.price[0]?.value as number, data?.productItem?.price[0]?.currency.iso_code as string)}</span>
                             {data?.productItem && <AvailabilityBadge quantity={data?.productItem?.supplierQuantity}/>}
-                            <div className="mt-10 flex flex-col xl:flex-row items-center gap-2">
+                            <div className="mt-10 flex flex-wrap ml-auto items-center gap-2">
                                 <div className="">
                                     <Join>
                                         <Button className="join-item" disabled={quantity == 0} onClick={() => {
