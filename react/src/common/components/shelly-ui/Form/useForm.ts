@@ -217,7 +217,7 @@ const useForm = (props?: UseFormProps): FormHandler => {
 
 		return {
 			name: name,
-			value: formValues[name] ?? "",
+			value: formValues[name] ?? undefined,
 			onValueChange: onFieldChangeValue,
 			validators: validators,
 			inputSize: ( props?.type == 'filter' ) ? 'sm' : undefined,

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {memo, useEffect, useState} from "react";
 import {Button, Input, Textarea, useForm} from "./shelly-ui";
 import Form from "./shelly-ui/Form";
 import {useAuth} from "../../modules/auth/hooks/useAuth";
@@ -6,7 +6,7 @@ import {isRequired} from "./shelly-ui/Input";
 import {createBackendClient} from "../backend/backend-client";
 import {useToast} from "../../store/toast";
 
-const ContactForm: React.FC = () => {
+const ContactForm: React.FC = memo(( ) => {
     const auth = useAuth();
     const form = useForm();
     const toastr = useToast();
@@ -66,6 +66,8 @@ const ContactForm: React.FC = () => {
             </Button>
         </Form.FormButtons>
     </Form>;
-};
+} );
+
+ContactForm.displayName = "ContactForm";
 
 export default ContactForm;
