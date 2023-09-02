@@ -110,6 +110,7 @@ type ComplexityRoot struct {
 		FileURL       func(childComplexity int) int
 		ID            func(childComplexity int) int
 		Number        func(childComplexity int) int
+		Status        func(childComplexity int) int
 		UserBilling   func(childComplexity int) int
 		UserBillingId func(childComplexity int) int
 	}
@@ -126,26 +127,27 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		AddItemToCart     func(childComplexity int, itemID int64, quantity *int) int
-		ConfirmOrder      func(childComplexity int, orderID int64) int
-		CreateAdminUser   func(childComplexity int, userInput model.CreateAdminUserInput) int
-		CreateInvoice     func(childComplexity int, userBillingID int64, number *string, file graphql.Upload) int
-		CreatePriceMarkup func(childComplexity int, input model.PriceMarkupInput) int
-		CreateUserAddress func(childComplexity int, userAddress model.UserAddressInput) int
-		CreateUserBilling func(childComplexity int, billingInput model.CreateUserBilling) int
-		DeleteInvoice     func(childComplexity int, id int64) int
-		DeleteUserAddress func(childComplexity int, id int64) int
-		EditCart          func(childComplexity int, cartID int64, quantity int) int
-		EditUserAddress   func(childComplexity int, id int64, userAddress model.UserAddressInput) int
-		EmptyCart         func(childComplexity int) int
-		NewOrder          func(childComplexity int, userID int64, userAddressID int64) int
-		OrderSupport      func(childComplexity int, orderID int64, message string) int
-		PayOrder          func(childComplexity int, orderID int64, paymentMethodCode string) int
-		UpdateAvatar      func(childComplexity int, userID int64, file graphql.Upload) int
-		UpdateOrderRow    func(childComplexity int, rowID int64, input model.OrderRowInput) int
-		UpdateOrderStatus func(childComplexity int, orderID int64, newStatus model.OrderStatus) int
-		UpdatePriceMarkup func(childComplexity int, id int64, input model.PriceMarkupInput) int
-		UpdateUserStatus  func(childComplexity int, userID int64, confirmed *bool, rejected *bool) int
+		AddItemToCart       func(childComplexity int, itemID int64, quantity *int) int
+		ConfirmOrder        func(childComplexity int, orderID int64) int
+		CreateAdminUser     func(childComplexity int, userInput model.CreateAdminUserInput) int
+		CreateInvoice       func(childComplexity int, userBillingID int64, number *string, file graphql.Upload) int
+		CreatePriceMarkup   func(childComplexity int, input model.PriceMarkupInput) int
+		CreateUserAddress   func(childComplexity int, userAddress model.UserAddressInput) int
+		CreateUserBilling   func(childComplexity int, billingInput model.CreateUserBilling) int
+		DeleteInvoice       func(childComplexity int, id int64) int
+		DeleteUserAddress   func(childComplexity int, id int64) int
+		EditCart            func(childComplexity int, cartID int64, quantity int) int
+		EditUserAddress     func(childComplexity int, id int64, userAddress model.UserAddressInput) int
+		EmptyCart           func(childComplexity int) int
+		NewOrder            func(childComplexity int, userID int64, userAddressID int64) int
+		OrderSupport        func(childComplexity int, orderID int64, message string) int
+		PayOrder            func(childComplexity int, orderID int64, paymentMethodCode string) int
+		UpdateAvatar        func(childComplexity int, userID int64, file graphql.Upload) int
+		UpdateInvoiceStatus func(childComplexity int, id int64, status model.InvoiceStatus) int
+		UpdateOrderRow      func(childComplexity int, rowID int64, input model.OrderRowInput) int
+		UpdateOrderStatus   func(childComplexity int, orderID int64, newStatus model.OrderStatus) int
+		UpdatePriceMarkup   func(childComplexity int, id int64, input model.PriceMarkupInput) int
+		UpdateUserStatus    func(childComplexity int, userID int64, confirmed *bool, rejected *bool) int
 	}
 
 	Order struct {
@@ -478,6 +480,7 @@ type MutationResolver interface {
 	NewOrder(ctx context.Context, userID int64, userAddressID int64) (*model.Order, error)
 	CreateInvoice(ctx context.Context, userBillingID int64, number *string, file graphql.Upload) (*model.Invoice, error)
 	DeleteInvoice(ctx context.Context, id int64) (*model.Invoice, error)
+	UpdateInvoiceStatus(ctx context.Context, id int64, status model.InvoiceStatus) (*model.Invoice, error)
 	OrderSupport(ctx context.Context, orderID int64, message string) (*model.Order, error)
 	ConfirmOrder(ctx context.Context, orderID int64) (*model.Order, error)
 	PayOrder(ctx context.Context, orderID int64, paymentMethodCode string) (*model.Order, error)
@@ -792,6 +795,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Invoice.Number(childComplexity), true
 
+	case "Invoice.status":
+		if e.complexity.Invoice.Status == nil {
+			break
+		}
+
+		return e.complexity.Invoice.Status(childComplexity), true
+
 	case "Invoice.userBilling":
 		if e.complexity.Invoice.UserBilling == nil {
 			break
@@ -1027,6 +1037,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateAvatar(childComplexity, args["userID"].(int64), args["file"].(graphql.Upload)), true
+
+	case "Mutation.updateInvoiceStatus":
+		if e.complexity.Mutation.UpdateInvoiceStatus == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateInvoiceStatus_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateInvoiceStatus(childComplexity, args["id"].(int64), args["status"].(model.InvoiceStatus)), true
 
 	case "Mutation.updateOrderRow":
 		if e.complexity.Mutation.UpdateOrderRow == nil {
@@ -3141,6 +3163,30 @@ func (ec *executionContext) field_Mutation_updateAvatar_args(ctx context.Context
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_updateInvoiceStatus_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	var arg1 model.InvoiceStatus
+	if tmp, ok := rawArgs["status"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
+		arg1, err = ec.unmarshalNInvoiceStatus2pillowwwᚋtitwᚋgraphᚋmodelᚐInvoiceStatus(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["status"] = arg1
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_updateOrderRow_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -4958,6 +5004,50 @@ func (ec *executionContext) fieldContext_Invoice_createdAt(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _Invoice_status(ctx context.Context, field graphql.CollectedField, obj *model.Invoice) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Invoice_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.InvoiceStatus)
+	fc.Result = res
+	return ec.marshalNInvoiceStatus2pillowwwᚋtitwᚋgraphᚋmodelᚐInvoiceStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Invoice_status(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Invoice",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type InvoiceStatus does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _InvoicePaginator_data(ctx context.Context, field graphql.CollectedField, obj *model.InvoicePaginator) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_InvoicePaginator_data(ctx, field)
 	if err != nil {
@@ -5011,6 +5101,8 @@ func (ec *executionContext) fieldContext_InvoicePaginator_data(ctx context.Conte
 				return ec.fieldContext_Invoice_filePath(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Invoice_createdAt(ctx, field)
+			case "status":
+				return ec.fieldContext_Invoice_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Invoice", field.Name)
 		},
@@ -6120,6 +6212,8 @@ func (ec *executionContext) fieldContext_Mutation_createInvoice(ctx context.Cont
 				return ec.fieldContext_Invoice_filePath(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Invoice_createdAt(ctx, field)
+			case "status":
+				return ec.fieldContext_Invoice_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Invoice", field.Name)
 		},
@@ -6211,6 +6305,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteInvoice(ctx context.Cont
 				return ec.fieldContext_Invoice_filePath(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Invoice_createdAt(ctx, field)
+			case "status":
+				return ec.fieldContext_Invoice_status(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Invoice", field.Name)
 		},
@@ -6223,6 +6319,99 @@ func (ec *executionContext) fieldContext_Mutation_deleteInvoice(ctx context.Cont
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_deleteInvoice_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateInvoiceStatus(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateInvoiceStatus(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateInvoiceStatus(rctx, fc.Args["id"].(int64), fc.Args["status"].(model.InvoiceStatus))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAdmin == nil {
+				return nil, errors.New("directive isAdmin is not implemented")
+			}
+			return ec.directives.IsAdmin(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Invoice); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *pillowww/titw/graph/model.Invoice`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Invoice)
+	fc.Result = res
+	return ec.marshalNInvoice2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐInvoice(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateInvoiceStatus(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Invoice_id(ctx, field)
+			case "userBillingID":
+				return ec.fieldContext_Invoice_userBillingID(ctx, field)
+			case "userBilling":
+				return ec.fieldContext_Invoice_userBilling(ctx, field)
+			case "number":
+				return ec.fieldContext_Invoice_number(ctx, field)
+			case "fileUrl":
+				return ec.fieldContext_Invoice_fileUrl(ctx, field)
+			case "filePath":
+				return ec.fieldContext_Invoice_filePath(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Invoice_createdAt(ctx, field)
+			case "status":
+				return ec.fieldContext_Invoice_status(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Invoice", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateInvoiceStatus_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -20546,7 +20735,7 @@ func (ec *executionContext) unmarshalInputInvoiceFilter(ctx context.Context, obj
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"userBillingId", "number", "from", "to"}
+	fieldsInOrder := [...]string{"userBillingId", "number", "from", "to", "status"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -20645,6 +20834,30 @@ func (ec *executionContext) unmarshalInputInvoiceFilter(ctx context.Context, obj
 				it.To = data
 			} else if tmp == nil {
 				it.To = nil
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be *string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+		case "status":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
+			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalOString2ᚖstring(ctx, v) }
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				if ec.directives.EmptyStringToNull == nil {
+					return nil, errors.New("directive emptyStringToNull is not implemented")
+				}
+				return ec.directives.EmptyStringToNull(ctx, obj, directive0)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(*string); ok {
+				it.Status = data
+			} else if tmp == nil {
+				it.Status = nil
 			} else {
 				err := fmt.Errorf(`unexpected type %T from directive, should be *string`, tmp)
 				return it, graphql.ErrorOnPath(ctx, err)
@@ -21691,6 +21904,13 @@ func (ec *executionContext) _Invoice(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
+		case "status":
+
+			out.Values[i] = ec._Invoice_status(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -21883,6 +22103,15 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteInvoice(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "updateInvoiceStatus":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateInvoiceStatus(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
@@ -25402,6 +25631,16 @@ func (ec *executionContext) marshalNInvoicePaginator2ᚖpillowwwᚋtitwᚋgraph�
 		return graphql.Null
 	}
 	return ec._InvoicePaginator(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNInvoiceStatus2pillowwwᚋtitwᚋgraphᚋmodelᚐInvoiceStatus(ctx context.Context, v interface{}) (model.InvoiceStatus, error) {
+	var res model.InvoiceStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNInvoiceStatus2pillowwwᚋtitwᚋgraphᚋmodelᚐInvoiceStatus(ctx context.Context, sel ast.SelectionSet, v model.InvoiceStatus) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalNLegalEntityType2pillowwwᚋtitwᚋgraphᚋmodelᚐLegalEntityType(ctx context.Context, sel ast.SelectionSet, v model.LegalEntityType) graphql.Marshaler {

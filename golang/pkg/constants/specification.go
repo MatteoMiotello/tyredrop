@@ -28,3 +28,7 @@ const (
 	TYRE_SPEC_EXTERNAL_ROLLING_NOISE_LEVEL ProductSpecification = "EXTERNAL_ROLLING_NOISE_LEVEL"
 	TYRE_SPEC_LOAD_VERSION                 ProductSpecification = "LOAD_VERSION"
 )
+
+func (r ProductSpecification) String() string {
+	return string(r)
+}

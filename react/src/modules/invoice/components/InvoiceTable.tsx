@@ -4,7 +4,12 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {ColumnDef} from "@tanstack/react-table";
 import React from "react";
 import Moment from "react-moment";
-import {AllUserInvoicesQuery, AllUserInvoicesQueryVariables, Invoice} from "../../../__generated__/graphql";
+import {
+    AllUserInvoicesQuery,
+    AllUserInvoicesQueryVariables,
+    Invoice,
+    InvoiceStatus
+} from "../../../__generated__/graphql";
 import { FilteredTable, Input, TableButtons, useForm} from "../../../common/components/shelly-ui";
 import {useGraphTable} from "../../../hooks/useGraphTable";
 
@@ -22,6 +27,17 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({query}) => {
             accessorKey: 'createdAt',
             header: "Data",
             cell: (p) => <Moment date={p.getValue() as string} format="D/M/YYYY"></Moment>
+        },
+        {
+            accessorKey: 'status',
+            header: "Stato Pagamento",
+            cell: (p) => <>
+                {
+                    p.getValue() == InvoiceStatus.ToPay ?
+                        <span className="text-error font-semibold"> Da pagare </span>:
+                        <span className="text-success font-semibold"> Pagata </span>
+                }
+            </>
         },
         {
             id: "actions",

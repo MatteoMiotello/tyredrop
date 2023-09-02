@@ -63,6 +63,7 @@ type InvoiceFilter struct {
 	Number        *string `json:"number,omitempty"`
 	From          *string `json:"from,omitempty"`
 	To            *string `json:"to,omitempty"`
+	Status        *string `json:"status,omitempty"`
 }
 
 type InvoicePaginator struct {
@@ -213,6 +214,47 @@ type VehicleType struct {
 	ID   int64  `json:"ID"`
 	Code string `json:"code"`
 	Name string `json:"name"`
+}
+
+type InvoiceStatus string
+
+const (
+	InvoiceStatusPayed InvoiceStatus = "PAYED"
+	InvoiceStatusToPay InvoiceStatus = "TO_PAY"
+)
+
+var AllInvoiceStatus = []InvoiceStatus{
+	InvoiceStatusPayed,
+	InvoiceStatusToPay,
+}
+
+func (e InvoiceStatus) IsValid() bool {
+	switch e {
+	case InvoiceStatusPayed, InvoiceStatusToPay:
+		return true
+	}
+	return false
+}
+
+func (e InvoiceStatus) String() string {
+	return string(e)
+}
+
+func (e *InvoiceStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = InvoiceStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid InvoiceStatus", str)
+	}
+	return nil
+}
+
+func (e InvoiceStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 type OrderStatus string

@@ -12,7 +12,7 @@ import (
 
 // AllInvoices is the resolver for the allInvoices field.
 func (r *queryResolver) AllInvoices(ctx context.Context, pagination model.PaginationInput, input model.InvoiceFilter) (*model.InvoicePaginator, error) {
-	allInvoices, err := r.InvoiceDao.FindAll(ctx, input.UserBillingID, nil, nil, nil)
+	allInvoices, err := r.InvoiceDao.FindAll(ctx, input.UserBillingID, nil, nil, nil, nil)
 
 	if err != nil {
 		return nil, err
@@ -20,7 +20,7 @@ func (r *queryResolver) AllInvoices(ctx context.Context, pagination model.Pagina
 
 	invoices, err := r.InvoiceDao.
 		Paginate(pagination.Limit, pagination.Offset).
-		FindAll(ctx, input.UserBillingID, input.From, input.To, input.Number)
+		FindAll(ctx, input.UserBillingID, input.From, input.To, input.Number, input.Status)
 
 	if err != nil {
 		return nil, err
