@@ -7,11 +7,19 @@ package resolvers
 import (
 	"context"
 	"pillowww/titw/graph/converters"
+	"pillowww/titw/graph/graphErrors"
 	"pillowww/titw/graph/model"
+	"pillowww/titw/graph/policies"
 )
 
 // AllInvoices is the resolver for the allInvoices field.
 func (r *queryResolver) AllInvoices(ctx context.Context, pagination model.PaginationInput, input model.InvoiceFilter) (*model.InvoicePaginator, error) {
+	iPolicy := policies.NewInvoicePolicy(r.UserDao)
+
+	if !iPolicy.CanViewAll(ctx, input.UserBillingID) {
+		return nil, graphErrors.NewNotAuthorizedError(ctx)
+	}
+
 	allInvoices, err := r.InvoiceDao.FindAll(ctx, input.UserBillingID, nil, nil, nil, nil)
 
 	if err != nil {

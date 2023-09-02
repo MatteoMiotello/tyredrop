@@ -125,7 +125,7 @@ const InvoiceAdminTable: React.FC<InvoiceAdminTableProps> = ({query, setInvoiceT
                     },
                     {
                         value: InvoiceStatus.ToPay,
-                        title: "Non pagate"
+                        title: "Da pagare"
                     }
                 ] }/>
             </FilteredTable.FilterField>
