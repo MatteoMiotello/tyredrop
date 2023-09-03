@@ -9,6 +9,7 @@ export const ALL_INVOICES = gql( /* GraphQL */`
                 number
                 fileUrl
                 createdAt
+                status
                 userBilling {
                     id
                     user {
@@ -38,6 +39,7 @@ export const ALL_USER_INVOICES = gql(/* GraphQL */`
                 number
                 fileUrl
                 createdAt
+                status
             }
             pagination {
                 limit

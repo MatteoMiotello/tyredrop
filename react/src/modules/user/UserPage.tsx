@@ -72,8 +72,7 @@ const UserPage: React.FC = () => {
                         </Button>
                     </Panel.Title>
                     <ul>
-                        <li><strong>Nome:</strong> {user.userBilling.name}</li>
-                        <li><strong>Cognome:</strong> {user.userBilling.surname}</li>
+                        <li><strong>Nome completo:</strong> {user.userBilling.name} {user.userBilling.surname}</li>
                         <li><strong>Indirizzo 1:</strong> {user.userBilling.addressLine1}</li>
                         {user.userBilling.addressLine2 &&
                             <li><strong>Indirizzo 2:</strong> {user.userBilling.addressLine2}</li>}

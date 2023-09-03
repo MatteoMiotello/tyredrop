@@ -3,6 +3,7 @@ input InvoiceFilter {
     number: String @emptyStringToNull
     from: String @emptyStringToNull
     to: String @emptyStringToNull
+    status: String @emptyStringToNull
 }
 
 type InvoicePaginator {

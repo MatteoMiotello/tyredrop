@@ -4,7 +4,9 @@ import (
 	"context"
 	"github.com/volatiletech/null/v8"
 	"pillowww/titw/internal/domain/language"
+	"pillowww/titw/internal/email/mailer"
 	"pillowww/titw/models"
+	"pillowww/titw/pkg/log"
 	"pillowww/titw/pkg/security"
 	"strconv"
 	"strings"
@@ -70,6 +72,16 @@ func (s Service) CreateUserFromPayload(ctx context.Context, payload CreateUserPa
 	if err != nil {
 		return nil, err
 	}
+
+	go func(u *models.User) {
+		um := mailer.NewUserMailer(u)
+
+		err := um.SendNewUserNotification()
+
+		if err != nil {
+			log.Error("Error sending new user notification", err)
+		}
+	}(&newUser)
 
 	return &newUser, nil
 }

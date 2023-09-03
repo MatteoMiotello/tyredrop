@@ -7,7 +7,7 @@ type BrandLogoHandler struct {
 func NewBrandLogoHandler() *BrandLogoHandler {
 	return &BrandLogoHandler{
 		&fsHandler{
-			BasePath:   rootPath + "/images",
+			BasePath:   "./assets/images",
 			PublicPath: "/assets/img",
 		},
 	}
