@@ -1,13 +1,18 @@
 import React, {useEffect, useState} from "react";
-import {useLoaderData} from "react-router-dom";
-import {FetchUserQuery, User} from "../../__generated__/graphql";
+import {useLoaderData, useNavigate} from "react-router-dom";
+import {FetchUserQuery, User, UserBilling} from "../../__generated__/graphql";
 import Panel from "../../common/components-library/Panel";
 import Spinner from "../../common/components/Spinner";
+import {Button, Modal, useForm, useModal} from "../../common/components/shelly-ui";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faPencil} from "@fortawesome/free-solid-svg-icons";
+import UserBillingForm from "./components/UserBillingForm";
 
 const UserPage: React.FC = () => {
     const res = useLoaderData() as { data: FetchUserQuery, loading: boolean };
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setLoading] = useState<boolean>(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (res?.data) {
@@ -17,6 +22,14 @@ const UserPage: React.FC = () => {
         setLoading(res.loading);
     }, [res]);
 
+    const billingModal = useModal();
+    const billingForm = useForm({
+        onSuccess: () => {
+            billingModal.close();
+            navigate( '.', {replace: true} );
+        }
+    });
+
     if (isLoading || !user) {
         return <main className="relative">
             <Spinner/>
@@ -24,6 +37,20 @@ const UserPage: React.FC = () => {
     }
 
     return <main className="flex flex-wrap gap-2 w-full">
+        <Modal modal={billingModal}>
+            <Modal.Title>
+                Modifica i dati di fatturazione
+            </Modal.Title>
+            <UserBillingForm form={billingForm} userBilling={user.userBilling as UserBilling}/>
+            <Modal.Actions>
+                <Button onClick={billingModal.close}>
+                    Annulla
+                </Button>
+                <Button buttonType="primary" onClick={billingForm.submitForm}>
+                    Salva
+                </Button>
+            </Modal.Actions>
+        </Modal>
         <Panel className="flex-auto w-1/2">
             <Panel.Title>
                 Dati dell'utente
@@ -40,6 +67,9 @@ const UserPage: React.FC = () => {
                 <Panel className="flex-auto w-1/2">
                     <Panel.Title>
                         Dati di fatturazione
+                        <Button size="sm" onClick={() => billingModal.open()}>
+                            <FontAwesomeIcon icon={faPencil} />
+                        </Button>
                     </Panel.Title>
                     <ul>
                         <li><strong>Nome:</strong> {user.userBilling.name}</li>

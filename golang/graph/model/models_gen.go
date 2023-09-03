@@ -13,6 +13,20 @@ type AdditionValue struct {
 	Value        float64 `json:"value"`
 }
 
+type BillingInput struct {
+	LegalEntityTypeID int64   `json:"legalEntityTypeID"`
+	Name              string  `json:"name"`
+	Surname           *string `json:"surname,omitempty"`
+	FiscalCode        string  `json:"fiscalCode"`
+	VatNumber         *string `json:"vatNumber,omitempty"`
+	AddressLine1      string  `json:"addressLine1"`
+	AddressLine2      *string `json:"addressLine2,omitempty"`
+	City              string  `json:"city"`
+	Province          string  `json:"province"`
+	Cap               string  `json:"cap"`
+	Country           string  `json:"country"`
+}
+
 type Brand struct {
 	ID        int64  `json:"id"`
 	Name      string `json:"name"`

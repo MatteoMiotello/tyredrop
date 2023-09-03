@@ -65,6 +65,13 @@ const Input = forwardRef<HTMLInputElement, InputComponentProps>( ( {className, v
 	};
 
 	useEffect(() => {
+<<<<<<< Updated upstream
+=======
+		if ( value === "" ) {
+			return;
+		}
+
+>>>>>>> Stashed changes
 		change(value);
 	}, [value]);
 

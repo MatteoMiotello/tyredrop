@@ -1,7 +1,21 @@
-
+input BillingInput {
+    legalEntityTypeID: ID!
+    name: String! @emptyStringToNull
+    surname: String @emptyStringToNull
+    fiscalCode: String! @emptyStringToNull
+    vatNumber: String @emptyStringToNull
+    addressLine1: String! @emptyStringToNull
+    addressLine2: String @emptyStringToNull
+    city: String! @emptyStringToNull
+    province: String! @emptyStringToNull
+    cap: String! @emptyStringToNull
+    country: String! @emptyStringToNull
+}
 
 extend type Mutation {
     updateUserStatus( userID: ID!, confirmed: Boolean, rejected: Boolean ): User! @isAdmin
 
     updateAvatar( userID: ID!, file: Upload! ): User! @userConfirmed
+
+    updateUserBilling( userBillingID: ID!, billingInput: BillingInput ): UserBilling! @userConfirmed
 }

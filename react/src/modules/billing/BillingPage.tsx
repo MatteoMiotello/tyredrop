@@ -46,7 +46,7 @@ const BillingPage: React.FC = () => {
                     country: input.country,
                     fiscalCode: input.fiscal_code,
                     iban: input.iban,
-                    legalEntityTypeId: input.entity_type.value,
+                    legalEntityTypeId: input.entity_type,
                     name: input.name,
                     province: input.province,
                     surname: input.surname as string,
