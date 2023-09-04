@@ -33,7 +33,7 @@ func (s SupportController) SendSupportEmail(ctx *gin.Context) {
 	}
 
 	sm := mailer.NewSupportMailer()
-	err = sm.SendResetEmail(payload.Email, payload.Phone, payload.Name, payload.Message)
+	err = sm.SendSupportEmail(payload.Email, payload.Phone, payload.Name, payload.Message)
 
 	if err != nil {
 		log.Error("Error sending support email", err)

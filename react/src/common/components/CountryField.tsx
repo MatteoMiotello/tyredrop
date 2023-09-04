@@ -20,7 +20,7 @@ const handleQuery: AutocompleteQueryHandler = async (query: string) => {
 
 type CountryFieldProps = {
     name: string
-    className: string
+    className?: string
     defaultValue?: string
 } & SelectHTMLAttributes<any>
 const CountryField: React.FC<CountryFieldProps> = (props) => {

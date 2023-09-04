@@ -12,8 +12,8 @@ type SpecificationFieldProps = {
     toId?: boolean
 }
 const SpecificationField: React.FC<SpecificationFieldProps> = ({specificationCode, name, placeholder, vehicleCode, toId}) => {
-    const [load, query] = useLazyQuery(SEARCH_PRODUCT_SPECIFICATION_VALUES);
-
+    const [load] = useLazyQuery(SEARCH_PRODUCT_SPECIFICATION_VALUES);
+    
     return <Autocomplete
         placeholder={placeholder}
         getOptions={async (query) => {
@@ -22,7 +22,8 @@ const SpecificationField: React.FC<SpecificationFieldProps> = ({specificationCod
                     code: specificationCode,
                     value: query,
                     vehicleCode: vehicleCode
-                }
+                },
+                fetchPolicy: 'no-cache'
             });
 
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment

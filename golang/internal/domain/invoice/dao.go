@@ -3,6 +3,7 @@ package invoice
 import (
 	"context"
 	"fmt"
+	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"pillowww/titw/internal/db"
@@ -46,12 +47,12 @@ func (d Dao) FindOneById(ctx context.Context, id int64) (*models.Invoice, error)
 	).One(ctx, d.Db)
 }
 
-func (d Dao) FindAll(ctx context.Context, userBillingId *int64, from *string, to *string, number *string) (models.InvoiceSlice, error) {
+func (d Dao) FindAll(ctx context.Context, userBillingId *int64, from *string, to *string, number *string, status *string) (models.InvoiceSlice, error) {
 	var mods []qm.QueryMod
 
 	mods = append(mods, qm.OrderBy(models.InvoiceColumns.CreatedAt+" DESC"))
 
-	if userBillingId != nil {
+	if userBillingId != nil && *userBillingId > 0 {
 		mods = append(mods, models.InvoiceWhere.UserBillingID.EQ(*userBillingId))
 	}
 
@@ -77,6 +78,10 @@ func (d Dao) FindAll(ctx context.Context, userBillingId *int64, from *string, to
 
 	if number != nil {
 		mods = append(mods, qm.Where("invoices.number LIKE ?", fmt.Sprintf("%%%s%%", *number)))
+	}
+
+	if status != nil && len(*status) > 0 {
+		mods = append(mods, models.InvoiceWhere.Status.EQ(null.StringFromPtr(status)))
 	}
 
 	return models.Invoices(d.GetMods(

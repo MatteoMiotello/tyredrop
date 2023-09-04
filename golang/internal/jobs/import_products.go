@@ -34,7 +34,7 @@ func ImportProductsFromFile() {
 
 	_, err := product.NewPriceMarkupDao(db.DB).FindPriceMarkupDefault(ctx)
 	if err != nil {
-		log.Error("Default Price markup not found")
+		log.Error("Default Price markup not found", err)
 		return
 	}
 

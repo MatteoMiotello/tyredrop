@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-const rootPath = "./assets"
+const rootPath = "./storage"
 
 type fsHandler struct {
 	BasePath   string

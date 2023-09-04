@@ -15,3 +15,11 @@ export const DELETE_INVOICE = gql( /*GraphQL*/`
         }
     }
 ` );
+
+export const UPDATE_INVOICE_STATUS = gql( /*GraphQL*/ `
+    mutation updateInvoiceStatus( $id: ID!, $status: InvoiceStatus! ) {
+        updateInvoiceStatus(id: $id, status: $status) {
+            id
+        }
+    }
+`);

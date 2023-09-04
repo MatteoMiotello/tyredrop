@@ -87,6 +87,10 @@ func (s *service) createOrderRowFromCart(ctx context.Context, currency *models.C
 }
 
 func (s *service) CreateNewOrder(ctx context.Context, userBilling *models.UserBilling, address *models.UserAddress, carts models.CartSlice) (*models.Order, error) {
+	if len(carts) == 0 {
+		return nil, errors.New("cart is empty")
+	}
+
 	currentCurrency, err := s.currencyDao.FindDefault(ctx)
 
 	if err != nil {

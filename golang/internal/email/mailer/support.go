@@ -26,7 +26,7 @@ func NewSupportMailer() *SupportMailer {
 	}
 }
 
-func (r SupportMailer) SendResetEmail(emailAddr string, phone string, name string, message string) error {
+func (r SupportMailer) SendSupportEmail(emailAddr string, phone string, name string, message string) error {
 	subject := "Richiesta di Assistenza da un Cliente"
 
 	body, err := r.templater.Process("support_email", templates.NewEmailParams(

@@ -4,7 +4,7 @@ import Panel from "../../../common/components-library/Panel";
 import {
     ChangeUserStatusMutation,
     ChangeUserStatusMutationVariables,
-    FetchUserQuery, User
+    FetchUserQuery, User, UserBilling
 } from "../../../__generated__/graphql";
 import {Alert, Button, useModal} from "../../../common/components/shelly-ui";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -13,6 +13,8 @@ import {useMutation} from "../../../common/backend/graph/hooks";
 import {UPDATE_USER_STATUS} from "../../../common/backend/graph/mutation/users";
 import ConfirmModal from "../../user/components/ConfirmModal";
 import UserOrdersPanel from "../components/User/UserOrdersPanel";
+import UserBillingPanel from "../../user/components/UserBillingPanel";
+import UserEducumentPanel from "../../user/components/UserEducumentPanel";
 
 const UserDetailsPage: React.FC = () => {
     const data = useLoaderData() as { data: FetchUserQuery };
@@ -52,7 +54,8 @@ const UserDetailsPage: React.FC = () => {
             mutate({
                 variables: variables
             }).then(() => navigate('.', {replace: true}));
-        }} modalTitle={  `Confermi di voler ${ action == 'confirm' ? 'approvare' : 'rifiutare' } l'utente ${data.data.user?.email} ?`}/>
+        }}
+                      modalTitle={`Confermi di voler ${action == 'confirm' ? 'approvare' : 'rifiutare'} l'utente ${data.data.user?.email} ?`}/>
         {
             data.data?.user?.rejected &&
             <Alert type="error">
@@ -92,34 +95,15 @@ const UserDetailsPage: React.FC = () => {
         {
             data.data.user?.userBilling &&
             <>
-                <Panel className="flex-auto w-1/2">
-                    <Panel.Title>
-                        Dati di fatturazione
-                    </Panel.Title>
-                    <ul>
-                        <li><strong>Nome:</strong> {data.data.user.userBilling.name}</li>
-                        <li><strong>Cognome:</strong> {data.data.user.userBilling.surname}</li>
-                        <li><strong>Indirizzo 1:</strong> {data.data.user.userBilling.addressLine1}</li>
-                        {data.data.user.userBilling.addressLine2 &&
-                            <li><strong>Indirizzo 2:</strong> {data.data.user.userBilling.addressLine2}</li>}
-                        <li><strong>Città:</strong> {data.data.user.userBilling.city}</li>
-                        <li><strong>Paese:</strong> {data.data.user.userBilling.country}</li>
-                        <li><strong>Provincia:</strong> {data.data.user.userBilling.province}</li>
-                        <li><strong>CAP:</strong> {data.data.user.userBilling.cap}</li>
-                        <li><strong>Codice fiscale:</strong> {data.data.user.userBilling.fiscalCode}</li>
-                        <li><strong>Partita IVA:</strong> {data.data.user.userBilling.vatNumber}</li>
-                        <li><strong>Tipo entità legale:</strong> {data.data.user.userBilling.legalEntityType.name}</li>
-                    </ul>
-                </Panel>
-                <Panel className="flex-auto">
-                    <Panel.Title>
-                        Fatturazione elettronica
-                    </Panel.Title>
-                    <ul>
-                        <li><strong>Codice destinatario: </strong> {data.data.user.userBilling?.sdiCode}</li>
-                        <li><strong>PEC: </strong> {data.data.user.userBilling.sdiPec}</li>
-                    </ul>
-                </Panel>
+                <UserBillingPanel
+                    className="flex-auto w-1/2"
+                    userBilling={data.data.user.userBilling as UserBilling}
+                    onUpdate={() => navigate('.', {replace: true})}/>
+                <UserEducumentPanel
+                    className="flex-auto"
+                    userBilling={data.data.user.userBilling as UserBilling}
+                    onUpdate={() => navigate('.', {replace: true})}
+                />
             </>
         }
         {

@@ -66,7 +66,7 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
         {
             accessorKey: "content",
             header: "Misura",
-            size: 250,
+            size: 350,
             cell: (props: CellContext<ProductRowItemData, any>) => <ProductTitle showBrand={true}
                                                                                  data={props.row.original}/>
         },

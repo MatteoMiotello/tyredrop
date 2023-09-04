@@ -13,6 +13,20 @@ type AdditionValue struct {
 	Value        float64 `json:"value"`
 }
 
+type BillingInput struct {
+	LegalEntityTypeID int64   `json:"legalEntityTypeID"`
+	Name              string  `json:"name"`
+	Surname           *string `json:"surname,omitempty"`
+	FiscalCode        string  `json:"fiscalCode"`
+	VatNumber         *string `json:"vatNumber,omitempty"`
+	AddressLine1      string  `json:"addressLine1"`
+	AddressLine2      *string `json:"addressLine2,omitempty"`
+	City              string  `json:"city"`
+	Province          string  `json:"province"`
+	Cap               string  `json:"cap"`
+	Country           string  `json:"country"`
+}
+
 type Brand struct {
 	ID        int64  `json:"id"`
 	Name      string `json:"name"`
@@ -58,11 +72,17 @@ type Currency struct {
 	Name    string `json:"name"`
 }
 
+type EdocumentInput struct {
+	SdiCode string `json:"sdiCode"`
+	SdiPec  string `json:"sdiPec"`
+}
+
 type InvoiceFilter struct {
 	UserBillingID *int64  `json:"userBillingId,omitempty"`
 	Number        *string `json:"number,omitempty"`
 	From          *string `json:"from,omitempty"`
 	To            *string `json:"to,omitempty"`
+	Status        *string `json:"status,omitempty"`
 }
 
 type InvoicePaginator struct {
@@ -213,6 +233,47 @@ type VehicleType struct {
 	ID   int64  `json:"ID"`
 	Code string `json:"code"`
 	Name string `json:"name"`
+}
+
+type InvoiceStatus string
+
+const (
+	InvoiceStatusPayed InvoiceStatus = "PAYED"
+	InvoiceStatusToPay InvoiceStatus = "TO_PAY"
+)
+
+var AllInvoiceStatus = []InvoiceStatus{
+	InvoiceStatusPayed,
+	InvoiceStatusToPay,
+}
+
+func (e InvoiceStatus) IsValid() bool {
+	switch e {
+	case InvoiceStatusPayed, InvoiceStatusToPay:
+		return true
+	}
+	return false
+}
+
+func (e InvoiceStatus) String() string {
+	return string(e)
+}
+
+func (e *InvoiceStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = InvoiceStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid InvoiceStatus", str)
+	}
+	return nil
+}
+
+func (e InvoiceStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 type OrderStatus string

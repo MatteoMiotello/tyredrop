@@ -1,6 +1,11 @@
 import React from "react";
 import {useLoaderData} from "react-router-dom";
-import {AllUserInvoicesQuery, AllUserInvoicesQueryVariables, FetchUserQuery} from "../../__generated__/graphql";
+import {
+    AllUserInvoicesQuery,
+    AllUserInvoicesQueryVariables,
+    FetchUserQuery,
+    UserBilling
+} from "../../__generated__/graphql";
 import {useQuery} from "../../common/backend/graph/hooks";
 import { ALL_USER_INVOICES} from "../../common/backend/graph/query/invoice";
 import Panel from "../../common/components-library/Panel";
@@ -33,7 +38,7 @@ const UserInvoicesPage: React.FC = () => {
             </Panel.Title>
             {
                 query.data &&
-                <InvoiceTable query={query}/>
+                <InvoiceTable query={query} userBilling={user.data.user.userBilling as UserBilling}/>
             }
         </Panel>
     </main>;

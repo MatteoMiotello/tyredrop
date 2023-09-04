@@ -39,7 +39,7 @@ export class FormErrors {
 }
 
 class FormValues<T extends { [key: string]: any } = any> {
-	private formValues: T = {} as T;
+	public formValues: T = {} as T;
 
 	constructor( formValues: T ) {
 		this.formValues = formValues;

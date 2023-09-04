@@ -4,11 +4,13 @@ import React, {useEffect, useState} from "react";
 import {
     AllInvoicesQuery,
     AllInvoicesQueryVariables,
-    DeleteInvoiceMutation, DeleteInvoiceMutationVariables,
-    Invoice
+    DeleteInvoiceMutation,
+    DeleteInvoiceMutationVariables,
+    Invoice,
+    InvoiceStatus
 } from "../../../__generated__/graphql";
 import {useMutation, useQuery} from "../../../common/backend/graph/hooks";
-import {DELETE_INVOICE} from "../../../common/backend/graph/mutation/invoice";
+import {DELETE_INVOICE, UPDATE_INVOICE_STATUS} from "../../../common/backend/graph/mutation/invoice";
 import {ALL_INVOICES} from "../../../common/backend/graph/query/invoice";
 import Panel from "../../../common/components-library/Panel";
 import {Button, Modal, useForm, useModal} from "../../../common/components/shelly-ui";
@@ -28,8 +30,10 @@ const InvoicesPage: React.FC = () => {
         fetchPolicy: 'no-cache'
     });
     const [mutate] = useMutation<DeleteInvoiceMutation, DeleteInvoiceMutationVariables>( DELETE_INVOICE );
+    const [mutateStatus] = useMutation( UPDATE_INVOICE_STATUS );
 
     const [invoiceToDelete, setInvoiceToDelete] = useState<Invoice | undefined>();
+    const [invoiceToUpdate, setInvoiceToUpdate] = useState<Invoice | undefined>();
 
     const modal = useModal();
     const form = useForm({
@@ -51,6 +55,18 @@ const InvoicesPage: React.FC = () => {
         confirmModal.open();
     }, [invoiceToDelete]);
 
+    const updateModal = useModal({
+        onClose: () => setInvoiceToUpdate(undefined)
+    });
+
+    useEffect(() => {
+        if (invoiceToUpdate === undefined) {
+            return;
+        }
+
+        updateModal.open();
+    }, [invoiceToUpdate]);
+
     return <main>
         <ConfirmModal modal={confirmModal}
                       onConfirm={ () => {
@@ -68,6 +84,23 @@ const InvoicesPage: React.FC = () => {
                           } );
                       } }
                       modalTitle="Confermi di voler eliminare la fattura?"/>
+        <ConfirmModal modal={updateModal}
+                      modalTitle={ `Confermi di voler impostare come ${invoiceToUpdate?.status == InvoiceStatus.ToPay ? 'pagata' : 'da pagare'} la fattura numero: ${invoiceToUpdate?.number}?` }
+                      onConfirm={ () => {
+                          if ( invoiceToUpdate === undefined ) {
+                              return;
+                          }
+
+                          mutateStatus( {
+                              variables: {
+                                  id: invoiceToUpdate.id,
+                                  status: (invoiceToUpdate.status == InvoiceStatus.ToPay ) ? InvoiceStatus.Payed : InvoiceStatus.ToPay
+                              }
+                          } ).then( () => {
+                              updateModal.close();
+                              query.refetch();
+                          } );
+                      } }/>
         <Modal modal={modal}>
             <Modal.Title>
                 Inserisci una nuova fattura
@@ -91,7 +124,7 @@ const InvoicesPage: React.FC = () => {
             </Panel.Title>
             {
                 query.data &&
-                <InvoiceAdminTable setInvoiceToDelete={setInvoiceToDelete} query={query}/>
+                <InvoiceAdminTable setInvoiceToDelete={setInvoiceToDelete} setInvoiceToUpdate={setInvoiceToUpdate} query={query}/>
             }
         </Panel>
     </main>;

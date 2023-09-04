@@ -168,7 +168,7 @@ const CheckoutPanel: React.FC = () => {
                 type="secondary"
                 onClick={confirmOrder}
                 loading={loading}
-                disabled={!selectedAddress || !totalPrice}
+                disabled={selectedAddress === undefined || !totalPrice?.totalValue}
             >
                 {t("cart.checkout_button")}
             </Button>

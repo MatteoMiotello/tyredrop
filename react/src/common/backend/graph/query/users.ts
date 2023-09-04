@@ -76,6 +76,7 @@ export const USER = gql`
                 sdiCode
                 sdiPec
                 legalEntityType {
+                    id
                     name
                 }
             }
