@@ -72,6 +72,11 @@ type Currency struct {
 	Name    string `json:"name"`
 }
 
+type EdocumentInput struct {
+	SdiCode string `json:"sdiCode"`
+	SdiPec  string `json:"sdiPec"`
+}
+
 type InvoiceFilter struct {
 	UserBillingID *int64  `json:"userBillingId,omitempty"`
 	Number        *string `json:"number,omitempty"`

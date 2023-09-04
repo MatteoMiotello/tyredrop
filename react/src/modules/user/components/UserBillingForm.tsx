@@ -7,7 +7,6 @@ import {
     UpdateUserBillingMutationVariables,
     UserBilling
 } from "../../../__generated__/graphql";
-import UserEdocumentFields from "./UserEdocumentFields";
 import {useMutation} from "../../../common/backend/graph/hooks";
 import {UPDATE_USER_BILLING} from "../../../common/backend/graph/mutation/users";
 
@@ -31,8 +30,6 @@ const UserBillingForm: React.FC<UserBillingFormProps> = ({form, userBilling}) =>
             city: userBilling?.city,
             province: userBilling?.province,
             cap: userBilling?.cap,
-            sdi_code: userBilling?.sdiCode,
-            sdi_pec: userBilling?.sdiPec,
         });
     }, [userBilling]);
 
@@ -56,7 +53,6 @@ const UserBillingForm: React.FC<UserBillingFormProps> = ({form, userBilling}) =>
     })}>
         <Form.GridLayout>
             <UserBillingFields form={form}/>
-            <UserEdocumentFields form={form}/>
         </Form.GridLayout>
     </Form>;
 };

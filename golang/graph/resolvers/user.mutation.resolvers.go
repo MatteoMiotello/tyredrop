@@ -99,7 +99,7 @@ func (r *mutationResolver) UpdateAvatar(ctx context.Context, userID int64, file 
 }
 
 // UpdateUserBilling is the resolver for the updateUserBilling field.
-func (r *mutationResolver) UpdateUserBilling(ctx context.Context, userBillingID int64, billingInput *model.BillingInput) (*model.UserBilling, error) {
+func (r *mutationResolver) UpdateUserBilling(ctx context.Context, userBillingID int64, billingInput *model.BillingInput, edocumentInput *model.EdocumentInput) (*model.UserBilling, error) {
 	ub, err := r.UserDao.FindUserBillingById(ctx, userBillingID)
 
 	if err != nil {
@@ -130,6 +130,11 @@ func (r *mutationResolver) UpdateUserBilling(ctx context.Context, userBillingID 
 		ub.Country = billingInput.Country
 		ub.Province = billingInput.Province
 		ub.Cap = billingInput.Cap
+	}
+
+	if edocumentInput != nil {
+		ub.SdiPec = null.StringFrom(edocumentInput.SdiPec)
+		ub.SdiCode = null.StringFrom(edocumentInput.SdiCode)
 	}
 
 	err = r.UserDao.Save(ctx, ub)

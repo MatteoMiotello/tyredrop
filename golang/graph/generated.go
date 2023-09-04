@@ -65,6 +65,7 @@ type DirectiveRoot struct {
 	EmptyStringToNull func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
 	IsAdmin           func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
 	NotEmpty          func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
+	Rule              func(ctx context.Context, obj interface{}, next graphql.Resolver, constraint string) (res interface{}, err error)
 	UserConfirmed     func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
 }
 
@@ -147,7 +148,7 @@ type ComplexityRoot struct {
 		UpdateOrderRow      func(childComplexity int, rowID int64, input model.OrderRowInput) int
 		UpdateOrderStatus   func(childComplexity int, orderID int64, newStatus model.OrderStatus) int
 		UpdatePriceMarkup   func(childComplexity int, id int64, input model.PriceMarkupInput) int
-		UpdateUserBilling   func(childComplexity int, userBillingID int64, billingInput *model.BillingInput) int
+		UpdateUserBilling   func(childComplexity int, userBillingID int64, billingInput *model.BillingInput, edocumentInput *model.EdocumentInput) int
 		UpdateUserStatus    func(childComplexity int, userID int64, confirmed *bool, rejected *bool) int
 	}
 
@@ -491,7 +492,7 @@ type MutationResolver interface {
 	UpdatePriceMarkup(ctx context.Context, id int64, input model.PriceMarkupInput) (*model.ProductPriceMarkup, error)
 	UpdateUserStatus(ctx context.Context, userID int64, confirmed *bool, rejected *bool) (*model.User, error)
 	UpdateAvatar(ctx context.Context, userID int64, file graphql.Upload) (*model.User, error)
-	UpdateUserBilling(ctx context.Context, userBillingID int64, billingInput *model.BillingInput) (*model.UserBilling, error)
+	UpdateUserBilling(ctx context.Context, userBillingID int64, billingInput *model.BillingInput, edocumentInput *model.EdocumentInput) (*model.UserBilling, error)
 }
 type OrderResolver interface {
 	Currency(ctx context.Context, obj *model.Order) (*model.Currency, error)
@@ -1098,7 +1099,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateUserBilling(childComplexity, args["userBillingID"].(int64), args["billingInput"].(*model.BillingInput)), true
+		return e.complexity.Mutation.UpdateUserBilling(childComplexity, args["userBillingID"].(int64), args["billingInput"].(*model.BillingInput), args["edocumentInput"].(*model.EdocumentInput)), true
 
 	case "Mutation.updateUserStatus":
 		if e.complexity.Mutation.UpdateUserStatus == nil {
@@ -2760,6 +2761,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputBillingInput,
 		ec.unmarshalInputCreateAdminUserInput,
 		ec.unmarshalInputCreateUserBilling,
+		ec.unmarshalInputEdocumentInput,
 		ec.unmarshalInputInvoiceFilter,
 		ec.unmarshalInputOrderFilterInput,
 		ec.unmarshalInputOrderRowInput,
@@ -2871,6 +2873,21 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) dir_rule_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["constraint"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("constraint"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["constraint"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Mutation_addItemToCart_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -3295,6 +3312,15 @@ func (ec *executionContext) field_Mutation_updateUserBilling_args(ctx context.Co
 		}
 	}
 	args["billingInput"] = arg1
+	var arg2 *model.EdocumentInput
+	if tmp, ok := rawArgs["edocumentInput"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("edocumentInput"))
+		arg2, err = ec.unmarshalOEdocumentInput2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐEdocumentInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["edocumentInput"] = arg2
 	return args, nil
 }
 
@@ -7465,7 +7491,7 @@ func (ec *executionContext) _Mutation_updateUserBilling(ctx context.Context, fie
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().UpdateUserBilling(rctx, fc.Args["userBillingID"].(int64), fc.Args["billingInput"].(*model.BillingInput))
+			return ec.resolvers.Mutation().UpdateUserBilling(rctx, fc.Args["userBillingID"].(int64), fc.Args["billingInput"].(*model.BillingInput), fc.Args["edocumentInput"].(*model.EdocumentInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.UserConfirmed == nil {
@@ -20712,8 +20738,18 @@ func (ec *executionContext) unmarshalInputBillingInput(ctx context.Context, obj 
 				}
 				return ec.directives.EmptyStringToNull(ctx, obj, directive0)
 			}
+			directive2 := func(ctx context.Context) (interface{}, error) {
+				constraint, err := ec.unmarshalNString2string(ctx, "required")
+				if err != nil {
+					return nil, err
+				}
+				if ec.directives.Rule == nil {
+					return nil, errors.New("directive rule is not implemented")
+				}
+				return ec.directives.Rule(ctx, obj, directive1, constraint)
+			}
 
-			tmp, err := directive1(ctx)
+			tmp, err := directive2(ctx)
 			if err != nil {
 				return it, graphql.ErrorOnPath(ctx, err)
 			}
@@ -20758,8 +20794,18 @@ func (ec *executionContext) unmarshalInputBillingInput(ctx context.Context, obj 
 				}
 				return ec.directives.EmptyStringToNull(ctx, obj, directive0)
 			}
+			directive2 := func(ctx context.Context) (interface{}, error) {
+				constraint, err := ec.unmarshalNString2string(ctx, "required,max=16,min=11")
+				if err != nil {
+					return nil, err
+				}
+				if ec.directives.Rule == nil {
+					return nil, errors.New("directive rule is not implemented")
+				}
+				return ec.directives.Rule(ctx, obj, directive1, constraint)
+			}
 
-			tmp, err := directive1(ctx)
+			tmp, err := directive2(ctx)
 			if err != nil {
 				return it, graphql.ErrorOnPath(ctx, err)
 			}
@@ -20804,8 +20850,18 @@ func (ec *executionContext) unmarshalInputBillingInput(ctx context.Context, obj 
 				}
 				return ec.directives.EmptyStringToNull(ctx, obj, directive0)
 			}
+			directive2 := func(ctx context.Context) (interface{}, error) {
+				constraint, err := ec.unmarshalNString2string(ctx, "required")
+				if err != nil {
+					return nil, err
+				}
+				if ec.directives.Rule == nil {
+					return nil, errors.New("directive rule is not implemented")
+				}
+				return ec.directives.Rule(ctx, obj, directive1, constraint)
+			}
 
-			tmp, err := directive1(ctx)
+			tmp, err := directive2(ctx)
 			if err != nil {
 				return it, graphql.ErrorOnPath(ctx, err)
 			}
@@ -20850,8 +20906,18 @@ func (ec *executionContext) unmarshalInputBillingInput(ctx context.Context, obj 
 				}
 				return ec.directives.EmptyStringToNull(ctx, obj, directive0)
 			}
+			directive2 := func(ctx context.Context) (interface{}, error) {
+				constraint, err := ec.unmarshalNString2string(ctx, "required")
+				if err != nil {
+					return nil, err
+				}
+				if ec.directives.Rule == nil {
+					return nil, errors.New("directive rule is not implemented")
+				}
+				return ec.directives.Rule(ctx, obj, directive1, constraint)
+			}
 
-			tmp, err := directive1(ctx)
+			tmp, err := directive2(ctx)
 			if err != nil {
 				return it, graphql.ErrorOnPath(ctx, err)
 			}
@@ -20872,8 +20938,18 @@ func (ec *executionContext) unmarshalInputBillingInput(ctx context.Context, obj 
 				}
 				return ec.directives.EmptyStringToNull(ctx, obj, directive0)
 			}
+			directive2 := func(ctx context.Context) (interface{}, error) {
+				constraint, err := ec.unmarshalNString2string(ctx, "required")
+				if err != nil {
+					return nil, err
+				}
+				if ec.directives.Rule == nil {
+					return nil, errors.New("directive rule is not implemented")
+				}
+				return ec.directives.Rule(ctx, obj, directive1, constraint)
+			}
 
-			tmp, err := directive1(ctx)
+			tmp, err := directive2(ctx)
 			if err != nil {
 				return it, graphql.ErrorOnPath(ctx, err)
 			}
@@ -20894,8 +20970,18 @@ func (ec *executionContext) unmarshalInputBillingInput(ctx context.Context, obj 
 				}
 				return ec.directives.EmptyStringToNull(ctx, obj, directive0)
 			}
+			directive2 := func(ctx context.Context) (interface{}, error) {
+				constraint, err := ec.unmarshalNString2string(ctx, "required,max=5")
+				if err != nil {
+					return nil, err
+				}
+				if ec.directives.Rule == nil {
+					return nil, errors.New("directive rule is not implemented")
+				}
+				return ec.directives.Rule(ctx, obj, directive1, constraint)
+			}
 
-			tmp, err := directive1(ctx)
+			tmp, err := directive2(ctx)
 			if err != nil {
 				return it, graphql.ErrorOnPath(ctx, err)
 			}
@@ -21220,6 +21306,61 @@ func (ec *executionContext) unmarshalInputCreateUserBilling(ctx context.Context,
 				return it, err
 			}
 			it.SdiPec = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputEdocumentInput(ctx context.Context, obj interface{}) (model.EdocumentInput, error) {
+	var it model.EdocumentInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"sdiCode", "sdiPec"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "sdiCode":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sdiCode"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.SdiCode = data
+		case "sdiPec":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sdiPec"))
+			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNString2string(ctx, v) }
+			directive1 := func(ctx context.Context) (interface{}, error) {
+				constraint, err := ec.unmarshalNString2string(ctx, "required")
+				if err != nil {
+					return nil, err
+				}
+				if ec.directives.Rule == nil {
+					return nil, errors.New("directive rule is not implemented")
+				}
+				return ec.directives.Rule(ctx, obj, directive0, constraint)
+			}
+
+			tmp, err := directive1(ctx)
+			if err != nil {
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
+			if data, ok := tmp.(string); ok {
+				it.SdiPec = data
+			} else {
+				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
+				return it, graphql.ErrorOnPath(ctx, err)
+			}
 		}
 	}
 
@@ -27483,6 +27624,14 @@ func (ec *executionContext) marshalOCurrency2ᚖpillowwwᚋtitwᚋgraphᚋmodel�
 		return graphql.Null
 	}
 	return ec._Currency(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOEdocumentInput2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐEdocumentInput(ctx context.Context, v interface{}) (*model.EdocumentInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputEdocumentInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOID2int64(ctx context.Context, v interface{}) (int64, error) {

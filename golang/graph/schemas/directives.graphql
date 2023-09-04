@@ -5,3 +5,5 @@ directive @notEmpty on INPUT_FIELD_DEFINITION | FIELD_DEFINITION | ARGUMENT_DEFI
 directive @emptyStringToNull on INPUT_FIELD_DEFINITION | FIELD_DEFINITION | ARGUMENT_DEFINITION
 
 directive @userConfirmed on FIELD_DEFINITION
+
+directive @rule(constraint: String!) on INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION
