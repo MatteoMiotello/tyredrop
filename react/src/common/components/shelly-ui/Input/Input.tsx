@@ -65,7 +65,7 @@ const Input = forwardRef<HTMLInputElement, InputComponentProps>( ( {className, v
 	};
 
 	useEffect(() => {
-		if ( value === undefined ) {
+		if ( value === "" ) {
 			return;
 		}
 

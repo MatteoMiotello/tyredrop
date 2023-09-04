@@ -1,30 +1,25 @@
 import {ApolloError} from "@apollo/client";
-import React, {useEffect, useState} from "react";
+import React, {useEffect} from "react";
 import {useTranslation} from "react-i18next";
 import {
-    GetLegalEntityTypesQuery,
-    LegalEntityType
+    GetLegalEntityTypesQuery
 } from "../../../__generated__/graphql";
 import {GET_LEGAL_ENTITY_TYPES} from "../../../common/backend/graph/query/legal-entities";
 import Button from "../../../common/components-library/Button";
-import Form, {useForm} from "../../../common/components-library/Form";
-import Field from "../../../common/components-library/Input";
-import {SelectComponent, SelectOption} from "../../../common/components-library/SelectComponent";
-import CountryField from "../../../common/components/CountryField";
 import Spinner from "../../../common/components/Spinner";
 import {
-    ValidationHandler,
-    email,
-    isRequired,
-    maxCharacters,
-    minCharacters
+    isRequired
 } from "../../../common/validation/validators";
 import {useToast} from "../../../store/toast";
 import {useQuery} from "../../../common/backend/graph/hooks";
+import UserBillingFields from "../../user/components/UserBillingFields";
+import {Form, Input, useForm} from "../../../common/components/shelly-ui";
+import UserEdocumentFields from "../../user/components/UserEdocumentFields";
+import {maxCharacters, minCharacters} from "../../../common/components/shelly-ui/Input";
 
 
 export type BillingInput = {
-    entity_type: SelectOption
+    entity_type: string
     name: string
     surname?: string | undefined
     fiscal_code?: string | null
@@ -47,44 +42,39 @@ type BillingFormProps = {
 }
 
 export const BillingForm: React.FC<BillingFormProps> = (props) => {
-    const [isPerson, setIsPerson] = useState<boolean>(true);
-    const [options, setOptions] = useState<(SelectOption | null)[]>([]);
-
     const {loading, error, data} = useQuery<GetLegalEntityTypesQuery>(GET_LEGAL_ENTITY_TYPES);
 
-    const {form, handleFormError} = useForm();
+    const form = useForm();
     const {t} = useTranslation();
     const toast = useToast();
 
     const onSubmit = (billingInput: BillingInput) => {
-        props.store(billingInput)
+        return props.store(billingInput)
             .catch((err: ApolloError) => {
                 if (!err.graphQLErrors || !err.graphQLErrors.length || !err.graphQLErrors[0].extensions) {
-                    handleFormError(err.message);
+                    form.handleFormError(err.message);
                     return;
                 }
 
                 const errorCode = err.graphQLErrors[0].extensions.code;
 
                 if (!errorCode) {
-                    handleFormError(err.graphQLErrors[0].message);
+                    form.handleFormError(err.graphQLErrors[0].message);
                     return;
                 }
 
                 if (errorCode == "4004") {
-                    handleFormError(t("billing.user_not_found"));
+                    form.handleFormError(t("billing.user_not_found") as string);
                     return;
                 }
 
                 if (errorCode == "5001") {
-                    handleFormError(t("billing.error_storing"));
+                    form.handleFormError(t("billing.error_storing") as string);
                     return;
                 }
 
-                handleFormError(err.graphQLErrors[0].message);
+                form.handleFormError(err.graphQLErrors[0].message);
             });
-
-        return;
     };
 
     useEffect(() => {
@@ -93,144 +83,35 @@ export const BillingForm: React.FC<BillingFormProps> = (props) => {
         }
     }, [error]);
 
-    useEffect(() => {
-        if (data && !loading) {
-            if (!data.legalEntityTypes) {
-                setOptions([]);
-            } else {
-                setOptions(data.legalEntityTypes?.map((type: LegalEntityType | null) => {
-                        if (!type) {
-                            return null;
-                        }
 
-                        return {
-                            value: type.id,
-                            title: type.name,
-                            disabled: false
-                        };
-                    }
-                ));
-            }
-        }
-    }, [data]);
+    return <Form form={form} saveForm={ (data: BillingInput) => onSubmit(data)}>
+        <Form.GridLayout>
+            <h4 className="col-span-12 divider"> Dati di fatturazione </h4>
+            {loading && <Spinner/>}
+            <UserBillingFields form={form}/>
+            <h4 className="col-span-12 divider"> Dati di fatturazione elettronica </h4>
+            <UserEdocumentFields form={form}/>
 
+            <h4 className="col-span-12 divider"> Dati di pagamento </h4>
+            <Input.FormControl className="col-span-12">
+                <Input.Label>
+                    {t('billing.iban_placeholder')}
+                </Input.Label>
+                <Input
+                    placeholder={t('billing.iban_placeholder') as string}
+                    {...form.registerInput({
+                        name: 'iban',
+                        validators: [isRequired(t('billing.iban_placeholder')), minCharacters(27, 'Formato iban non corretto'), maxCharacters( 34, 'Formato iban non corretto' )]
+                    })}/>
+            </Input.FormControl>
+            <Button
+                type={"primary"}
+                htmlType={"submit"}
+                className="col-start-9 col-span-4"
+            >
+                {t('billing.submit_button')}
+            </Button>
+        </Form.GridLayout>
 
-    const validateEntityType: ValidationHandler<SelectOption | null> = (option): string | null => {
-        if (!option) {
-            return null;
-        }
-
-        if (!data || !data?.legalEntityTypes) {
-            return null;
-        }
-
-        const currentOption = data?.legalEntityTypes.find((opt: LegalEntityType | null) => {
-            return opt?.id === option.value;
-        });
-
-        if (currentOption) {
-            setIsPerson(currentOption.isPerson);
-        }
-
-        return null;
-    };
-
-
-    return <Form onSubmit={onSubmit} form={form} className="lg:w-1/2 relative">
-        <h4 className="col-span-12 divider"> Dati di fatturazione </h4>
-        {loading && <Spinner/>}
-        <SelectComponent
-            options={options}
-            className="col-span-12"
-            name="entity_type"
-            validators={[validateEntityType]}
-        />
-        <Field.FormInput name="name"
-                         type="text"
-                         placeholder={t('billing.name_placeholder')}
-                         className={isPerson ? "col-span-6" : "col-span-12"}
-                         validators={[isRequired(t('billing.name_placeholder'))]}
-        />
-        {isPerson &&
-            <Field.FormInput name="surname"
-                             type="text"
-                             placeholder={t('billing.surname_placeholder')}
-                             className="col-span-6"
-            />
-        }
-        <Field.FormInput type="text"
-                         name="fiscal_code"
-                         placeholder={t('billing.fiscal_code_placeholder')}
-                         className="col-span-12"
-                         validators={[minCharacters(10), maxCharacters(16), isRequired(t('billing.fiscal_code_placeholder'))]}
-        />
-        <Field.FormInput type="text"
-                         name="vat_number"
-                         placeholder={t('billing.vat_number_placeholder')}
-                         className="col-span-12"
-        />
-        <Field.FormInput type="text"
-                         name="address_line_1"
-                         placeholder={t('billing.address_line_1_placeholder')}
-                         className="col-span-12"
-                         validators={[isRequired(t('billing.address_line_1_placeholder'))]}
-        />
-        <Field.FormInput type="text"
-                         name="address_line_2"
-                         placeholder={t('billing.address_line_2_placeholder')}
-                         className="col-span-12"
-        />
-        <CountryField name="country"
-                      className="col-span-12"
-        />
-        <Field.FormInput type="text"
-                         name="city"
-                         placeholder={t('billing.city_placeholder')}
-                         className="col-span-4"
-                         validators={[isRequired(t('billing.city_placeholder'))]}
-        />
-        <Field.FormInput type="text"
-                         name="province"
-                         placeholder={t('billing.province_placeholder')}
-                         className="col-span-4"
-                         validators={[maxCharacters(2), isRequired(t('billing.province_placeholder')), minCharacters(2)]}
-        />
-        <Field.FormInput type="text"
-                         name="cap"
-                         placeholder={t('billing.cap_placeholder')}
-                         className="col-span-4"
-                         validators={[isRequired(t('billing.cap_placeholder'))]}
-        />
-
-        <h4 className="col-span-12 divider"> Dati di fatturazione elettronica </h4>
-        <Field.FormInput
-            className="col-span-6"
-            type="text"
-            name="sdi_code"
-            placeholder={t('billing.sdi_code')}
-        />
-        <Field.FormInput
-            className="col-span-6"
-            type="text"
-            name="sdi_pec"
-            placeholder={t('billing.sdi_pec')}
-            validators={[email]}
-        />
-
-        <h4 className="col-span-12 divider"> Dati di pagamento </h4>
-        <Field.FormInput
-            className="col-span-12"
-            type="text"
-            name="iban"
-            placeholder={t('billing.iban_placeholder')}
-            validators={[isRequired(t('billing.iban_placeholder'))]}
-        />
-        <Button
-            type={"primary"}
-            htmlType={"submit"}
-            className="col-start-9 col-span-4"
-        >
-            {t('billing.submit_button')}
-        </Button>
     </Form>;
 };
