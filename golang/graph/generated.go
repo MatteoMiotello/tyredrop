@@ -15687,14 +15687,11 @@ func (ec *executionContext) _StatResponse_bestUser(ctx context.Context, field gr
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(*model.UserBilling)
 	fc.Result = res
-	return ec.marshalNUserBilling2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐUserBilling(ctx, field.Selections, res)
+	return ec.marshalOUserBilling2ᚖpillowwwᚋtitwᚋgraphᚋmodelᚐUserBilling(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_StatResponse_bestUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -17611,14 +17608,11 @@ func (ec *executionContext) _UserBilling_surname(ctx context.Context, field grap
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalNString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_UserBilling_surname(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -21341,7 +21335,7 @@ func (ec *executionContext) unmarshalInputEdocumentInput(ctx context.Context, ob
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sdiPec"))
 			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNString2string(ctx, v) }
 			directive1 := func(ctx context.Context) (interface{}, error) {
-				constraint, err := ec.unmarshalNString2string(ctx, "required")
+				constraint, err := ec.unmarshalNString2string(ctx, "email")
 				if err != nil {
 					return nil, err
 				}
@@ -25015,9 +25009,6 @@ func (ec *executionContext) _StatResponse(ctx context.Context, sel ast.Selection
 
 			out.Values[i] = ec._StatResponse_bestUser(ctx, field, obj)
 
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -25476,9 +25467,6 @@ func (ec *executionContext) _UserBilling(ctx context.Context, sel ast.SelectionS
 
 			out.Values[i] = ec._UserBilling_surname(ctx, field, obj)
 
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
 		case "fiscalCode":
 
 			out.Values[i] = ec._UserBilling_fiscalCode(ctx, field, obj)
@@ -26905,27 +26893,6 @@ func (ec *executionContext) unmarshalNString2string(ctx context.Context, v inter
 
 func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
 	res := graphql.MarshalString(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
-}
-
-func (ec *executionContext) unmarshalNString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
-	res, err := graphql.UnmarshalString(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNString2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	res := graphql.MarshalString(*v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")

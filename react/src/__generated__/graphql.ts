@@ -666,7 +666,7 @@ export type QueryUsersArgs = {
 
 export type StatResponse = {
   __typename?: 'StatResponse';
-  bestUser: UserBilling;
+  bestUser?: Maybe<UserBilling>;
   totalOrders: Scalars['Float'];
   totalUsers: Scalars['Int'];
 };
@@ -753,7 +753,7 @@ export type UserBilling = {
   province?: Maybe<Scalars['String']>;
   sdiCode?: Maybe<Scalars['String']>;
   sdiPec?: Maybe<Scalars['String']>;
-  surname: Scalars['String'];
+  surname?: Maybe<Scalars['String']>;
   taxRate: Tax;
   user: User;
   userID?: Maybe<Scalars['ID']>;
@@ -838,7 +838,7 @@ export type CreateUserBillingMutationVariables = Exact<{
 }>;
 
 
-export type CreateUserBillingMutation = { __typename?: 'Mutation', createUserBilling: { __typename?: 'UserBilling', id: string, name: string, surname: string } };
+export type CreateUserBillingMutation = { __typename?: 'Mutation', createUserBilling: { __typename?: 'UserBilling', id: string, name: string, surname?: string | null } };
 
 export type CreateInvoiceMutationVariables = Exact<{
   billingId: Scalars['ID'];
@@ -996,7 +996,7 @@ export type AllInvoicesQueryVariables = Exact<{
 }>;
 
 
-export type AllInvoicesQuery = { __typename?: 'Query', allInvoices: { __typename?: 'InvoicePaginator', data: Array<{ __typename?: 'Invoice', id: string, number: string, fileUrl: string, createdAt: any, status: InvoiceStatus, userBilling: { __typename?: 'UserBilling', id: string, name: string, surname: string, user: { __typename?: 'User', id: string, email: string } } } | null>, pagination: { __typename?: 'Pagination', limit?: number | null, offset?: number | null, pageCount?: number | null, currentPage?: number | null, totals?: number | null } } };
+export type AllInvoicesQuery = { __typename?: 'Query', allInvoices: { __typename?: 'InvoicePaginator', data: Array<{ __typename?: 'Invoice', id: string, number: string, fileUrl: string, createdAt: any, status: InvoiceStatus, userBilling: { __typename?: 'UserBilling', id: string, name: string, surname?: string | null, user: { __typename?: 'User', id: string, email: string } } } | null>, pagination: { __typename?: 'Pagination', limit?: number | null, offset?: number | null, pageCount?: number | null, currentPage?: number | null, totals?: number | null } } };
 
 export type AllUserInvoicesQueryVariables = Exact<{
   pagination: PaginationInput;
@@ -1016,7 +1016,7 @@ export type FetchOrderQueryVariables = Exact<{
 }>;
 
 
-export type FetchOrderQuery = { __typename?: 'Query', order: { __typename?: 'Order', id: string, priceAmount: number, priceAmountTotal: number, taxesAmount: number, orderNumber?: string | null, addressName: string, addressLine1: string, addressLine2?: string | null, city: string, country: string, province: string, postalCode: string, status: OrderStatus, createdAt: any, currency: { __typename?: 'Currency', iso_code: string, name: string }, payment?: { __typename?: 'Payment', id: string, amount: number, userPaymentMethod: { __typename?: 'UserPaymentMethod', id: string, paymentMethod: { __typename?: 'PaymentMethod', name: string, iban?: string | null, bank_name?: string | null, receiver?: string | null } } } | null, userBilling: { __typename?: 'UserBilling', id: string, name: string, surname: string, vatNumber: string, fiscalCode: string, legalEntityType: { __typename?: 'LegalEntityType', name: string }, user: { __typename?: 'User', id: string, email: string } }, orderRows: Array<{ __typename?: 'OrderRow', id: string, amount: number, quantity: number, additionsAmount: number, trackingNumber?: string | null, productItemPrice: { __typename?: 'ProductItemPrice', value: number, currency: { __typename?: 'Currency', iso_code: string, symbol: string }, productItem: { __typename?: 'ProductItem', id: string, product: { __typename?: 'Product', id: string, name?: string | null, code: string, brand: { __typename?: 'Brand', id: string, name: string } } } } } | null> } };
+export type FetchOrderQuery = { __typename?: 'Query', order: { __typename?: 'Order', id: string, priceAmount: number, priceAmountTotal: number, taxesAmount: number, orderNumber?: string | null, addressName: string, addressLine1: string, addressLine2?: string | null, city: string, country: string, province: string, postalCode: string, status: OrderStatus, createdAt: any, currency: { __typename?: 'Currency', iso_code: string, name: string }, payment?: { __typename?: 'Payment', id: string, amount: number, userPaymentMethod: { __typename?: 'UserPaymentMethod', id: string, paymentMethod: { __typename?: 'PaymentMethod', name: string, iban?: string | null, bank_name?: string | null, receiver?: string | null } } } | null, userBilling: { __typename?: 'UserBilling', id: string, name: string, surname?: string | null, vatNumber: string, fiscalCode: string, legalEntityType: { __typename?: 'LegalEntityType', name: string }, user: { __typename?: 'User', id: string, email: string } }, orderRows: Array<{ __typename?: 'OrderRow', id: string, amount: number, quantity: number, additionsAmount: number, trackingNumber?: string | null, productItemPrice: { __typename?: 'ProductItemPrice', value: number, currency: { __typename?: 'Currency', iso_code: string, symbol: string }, productItem: { __typename?: 'ProductItem', id: string, product: { __typename?: 'Product', id: string, name?: string | null, code: string, brand: { __typename?: 'Brand', id: string, name: string } } } } } | null> } };
 
 export type FetchOrdersQueryVariables = Exact<{
   userId: Scalars['ID'];
@@ -1038,7 +1038,7 @@ export type AllOrdersQueryVariables = Exact<{
 }>;
 
 
-export type AllOrdersQuery = { __typename?: 'Query', allOrders: { __typename?: 'OrdersPaginator', data: Array<{ __typename?: 'Order', id: string, priceAmount: number, priceAmountTotal: number, taxesAmount: number, orderNumber?: string | null, createdAt: any, status: OrderStatus, currency: { __typename?: 'Currency', iso_code: string }, userBilling: { __typename?: 'UserBilling', name: string, surname: string, user: { __typename?: 'User', id: string, email: string } }, orderRows: Array<{ __typename?: 'OrderRow', id: string, amount: number } | null> } | null>, pagination: (
+export type AllOrdersQuery = { __typename?: 'Query', allOrders: { __typename?: 'OrdersPaginator', data: Array<{ __typename?: 'Order', id: string, priceAmount: number, priceAmountTotal: number, taxesAmount: number, orderNumber?: string | null, createdAt: any, status: OrderStatus, currency: { __typename?: 'Currency', iso_code: string }, userBilling: { __typename?: 'UserBilling', name: string, surname?: string | null, user: { __typename?: 'User', id: string, email: string } }, orderRows: Array<{ __typename?: 'OrderRow', id: string, amount: number } | null> } | null>, pagination: (
       { __typename?: 'Pagination' }
       & { ' $fragmentRefs'?: { 'PaginationInfoFragment': PaginationInfoFragment } }
     ) } };
@@ -1108,7 +1108,7 @@ export type PriceMarkupsQuery = { __typename?: 'Query', priceMarkups?: Array<{ _
 export type StatsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type StatsQuery = { __typename?: 'Query', stats: { __typename?: 'StatResponse', totalOrders: number, totalUsers: number, bestUser: { __typename?: 'UserBilling', id: string, name: string, surname: string, user: { __typename?: 'User', id: string, email: string } } } };
+export type StatsQuery = { __typename?: 'Query', stats: { __typename?: 'StatResponse', totalOrders: number, totalUsers: number, bestUser?: { __typename?: 'UserBilling', id: string, name: string, surname?: string | null, user: { __typename?: 'User', id: string, email: string } } | null } };
 
 export type FetchUserAddressesQueryVariables = Exact<{
   userId: Scalars['ID'];
@@ -1122,14 +1122,14 @@ export type FetchUserQueryQueryVariables = Exact<{
 }>;
 
 
-export type FetchUserQueryQuery = { __typename?: 'Query', userBilling?: { __typename?: 'UserBilling', id: string, name: string, surname: string, addressLine1: string, addressLine2?: string | null, city: string, country: string, province?: string | null, cap: string, fiscalCode: string, vatNumber: string, sdiCode?: string | null, sdiPec?: string | null, legalEntityType: { __typename?: 'LegalEntityType', name: string }, user: { __typename?: 'User', id: string, name?: string | null, surname?: string | null, email: string } } | null };
+export type FetchUserQueryQuery = { __typename?: 'Query', userBilling?: { __typename?: 'UserBilling', id: string, name: string, surname?: string | null, addressLine1: string, addressLine2?: string | null, city: string, country: string, province?: string | null, cap: string, fiscalCode: string, vatNumber: string, sdiCode?: string | null, sdiPec?: string | null, legalEntityType: { __typename?: 'LegalEntityType', name: string }, user: { __typename?: 'User', id: string, name?: string | null, surname?: string | null, email: string } } | null };
 
 export type FetchUserQueryVariables = Exact<{
   userId: Scalars['ID'];
 }>;
 
 
-export type FetchUserQuery = { __typename?: 'Query', user?: { __typename?: 'User', id: string, name?: string | null, surname?: string | null, email: string, confirmed: boolean, rejected: boolean, avatarUrl?: string | null, userRole: { __typename?: 'UserRole', isAdmin: boolean, name: string }, userBilling?: { __typename?: 'UserBilling', id: string, name: string, surname: string, addressLine1: string, addressLine2?: string | null, city: string, country: string, province?: string | null, cap: string, fiscalCode: string, vatNumber: string, sdiCode?: string | null, sdiPec?: string | null, legalEntityType: { __typename?: 'LegalEntityType', id: string, name: string } } | null } | null };
+export type FetchUserQuery = { __typename?: 'Query', user?: { __typename?: 'User', id: string, name?: string | null, surname?: string | null, email: string, confirmed: boolean, rejected: boolean, avatarUrl?: string | null, userRole: { __typename?: 'UserRole', isAdmin: boolean, name: string }, userBilling?: { __typename?: 'UserBilling', id: string, name: string, surname?: string | null, addressLine1: string, addressLine2?: string | null, city: string, country: string, province?: string | null, cap: string, fiscalCode: string, vatNumber: string, sdiCode?: string | null, sdiPec?: string | null, legalEntityType: { __typename?: 'LegalEntityType', id: string, name: string } } | null } | null };
 
 export type FetchAllUsersQueryVariables = Exact<{
   pagination?: InputMaybe<PaginationInput>;
@@ -1147,7 +1147,7 @@ export type UserBillingsQueryVariables = Exact<{
 }>;
 
 
-export type UserBillingsQuery = { __typename?: 'Query', userBillings: Array<{ __typename?: 'UserBilling', id: string, name: string, surname: string, vatNumber: string, fiscalCode: string } | null> };
+export type UserBillingsQuery = { __typename?: 'Query', userBillings: Array<{ __typename?: 'UserBilling', id: string, name: string, surname?: string | null, vatNumber: string, fiscalCode: string } | null> };
 
 export const CartItemsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"CartItems"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CartResponse"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"totalPrice"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"totalValue"}},{"kind":"Field","name":{"kind":"Name","value":"additionsValues"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"additionName"}},{"kind":"Field","name":{"kind":"Name","value":"value"}}]}},{"kind":"Field","name":{"kind":"Name","value":"taxesValue"}},{"kind":"Field","name":{"kind":"Name","value":"currency"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"iso_code"}},{"kind":"Field","name":{"kind":"Name","value":"symbol"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"items"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"quantity"}},{"kind":"Field","name":{"kind":"Name","value":"productItemPrice"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"value"}},{"kind":"Field","name":{"kind":"Name","value":"priceAdditions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"additionValue"}},{"kind":"Field","name":{"kind":"Name","value":"priceAdditionType"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"additionName"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"currency"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"iso_code"}}]}},{"kind":"Field","name":{"kind":"Name","value":"productItem"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"product"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"code"}},{"kind":"Field","name":{"kind":"Name","value":"eprelProductCode"}},{"kind":"Field","name":{"kind":"Name","value":"brand"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<CartItemsFragment, unknown>;
 export const PaginationInfoFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"PaginationInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Pagination"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"limit"}},{"kind":"Field","name":{"kind":"Name","value":"totals"}},{"kind":"Field","name":{"kind":"Name","value":"offset"}},{"kind":"Field","name":{"kind":"Name","value":"currentPage"}},{"kind":"Field","name":{"kind":"Name","value":"pageCount"}}]}}]} as unknown as DocumentNode<PaginationInfoFragment, unknown>;

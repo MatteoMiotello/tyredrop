@@ -177,7 +177,7 @@ type ProductSpecificationInput struct {
 type StatResponse struct {
 	TotalUsers  int          `json:"totalUsers"`
 	TotalOrders float64      `json:"totalOrders"`
-	BestUser    *UserBilling `json:"bestUser"`
+	BestUser    *UserBilling `json:"bestUser,omitempty"`
 }
 
 type Supplier struct {

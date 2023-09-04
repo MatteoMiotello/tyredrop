@@ -211,11 +211,7 @@ func (r *queryResolver) PaymentMethods(ctx context.Context) ([]*model.PaymentMet
 
 // Stats is the resolver for the stats field.
 func (r *queryResolver) Stats(ctx context.Context) (*model.StatResponse, error) {
-	totalUsers, err := r.UserDao.TotalUsers(ctx)
-
-	if err != nil {
-		return nil, err
-	}
+	totalUsers, _ := r.UserDao.TotalUsers(ctx)
 
 	defCur, err := r.CurrencyDao.FindDefault(ctx)
 
@@ -223,28 +219,28 @@ func (r *queryResolver) Stats(ctx context.Context) (*model.StatResponse, error) 
 		return nil, err
 	}
 
-	bestUser, err := r.UserDao.BestUserBilling(ctx, time.Now().Add(-time.Hour*24*30), time.Now())
+	var tof float64
 
-	if err != nil {
-		return nil, err
+	bestUser, _ := r.UserDao.BestUserBilling(ctx, time.Now().Add(-time.Hour*24*30), time.Now())
+
+	if bestUser != nil {
+		to, _ := r.OrderDao.UserTotalOrders(ctx, bestUser, time.Now().Add(-time.Hour*24*30), time.Now())
+
+		if to != nil {
+			tof, _ = currency.ToFloat(to.TotalPrice, defCur.IsoCode)
+		}
 	}
 
-	to, err := r.OrderDao.UserTotalOrders(ctx, bestUser, time.Now().Add(-time.Hour*24*30), time.Now())
-
-	if err != nil {
-		return nil, err
-	}
-
-	tof, err := currency.ToFloat(to.TotalPrice, defCur.IsoCode)
-
-	if err != nil {
-		return nil, err
+	var graphBilling *model.UserBilling
+	graphBilling = nil
+	if bestUser != nil {
+		graphBilling = converters.UserBillingToGraphQL(bestUser)
 	}
 
 	return &model.StatResponse{
 		TotalUsers:  int(totalUsers),
 		TotalOrders: tof,
-		BestUser:    converters.UserBillingToGraphQL(bestUser),
+		BestUser:    graphBilling,
 	}, nil
 }
 

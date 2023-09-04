@@ -29,29 +29,32 @@ const HomePage: React.FC = () => {
     });
 
     return <main>
+        {
+            statsQuery.loading && <Spinner/>
+        }
         <div className=" p-4 lg:p-24 flex flex-col 2xl:flex-row justify-around gap-4 relative">
-            {
-                statsQuery.loading && <Spinner/>
-            }
             {
                 statsQuery.data &&
                 <>
-                    <Stat>
-                        <Stat.Figure className="text-secondary">
-                            <FontAwesomeIcon icon={faPerson}/>
-                        </Stat.Figure>
-                        <Stat.Title>
-                            Cliente
-                        </Stat.Title>
-                        <Stat.Value>
-                            <Link to={`/admin/user/${statsQuery.data.stats.bestUser.user.id}`}>
-                                {statsQuery.data.stats.bestUser.name} {statsQuery.data.stats.bestUser.surname}
-                            </Link>
-                        </Stat.Value>
-                        <Stat.Desc>
-                            Il cliente con il maggior fatturato
-                        </Stat.Desc>
-                    </Stat>
+                    {
+                        statsQuery.data.stats.bestUser &&
+                        <Stat>
+                            <Stat.Figure className="text-secondary">
+                                <FontAwesomeIcon icon={faPerson}/>
+                            </Stat.Figure>
+                            <Stat.Title>
+                                Cliente
+                            </Stat.Title>
+                            <Stat.Value>
+                                <Link to={`/admin/user/${statsQuery.data.stats.bestUser.user.id}`}>
+                                    {statsQuery.data.stats.bestUser.name} {statsQuery.data.stats.bestUser.surname}
+                                </Link>
+                            </Stat.Value>
+                            <Stat.Desc>
+                                Il cliente con il maggior fatturato
+                            </Stat.Desc>
+                        </Stat>
+                    }
                     <Stat>
                         <Stat.Figure className="text-primary">
                             <FontAwesomeIcon icon={faEuro}/>
