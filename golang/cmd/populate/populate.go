@@ -176,7 +176,7 @@ func main() {
 				return err
 			}
 
-			p, err := service.FindOrCreateProduct(ctx, pRecord)
+			p, err := service.FindOrCreateProduct(ctx, pRecord, true)
 			if err != nil {
 				return err
 			}

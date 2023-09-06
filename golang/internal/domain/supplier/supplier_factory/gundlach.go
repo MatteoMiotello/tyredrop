@@ -61,21 +61,15 @@ func (g Gun) matchRecords(pRecord *pdtos.Tyre, index int, slice string) error {
 		pRecord.Brand = slice
 		break
 	case 4:
-		pRecord.Reference = slice
-		break
-	case 8:
-		pRecord.Season = getSeasonFromGerman(slice)
-		break
-	case 10:
-		w, err := strconv.ParseFloat(slice, 32)
+		w, err := strconv.ParseFloat(slice, 64)
 
 		if err == nil {
 			pRecord.Width = int(w)
 		}
 
 		break
-	case 11:
-		a, err := strconv.ParseFloat(slice, 32)
+	case 5:
+		a, err := strconv.ParseFloat(slice, 64)
 
 		if err == nil {
 			pRecord.AspectRatio = int(a)
@@ -83,47 +77,52 @@ func (g Gun) matchRecords(pRecord *pdtos.Tyre, index int, slice string) error {
 		}
 
 		break
-	case 12:
-		r, err := strconv.ParseFloat(slice, 32)
+	case 6:
+		r, err := strconv.ParseFloat(slice, 64)
 
 		if err == nil {
 			pRecord.Rim = r
 		}
 
 		break
-	case 13:
+	case 8:
+		pRecord.Reference = slice
+
+		name, err := extractNameFromReference(slice)
+
+		if err == nil {
+			pRecord.ProductName = name
+		}
+
+		break
+	case 9:
 		if err == nil {
 			pRecord.Load, err = strconv.Atoi(slice)
 		}
 		break
-	case 15:
-		pRecord.Speed = slice
+	case 10:
+		pRecord.VehicleType = getVehicleTypeFromItalian(slice)
 		break
-	case 17:
-		pRecord.ProductName = slice
+	case 11:
+		pRecord.Season = getSeasonFromItalian(slice)
 		break
-	case 19:
-		pRecord.Price = slice
-		break
-	case 20:
-		f, err := strconv.ParseFloat(slice, 32)
-
-		if err == nil {
-			pRecord.Quantity = int(f)
-		}
-	case 22:
-		if slice == "1" {
+	case 13:
+		if len(slice) > 0 {
 			pRecord.RunFlat = true
 		} else {
 			pRecord.RunFlat = false
 		}
-
-	case 42:
-		pRecord.EprelID = extractEprelIDFromLink(slice)
 		break
+	case 14:
+		pRecord.Price = slice
+		break
+	case 16:
+		f, err := strconv.ParseFloat(slice, 64)
+
+		if err == nil {
+			pRecord.Quantity = int(f)
+		}
 	}
 
 	return nil
 }
-
-// llkv -> furgoni

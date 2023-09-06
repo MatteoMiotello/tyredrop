@@ -19,7 +19,6 @@ import (
 	"pillowww/titw/models"
 	"pillowww/titw/pkg/log"
 	"pillowww/titw/pkg/task"
-	"strings"
 	"time"
 )
 
@@ -34,7 +33,7 @@ func ImportProductsFromFile() {
 
 	_, err := product.NewPriceMarkupDao(db.DB).FindPriceMarkupDefault(ctx)
 	if err != nil {
-		log.Error("Default Price markup not found")
+		log.Error("Default Price markup not found", err)
 		return
 	}
 
@@ -54,7 +53,12 @@ func ImportProductsFromFile() {
 		return
 	}
 
-	dirName := strings.ToLower(sup.Code)
+	var dirName string
+
+	if !sup.BaseFolder.IsZero() {
+		dirName = sup.BaseFolder.String
+	}
+
 	tmpDir := "import/" + dirName
 
 	sup.ImportedAt = null.TimeFrom(time.Now())
@@ -65,24 +69,24 @@ func ImportProductsFromFile() {
 	var factory supplier_factory.Importer
 
 	factory = supplier.GetFactory(sup)
+
+	if factory == nil {
+		log.Error("Factory not found for supplier with code" + sup.Code)
+		return
+	}
+
 	if !factory.NeedsImportFromFile() {
 		return
 	}
 
 	list, err := os.ReadDir(tmpDir)
 	if err != nil {
+		log.Error("Error reading "+tmpDir, err)
 		return
 	}
 
 	for _, entry := range list {
 		if entry.IsDir() {
-			continue
-		}
-
-		exists, err := sDao.ExistsJobForFilename(ctx, *sup, entry.Name())
-
-		if exists {
-			check(err)
 			continue
 		}
 
@@ -208,7 +212,7 @@ func importNextRecord(ctx context.Context, sup *models.Supplier, record pdtos.Pr
 			product.NewItemPriceDao(tx),
 		)
 
-		p, err := pService.FindOrCreateProduct(ctx, record)
+		p, err := pService.FindOrCreateProduct(ctx, record, sup.ForceUpdate)
 		if err != nil {
 			return err
 		}
@@ -221,6 +225,10 @@ func importNextRecord(ctx context.Context, sup *models.Supplier, record pdtos.Pr
 		pi, err := pService.CreateOrUpdateProductItem(ctx, p, sup, record.GetSupplierProductPrice(), record.GetSupplierProductQuantity())
 		if err != nil {
 			return err
+		}
+
+		if pi == nil {
+			return nil
 		}
 
 		err = pPriceService.CalculateAndStoreProductPrices(ctx, pi)
