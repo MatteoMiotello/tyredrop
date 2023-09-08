@@ -7,6 +7,7 @@ export type AuthState = {
     status: AuthStatusType
     loggedIn: boolean | null
     error: string | null
+    loading: boolean
 }
 
 export type UserState = {

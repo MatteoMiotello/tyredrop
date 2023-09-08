@@ -169,10 +169,10 @@ func (d *ItemDao) FindProductItems(ctx context.Context, input *model.ProductSear
 	).All(ctx, d.Db)
 }
 
-func (d ItemDao) RemoveOldItems(ctx context.Context, sup *models.Supplier, codes []string) error {
+func (d ItemDao) RemoveOldItems(ctx context.Context, sup *models.Supplier, codes []interface{}) error {
 	_, err := models.ProductItems(
 		d.GetMods(
-			qm.WhereIn("product_items.product_id IN (SELECT id FROM products WHERE code NOT IN ? )", codes),
+			qm.WhereNotIn("product_items.product_id IN (SELECT id FROM products WHERE product_code NOT IN ? )", codes...),
 			models.ProductItemWhere.SupplierID.EQ(sup.ID),
 		)...,
 	).DeleteAll(ctx, d.Db, false)

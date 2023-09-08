@@ -2,17 +2,33 @@ package supplier_factory
 
 import (
 	"context"
+	"encoding/csv"
+	"os"
 	"pillowww/titw/internal/domain/product/pdtos"
-	"pillowww/titw/pkg/constants"
-	"pillowww/titw/pkg/utils"
 	"strconv"
-	"strings"
 )
 
 type Gun Factory
 
+func (g Gun) readCsv(filePath string) ([][]string, error) {
+	f, err := os.Open(filePath)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer f.Close()
+
+	reader := csv.NewReader(f)
+	reader.FieldsPerRecord = -1
+	reader.TrimLeadingSpace = true
+	reader.Comma = ';'
+
+	return reader.ReadAll()
+}
+
 func (g Gun) ReadProductsFromFile(ctx context.Context, filePath string) (pdtos.ProductDtoSlice, error) {
-	records, err := utils.CsvReadFile(filePath)
+	records, err := g.readCsv(filePath)
 
 	if err != nil {
 		return nil, err
@@ -21,12 +37,10 @@ func (g Gun) ReadProductsFromFile(ctx context.Context, filePath string) (pdtos.P
 	var recordSlice pdtos.ProductDtoSlice
 
 	for _, record := range records {
-		slices := strings.Split(record[0], ";")
-
 		var pRecord = &pdtos.Tyre{}
 		var err error = nil
 
-		for i, slice := range slices {
+		for i, slice := range record {
 			err = g.matchRecords(pRecord, i, slice)
 
 			if err != nil {
@@ -37,8 +51,6 @@ func (g Gun) ReadProductsFromFile(ctx context.Context, filePath string) (pdtos.P
 		if pRecord.Construction == "" {
 			pRecord.Construction = "R"
 		}
-
-		pRecord.VehicleType = constants.VEHICLE_CAR
 
 		recordSlice = append(recordSlice, pRecord)
 	}

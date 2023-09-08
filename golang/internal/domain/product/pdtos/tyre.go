@@ -60,6 +60,11 @@ func (t *Tyre) GetProductCategoryCode() constants.ProductCategoryType {
 }
 
 func (t *Tyre) GetSpecifications() map[constants.ProductSpecification]string {
+	rollingNoise := ""
+	if t.ExternalRollingNoiseLevel != 0 {
+		rollingNoise = strconv.Itoa(t.ExternalRollingNoiseLevel)
+	}
+
 	return map[constants.ProductSpecification]string{
 		constants.TYRE_SPEC_EAN:                          t.EANCode,
 		constants.TYRE_SPEC_NAME:                         t.ProductName,
@@ -76,7 +81,7 @@ func (t *Tyre) GetSpecifications() map[constants.ProductSpecification]string {
 		constants.TYRE_SPEC_FUEL_EFFICIENCY:              t.FuelEfficiency,
 		constants.TYRE_SPEC_WET_GRIP_CLASS:               t.WetGripClass,
 		constants.TYRE_SPEC_EXTERNAL_ROLLING_NOISE_CLASS: t.ExternalRollingNoiseClass,
-		constants.TYRE_SPEC_EXTERNAL_ROLLING_NOISE_LEVEL: strconv.Itoa(t.ExternalRollingNoiseLevel),
+		constants.TYRE_SPEC_EXTERNAL_ROLLING_NOISE_LEVEL: rollingNoise,
 		constants.TYRE_SPEC_LOAD_VERSION:                 t.LoadVersion,
 	}
 }

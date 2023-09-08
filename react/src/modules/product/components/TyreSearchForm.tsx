@@ -74,8 +74,8 @@ export const toSearchDataType = (req: TyreSearchFormRequest, vehicleCode?: strin
 
 const TyreSearchForm: React.FC<TypeSpecificSearchFormProps> = (props) => {
     const {t} = useTranslation();
-    const [tab, setTab] = useState("CAR");
-    const [vehicle, setVehicle] = useState<string | undefined>("CAR");
+    const [tab, setTab] = useState("MATCHCODE");
+    const [vehicle, setVehicle] = useState<string | undefined>(undefined);
     const {form} = useForm();
     const formRef = useRef<HTMLFormElement>(null);
 

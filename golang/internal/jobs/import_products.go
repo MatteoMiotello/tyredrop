@@ -92,12 +92,18 @@ func ImportProductsFromFile() {
 
 		ijService := import_job.NewImportJobService(import_job.NewDao(db.DB))
 		jobModel, err := ijService.CreateJob(ctx, *sup, entry.Name())
-		check(err)
+		if err != nil {
+			check(err)
+			return
+		}
 
 		fileName := tmpDir + "/" + entry.Name()
 
 		err = ijService.StartNow(ctx, jobModel)
-		check(err)
+		if err != nil {
+			check(err)
+			return
+		}
 
 		records, err := factory.ReadProductsFromFile(ctx, fileName)
 
@@ -168,19 +174,18 @@ func storeRecords(ctx context.Context, sup *models.Supplier, records []pdtos.Pro
 		chanWorker.InsertToChannel(record)
 	}
 
-	//
-	//var codes []string
-	//
-	//for _, r := range records {
-	//	codes = append(codes, r.GetProductCode())
-	//}
-	//
-	//dao := product.NewItemDao(db.DB)
-	//err := dao.RemoveOldItems(ctx, sup, codes)
-	//
-	//if err != nil {
-	//	return err
-	//}
+	var codes []interface{}
+
+	for _, r := range records {
+		codes = append(codes, r.GetProductCode())
+	}
+
+	dao := product.NewItemDao(db.DB)
+	err := dao.RemoveOldItems(ctx, sup, codes)
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

@@ -14,7 +14,6 @@ import {
 } from "../enums/product-specifications-set";
 import ProdapiService from "../services/prodapi/prodapi-service";
 import AddItemToCartButton from "./AddItemToCartButton";
-import ProductSpecificationsGroup from "./ProductSpecificationsGroup";
 import ProductTitle from "./ProductTitle";
 import ProductQualityBadge from "./ProductQualityBadge";
 import AvailabilityBadge from "./AvailabilityBadge";
@@ -75,8 +74,8 @@ const ProductTable: React.FC<ProductTableProps> = (props) => {
             header: "Qualita`",
             cell: (props: CellContext<ProductRowItemData, any>) => <div className="flex justify-center items-center">
                 <ProductQualityBadge quality={props.row.original.brand.quality}/>
-                <ProductSpecificationsGroup
-                    specifications={props.row.original.specifications}/>
+                {/*<ProductSpecificationsGroup*/}
+                {/*    specifications={props.row.original.specifications}/>*/}
             </div>
         },
         {
