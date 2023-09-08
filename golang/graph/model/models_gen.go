@@ -13,6 +13,20 @@ type AdditionValue struct {
 	Value        float64 `json:"value"`
 }
 
+type BillingInput struct {
+	LegalEntityTypeID int64   `json:"legalEntityTypeID"`
+	Name              string  `json:"name"`
+	Surname           *string `json:"surname,omitempty"`
+	FiscalCode        string  `json:"fiscalCode"`
+	VatNumber         *string `json:"vatNumber,omitempty"`
+	AddressLine1      string  `json:"addressLine1"`
+	AddressLine2      *string `json:"addressLine2,omitempty"`
+	City              string  `json:"city"`
+	Province          string  `json:"province"`
+	Cap               string  `json:"cap"`
+	Country           string  `json:"country"`
+}
+
 type Brand struct {
 	ID        int64  `json:"id"`
 	Name      string `json:"name"`
@@ -56,6 +70,11 @@ type Currency struct {
 	Symbol  string `json:"symbol"`
 	Tag     string `json:"tag"`
 	Name    string `json:"name"`
+}
+
+type EdocumentInput struct {
+	SdiCode string `json:"sdiCode"`
+	SdiPec  string `json:"sdiPec"`
 }
 
 type InvoiceFilter struct {
@@ -158,7 +177,7 @@ type ProductSpecificationInput struct {
 type StatResponse struct {
 	TotalUsers  int          `json:"totalUsers"`
 	TotalOrders float64      `json:"totalOrders"`
-	BestUser    *UserBilling `json:"bestUser"`
+	BestUser    *UserBilling `json:"bestUser,omitempty"`
 }
 
 type Supplier struct {

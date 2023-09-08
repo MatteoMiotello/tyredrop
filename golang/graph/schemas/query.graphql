@@ -42,7 +42,7 @@ type UserPaginator {
 type StatResponse {
     totalUsers: Int!
     totalOrders: Float!
-    bestUser: UserBilling!
+    bestUser: UserBilling
 }
 
 type Query {
