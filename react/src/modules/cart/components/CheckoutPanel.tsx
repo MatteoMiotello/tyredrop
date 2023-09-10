@@ -77,7 +77,7 @@ const CheckoutPanel: React.FC = () => {
 
     useEffect(() => {
         if (data) {
-            toast.success('Ordine creato con successo');
+            toast.info('Ordine creato con successo, procedi con la conferma.');
             navigate('/order/checkout/' + data.newOrder.id);
             return;
         }
@@ -157,7 +157,7 @@ const CheckoutPanel: React.FC = () => {
                 {getTotalPrice()}
             </span>
         </div>
-        <div className="gap-4 ml-auto mt-4">
+        <div className="flex flex-wrap gap-2 ml-auto mt-4">
             <Link
                 to="/"
                 className="btn btn-outline btn-primary mr-2"
@@ -168,7 +168,7 @@ const CheckoutPanel: React.FC = () => {
                 type="secondary"
                 onClick={confirmOrder}
                 loading={loading}
-                disabled={selectedAddress === undefined || !totalPrice?.totalValue}
+                disabled={!selectedAddress || !totalPrice?.totalValue}
             >
                 {t("cart.checkout_button")}
             </Button>

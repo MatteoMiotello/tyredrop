@@ -59,6 +59,7 @@ const ProductImage: React.FC<ProductImageProps> = ({product}) => {
                     </div>
                 }
                 <Img src={[
+                    product.imageUrl,
                     (new ProdapiService()).getProductImageUrl(product.code, ProductCategorySet.TYRE),
                     tyrePlaceholder,
                 ]}
@@ -78,6 +79,7 @@ const ProductImage: React.FC<ProductImageProps> = ({product}) => {
             {...attributes.popper}
         >
             <Img src={[
+                product.imageUrl,
                 (new ProdapiService()).getProductImageUrl(product.code, ProductCategorySet.TYRE),
                 tyrePlaceholder,
             ]}

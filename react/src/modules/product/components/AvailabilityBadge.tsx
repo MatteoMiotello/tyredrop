@@ -16,7 +16,7 @@ const AvailabilityBadge: React.FC<AvailabilityBadgeProps> = ({quantity}) => {
             textColor: '#4287f5',
             message: `Quantità limitata `
         };
-    } else if ( quantity < 10 && quantity > 4 ) {
+    } else if ( quantity < 10 && quantity >= 4 ) {
         config = {
             textColor: '#ff2424',
             message: `Quantità ridotta `
@@ -28,7 +28,9 @@ const AvailabilityBadge: React.FC<AvailabilityBadgeProps> = ({quantity}) => {
         };
     }
 
-    return <span className={'text-sm font-medium inline-block' } style={{color: config.textColor}}> <FontAwesomeIcon icon={faDotCircle}/> {config.message} <br/> {quantity > 20 ? '(+20)' : `(${quantity})`} </span>;
+    return <span className={'text-sm font-medium inline-block text-center' } style={{color: config.textColor}}>
+        <FontAwesomeIcon icon={faDotCircle}/> {config.message} <br/> {quantity > 20 ? '(+20)' : `(${quantity})`}
+    </span>;
 };
 
 export default AvailabilityBadge;

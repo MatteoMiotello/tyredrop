@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from "react";
 import Field from "../../../common/components-library/Input";
 import Button from "../../../common/components-library/Button";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faSearch} from "@fortawesome/free-solid-svg-icons";
+import {faInfoCircle, faSearch} from "@fortawesome/free-solid-svg-icons";
 import Form, {useForm} from "../../../common/components-library/Form";
 import {useTranslation} from "react-i18next";
 import BrandField from "../../../common/components/BrandField";
@@ -54,7 +54,7 @@ export const toSearchDataType = (req: TyreSearchFormRequest, vehicleCode?: strin
             },
             {
                 code: ProductSpecificationsSet.TYRE.SEASON,
-                value: req.season ? req.season.toString() : null
+                value: req.matchcode?.season || (req.season ? req.season.toString() : null)
             },
             {
                 code: ProductSpecificationsSet.TYRE.SPEED,
@@ -122,6 +122,9 @@ const TyreSearchForm: React.FC<TypeSpecificSearchFormProps> = (props) => {
             <Field.FormControl className="col-span-6">
                 <Field.Label className="text-base-100">
                     Matchcode
+                    <div className="tooltip ml-2" data-tip={`Matchcode devono essere immesse almeno 2 cifre, il primo carattere può essere una lettera "e" per Estate, "i" per Inverno e "a" per AllSeason, ( esempio. e2256517 ) `}>
+                        <FontAwesomeIcon icon={faInfoCircle}/>
+                    </div>
                 </Field.Label>
                 <MatchcodeField/>
             </Field.FormControl>
@@ -237,9 +240,9 @@ const TyreSearchForm: React.FC<TypeSpecificSearchFormProps> = (props) => {
             />
         </Field.FormControl>
 
-        <Button className="col-start-6 col-span-2 btn-outline "
+        <Button className="col-start-6 col-span-2"
                 size="sm"
-                type="ghost">
+                type="secondary">
             <FontAwesomeIcon icon={faSearch}/>
         </Button>
     </Form>;

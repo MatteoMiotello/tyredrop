@@ -18,7 +18,7 @@ export const ALL_CATEGORIES_WITH_SPECIFICATIONS = gql(`
     }
 `);
 
-export const SEARCH_PRODUCTS = gql(`
+export const SEARCH_PRODUCTS = gql(/* GraphQL */`
     query search($limit: Int!, $offset: Int!, $searchInput: ProductSearchInput) {
      productItems(
           pagination: { limit: $limit, offset: $offset }
@@ -46,6 +46,7 @@ export const SEARCH_PRODUCTS = gql(`
                     name
                     code
                     eprelProductCode
+                    imageUrl
                     brand {
                          name
                          code
@@ -66,7 +67,7 @@ export const SEARCH_PRODUCTS = gql(`
 }
 `);
 
-export const PRODUCT_ITEM = gql(`
+export const PRODUCT_ITEM = gql(/* GraphQL */`
     query productItem( $id: ID! ) {
     productItem( id: $id ) {
         id
@@ -81,6 +82,7 @@ export const PRODUCT_ITEM = gql(`
             code
             name
             eprelProductCode
+            imageUrl
             brand {
                 name
                 code

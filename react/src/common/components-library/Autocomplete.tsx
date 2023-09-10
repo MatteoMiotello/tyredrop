@@ -134,10 +134,13 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
                 />
                 <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2 border-none"
                                  onClick={performQuery}>
-                    <FontAwesomeIcon icon={faChevronDown}
-                                     className="h-5 w-5 text-primary label-text"
-                                     aria-hidden="true"
-                    />
+                    {
+                        filteredOptions.length ?
+                        <FontAwesomeIcon icon={faChevronDown}
+                                         className="h-5 w-5 text-primary label-text"
+                                         aria-hidden="true"
+                        /> : null
+                    }
                 </Combobox.Button>
             </div>
             {error ? <span className="label-text-alt text-error">{error}</span> : ''}
