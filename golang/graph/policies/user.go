@@ -8,18 +8,17 @@ import (
 )
 
 type userPolicy struct {
-	model    *models.User
-	orderDao *user.Dao
+	currentUser *models.User
+	orderDao    *user.Dao
 }
 
-func NewUserPolicy(uModel *models.User, dao *user.Dao) *userPolicy {
+func NewUserPolicy(dao *user.Dao) *userPolicy {
 	return &userPolicy{
-		model:    uModel,
 		orderDao: dao,
 	}
 }
 
-func (u *userPolicy) CanRead(ctx context.Context) bool {
+func (u *userPolicy) CanRead(ctx context.Context, user *models.User) bool {
 	currentUser, err := auth.CurrentUser(ctx)
 
 	if err != nil {
@@ -30,5 +29,41 @@ func (u *userPolicy) CanRead(ctx context.Context) bool {
 		return true
 	}
 
-	return currentUser.ID == u.model.ID
+	return currentUser.ID == user.ID
+}
+
+func (u *userPolicy) CanUpdateAvatar(ctx context.Context, user *models.User) bool {
+	currentUser, err := auth.CurrentUser(ctx)
+
+	if err != nil {
+		return false
+	}
+
+	if currentUser.R.UserRole.Admin {
+		return true
+	}
+
+	if currentUser.ID != user.ID {
+		return false
+	}
+
+	return true
+}
+
+func (u *userPolicy) CanUpdateBilling(ctx context.Context, billing *models.UserBilling) bool {
+	cu, err := auth.CurrentUser(ctx)
+
+	if err != nil {
+		return false
+	}
+
+	if cu.R.UserRole.Admin {
+		return true
+	}
+
+	if billing.UserID != cu.ID {
+		return false
+	}
+
+	return true
 }

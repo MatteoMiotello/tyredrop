@@ -1,4 +1,5 @@
 import React from "react";
+import Moment from "react-moment";
 import {FilteredTable, Input, Select, TableButtons, useForm} from "../../../../common/components/shelly-ui";
 import {useGraphTable} from "../../../../hooks/useGraphTable";
 import {QueryResult} from "@apollo/client";
@@ -13,7 +14,7 @@ type UserAdminTableProps = {
 const UserAdminTable: React.FC<UserAdminTableProps> = ({query}) => {
     const columns: ColumnDef<User>[] = [
         {
-            accessorKey: 'id',
+            accessorKey: 'userCode',
             header: "ID",
             size: 10
         },
@@ -30,6 +31,11 @@ const UserAdminTable: React.FC<UserAdminTableProps> = ({query}) => {
             header: "Nome",
             cell: (props: CellContext<User, any>) =>
                 <span> {props.row.original.name} {props.row.original.surname} </span>
+        },
+        {
+            accessorKey: "createdAt",
+            header: "Data registrazione",
+            cell: ( props ) => <Moment date={props.getValue() as string}/>
         },
         {
             accessorKey: 'confirmed',

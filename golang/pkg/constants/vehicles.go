@@ -9,3 +9,7 @@ const (
 	VEHICLE_QUAD         VehicleType = "QUAD"
 	VEHICLE_AGRICULTURAL VehicleType = "AGRICULTURAL"
 )
+
+func (r VehicleType) String() string {
+	return string(r)
+}

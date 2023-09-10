@@ -11,7 +11,7 @@ type FormProps<T extends object = any> = {
 	form: FormHandler
 } & PropsWithChildren; 
 
-const Form: React.FC<FormProps> = < T extends object >( {children, saveForm, form, onSuccess}: FormProps<T> ) => {	
+const Form: React.FC<FormProps> = < T extends object >( {children, saveForm, form}: FormProps<T> ) => {
 	const onSubmit = ( event: FormEvent<HTMLFormElement> ) => {
 		form.resetErrors();
 		event.preventDefault();
@@ -144,7 +144,7 @@ const FormButtons: React.FC<FormButtonsProps> = ({children, align}) => {
 		'ml-auto',
 		'max-w-fit',
 		'grid grid-flow-col gap-2',
-		'mt-1',
+		'mt-2',
 		clsx(
 			align && swtc( align, {
 				left: 'text-left',

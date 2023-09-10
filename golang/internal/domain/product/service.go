@@ -3,6 +3,7 @@ package product
 import (
 	"context"
 	"github.com/bojanz/currency"
+	"github.com/friendsofgo/errors"
 	"github.com/volatiletech/null/v8"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -12,6 +13,7 @@ import (
 	"pillowww/titw/models"
 	"pillowww/titw/pkg/constants"
 	"pillowww/titw/pkg/log"
+	"strconv"
 	"strings"
 )
 
@@ -56,49 +58,53 @@ func (s Service) findOrCreateSpecificationValue(ctx context.Context, specificati
 	err = s.SpecificationValueDao.Insert(ctx, specificationValue)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.WithMessage(err, "Unable to insert specification value with value: "+value)
 	}
 
 	return specificationValue, nil
 }
 
-func (s Service) FindOrCreateProduct(ctx context.Context, dto pdtos.ProductDto) (*models.Product, error) {
+func (s Service) FindOrCreateProduct(ctx context.Context, dto pdtos.ProductDto, forceUpdate bool) (*models.Product, error) {
 	p, _ := s.ProductDao.FindOneByCode(ctx, dto.GetProductCode())
 
-	if p != nil {
+	if p != nil && !forceUpdate {
 		return p, nil
 	}
 
 	code := cases.Upper(language.Und).String(dto.GetBrandName())
 	b, err := s.BrandDao.FindOneByCode(ctx, code)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithMessage(err, "Brand not found with code: "+dto.GetBrandName())
 	}
 
 	category, err := s.findCategory(ctx, dto.GetProductCategoryCode())
 
 	if err != nil {
-		return nil, err
+		return nil, errors.WithMessage(err, "Category not found with code: "+string(dto.GetProductCategoryCode()))
 	}
 
 	vehicleType, err := s.VehicleDao.FindByCode(ctx, dto.GetVehicleType())
 
 	if err != nil {
-		return nil, err
+		return nil, errors.WithMessage(err, "Vehicle type not found for code: "+string(dto.GetVehicleType()))
 	}
 
 	name := strings.ToValidUTF8(dto.GetProductName(), "")
 
-	p = &models.Product{
-		ProductCode:       null.StringFrom(dto.GetProductCode()),
-		BrandID:           b.ID,
-		ProductCategoryID: category.ID,
-		VehicleTypeID:     vehicleType.ID,
-		Name:              null.StringFrom(name),
-		EprelProductCode:  null.StringFromPtr(dto.GetEprelProductCode()),
+	if p == nil {
+		p = &models.Product{
+			ProductCode: null.StringFrom(dto.GetProductCode()),
+		}
 	}
 
-	err = s.ProductDao.Insert(ctx, p)
+	p.BrandID = b.ID
+	p.ProductCategoryID = category.ID
+	p.VehicleTypeID = vehicleType.ID
+	p.Name = null.StringFrom(name)
+	p.EprelProductCode = null.StringFromPtr(dto.GetEprelProductCode())
+	p.ImageURL = null.StringFromPtr(dto.GetProductImageUrl())
+
+	err = s.ProductDao.Save(ctx, p)
 
 	if err != nil {
 		return nil, err
@@ -115,7 +121,7 @@ func (s Service) UpdateSpecifications(ctx context.Context, product *models.Produ
 	specs, err := s.SpecificationDao.FindByProduct(ctx, product)
 
 	if err != nil {
-		return err
+		return errors.WithMessage(err, "No specifications found for product: "+strconv.Itoa(int(product.ID)))
 	}
 
 	dtoSpecs := dto.GetSpecifications()
@@ -132,13 +138,16 @@ func (s Service) UpdateSpecifications(ctx context.Context, product *models.Produ
 		}
 
 		pValue, _ := s.SpecificationValueDao.FindByProductAndCode(ctx, product, spec.SpecificationCode)
+		specInserted++
+
 		if pValue != nil {
 			continue
 		}
 
 		pValue, err = s.findOrCreateSpecificationValue(ctx, spec, strings.TrimSpace(strings.ToValidUTF8(value, "")))
+
 		if err != nil {
-			return err
+			return errors.WithMessage(err, "Error in specification value: "+spec.SpecificationCode)
 		}
 
 		relation := &models.ProductProductSpecificationValue{
@@ -146,14 +155,12 @@ func (s Service) UpdateSpecifications(ctx context.Context, product *models.Produ
 			ProductID:                   product.ID,
 		}
 
-		err := s.SpecificationValueDao.Insert(ctx, relation)
+		err = s.SpecificationValueDao.Insert(ctx, relation)
 
 		if err != nil {
 			log.Error("Error inserting ProductProductSpecificationValue", err)
-			return err
+			return errors.WithMessage(err, "Error inserting ProductProductSpecificationValue "+spec.SpecificationCode+" "+pValue.SpecificationValue)
 		}
-
-		specInserted++
 	}
 
 	mandatories, err := s.SpecificationDao.FindMandatoryByProduct(ctx, product)
@@ -175,6 +182,10 @@ func (s Service) setProductComplete(ctx context.Context, product *models.Product
 }
 
 func (s Service) CreateOrUpdateProductItem(ctx context.Context, product *models.Product, supplier *models.Supplier, price string, quantity int) (*models.ProductItem, error) {
+	if quantity == 0 {
+		return nil, nil
+	}
+
 	price = strings.Replace(price, ",", ".", 1)
 	amount, err := currency.NewAmount(price, "EUR")
 	if err != nil {
@@ -199,10 +210,10 @@ func (s Service) CreateOrUpdateProductItem(ctx context.Context, product *models.
 	i.SupplierQuantity = quantity
 	i.SupplierPrice = int(priceInt)
 
-	err = s.ProductDao.Save(ctx, i)
+	err = s.ItemDao.Save(ctx, i)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.WithMessage(err, "Error saving item")
 	}
 
 	return i, err

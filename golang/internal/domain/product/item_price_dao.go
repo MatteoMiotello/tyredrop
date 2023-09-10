@@ -18,6 +18,10 @@ func NewItemPriceDao(executor boil.ContextExecutor) *ItemPriceDao {
 	}
 }
 
+func (d ItemPriceDao) WithDeletes() *ItemPriceDao {
+	return db.WithDeletes(d)
+}
+
 func (d ItemPriceDao) Load(relationship string, mods ...qm.QueryMod) *ItemPriceDao {
 	return db.Load(d, relationship, mods...)
 }
@@ -43,6 +47,7 @@ func (d *ItemPriceDao) FindOneByProductItemIdAndCurrencyId(ctx context.Context, 
 		d.GetMods(
 			models.ProductItemPriceWhere.ProductItemID.EQ(itemId),
 			models.ProductItemPriceWhere.CurrencyID.EQ(currId),
+			models.ProductItemPriceWhere.DeletedAt.IsNull(),
 		)...,
 	).One(ctx, d.Db)
 }

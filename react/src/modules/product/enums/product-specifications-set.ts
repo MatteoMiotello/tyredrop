@@ -31,6 +31,7 @@ enum TyreSpecificationSet {
     EXTERNAL_ROLLING_NOISE_CLASS = 'EXTERNAL_ROLLING_NOISE_CLASS',
     EXTERNAL_ROLLING_NOISE_LEVEL = 'EXTERNAL_ROLLING_NOISE_LEVEL',
     LOAD_VERSION = 'LOAD_VERSION',
+    RUNFLAT = 'RUNFLAT',
 }
 export const ProductSpecificationsSet: { [key in ProductCategorySet]: { [key: string]: TyreSpecificationSet } } = {
     TYRE: {
@@ -48,7 +49,8 @@ export const ProductSpecificationsSet: { [key in ProductCategorySet]: { [key: st
         WET_GRIP_CLASS: TyreSpecificationSet.WET_GRIP_CLASS,
         EXTERNAL_ROLLING_NOISE_CLASS: TyreSpecificationSet.EXTERNAL_ROLLING_NOISE_CLASS,
         EXTERNAL_ROLLING_NOISE_LEVEL: TyreSpecificationSet.EXTERNAL_ROLLING_NOISE_LEVEL,
-        LOAD_VERSION: TyreSpecificationSet.LOAD_VERSION
+        LOAD_VERSION: TyreSpecificationSet.LOAD_VERSION,
+        RUNFLAT: TyreSpecificationSet.RUNFLAT
     }
 };
 

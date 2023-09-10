@@ -1,0 +1,16 @@
+{{- /*gotype: pillowww/titw/internal/email/mailer.NewUserData*/ -}}
+{{define "content"}}
+    <h1>Nuova Iscrizione Cliente</h1>
+    <p>Un nuovo cliente si è iscritto nella piattaforma:</p>
+
+    <h2>Dettagli del Cliente:</h2>
+    <ul>
+        <li><strong>Nome:</strong>{{.UserName}}</li>
+        <li><strong>Email:</strong> {{.UserEmail}} </li>
+        <li><strong>Data di Iscrizione:</strong>{{.SubscriptionDate}}</li>
+    </ul>
+
+    <p>Per maggiori informazioni puoi recarti alla pagina dell'area privata da questo <a href="{{.UserUrl}}">link</a> </p>
+
+    <p>Grazie!</p>
+{{end}}

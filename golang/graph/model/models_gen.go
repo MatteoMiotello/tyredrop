@@ -13,6 +13,20 @@ type AdditionValue struct {
 	Value        float64 `json:"value"`
 }
 
+type BillingInput struct {
+	LegalEntityTypeID int64   `json:"legalEntityTypeID"`
+	Name              string  `json:"name"`
+	Surname           *string `json:"surname,omitempty"`
+	FiscalCode        string  `json:"fiscalCode"`
+	VatNumber         *string `json:"vatNumber,omitempty"`
+	AddressLine1      string  `json:"addressLine1"`
+	AddressLine2      *string `json:"addressLine2,omitempty"`
+	City              string  `json:"city"`
+	Province          string  `json:"province"`
+	Cap               string  `json:"cap"`
+	Country           string  `json:"country"`
+}
+
 type Brand struct {
 	ID        int64  `json:"id"`
 	Name      string `json:"name"`
@@ -58,6 +72,24 @@ type Currency struct {
 	Name    string `json:"name"`
 }
 
+type EdocumentInput struct {
+	SdiCode string `json:"sdiCode"`
+	SdiPec  string `json:"sdiPec"`
+}
+
+type InvoiceFilter struct {
+	UserBillingID *int64  `json:"userBillingId,omitempty"`
+	Number        *string `json:"number,omitempty"`
+	From          *string `json:"from,omitempty"`
+	To            *string `json:"to,omitempty"`
+	Status        *string `json:"status,omitempty"`
+}
+
+type InvoicePaginator struct {
+	Data       []*Invoice  `json:"data"`
+	Pagination *Pagination `json:"pagination"`
+}
+
 type LegalEntityType struct {
 	ID       int64  `json:"id"`
 	Name     string `json:"name"`
@@ -68,6 +100,10 @@ type OrderFilterInput struct {
 	DateFrom *string `json:"dateFrom,omitempty"`
 	DateTo   *string `json:"dateTo,omitempty"`
 	Number   *string `json:"number,omitempty"`
+}
+
+type OrderRowInput struct {
+	TrackingNumber *string `json:"trackingNumber,omitempty"`
 }
 
 type OrderingInput struct {
@@ -100,6 +136,21 @@ type PaginationInput struct {
 	Offset int `json:"offset"`
 }
 
+type PaymentMethod struct {
+	ID       int64   `json:"id"`
+	Code     string  `json:"code"`
+	Name     string  `json:"name"`
+	Receiver *string `json:"receiver,omitempty"`
+	BankName *string `json:"bank_name,omitempty"`
+	Iban     *string `json:"iban,omitempty"`
+}
+
+type PriceMarkupInput struct {
+	BrandID              *int64 `json:"brandId,omitempty"`
+	SpecificationValueID *int64 `json:"specificationValueId,omitempty"`
+	MarkupPercentage     int    `json:"markupPercentage"`
+}
+
 type ProductItemPaginate struct {
 	Pagination   *Pagination    `json:"pagination,omitempty"`
 	ProductItems []*ProductItem `json:"productItems,omitempty"`
@@ -121,6 +172,12 @@ type ProductSearchInput struct {
 type ProductSpecificationInput struct {
 	Code  string `json:"code"`
 	Value string `json:"value"`
+}
+
+type StatResponse struct {
+	TotalUsers  int          `json:"totalUsers"`
+	TotalOrders float64      `json:"totalOrders"`
+	BestUser    *UserBilling `json:"bestUser,omitempty"`
 }
 
 type Supplier struct {
@@ -178,19 +235,64 @@ type VehicleType struct {
 	Name string `json:"name"`
 }
 
+type InvoiceStatus string
+
+const (
+	InvoiceStatusPayed InvoiceStatus = "PAYED"
+	InvoiceStatusToPay InvoiceStatus = "TO_PAY"
+)
+
+var AllInvoiceStatus = []InvoiceStatus{
+	InvoiceStatusPayed,
+	InvoiceStatusToPay,
+}
+
+func (e InvoiceStatus) IsValid() bool {
+	switch e {
+	case InvoiceStatusPayed, InvoiceStatusToPay:
+		return true
+	}
+	return false
+}
+
+func (e InvoiceStatus) String() string {
+	return string(e)
+}
+
+func (e *InvoiceStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = InvoiceStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid InvoiceStatus", str)
+	}
+	return nil
+}
+
+func (e InvoiceStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type OrderStatus string
 
 const (
-	OrderStatusNew       OrderStatus = "NEW"
-	OrderStatusConfirmed OrderStatus = "CONFIRMED"
-	OrderStatusCanceled  OrderStatus = "CANCELED"
-	OrderStatusRejected  OrderStatus = "REJECTED"
-	OrderStatusDelivered OrderStatus = "DELIVERED"
-	OrderStatusReturned  OrderStatus = "RETURNED"
+	OrderStatusNotCompleted OrderStatus = "NOT_COMPLETED"
+	OrderStatusNew          OrderStatus = "NEW"
+	OrderStatusToPay        OrderStatus = "TO_PAY"
+	OrderStatusConfirmed    OrderStatus = "CONFIRMED"
+	OrderStatusCanceled     OrderStatus = "CANCELED"
+	OrderStatusRejected     OrderStatus = "REJECTED"
+	OrderStatusDelivered    OrderStatus = "DELIVERED"
+	OrderStatusReturned     OrderStatus = "RETURNED"
 )
 
 var AllOrderStatus = []OrderStatus{
+	OrderStatusNotCompleted,
 	OrderStatusNew,
+	OrderStatusToPay,
 	OrderStatusConfirmed,
 	OrderStatusCanceled,
 	OrderStatusRejected,
@@ -200,7 +302,7 @@ var AllOrderStatus = []OrderStatus{
 
 func (e OrderStatus) IsValid() bool {
 	switch e {
-	case OrderStatusNew, OrderStatusConfirmed, OrderStatusCanceled, OrderStatusRejected, OrderStatusDelivered, OrderStatusReturned:
+	case OrderStatusNotCompleted, OrderStatusNew, OrderStatusToPay, OrderStatusConfirmed, OrderStatusCanceled, OrderStatusRejected, OrderStatusDelivered, OrderStatusReturned:
 		return true
 	}
 	return false

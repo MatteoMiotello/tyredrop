@@ -1,3 +1,24 @@
+input BillingInput {
+    legalEntityTypeID: ID!
+    name: String!  @emptyStringToNull @rule(constraint: "required")
+    surname: String @emptyStringToNull
+    fiscalCode: String! @emptyStringToNull @rule(constraint: "required,max=16,min=11")
+    vatNumber: String @emptyStringToNull
+    addressLine1: String! @emptyStringToNull  @rule(constraint: "required")
+    addressLine2: String @emptyStringToNull
+    city: String! @emptyStringToNull  @rule(constraint: "required")
+    province: String! @emptyStringToNull @rule(constraint: "required")
+    cap: String!  @emptyStringToNull @rule(constraint: "required,max=5")
+    country: String! @emptyStringToNull
+}
+
+input EdocumentInput {
+    sdiCode: String!
+    sdiPec: String! @rule(constraint: "email")
+}
+
 extend type Mutation {
     updateUserStatus( userID: ID!, confirmed: Boolean, rejected: Boolean ): User! @isAdmin
+    updateAvatar( userID: ID!, file: Upload! ): User! @userConfirmed
+    updateUserBilling( userBillingID: ID!, billingInput: BillingInput, edocumentInput: EdocumentInput  ): UserBilling! @userConfirmed
 }

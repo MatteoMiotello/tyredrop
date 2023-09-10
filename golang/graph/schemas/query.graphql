@@ -16,23 +16,6 @@ input PaginationInput {
     offset: Int!
 }
 
-type ProductPaginate {
-    pagination: Pagination
-    products: [Product]
-}
-
-type ProductItemPaginate {
-    pagination: Pagination
-    productItems: [ProductItem]
-}
-
-input ProductSearchInput {
-    brand: String
-    name: String
-    code: String
-    vehicleCode: String
-    specifications: [ProductSpecificationInput]
-}
 
 type OrdersPaginator {
     data: [Order]!
@@ -56,12 +39,13 @@ type UserPaginator {
     pagination: Pagination!
 }
 
-type Query {
-    user(ID: ID!): User
-    users( pagination: PaginationInput, filter: UserFilterInput ): UserPaginator @isAdmin
-    userAddress( userId: ID! ): [UserAddress]
-    userBilling( userId: ID! ): UserBilling
+type StatResponse {
+    totalUsers: Int!
+    totalOrders: Float!
+    bestUser: UserBilling
+}
 
+type Query {
     taxRates: [Tax]
     brands: [Brand]
 
@@ -71,18 +55,11 @@ type Query {
 
     legalEntityTypes: [LegalEntityType]
 
-    productCategories: [ProductCategory]
-    productsItemsByCode( code: String! ): ProductItem
-    productItems( pagination: PaginationInput, productSearchInput: ProductSearchInput ): ProductItemPaginate
-    productItem( id: ID! ): ProductItem
-    products( pagination: PaginationInput, productSearchInput: ProductSearchInput ): ProductPaginate
-
-    specifications: [ProductSpecification]
-    searchSpecificationValue( code: String!, value: String, vehicleCode: String, ): [ProductSpecificationValue]
-
     currency( id: ID! ): Currency
     currencies: [Currency]
 
-    order( id: ID! ): Order! @userConfirmed
     userOrders( userId: ID!, pagination: PaginationInput, filter: OrderFilterInput, ordering: [OrderingInput] ): OrdersPaginator @userConfirmed
+    paymentMethods: [PaymentMethod]!
+
+    stats: StatResponse! @isAdmin
 }

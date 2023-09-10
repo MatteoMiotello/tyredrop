@@ -1,11 +1,16 @@
 import {ApolloProvider} from "@apollo/client";
 import React, {useState} from "react";
-import {Link, RouterProvider, createBrowserRouter} from "react-router-dom";
+import {
+    Link,
+    RouterProvider,
+    createBrowserRouter
+} from "react-router-dom";
 import Admin from "./Admin";
 import App from "./App";
 import ModalContainer, {ModalData} from "./common/components/ModalContainer";
 import client from "./common/contexts/apollo-client-context";
 import ModalContext from "./common/contexts/modal-context";
+import ErrorPage from "./ErrorPage";
 import {authRoutes} from "./modules/auth/routes";
 import {billingRoute} from "./modules/billing/routes";
 import {cartRoute} from "./modules/cart/routes";
@@ -24,7 +29,12 @@ import Moment from "react-moment";
 import 'moment/locale/it';
 import {adminRoutes} from "./modules/admin/routes";
 import ContactsPage from "./common/pages/ContactsPage";
+import CommonTemplate from "./CommonTemplate";
 import GeneralTermsPage from "./common/pages/GeneralTermsPage";
+import AboutPage from "./common/pages/AboutPage";
+import FaqPage from "./common/pages/FaqPage";
+import LegalMentionsPage from "./common/pages/LegalMentionsPage";
+import PrivacyPage from "./common/pages/PrivacyPage";
 
 Moment.globalMoment = moment;
 Moment.globalLocale = 'it';
@@ -39,24 +49,11 @@ const router = createBrowserRouter([
     {
         path: '/',
         element: <App/>,
+        errorElement: <ErrorPage/>,
         handle: {
             crumb: () => <Link className="link" to="/"> Home </Link>
         },
         children: [
-            {
-                path: 'contacts',
-                handle: {
-                    crumb: () => <span> Contatti </span>
-                },
-                Component: ContactsPage
-            },
-            {
-                path: 'general-terms',
-                handle: {
-                    crumb: () => <span> Condizioni generali di vendita </span>
-                },
-                Component: GeneralTermsPage,
-            },
             billingRoute,
             productRoute,
             cartRoute,
@@ -77,6 +74,54 @@ const router = createBrowserRouter([
     {
         path: '/not_confirmed',
         element: <NotConfirmedPage/>
+    },
+    {
+        path: '/',
+        element: <CommonTemplate/>,
+        children: [
+            {
+                path: 'general-terms',
+                handle: {
+                    crumb: () => <span> Condizioni generali di vendita </span>
+                },
+                Component: GeneralTermsPage,
+            },
+            {
+                path: 'contacts',
+                handle: {
+                    crumb: () => <span> Contatti </span>
+                },
+                Component: ContactsPage
+            },
+            {
+                path: 'about',
+                handle: {
+                    crumb: () => <span> A proposito di Tyres in the world </span>
+                },
+                Component: AboutPage
+            },
+            {
+                path: 'privacy',
+                handle: {
+                    crumb: () => <span> Dichiarazione sulla privacy </span>
+                },
+                Component: PrivacyPage
+            },
+            {
+                path: 'faq',
+                handle: {
+                    crumb: () => <span> FAQ </span>
+                },
+                Component: FaqPage,
+            },
+            {
+                path: 'legal-mentions',
+                handle: {
+                    crumb: () => <span> Menzioni legali </span>
+                },
+                Component: LegalMentionsPage,
+            }
+        ]
     },
     authRoutes
 ]);

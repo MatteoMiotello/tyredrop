@@ -7,10 +7,17 @@ package resolvers
 import (
 	"context"
 	"errors"
+	"io"
 	"pillowww/titw/graph/converters"
 	"pillowww/titw/graph/graphErrors"
 	"pillowww/titw/graph/model"
+	"pillowww/titw/graph/policies"
+	"pillowww/titw/internal/fs/fshandlers"
 	"pillowww/titw/models"
+	"strings"
+
+	"github.com/99designs/gqlgen/graphql"
+	null "github.com/volatiletech/null/v8"
 )
 
 // UpdateUserStatus is the resolver for the updateUserStatus field.
@@ -27,16 +34,20 @@ func (r *mutationResolver) UpdateUserStatus(ctx context.Context, userID int64, c
 		return nil, graphErrors.NewGraphError(ctx, errors.New("User is admin"), "USER_IS_ADMIN")
 	}
 
-	if confirmed != nil {
-		user.Confirmed = *confirmed
-	}
-
-	if rejected != nil {
-		user.Rejected = *rejected
-	}
-
 	if user.Confirmed == true && user.Rejected == true {
 		return nil, graphErrors.NewGraphError(ctx, errors.New("User cannot be both confirmed and rejected"), "UNABLE_TO_UPDATE_STATUS")
+	}
+
+	if confirmed != nil {
+		user.Confirmed = *confirmed
+		if user.Confirmed == true {
+			user.Rejected = false
+		}
+	} else if rejected != nil {
+		user.Rejected = *rejected
+		if user.Rejected == true {
+			user.Confirmed = false
+		}
 	}
 
 	err = r.UserDao.Save(ctx, user)
@@ -46,4 +57,90 @@ func (r *mutationResolver) UpdateUserStatus(ctx context.Context, userID int64, c
 	}
 
 	return converters.UserToGraphQL(user), nil
+}
+
+// UpdateAvatar is the resolver for the updateAvatar field.
+func (r *mutationResolver) UpdateAvatar(ctx context.Context, userID int64, file graphql.Upload) (*model.User, error) {
+	if !strings.Contains(file.ContentType, "image/") {
+		return nil, graphErrors.NewGraphError(ctx, errors.New("Invalid file extension"), "INVALID_FILE_EXTENSION")
+	}
+	user, err := r.UserDao.FindOneById(ctx, userID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	p := policies.NewUserPolicy(r.UserDao)
+
+	if !p.CanUpdateAvatar(ctx, user) {
+		return nil, graphErrors.NewNotAuthorizedError(ctx)
+	}
+
+	stream, err := io.ReadAll(file.File)
+	if err != nil {
+		return nil, err
+	}
+
+	fs := fshandlers.NewUserAvatar()
+	f, err := fs.StoreAvatar(user, file.ContentType, stream)
+
+	if err != nil {
+		return nil, err
+	}
+
+	user.AvatarPath = null.StringFromPtr(f)
+
+	err = r.UserDao.Save(ctx, user)
+	if err != nil {
+		return nil, err
+	}
+
+	return converters.UserToGraphQL(user), nil
+}
+
+// UpdateUserBilling is the resolver for the updateUserBilling field.
+func (r *mutationResolver) UpdateUserBilling(ctx context.Context, userBillingID int64, billingInput *model.BillingInput, edocumentInput *model.EdocumentInput) (*model.UserBilling, error) {
+	ub, err := r.UserDao.FindUserBillingById(ctx, userBillingID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	policy := policies.NewUserPolicy(r.UserDao)
+
+	if !policy.CanUpdateBilling(ctx, ub) {
+		return nil, graphErrors.NewNotAuthorizedError(ctx)
+	}
+
+	if billingInput != nil {
+		vatNumber := &billingInput.FiscalCode
+
+		if billingInput.VatNumber != nil {
+			vatNumber = billingInput.VatNumber
+		}
+
+		ub.LegalEntityTypeID = billingInput.LegalEntityTypeID
+		ub.Name = billingInput.Name
+		ub.Surname = null.StringFromPtr(billingInput.Surname)
+		ub.FiscalCode = billingInput.FiscalCode
+		ub.VatNumber = *vatNumber
+		ub.AddressLine1 = billingInput.AddressLine1
+		ub.AddressLine2 = null.StringFromPtr(billingInput.AddressLine2)
+		ub.City = billingInput.City
+		ub.Country = billingInput.Country
+		ub.Province = billingInput.Province
+		ub.Cap = billingInput.Cap
+	}
+
+	if edocumentInput != nil {
+		ub.SdiPec = null.StringFrom(edocumentInput.SdiPec)
+		ub.SdiCode = null.StringFrom(edocumentInput.SdiCode)
+	}
+
+	err = r.UserDao.Save(ctx, ub)
+	if err != nil {
+		return nil, err
+	}
+
+	return converters.UserBillingToGraphQL(ub), err
 }

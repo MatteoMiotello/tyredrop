@@ -1,0 +1,10 @@
+input PriceMarkupInput {
+    brandId: ID @emptyStringToNull
+    specificationValueId: ID @emptyStringToNull
+    markupPercentage: Int!
+}
+
+extend type Mutation {
+    createPriceMarkup( input: PriceMarkupInput! ): ProductPriceMarkup! @isAdmin
+    updatePriceMarkup( id: ID!, input: PriceMarkupInput! ): ProductPriceMarkup! @isAdmin
+}

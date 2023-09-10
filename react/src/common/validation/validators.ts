@@ -11,7 +11,7 @@ export interface PropsWithValidators<T = any> {
 export const isRequired = (inputName: string | null | undefined = ''): ValidationHandler => {
     return ( value: string | null ) => {
         if (!value?.length) {
-            return i18n.t('fields.is_required', {inputName: inputName});
+            return i18n.t('Il campo {{inputName}} è obbligatorio', {inputName: inputName});
         }
 
         return null;

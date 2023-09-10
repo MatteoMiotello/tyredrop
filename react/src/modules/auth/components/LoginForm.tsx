@@ -8,6 +8,7 @@ import {useTranslation} from "react-i18next";
 import {ValidationHandler} from "../../../common/validation/validators";
 import {useAuth} from "../hooks/useAuth";
 import error = Simulate.error;
+import {Link} from "react-router-dom";
 
 interface LoginFormProps {
     login: ( request: LoginRequest ) => void
@@ -80,7 +81,7 @@ const LoginForm: React.FC<LoginFormProps> = ( props: LoginFormProps ) => {
                validators={ [validatePassword] }
         />
         <div className="flex justify-end w-full text-sm col-span-12">
-            <a className="link link-neutral link-hover"> {t('login.forgot_password')} </a>
+            <Link to="/auth/reset_password" className="link link-neutral link-hover"> {t('login.forgot_password')} </Link>
         </div>
         <Button
             type={"primary"}

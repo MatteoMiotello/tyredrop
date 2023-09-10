@@ -39,7 +39,7 @@ export class FormErrors {
 }
 
 class FormValues<T extends { [key: string]: any } = any> {
-	private formValues: T = {} as T;
+	public formValues: T = {} as T;
 
 	constructor( formValues: T ) {
 		this.formValues = formValues;
@@ -52,7 +52,7 @@ class FormValues<T extends { [key: string]: any } = any> {
 	}
 
 	public getFormValue( name: string ): unknown | undefined {
-		return this.formValues[name];
+		return this.formValues ? (this.formValues[name] ?? undefined) : undefined;
 	}
 }
 
@@ -188,13 +188,13 @@ const useForm = (props?: UseFormProps): FormHandler => {
 				delete inputRef.current[name];
 			}
 
-			return {
-				name: name,
-				value: formValues[name] ?? "",
-				validators: validators,
-				inputSize: ( props?.type == 'filter' ) ? 'sm' : undefined,
-				disabled: true
-			} as InputProps;
+			// return {
+			// 	name: name,
+			// 	value: formValues[name] ?? "",
+			// 	validators: validators,
+			// 	inputSize: ( props?.type == 'filter' ) ? 'sm' : undefined,
+			// 	disabled: true
+			// } as InputProps;
 		}
 
 		if ( !inputRef.current[name] ) {
@@ -221,7 +221,8 @@ const useForm = (props?: UseFormProps): FormHandler => {
 			onValueChange: onFieldChangeValue,
 			validators: validators,
 			inputSize: ( props?.type == 'filter' ) ? 'sm' : undefined,
-			error: inputRef.current[name]?.error
+			error: inputRef.current[name]?.error,
+			disabled: disable
 		} as InputProps;
 	};
 

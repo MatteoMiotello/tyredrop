@@ -1,14 +1,19 @@
 package model
 
+import "time"
+
 type User struct {
-	ID         int64   `json:"id"`
-	Email      string  `json:"email"`
-	Username   *string `json:"username"`
-	Confirmed  bool    `json:"confirmed"`
-	Rejected   bool    `json:"rejected"`
-	Name       *string `json:"name"`
-	Surname    *string `json:"surname"`
-	UserRoleID int64   `json:"userRoleId"`
+	ID         int64     `json:"id"`
+	Email      string    `json:"email"`
+	Username   *string   `json:"username"`
+	UserCode   *string   `json:"userCode"`
+	Confirmed  bool      `json:"confirmed"`
+	Rejected   bool      `json:"rejected"`
+	Name       *string   `json:"name"`
+	Surname    *string   `json:"surname"`
+	UserRoleID int64     `json:"userRoleId"`
+	AvatarPath *string   `json:"avatarPath"`
+	CreatedAt  time.Time `json:"createdAt"`
 }
 
 type UserBilling struct {

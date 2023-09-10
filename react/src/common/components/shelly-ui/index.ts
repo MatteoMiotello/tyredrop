@@ -41,6 +41,9 @@ export {Checkbox};
 import Textarea from "./Textarea";
 export {Textarea};
 
+import Stat from "./Stat";
+export {Stat};
+
 import Modal from './Modal';
 import { useModal } from './Modal';
 export {Modal, useModal};

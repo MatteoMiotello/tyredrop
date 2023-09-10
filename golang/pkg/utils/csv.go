@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func CsvReadFile(filePath string) ([][]string, error) {
+func CsvReadFile(filePath string, opts ...interface{}) ([][]string, error) {
 	f, err := os.Open(filePath)
 
 	if err != nil {
@@ -18,5 +18,12 @@ func CsvReadFile(filePath string) ([][]string, error) {
 	reader.FieldsPerRecord = -1
 	reader.LazyQuotes = true
 	reader.TrimLeadingSpace = true
+
+	if len(opts) > 0 {
+		r := opts[0]
+
+		reader.Comma = r.(rune)
+	}
+
 	return reader.ReadAll()
 }

@@ -1,13 +1,10 @@
 package seeds
 
 import (
-	"context"
 	"database/sql"
+	"github.com/MatteoMiotello/go-sqlbuilder"
 	"github.com/pressly/goose/v3"
 	"github.com/spf13/viper"
-	"github.com/volatiletech/null/v8"
-	"pillowww/titw/internal/domain/user"
-	"pillowww/titw/models"
 	"pillowww/titw/pkg/security"
 )
 
@@ -16,8 +13,6 @@ func init() {
 }
 
 func upAdminUser(tx *sql.Tx) error {
-	ctx := context.Background()
-	userDao := user.NewDao(tx)
 	defPass := viper.GetString("DEFAULT_PASSWORD")
 	hashed, err := security.HashPassword(defPass)
 
@@ -25,24 +20,15 @@ func upAdminUser(tx *sql.Tx) error {
 		return err
 	}
 
-	role, err := userDao.FindUserRoleByCode(ctx, user.ADMIN_ROLE)
+	query, vals := sqlbuilder.InsertInto("public.users").
+		Cols("user_role_id", "default_language_id", "email", "username", "password", "name", "surname", "confirmed").
+		Values(1, 1, viper.GetString("DEFAULT_EMAIL"), "administrator", string(hashed), "Admin", nil, true).
+		BuildWithFlavor(sqlbuilder.PostgreSQL)
 
+	_, err = tx.Exec(query, vals...)
 	if err != nil {
 		return err
 	}
-
-	newUser := &models.User{
-		UserRoleID:        role.ID,
-		DefaultLanguageID: 1,
-		Email:             viper.GetString("DEFAULT_EMAIL"),
-		Username:          null.StringFrom("administrator"),
-		Password:          string(hashed),
-		Name:              "Admin",
-		Surname:           null.String{},
-		Confirmed:         true,
-	}
-
-	err = userDao.Insert(ctx, newUser)
 
 	if err != nil {
 		return err

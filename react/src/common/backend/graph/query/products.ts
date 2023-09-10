@@ -101,10 +101,43 @@ export const PRODUCT_ITEM = gql(`
 }
 `);
 
-export const SEARCH_PRODUCT_SPECIFICATION_VALUES = gql(`
+export const SEARCH_PRODUCT_SPECIFICATION_VALUES = gql( /*GraphQL*/`
     query searchValues( $code: String!, $value: String, $vehicleCode: String) {
         searchSpecificationValue( code: $code, value: $value, vehicleCode: $vehicleCode ) {
+            id
+            specification {
+                code 
+            }
             value
         }
     }
 `);
+
+export const PRICE_MARKUPS = gql( /* GraphQL */ `
+    query priceMarkups {
+        priceMarkups {
+            id
+            markupPercentage
+            productCategory {
+                id
+                name
+            }
+            product {
+                id
+                name
+            }
+            brand {
+                id
+                code
+                name
+            }
+            productSpecificationValue {
+                id
+                value
+                specification {
+                    name
+                }
+            }
+        }
+    }
+` );

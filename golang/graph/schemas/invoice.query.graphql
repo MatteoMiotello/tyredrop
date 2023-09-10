@@ -1,0 +1,16 @@
+input InvoiceFilter {
+    userBillingId: ID @emptyStringToNull
+    number: String @emptyStringToNull
+    from: String @emptyStringToNull
+    to: String @emptyStringToNull
+    status: String @emptyStringToNull
+}
+
+type InvoicePaginator {
+    data: [Invoice]!
+    pagination: Pagination!
+}
+
+extend type Query {
+    allInvoices( pagination: PaginationInput!, input: InvoiceFilter! ): InvoicePaginator!
+}

@@ -46,6 +46,7 @@ func (d *PriceMarkupDao) FindPriceMarkupByBrandId(ctx context.Context, id int64)
 	return models.ProductPriceMarkups(
 		d.GetMods(
 			models.ProductPriceMarkupWhere.BrandID.EQ(null.Int64From(id)),
+			models.ProductPriceMarkupWhere.ProductSpecificationValueID.IsNull(),
 			qm.Limit(1),
 		)...,
 	).One(ctx, d.Db)
@@ -66,6 +67,67 @@ func (d *PriceMarkupDao) FindPriceMarkupDefault(ctx context.Context) (*models.Pr
 			models.ProductPriceMarkupWhere.ProductCategoryID.IsNull(),
 			models.ProductPriceMarkupWhere.BrandID.IsNull(),
 			models.ProductPriceMarkupWhere.ProductID.IsNull(),
+			models.ProductPriceMarkupWhere.ProductSpecificationValueID.IsNull(),
+		)...,
+	).One(ctx, d.Db)
+}
+
+func (d *PriceMarkupDao) FindAll(ctx context.Context) (models.ProductPriceMarkupSlice, error) {
+	return models.ProductPriceMarkups(
+		d.GetMods()...,
+	).All(ctx, d.Db)
+}
+
+func (d PriceMarkupDao) FindOneById(ctx context.Context, id int64) (*models.ProductPriceMarkup, error) {
+	return models.ProductPriceMarkups(
+		d.GetMods(
+			models.ProductPriceMarkupWhere.ID.EQ(id),
+		)...,
+	).One(ctx, d.Db)
+}
+
+func (d PriceMarkupDao) FindByBrandOrSpecificationId(ctx context.Context, brandId *int64, valueId *int64) (*models.ProductPriceMarkup, error) {
+	var mods []qm.QueryMod
+
+	if brandId != nil {
+		mods = append(mods, models.ProductPriceMarkupWhere.BrandID.EQ(null.Int64FromPtr(brandId)))
+	} else {
+		mods = append(mods, models.ProductPriceMarkupWhere.BrandID.IsNull())
+	}
+
+	if valueId != nil {
+		mods = append(mods, models.ProductPriceMarkupWhere.ProductSpecificationValueID.EQ(null.Int64FromPtr(valueId)))
+	} else {
+		mods = append(mods, models.ProductPriceMarkupWhere.ProductSpecificationValueID.IsNull())
+	}
+
+	return models.ProductPriceMarkups(d.GetMods(
+		mods...,
+	)...).One(ctx, d.Db)
+}
+
+func (d PriceMarkupDao) FindByBrandAndSpecificationValue(ctx context.Context, brand *models.Brand, value *models.ProductSpecificationValue) (*models.ProductPriceMarkup, error) {
+	return models.ProductPriceMarkups(
+		d.GetMods(
+			models.ProductPriceMarkupWhere.BrandID.EQ(null.Int64From(brand.ID)),
+			qm.Where("product_price_markup.product_specification_value_id IN ( "+
+				"SELECT id "+
+				"FROM product_specification_values "+
+				"WHERE specification_value = ? "+
+				"AND product_specification_id = ? )", value.SpecificationValue, value.ProductSpecificationID),
+		)...,
+	).One(ctx, d.Db)
+}
+
+func (d PriceMarkupDao) FindBySpecificationValue(ctx context.Context, value *models.ProductSpecificationValue) (*models.ProductPriceMarkup, error) {
+	return models.ProductPriceMarkups(
+		d.GetMods(
+			models.ProductPriceMarkupWhere.BrandID.IsNull(),
+			qm.Where("product_price_markup.product_specification_value_id IN ( "+
+				"SELECT id "+
+				"FROM product_specification_values "+
+				"WHERE specification_value = ? "+
+				"AND product_specification_id = ? )", value.SpecificationValue, value.ProductSpecificationID),
 		)...,
 	).One(ctx, d.Db)
 }

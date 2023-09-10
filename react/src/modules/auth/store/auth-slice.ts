@@ -94,7 +94,8 @@ const authSlice: Slice<AuthState> = createSlice<AuthState, SliceCaseReducers<Aut
         refreshToken: null,
         status: null,
         loggedIn: null,
-        error: null
+        error: null,
+        loading: false
     },
     reducers: {},
     extraReducers: builder => {
@@ -108,27 +109,35 @@ const authSlice: Slice<AuthState> = createSlice<AuthState, SliceCaseReducers<Aut
                 }
 
                 state.error = action.payload;
+                state.loading = false;
             })
             .addCase(authLogin.pending, (state) => {
                 if ( state.error ) {
                     state.error = null;
                 }
+                state.loading = true;
             })
             .addCase(authLogin.fulfilled, (state, action: PayloadAction<LoginResponse>) => {
                 const accessToken = action.payload.access_token;
                 const refreshToken = action.payload.refresh_token;
 
                 setupAuth(state, accessToken, refreshToken);
+                state.loading = false;
             })
             .addCase(authRefreshToken.rejected, (state, action: PayloadAction<any>) => {
                 state.loggedIn = false;
                 state.error = action.payload.status_code as string;
+                state.loading = false;
             })
             .addCase(authRefreshToken.fulfilled, (state, action) => {
                 const accessToken = action.payload.access_token;
                 const refreshToken = action.payload.refresh_token;
                 setupAuth(state, accessToken, refreshToken);
+                state.loading = false;
             })
+            .addCase( authRefreshToken.pending, (state) => {
+                state.loading = true;
+            } )
             .addCase(authRegister.rejected, (state, action: PayloadAction<any>) => {
                 state.loggedIn = false;
                 state.error = action.payload.status_code as string;

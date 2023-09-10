@@ -1,6 +1,9 @@
 package bootstrap
 
-import "pillowww/titw/internal/db"
+import (
+	"pillowww/titw/internal/db"
+	"pillowww/titw/models/hooks"
+)
 
 func InitDb() {
 	pqConnector := new(db.PostgresAdapter)
@@ -9,4 +12,6 @@ func InitDb() {
 	if err != nil {
 		panic("error initializing Db with postgres connector")
 	}
+
+	hooks.RegisterHooks()
 }

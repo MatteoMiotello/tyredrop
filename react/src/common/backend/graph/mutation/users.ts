@@ -35,3 +35,19 @@ export const UPDATE_USER_STATUS = gql`
         }
     }
 `;
+
+export const UPDATE_AVATAR = gql`
+    mutation updateAvatar( $userID: ID!, $file: Upload! ) {
+        updateAvatar(userID: $userID, file: $file) {
+            id
+        }
+    }
+`;
+
+export const UPDATE_USER_BILLING = gql`
+    mutation updateUserBilling( $billingID: ID!, $input: BillingInput, $edocumentInput: EdocumentInput ) {
+        updateUserBilling(userBillingID: $billingID, billingInput: $input, edocumentInput: $edocumentInput) {
+            id
+        }
+    }
+`;

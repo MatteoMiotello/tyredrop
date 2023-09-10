@@ -47,6 +47,25 @@ func (r *orderResolver) UserBilling(ctx context.Context, obj *model.Order) (*mod
 	return converters.UserBillingToGraphQL(billingModel), nil
 }
 
+// Payment is the resolver for the payment field.
+func (r *orderResolver) Payment(ctx context.Context, obj *model.Order) (*model.Payment, error) {
+	if obj.PaymentID == nil {
+		return nil, nil
+	}
+
+	p, err := r.PaymentDao.
+		Load(
+			models.PaymentRels.Currency,
+		).
+		FindOneById(ctx, *obj.PaymentID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return converters.PaymentToGraphQL(p)
+}
+
 // OrderRows is the resolver for the orderRows field.
 func (r *orderResolver) OrderRows(ctx context.Context, obj *model.Order) ([]*model.OrderRow, error) {
 	orderModel, err := r.OrderDao.
@@ -85,6 +104,7 @@ func (r *orderRowResolver) ProductItemPrice(ctx context.Context, obj *model.Orde
 	lang := auth2.CurrentLanguage(ctx)
 
 	dbModel, err := r.ProductItemPriceDao.
+		WithDeletes().
 		Load(
 			qm.Rels(
 				models.ProductItemPriceRels.Currency,

@@ -3,6 +3,7 @@ import {FetchUserQuery} from "../../../__generated__/graphql";
 import {USER} from "../../../common/backend/graph/query/users";
 import apolloClientContext from "../../../common/contexts/apollo-client-context";
 import UserAddressPage from "../UserAddressPage";
+import UserInvoicesPage from "../UserInvoicesPage";
 import UserPage from "../UserPage";
 import UserTemplatePage from "../UserTemplatePage";
 import UserOrdersPage from "../UserOrdersPage";
@@ -12,19 +13,21 @@ export const userLoader: LoaderFunction = async ({params}) => {
         query: USER,
         variables: {
             userId: params.id
-        }
+        },
+        fetchPolicy: 'no-cache'
     });
 };
 
 const userRoutes: RouteObject = {
-    path: 'user',
+    path: 'user/:id',
     Component: UserTemplatePage,
+    loader: userLoader,
     handle: {
       crumb: () => <span> Utente </span>
     },
     children: [
         {
-            path: ':id',
+            path: '',
             Component: UserPage,
             loader: userLoader,
             handle: {
@@ -34,7 +37,7 @@ const userRoutes: RouteObject = {
             },
         },
         {
-            path: ':id/address',
+            path: 'address',
             loader: userLoader,
             Component: UserAddressPage,
             handle: {
@@ -42,11 +45,19 @@ const userRoutes: RouteObject = {
             }
         },
         {
-            path: ':id/orders',
+            path: 'orders',
             loader: userLoader,
             Component: UserOrdersPage,
             handle: {
                 crumb: () => <span> Ordini </span>
+            }
+        },
+        {
+            path: 'invoices',
+            loader: userLoader,
+            Component: UserInvoicesPage,
+            handle: {
+                crumb: () => <span> Fatture </span>
             }
         }
     ]

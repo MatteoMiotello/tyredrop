@@ -2,25 +2,19 @@ import {
     ApolloClient,
     ApolloLink,
     FetchResult,
-    HttpLink,
     InMemoryCache,
     NextLink,
     Observable,
     Operation, from, fromPromise
 } from "@apollo/client";
 import { onError} from "@apollo/client/link/error";
+import createUploadLink from "apollo-upload-client/public/createUploadLink";
 import {GraphQLError} from "graphql/error";
 import backend from "../../config/backend";
 import moment from "moment/moment";
 import {selectAuthStatus} from "../../modules/auth/store/auth-selector";
 import {authRefreshToken} from "../../modules/auth/store/auth-slice";
 import {store} from "../../store/store";
-
-const httpLink = new HttpLink({
-    uri: backend.graphEndpoint,
-    credentials: 'include'
-});
-
 
 const refreshTokenLink = new ApolloLink((operation: Operation, forward: NextLink): Observable<FetchResult> | Observable<{
     data?: Record<string, any> | null;
@@ -71,8 +65,15 @@ const errorLink = onError(
     }
 );
 
+const httpLink = createUploadLink({
+    credentials: 'include',
+    uri: backend.graphEndpoint,
+});
+
 const client = new ApolloClient({
     cache: new InMemoryCache(),
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     link: from([refreshTokenLink, errorLink, httpLink])
 });
 

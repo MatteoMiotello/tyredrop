@@ -87,19 +87,21 @@ const ProductTablePage: React.FC = () => {
 
     return <main className="relative">
         <ProductSearchContext.Provider value={{searchData: search, setSearchData: setSearch}}>
-            {isLoading && <Spinner/>}
             <div className="p-1">
                 <Searchbar/>
             </div>
-            <Panel className="m-1">
-                <div className="w-full m-0 lg:px-24 px-4 h-full flex flex-col min-h-screen">
-                    {data?.productItems?.productItems ? <ProductTable
-                        products={data}
-                        handlePaginationChange={handlePaginationChange}
-                        pageCount={pageCount}
-                    /> : <p className="text-center m-10"> Nessun risultato </p>}
-                </div>
-            </Panel>
+            <div className="relative">
+                {isLoading && <Spinner/>}
+                <Panel className="m-1">
+                    <div className="w-full m-0 h-full flex flex-col min-h-screen">
+                        {data?.productItems?.productItems ? <ProductTable
+                            products={data}
+                            handlePaginationChange={handlePaginationChange}
+                            pageCount={pageCount}
+                        /> : <p className="text-center m-10"> Nessun risultato </p>}
+                    </div>
+                </Panel>
+            </div>
         </ProductSearchContext.Provider>
     </main>;
 };

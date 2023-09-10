@@ -1,0 +1,8 @@
+extend type Query {
+    user(ID: ID!): User
+    users( pagination: PaginationInput, filter: UserFilterInput ): UserPaginator @isAdmin
+    userAddress( userId: ID! ): [UserAddress]
+    userBilling( userId: ID! ): UserBilling
+
+    userBillings( name: String ): [UserBilling]!
+}

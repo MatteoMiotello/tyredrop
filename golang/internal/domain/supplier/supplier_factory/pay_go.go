@@ -116,6 +116,13 @@ func (g PayGo) matchRecords(pRecord *pdtos.Tyre, index int, slice string) error 
 			pRecord.ProductName = pRecord.Reference
 		}
 		break
+	case 25:
+		if len(slice) != 0 {
+			pRecord.RunFlat = true
+		} else {
+			pRecord.RunFlat = false
+		}
+
 	}
 	return nil
 }

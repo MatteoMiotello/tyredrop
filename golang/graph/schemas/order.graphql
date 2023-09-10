@@ -12,7 +12,9 @@ type OrderRow {
 }
 
 enum OrderStatus {
+    NOT_COMPLETED
     NEW
+    TO_PAY
     CONFIRMED
     CANCELED
     REJECTED
@@ -28,6 +30,9 @@ type Order {
     taxID: ID!
     userBilling: UserBilling!
     userBillingID: ID!
+    paymentID: ID
+    payment: Payment
+    orderNumber: String
     status: OrderStatus!
     priceAmount: Float!
     taxesAmount: Float!

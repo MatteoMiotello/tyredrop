@@ -22,7 +22,7 @@ type UserBilling {
     legalEntityType: LegalEntityType!
     taxRate: Tax!
     name: String!
-    surname: String!
+    surname: String
     fiscalCode: String!
     vatNumber: String!
     addressLine1: String!
@@ -54,6 +54,7 @@ type UserAddress {
 
 type User {
     id: ID!
+    userCode: String
     email: String!
     confirmed: Boolean!
     rejected: Boolean!
@@ -63,6 +64,9 @@ type User {
     userRoleId: ID!
     userRole: UserRole!
     userBilling: UserBilling
+    avatarUrl: String
+    avatarPath: String
+    createdAt: Timestamp!
 }
 
 input CreateUserBilling {

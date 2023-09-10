@@ -18,7 +18,9 @@ services:
     restart: always
     volumes:
       - ./golang:/app
+      - ./storage:/app/storage
       - ./import:/import
+      - ./logs:/app/logs
     depends_on:
       - goose
       - postgresdb
@@ -46,6 +48,7 @@ services:
       - TZ=GMT+1
     volumes:
       - ./import:/import
+      - ./logs:/app/logs
     depends_on:
       - goose
       - postgresdb

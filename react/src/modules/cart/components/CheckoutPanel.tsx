@@ -77,8 +77,8 @@ const CheckoutPanel: React.FC = () => {
 
     useEffect(() => {
         if (data) {
-            toast.success('Ordine confermato con successo');
-            navigate('/order/details/' + data.newOrder.id);
+            toast.success('Ordine creato con successo');
+            navigate('/order/checkout/' + data.newOrder.id);
             return;
         }
     }, [data]);
@@ -91,8 +91,7 @@ const CheckoutPanel: React.FC = () => {
 
         const options = userAddresses.map((address) => {
             return {
-                title: <span> {address.addressName} <span
-                    className="text-sm text-accent-content/60 "> {address.addressLine1} </span> </span>,
+                title: <span> {address.addressName} <span className="text-sm text-accent-content/60"> {address.addressLine1} </span> </span>,
                 value: address,
             };
         });
@@ -149,7 +148,7 @@ const CheckoutPanel: React.FC = () => {
                 </>
             }
             <div className="divider"></div>
-            <div className="flex justify-between"><span>Totale IVA:</span> {getTaxesPrices()} </div>
+            <div className="flex justify-between"><span>Totale IVA (22%):</span> {getTaxesPrices()} </div>
         </div>
         <div className="ml-auto mt-10 flex flex-col text-secondary text-sm">
             {t("cart.total_price")}
@@ -169,7 +168,7 @@ const CheckoutPanel: React.FC = () => {
                 type="secondary"
                 onClick={confirmOrder}
                 loading={loading}
-                disabled={!selectedAddress || !totalPrice}
+                disabled={selectedAddress === undefined || !totalPrice?.totalValue}
             >
                 {t("cart.checkout_button")}
             </Button>

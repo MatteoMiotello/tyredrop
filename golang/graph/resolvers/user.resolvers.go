@@ -11,6 +11,7 @@ import (
 	"pillowww/titw/graph/converters"
 	"pillowww/titw/graph/model"
 	auth2 "pillowww/titw/internal/auth"
+	"pillowww/titw/internal/fs/fshandlers"
 	"pillowww/titw/models"
 )
 
@@ -47,6 +48,18 @@ func (r *userResolver) UserBilling(ctx context.Context, obj *model.User) (*model
 	}
 
 	return converters.UserBillingToGraphQL(billing), nil
+}
+
+// AvatarURL is the resolver for the avatarUrl field.
+func (r *userResolver) AvatarURL(ctx context.Context, obj *model.User) (*string, error) {
+	if obj.AvatarPath == nil {
+		return nil, nil
+	}
+
+	fs := fshandlers.NewUserAvatar()
+	url := fs.GetPublicUrl(*obj.AvatarPath)
+
+	return &url, nil
 }
 
 // User is the resolver for the user field.

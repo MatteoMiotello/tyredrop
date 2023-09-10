@@ -5,3 +5,57 @@
 * {
     box-sizing: border-box;
 }
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+.markdown > * {
+    all: revert;
+}
+
+@font-face {
+    font-family: 'Race Sport';
+    src: url("./assets/fonts/race-sport/Race Sport.ttf");
+}
+
+#arrow,
+#arrow::before {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: inherit;
+}
+
+#arrow {
+    visibility: hidden;
+}
+
+#arrow::before {
+    visibility: visible;
+    content: '';
+    transform: rotate(45deg);
+}
+
+#tooltip[data-popper-placement^='top'] > #arrow {
+    bottom: -8px;
+}
+
+#tooltip[data-popper-placement^='bottom'] > #arrow {
+    top: -8px;
+}
+
+#tooltip[data-popper-placement^='left'] > #arrow {
+    right: -8px;
+}
+
+#tooltip[data-popper-placement^='right'] > #arrow {
+    left: -8px;
+}

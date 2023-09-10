@@ -156,3 +156,43 @@ func (d Dao) Search(ctx context.Context, input *model.ProductSearchInput, curren
 		)...,
 	).All(ctx, d.Db)
 }
+
+func (d Dao) FindByCategoryId(ctx context.Context, id int64) (models.ProductSlice, error) {
+	return models.Products(
+		d.GetMods(
+			models.ProductWhere.ProductCategoryID.EQ(id),
+		)...,
+	).All(ctx, d.Db)
+}
+
+func (d Dao) FindBrandOrSpecificationId(ctx context.Context, id *int64, valueId *int64) (models.ProductSlice, error) {
+	var mods []qm.QueryMod
+
+	if id != nil {
+		mods = append(mods, models.ProductWhere.BrandID.EQ(*id))
+	}
+
+	if valueId != nil {
+		mods = append(mods, qm.WhereIn("products.id IN ( SELECT product_id "+
+			"FROM product_product_specification_values "+
+			"WHERE product_specification_value_id = ?  )", *valueId),
+		)
+	}
+
+	return models.Products(
+		d.GetMods(
+			mods...,
+		)...,
+	).All(ctx, d.Db)
+}
+
+func (d Dao) GetAllSpecificationValues(ctx context.Context, product *models.Product) (models.ProductSpecificationValueSlice, error) {
+	return models.ProductSpecificationValues(
+		d.GetMods(
+			qm.WhereIn("id IN "+
+				"( SELECT product_specification_value_id "+
+				"FROM product_product_specification_values "+
+				"WHERE product_id = ? ) ", product.ID),
+		)...,
+	).All(ctx, d.Db)
+}

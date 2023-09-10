@@ -5,8 +5,10 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"golang.org/x/net/context"
+	"pillowww/titw/graph/model"
 	"pillowww/titw/internal/db"
 	"pillowww/titw/models"
+	"time"
 )
 
 type RoleSet string
@@ -125,6 +127,46 @@ func (d Dao) FindAll(ctx context.Context, email *string, name *string, confirmed
 	mods = append(mods, qm.OrderBy(models.UserColumns.ID+" DESC"))
 
 	return models.Users(
+		d.GetMods(
+			mods...,
+		)...,
+	).All(ctx, d.Db)
+}
+
+func (d Dao) TotalUsers(ctx context.Context) (int64, error) {
+	return models.Users(
+		d.GetMods(
+			models.UserWhere.Confirmed.EQ(true),
+			qm.WhereIn(models.UserColumns.UserRoleID+" IN ( SELECT id FROM public.user_roles WHERE role_code = ? )", "USER"),
+		)...,
+	).Count(ctx, d.Db)
+}
+
+func (d Dao) BestUserBilling(ctx context.Context, from time.Time, to time.Time) (*models.UserBilling, error) {
+	return models.UserBillings(
+		d.GetMods(
+			qm.LeftOuterJoin("orders on orders.user_billing_id = user_billings.id"),
+			models.OrderWhere.CreatedAt.GTE(from),
+			models.OrderWhere.CreatedAt.LTE(to),
+			models.OrderWhere.Status.IN(model.OrderProcessedStatusCollection),
+			qm.GroupBy("user_billings.id"),
+			qm.OrderBy("sum( orders.price_amount ) DESC"),
+		)...,
+	).One(ctx, d.Db)
+}
+
+func (d Dao) FindUserBillings(ctx context.Context, name *string) (models.UserBillingSlice, error) {
+	var mods []qm.QueryMod
+
+	if name != nil && len(*name) > 0 {
+		mods = append(mods,
+			qm.Where("(COALESCE(name, '') || ' ' || COALESCE(surname, '')) ILIKE ? ", fmt.Sprintf("%%%s%%", *name)),
+			qm.Or("vat_number ILIKE ?", fmt.Sprintf("%%%s%%", *name)),
+			qm.Or("fiscal_code ILIKE ?", fmt.Sprintf("%%%s%%", *name)),
+		)
+	}
+
+	return models.UserBillings(
 		d.GetMods(
 			mods...,
 		)...,

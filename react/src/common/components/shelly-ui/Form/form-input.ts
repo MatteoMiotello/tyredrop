@@ -4,7 +4,7 @@ export type InputSize = 'xs' | 'sm' | 'lg' | 'md';
 
 export type InputProps = { 
 	name: string, 
-	value?: string | undefined, 
+	value?: string | undefined,
 	onValueChange?: ( value: any ) => void, 
 	disabled?: boolean,
 	error?: string | boolean | undefined | null,

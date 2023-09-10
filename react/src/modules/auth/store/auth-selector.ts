@@ -11,6 +11,10 @@ export const selectUser = createSelector( [ selectAuth ], ( a: AuthState ) => {
     return a.user;
 } );
 
+export const selectAuthLoading = createSelector( [selectAuth], (a) => {
+    return a.loading;
+} );
+
 export const selectAuthStatus = createSelector( [ selectAuth, selectU ], (a, u ): Auth => {
     return new Auth( a.status, a.loggedIn, a.error, a.refreshToken, u );
 } );

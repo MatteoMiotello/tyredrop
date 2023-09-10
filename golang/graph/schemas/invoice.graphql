@@ -1,0 +1,15 @@
+enum InvoiceStatus {
+    PAYED
+    TO_PAY
+}
+
+type Invoice {
+    id: ID!
+    userBillingID: ID!
+    userBilling: UserBilling!
+    number: String!
+    fileUrl: String!
+    filePath: String!
+    createdAt: Timestamp!
+    status: InvoiceStatus!
+}
