@@ -64,10 +64,10 @@ func (s Service) findOrCreateSpecificationValue(ctx context.Context, specificati
 	return specificationValue, nil
 }
 
-func (s Service) FindOrCreateProduct(ctx context.Context, dto pdtos.ProductDto) (*models.Product, error) {
+func (s Service) FindOrCreateProduct(ctx context.Context, dto pdtos.ProductDto, forceUpdate bool) (*models.Product, error) {
 	p, _ := s.ProductDao.FindOneByCode(ctx, dto.GetProductCode())
 
-	if p != nil {
+	if p != nil && !forceUpdate {
 		return p, nil
 	}
 
@@ -91,16 +91,20 @@ func (s Service) FindOrCreateProduct(ctx context.Context, dto pdtos.ProductDto) 
 
 	name := strings.ToValidUTF8(dto.GetProductName(), "")
 
-	p = &models.Product{
-		ProductCode:       null.StringFrom(dto.GetProductCode()),
-		BrandID:           b.ID,
-		ProductCategoryID: category.ID,
-		VehicleTypeID:     vehicleType.ID,
-		Name:              null.StringFrom(name),
-		EprelProductCode:  null.StringFromPtr(dto.GetEprelProductCode()),
+	if p == nil {
+		p = &models.Product{
+			ProductCode: null.StringFrom(dto.GetProductCode()),
+		}
 	}
 
-	err = s.ProductDao.Insert(ctx, p)
+	p.BrandID = b.ID
+	p.ProductCategoryID = category.ID
+	p.VehicleTypeID = vehicleType.ID
+	p.Name = null.StringFrom(name)
+	p.EprelProductCode = null.StringFromPtr(dto.GetEprelProductCode())
+	p.ImageURL = null.StringFromPtr(dto.GetProductImageUrl())
+
+	err = s.ProductDao.Save(ctx, p)
 
 	if err != nil {
 		return nil, err
@@ -178,6 +182,10 @@ func (s Service) setProductComplete(ctx context.Context, product *models.Product
 }
 
 func (s Service) CreateOrUpdateProductItem(ctx context.Context, product *models.Product, supplier *models.Supplier, price string, quantity int) (*models.ProductItem, error) {
+	if quantity == 0 {
+		return nil, nil
+	}
+
 	price = strings.Replace(price, ",", ".", 1)
 	amount, err := currency.NewAmount(price, "EUR")
 	if err != nil {

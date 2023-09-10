@@ -35,6 +35,29 @@ func getSeasonFromGerman(slice string) string {
 	return constants.TYPE_SUMMER
 }
 
+func getSeasonFromItalian(slice string) string {
+	switch slice {
+	case "Estate":
+		return constants.TYPE_SUMMER
+	case "Inverno":
+		return constants.TYPE_WINTER
+	case "All Season":
+		return constants.TYPE_ALL_SEASON
+	}
+
+	return constants.TYPE_SUMMER
+}
+
+func getVehicleTypeFromItalian(slice string) constants.VehicleType {
+	switch slice {
+	case "Autovettura":
+		return constants.VEHICLE_CAR
+	case "Autocarro":
+		return constants.VEHICLE_TRUCK
+	}
+	return constants.VEHICLE_CAR
+}
+
 func extractEprelIDFromLink(slice string) string {
 	if slice == "" {
 		return ""

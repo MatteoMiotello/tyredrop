@@ -9,7 +9,6 @@ import (
 	"pillowww/titw/internal/domain/supplier/supplier_factory"
 	ftp2 "pillowww/titw/pkg/ftp"
 	"pillowww/titw/pkg/log"
-	"strings"
 )
 
 func CopySupplierFiles() {
@@ -27,11 +26,20 @@ func CopySupplierFiles() {
 	}
 
 	for _, sup := range suppliers {
-		dirName := strings.ToLower(sup.Code)
+		if sup.BaseFolder.IsZero() {
+			continue
+		}
+
+		dirName := sup.BaseFolder.String
 
 		var factory supplier_factory.Importer
 
 		factory = supplier.GetFactory(sup)
+
+		if factory == nil {
+			log.Error("Factory not found for supplier with code" + sup.Code)
+			return
+		}
 
 		if !factory.NeedsImportFromFile() {
 			continue
@@ -60,6 +68,9 @@ func CopySupplierFiles() {
 			check(err)
 
 			err = os.WriteFile(tmpFile, buf, 0644)
+			check(err)
+
+			err = ftp.Connection.Delete(fileName)
 			check(err)
 		}
 	}

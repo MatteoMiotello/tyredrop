@@ -36,6 +36,7 @@ func ProductToGraphQL(product *models.Product) *model.Product {
 		VehicleTypeID:     product.VehicleTypeID,
 		Name:              product.Name.String,
 		EprelProductCode:  product.EprelProductCode.String,
+		ImageUrl:          product.ImageURL.Ptr(),
 	}
 }
 

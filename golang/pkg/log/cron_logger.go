@@ -16,5 +16,5 @@ func (r *CronLogger) Info(msg string, keysAndValues ...interface{}) {
 
 // Error logs an error condition.
 func (r *CronLogger) Error(err error, msg string, keysAndValues ...interface{}) {
-	r.Infoln(err, msg, keysAndValues)
+	r.Errorln(err, msg, keysAndValues)
 }

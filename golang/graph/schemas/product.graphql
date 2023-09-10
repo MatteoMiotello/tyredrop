@@ -25,6 +25,7 @@ type Product {
     productSpecificationValues: [ProductSpecificationValue]!
     vehicleTypeID: ID!
     vehicleType: VehicleType!
+    imageUrl: String!
 }
 
 type ProductItemPrice {

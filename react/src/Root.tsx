@@ -1,11 +1,16 @@
 import {ApolloProvider} from "@apollo/client";
 import React, {useState} from "react";
-import {Link, RouterProvider, createBrowserRouter} from "react-router-dom";
+import {
+    Link,
+    RouterProvider,
+    createBrowserRouter
+} from "react-router-dom";
 import Admin from "./Admin";
 import App from "./App";
 import ModalContainer, {ModalData} from "./common/components/ModalContainer";
 import client from "./common/contexts/apollo-client-context";
 import ModalContext from "./common/contexts/modal-context";
+import ErrorPage from "./ErrorPage";
 import {authRoutes} from "./modules/auth/routes";
 import {billingRoute} from "./modules/billing/routes";
 import {cartRoute} from "./modules/cart/routes";
@@ -44,6 +49,7 @@ const router = createBrowserRouter([
     {
         path: '/',
         element: <App/>,
+        errorElement: <ErrorPage/>,
         handle: {
             crumb: () => <Link className="link" to="/"> Home </Link>
         },
