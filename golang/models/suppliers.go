@@ -33,6 +33,8 @@ type Supplier struct {
 	DeletedAt   null.Time   `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
 	UpdatedAt   time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
 	CreatedAt   time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	BaseFolder  null.String `boil:"base_folder" json:"base_folder,omitempty" toml:"base_folder" yaml:"base_folder,omitempty"`
+	ForceUpdate bool        `boil:"force_update" json:"force_update" toml:"force_update" yaml:"force_update"`
 
 	R *supplierR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L supplierL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -48,6 +50,8 @@ var SupplierColumns = struct {
 	DeletedAt   string
 	UpdatedAt   string
 	CreatedAt   string
+	BaseFolder  string
+	ForceUpdate string
 }{
 	ID:          "id",
 	Name:        "name",
@@ -58,6 +62,8 @@ var SupplierColumns = struct {
 	DeletedAt:   "deleted_at",
 	UpdatedAt:   "updated_at",
 	CreatedAt:   "created_at",
+	BaseFolder:  "base_folder",
+	ForceUpdate: "force_update",
 }
 
 var SupplierTableColumns = struct {
@@ -70,6 +76,8 @@ var SupplierTableColumns = struct {
 	DeletedAt   string
 	UpdatedAt   string
 	CreatedAt   string
+	BaseFolder  string
+	ForceUpdate string
 }{
 	ID:          "suppliers.id",
 	Name:        "suppliers.name",
@@ -80,6 +88,8 @@ var SupplierTableColumns = struct {
 	DeletedAt:   "suppliers.deleted_at",
 	UpdatedAt:   "suppliers.updated_at",
 	CreatedAt:   "suppliers.created_at",
+	BaseFolder:  "suppliers.base_folder",
+	ForceUpdate: "suppliers.force_update",
 }
 
 // Generated where
@@ -94,6 +104,8 @@ var SupplierWhere = struct {
 	DeletedAt   whereHelpernull_Time
 	UpdatedAt   whereHelpertime_Time
 	CreatedAt   whereHelpertime_Time
+	BaseFolder  whereHelpernull_String
+	ForceUpdate whereHelperbool
 }{
 	ID:          whereHelperint64{field: "\"suppliers\".\"id\""},
 	Name:        whereHelperstring{field: "\"suppliers\".\"name\""},
@@ -104,6 +116,8 @@ var SupplierWhere = struct {
 	DeletedAt:   whereHelpernull_Time{field: "\"suppliers\".\"deleted_at\""},
 	UpdatedAt:   whereHelpertime_Time{field: "\"suppliers\".\"updated_at\""},
 	CreatedAt:   whereHelpertime_Time{field: "\"suppliers\".\"created_at\""},
+	BaseFolder:  whereHelpernull_String{field: "\"suppliers\".\"base_folder\""},
+	ForceUpdate: whereHelperbool{field: "\"suppliers\".\"force_update\""},
 }
 
 // SupplierRels is where relationship names are stored.
@@ -144,9 +158,9 @@ func (r *supplierR) GetProductItems() ProductItemSlice {
 type supplierL struct{}
 
 var (
-	supplierAllColumns            = []string{"id", "name", "code", "imported_at", "ftp_username", "ftp_password", "deleted_at", "updated_at", "created_at"}
+	supplierAllColumns            = []string{"id", "name", "code", "imported_at", "ftp_username", "ftp_password", "deleted_at", "updated_at", "created_at", "base_folder", "force_update"}
 	supplierColumnsWithoutDefault = []string{"name", "code"}
-	supplierColumnsWithDefault    = []string{"id", "imported_at", "ftp_username", "ftp_password", "deleted_at", "updated_at", "created_at"}
+	supplierColumnsWithDefault    = []string{"id", "imported_at", "ftp_username", "ftp_password", "deleted_at", "updated_at", "created_at", "base_folder", "force_update"}
 	supplierPrimaryKeyColumns     = []string{"id"}
 	supplierGeneratedColumns      = []string{}
 )

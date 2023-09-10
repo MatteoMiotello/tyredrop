@@ -33,7 +33,7 @@ func addJobs(c *cron.Cron) {
 func runCron() {
 	c := cron.New(
 		cron.WithChain(cron.Recover(log.NewCronLogger())),
-		cron.WithLogger(cron.VerbosePrintfLogger(log.Log)))
+		cron.WithLogger(cron.PrintfLogger(log.Log)))
 	addJobs(c)
 
 	c.Start()

@@ -16,4 +16,5 @@ type ProductDto interface {
 	GetProductName() string
 	GetEprelProductCode() *string
 	GetPriceAdditionCodes() []string
+	GetProductImageUrl() *string
 }

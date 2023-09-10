@@ -4,7 +4,7 @@ services:
     container_name: titw_go_server
     build:
       context: ./golang
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     environment:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
@@ -17,9 +17,8 @@ services:
       - 8080:8080
     restart: always
     volumes:
-      - ./golang:/app
       - ./storage:/app/storage
-      - ./import:/import
+      - ./import:/app/import
       - ./logs:/app/logs
     depends_on:
       - goose
@@ -32,8 +31,6 @@ services:
     build:
       context: ./golang
       dockerfile: Dockerfile.goose
-    volumes:
-      - ./import:/import
     depends_on:
       - postgresdb
     networks:
@@ -47,7 +44,7 @@ services:
     environment:
       - TZ=GMT+1
     volumes:
-      - ./import:/import
+      - ./import:/app/import
       - ./logs:/app/logs
     depends_on:
       - goose
@@ -68,7 +65,7 @@ services:
       - '2345:5432'
     volumes:
       - pg_data:/var/lib/postgresql/data
-    command: postgres -c 'max_connections=500'
+    command: postgres -c 'max_connections=1500'
     networks:
       - titw
 

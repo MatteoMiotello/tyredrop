@@ -19,7 +19,6 @@ import (
 	"pillowww/titw/models"
 	"pillowww/titw/pkg/log"
 	"pillowww/titw/pkg/task"
-	"strings"
 	"time"
 )
 
@@ -54,7 +53,12 @@ func ImportProductsFromFile() {
 		return
 	}
 
-	dirName := strings.ToLower(sup.Code)
+	var dirName string
+
+	if !sup.BaseFolder.IsZero() {
+		dirName = sup.BaseFolder.String
+	}
+
 	tmpDir := "import/" + dirName
 
 	sup.ImportedAt = null.TimeFrom(time.Now())
@@ -65,12 +69,19 @@ func ImportProductsFromFile() {
 	var factory supplier_factory.Importer
 
 	factory = supplier.GetFactory(sup)
+
+	if factory == nil {
+		log.Error("Factory not found for supplier with code" + sup.Code)
+		return
+	}
+
 	if !factory.NeedsImportFromFile() {
 		return
 	}
 
 	list, err := os.ReadDir(tmpDir)
 	if err != nil {
+		log.Error("Error reading "+tmpDir, err)
 		return
 	}
 
@@ -79,21 +90,20 @@ func ImportProductsFromFile() {
 			continue
 		}
 
-		exists, err := sDao.ExistsJobForFilename(ctx, *sup, entry.Name())
-
-		if exists {
-			check(err)
-			continue
-		}
-
 		ijService := import_job.NewImportJobService(import_job.NewDao(db.DB))
 		jobModel, err := ijService.CreateJob(ctx, *sup, entry.Name())
-		check(err)
+		if err != nil {
+			check(err)
+			return
+		}
 
 		fileName := tmpDir + "/" + entry.Name()
 
 		err = ijService.StartNow(ctx, jobModel)
-		check(err)
+		if err != nil {
+			check(err)
+			return
+		}
 
 		records, err := factory.ReadProductsFromFile(ctx, fileName)
 
@@ -164,19 +174,18 @@ func storeRecords(ctx context.Context, sup *models.Supplier, records []pdtos.Pro
 		chanWorker.InsertToChannel(record)
 	}
 
-	//
-	//var codes []string
-	//
-	//for _, r := range records {
-	//	codes = append(codes, r.GetProductCode())
-	//}
-	//
-	//dao := product.NewItemDao(db.DB)
-	//err := dao.RemoveOldItems(ctx, sup, codes)
-	//
-	//if err != nil {
-	//	return err
-	//}
+	var codes []interface{}
+
+	for _, r := range records {
+		codes = append(codes, r.GetProductCode())
+	}
+
+	dao := product.NewItemDao(db.DB)
+	err := dao.RemoveOldItems(ctx, sup, codes)
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -208,7 +217,7 @@ func importNextRecord(ctx context.Context, sup *models.Supplier, record pdtos.Pr
 			product.NewItemPriceDao(tx),
 		)
 
-		p, err := pService.FindOrCreateProduct(ctx, record)
+		p, err := pService.FindOrCreateProduct(ctx, record, sup.ForceUpdate)
 		if err != nil {
 			return err
 		}
@@ -221,6 +230,10 @@ func importNextRecord(ctx context.Context, sup *models.Supplier, record pdtos.Pr
 		pi, err := pService.CreateOrUpdateProductItem(ctx, p, sup, record.GetSupplierProductPrice(), record.GetSupplierProductQuantity())
 		if err != nil {
 			return err
+		}
+
+		if pi == nil {
+			return nil
 		}
 
 		err = pPriceService.CalculateAndStoreProductPrices(ctx, pi)

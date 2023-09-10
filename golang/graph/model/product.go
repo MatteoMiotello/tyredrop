@@ -1,13 +1,14 @@
 package model
 
 type Product struct {
-	ID                int64  `json:"id"`
-	Code              string `json:"code"`
-	ProductCategoryID int64  `json:"product_category_id"`
-	BrandID           int64  `json:"brand_id"`
-	VehicleTypeID     int64  `json:"vehicle_type_id"`
-	Name              string `json:"name"`
-	EprelProductCode  string `json:"eprel_product_code"`
+	ID                int64   `json:"id"`
+	Code              string  `json:"code"`
+	ProductCategoryID int64   `json:"product_category_id"`
+	BrandID           int64   `json:"brand_id"`
+	VehicleTypeID     int64   `json:"vehicle_type_id"`
+	Name              string  `json:"name"`
+	EprelProductCode  string  `json:"eprel_product_code"`
+	ImageUrl          *string `json:"imageUrl"`
 }
 
 type ProductCategory struct {
